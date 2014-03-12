@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">RtBluedroidMp</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    
+    <string name="ActionItem">ActionItem</string>
+    <string name="Start">Start!</string>
+    <string name="Stop">Stop</string>
+    <string name="Send">Send</string>
+ 
+
+</resources>

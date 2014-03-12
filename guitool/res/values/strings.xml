@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">RtBluedroidMp</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    
+    <string name="ActionItem">Action Item:</string>
+    <string name="Rx_Packets">Rx Packets:</string>
+    <string name="Start">Start</string>
+    <string name="Stop">Stop</string>
+    <string name="Send">Send</string>
+    <string name="Error_Bits">Error Bits:</string>
+    <string name="BER">BER%:</string>
+    <string name="LE_Connect">LE Connect</string>
+    <string name="Whitening_Coeff">Whitening Coeff</string>
+    <string name="Upload_Thermal">Upload Thermal</string>
+    <string name="Clear">Clear</string>
+    <string name="Pause">Pause</string>
+    <string name="Data_Rate"> Data Rate:</string>
+    <string name="RF_Channel">RF Channel:</string>
+    <string name="Tx_Gain_Index">Tx Gain Index:</string>
+    <string name="Tx_Packets_Count">Tx Packets Count:</string>
+    <string name="Test_Mode">Test Mode:</string>
+    <string name="bTest_Mode">Test Mode</string>
+    <string name="Payload_Type">PayloadType:</string>
+    <string name="Payload_Bits">Payload Bits:</string>
+    <string name="Packet_Header">Packet Header:</string>
+    <string name="Tx_Current">Tx Current:</string>
+    <string name="Hit_Target">Hit Target:</string>
+    <string name="Reg_RW">Reg_RW</string>
+    <string name="Clear_Log">Clear_Log</string>
+    <string name="Host_ReInit"> Host_ReInit</string>
+    <string name="HCI_Reset">HCI_Reset</string>	
+</resources>

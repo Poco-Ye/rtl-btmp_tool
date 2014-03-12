@@ -1,0 +1,424 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+
+    <!-- part1 -->
+    <LinearLayout  
+        android:orientation="vertical"
+     	android:layout_width="match_parent"
+     	android:layout_height="0px"
+     	android:layout_weight="5">
+     	
+     	<!-- part1-L1 -->
+     	<LinearLayout   	
+	        android:orientation="horizontal"
+	     	android:layout_width="match_parent"
+	     	android:layout_height="0px"
+	     	android:layout_weight="1">
+    	<!-- Action Item -->
+   		<TextView
+	        android:text="@string/ActionItem"	     
+	        android:gravity="bottom|center"		       
+	        android:layout_height="match_parent"	       
+	        android:layout_width="0px"		  
+	        android:layout_weight="1"/>     			
+		<Spinner
+		    android:id="@+id/spinner_action_item"
+		    android:layout_width="0px"
+		    android:layout_height="match_parent"
+		    android:layout_weight="3"/> 		       
+	    </LinearLayout>
+	    
+     	<!-- part1-L2 -->
+     	<LinearLayout  
+	        android:orientation="horizontal"
+	     	android:layout_width="match_parent"
+	     	android:layout_height="0px"
+	     	android:layout_weight="3">	
+     			<!-- part1-L2-v1 -->
+   				<LinearLayout  
+	        	android:orientation="vertical"
+	     		android:layout_width="0px"
+	     		android:layout_height="match_parent"
+	     		android:layout_weight="1">	
+		     	<TextView
+	        		android:text="@string/Rx_Packets"	     
+	       			android:gravity="bottom|center"		       
+	        		android:layout_height="0px"	       
+	        		android:layout_width="match_parent"		        
+	        		android:layout_weight="1"/>    
+	        	<TextView
+	        		android:text="@string/Error_Bits"	     
+	       			android:gravity="bottom|center"		       
+	        		android:layout_height="0px"	       
+	        		android:layout_width="match_parent"		        
+	        		android:layout_weight="1"/>  
+	        	<TextView
+	        		android:text="@string/BER"	     
+	       			android:gravity="bottom|center"		       
+	        		android:layout_height="0px"	       
+	        		android:layout_width="match_parent"		        
+	        		android:layout_weight="1"/>         				   
+   	    		</LinearLayout>  
+   	    		
+     	    	<!-- part1-L2-v2 -->
+   				<LinearLayout  
+	        	android:orientation="vertical"
+	     		android:layout_width="0px"
+	     		android:layout_height="match_parent"
+	     		android:layout_weight="1">
+
+				<EditText
+				    android:id="@+id/editText_Rx_Packets"
+				    android:gravity="bottom|center"	
+				    android:layout_width="match_parent"
+				    android:layout_height="0px"
+				    android:layout_weight="1"
+				    android:inputType="number" > 					  
+				</EditText>
+				<EditText
+				    android:id="@+id/editText_ErrorBits"
+				    android:gravity="bottom|center"	
+				    android:layout_width="match_parent"
+				    android:layout_height="0px"
+				    android:layout_weight="1"
+				    android:inputType="number" > 					  
+				</EditText>
+				<EditText
+				    android:id="@+id/editText_BER"
+				    android:gravity="bottom|center"	
+				    android:layout_width="match_parent"
+				    android:layout_height="0px"
+				    android:layout_weight="1"
+				    android:inputType="number" > 					  
+				</EditText>						   				   					
+			    </LinearLayout>  
+   	    		  
+     	    	<!-- part1-L2-v3 -->
+     	    	<LinearLayout  
+		        android:orientation="vertical"
+		     	android:layout_width="0px"
+		     	android:layout_height="match_parent"
+		     	android:layout_weight="1">	
+		     	<Button
+			        android:id="@+id/button_Start"
+			        style="?android:attr/buttonStyleSmall"
+			        android:layout_width="match_parent"
+			        android:layout_height="0px"  			              
+			        android:layout_weight="1"   
+			        android:text="@string/Start" />		
+		   		 <Button
+			        android:id="@+id/button_Stop"
+			        style="?android:attr/buttonStyleSmall"
+			        android:layout_width="match_parent"
+			        android:layout_height="0px"  
+			        android:layout_weight="1" 
+			        android:text="@string/Stop" />		
+		    	<Button
+			        android:id="@+id/button_Send"
+			        style="?android:attr/buttonStyleSmall"
+			        android:layout_width="match_parent"
+			        android:layout_height="0px"
+			        android:layout_weight="1"
+			        android:text="@string/Send" />
+     	    	</LinearLayout>     
+     	    	
+				<!-- part1-L2-v3 -->
+     	    	<LinearLayout  
+		        android:orientation="vertical"
+		     	android:layout_width="0px"
+		     	android:layout_height="match_parent"
+		     	android:layout_weight="1">	
+		     	<CheckBox
+		   		    android:id="@+id/checkbox_LE_Connect"
+		   		    android:gravity="center"
+		   		    android:layout_width="match_parent"
+		   		    android:layout_height="0px"
+		   		    android:layout_weight="1"
+		   		    android:textSize ="@dimen/checkbox_txt_size"
+		   		    android:text="@string/LE_Connect" />
+		     	<Spinner
+				    android:id="@+id/spinner_LE_Connect"				 
+				    android:layout_width="match_parent"
+				    android:layout_height="0px"
+				    android:layout_weight="1"/>	
+				<CheckBox
+		   		    android:id="@+id/checkbox_Whitening_Coeff"
+		   		    android:gravity="center"
+		   		    android:layout_width="match_parent"
+		   		    android:layout_height="0px"
+		   		    android:layout_weight="1"
+		   		    android:textSize ="@dimen/checkbox_txt_size"
+		   		    android:text="@string/Whitening_Coeff" />					 
+     	    	</LinearLayout>      		  	    		  			  
+		</LinearLayout>   
+		
+	    <!-- part1-L3 -->
+	    <LinearLayout  
+	        android:orientation="vertical"
+	     	android:layout_width="match_parent"
+	     	android:layout_height="0px"
+	     	android:layout_weight="1">
+     	    	<!-- part1-L3-L1 -->
+     	    	<LinearLayout  
+		        android:orientation="horizontal"
+		     	android:layout_width="match_parent"
+		     	android:layout_height="0px"
+		     	android:layout_weight="1">
+		    	<CheckBox
+		   		    android:id="@+id/checkbox_upload_thermal"
+		   		    android:gravity="center"
+		   		    android:layout_width="0px"
+		   		    android:layout_height="match_parent"
+		   		    android:layout_weight="1"
+		   		    android:textSize ="@dimen/checkbox_txt_size"
+		   		    android:text="@string/Upload_Thermal" />
+		     	<Button
+			        android:id="@+id/button_Clear"
+			        style="?android:attr/buttonStyleSmall"
+			        android:layout_width="0px"
+			        android:layout_height="match_parent"   
+			        android:layout_weight="1"     
+			        android:text="@string/Clear" />
+		     	<Button
+			        android:id="@+id/button_Pause"
+			        style="?android:attr/buttonStyleSmall"
+			        android:layout_width="0px"
+			        android:layout_height="match_parent"   
+			        android:layout_weight="1"     
+			        android:text="@string/Pause" />
+		     	<EditText
+				    android:id="@+id/editText_Whitening_Coeff"
+				    android:gravity="bottom|center"	
+				    android:layout_width="0px"
+				    android:layout_height="match_parent"
+				    android:layout_weight="1" > 					  
+				</EditText>	  			     	
+		    	</LinearLayout> 	    	    
+	    </LinearLayout>
+	</LinearLayout>
+
+    <!-- part2 -->
+ 	<LinearLayout
+   		android:orientation="horizontal"
+  		android:layout_width="match_parent"
+   		android:layout_height="0px"
+   		android:background="#ffffff"
+   		android:layout_weight="7"> 	
+   			<!-- part2-v1 -->
+ 	    	<LinearLayout
+	   		android:orientation="vertical"
+	  		android:layout_width="0px"
+	   		android:layout_height="match_parent"
+	   		android:layout_weight="1"> 	
+   			<TextView
+	       		android:text="@string/Data_Rate"	     
+	      		android:gravity="bottom|center"		       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/> 
+       		<TextView
+	       		android:text="@string/RF_Channel"	     
+	      		android:gravity="bottom|center"			       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/> 
+       		<TextView
+	       		android:text="@string/Tx_Gain_Index"	     
+	      		android:gravity="bottom|center"		       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/> 
+       		<TextView
+	       		android:text="@string/Tx_Packets_Count"	     
+	      		android:gravity="bottom|center"			       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/> 
+       		<TextView
+	       		android:text="@string/Test_Mode"	     
+	      		android:gravity="bottom|center"		       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/>     
+	       	<Button
+		        android:id="@+id/button_HCI_Reset"
+		        style="?android:attr/buttonStyleSmall"
+		        android:layout_width="match_parent"
+		        android:layout_height="0px"   
+		        android:layout_weight="1"     
+		        android:text="@string/HCI_Reset" />        		       			   		
+	   		</LinearLayout>	
+	   		
+	   		<!-- part2-v2 -->
+	   		<LinearLayout
+	   		android:orientation="vertical"
+	  		android:layout_width="0px"
+	   		android:layout_height="match_parent"
+	   		android:layout_weight="1"> 	
+   			<Spinner
+			    android:id="@+id/spinner_Data_Rate"
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1"/>	
+		    <Spinner
+			    android:id="@+id/spinner_RF_Channel"
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1"/>
+		    <Spinner
+			    android:id="@+id/spinner_Tx_Gain_Index"
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1"/>	
+		    <EditText
+			    android:id="@+id/editText_Tx_Packets_Count"
+			    android:gravity="bottom|center"	
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1"
+			    android:inputType="number" > 					  
+			</EditText>
+		    <Spinner
+			    android:id="@+id/spinner_Test_Mode"
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1"/>		   
+		   	<Button
+		        android:id="@+id/button_Test_Mode"
+		        style="?android:attr/buttonStyleSmall"
+		        android:layout_width="match_parent"
+		        android:layout_height="0px"   
+		        android:layout_weight="1"     
+		        android:text="@string/bTest_Mode" /> 	
+	   		</LinearLayout>	
+	   		
+	   		<!-- part2-v3 -->
+	   		<LinearLayout
+	   		android:orientation="vertical"
+	  		android:layout_width="0px"
+	   		android:layout_height="match_parent"
+	   		android:layout_weight="1"> 		
+   			<TextView
+	       		android:text="@string/Payload_Type"	     
+	      		android:gravity="bottom|center"			       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/> 
+       		<TextView
+	       		android:text="@string/Payload_Bits"	     
+	      		android:gravity="bottom|center"		       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/>
+       		<TextView
+	       		android:text="@string/Packet_Header"	     
+	      		android:gravity="bottom|center"			       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/>  
+       		<TextView
+	       		android:text="@string/Tx_Current"	     
+	      		android:gravity="bottom|center"			       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/>   
+	       	<TextView
+	       		android:text="@string/Hit_Target"	     
+	      		android:gravity="bottom|center"			       
+	       		android:layout_height="0px"	       
+	       		android:layout_width="match_parent"		        
+	       		android:layout_weight="1"/>      		       	
+        	<Button
+		        android:id="@+id/button_Reg_RW"
+		        style="?android:attr/buttonStyleSmall"
+		        android:layout_width="match_parent"
+		        android:layout_height="0px"   
+		        android:layout_weight="1"     
+		        android:text="@string/Reg_RW" /> 		       		
+	   		</LinearLayout>	
+	   		
+	   		<!-- part2-v4 -->
+	   		<LinearLayout
+	   		android:orientation="vertical"
+	  		android:layout_width="0px"
+	   		android:layout_height="match_parent"
+	   		android:layout_weight="1"> 	
+	   		<Spinner
+			    android:id="@+id/spineer_Payload_Type"
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1"/>				    
+		    <EditText
+			    android:id="@+id/editText_Payload_Bits"
+			    android:gravity="bottom|center"	
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1" > 					  
+			</EditText>	
+			<EditText
+			    android:id="@+id/editText_Packet_Header"
+			    android:gravity="bottom|center"	
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1" > 					  
+			</EditText>	
+			<Spinner
+			    android:id="@+id/spinner_Tx_DAC_current"
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1"/>	
+			 <Spinner
+			    android:id="@+id/spinner_Hit_Target"
+			    android:layout_width="match_parent"
+			    android:layout_height="0px"
+			    android:layout_weight="1"/>			 		
+			<Button
+		        android:id="@+id/button_Host_ReInit"
+		        style="?android:attr/buttonStyleSmall"
+		        android:layout_width="match_parent"
+		        android:layout_height="0px"   
+		        android:layout_weight="1"     
+		        android:text="@string/Host_ReInit" /> 		 	
+	   		</LinearLayout>	
+	</LinearLayout>
+
+ 	<!-- part3 -->
+ 	<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="0px"
+    android:layout_weight="5"
+    android:orientation="horizontal" >
+		<TextView
+ 		    android:id="@+id/textView_Log"
+ 		    android:layout_width="0px"
+ 		    android:layout_height="match_parent"   
+ 		    android:layout_weight="3" 	
+ 		    android:textSize = "@dimen/textview_size"	 	   
+ 		    android:scrollbars="vertical"
+ 		    android:textAppearance="?android:attr/textAppearanceLarge" />			
+	    <LinearLayout
+	    android:layout_width="0px"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:orientation="vertical" >
+	     <TextView	       		     
+      		android:gravity="center"		       
+       		android:layout_height="0px"	       
+       		android:layout_width="match_parent"	      		  	       
+       		android:layout_weight="4"/>	
+       	<Button
+	        android:id="@+id/button_Clear_Log"
+	        style="?android:attr/buttonStyleSmall"
+	        android:layout_width="match_parent"
+	        android:layout_height="0px"   
+	        android:layout_weight="1"     
+	        android:text="@string/Clear_Log" />
+	    </LinearLayout>
+ 	</LinearLayout>
+
+</LinearLayout>
