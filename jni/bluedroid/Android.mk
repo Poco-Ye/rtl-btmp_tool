@@ -25,8 +25,10 @@ LOCAL_SRC_FILES += \
     gki/common/gki_time.c \
     gki/common/gki_buffer.c
 
+LOCAL_CFLAGS += -Wno-error=maybe-uninitialized -Wno-error=uninitialized
+
 ifeq ($(BLUETOOTH_HCI_USE_RTK_H5),true)
-LOCAL_CFLAGS := -DHCI_USE_RTK_H5
+LOCAL_CFLAGS += -DHCI_USE_RTK_H5
 # HCI UART H5
 LOCAL_SRC_FILES += \
     hci/src/hci_h5.c \
@@ -117,7 +119,6 @@ LOCAL_SHARED_LIBRARIES := \
     libhardware \
     libc \
     libpower
-
 
 LOCAL_MODULE := bluetoothmp.default
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw

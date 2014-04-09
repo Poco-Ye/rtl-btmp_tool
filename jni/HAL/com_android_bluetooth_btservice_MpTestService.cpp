@@ -101,17 +101,17 @@ static void dut_mode_recv(uint8_t evtcode, char *buf)
         return;
     }
 
-    strClass = callbackEnv->FindClass("java/lang/String"); 
-    ctorID = callbackEnv->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V"); 
+    strClass = callbackEnv->FindClass("java/lang/String");
+    ctorID = callbackEnv->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
     encode    =callbackEnv->NewStringUTF("utf-8");
     if (encode== NULL) goto Fail;
-    
+
     strLen = strlen(buf);
-    
-    byteBuffer = callbackEnv->NewByteArray(strLen); 
+
+    byteBuffer = callbackEnv->NewByteArray(strLen);
     if (byteBuffer== NULL) goto Fail;
-        
-    callbackEnv->SetByteArrayRegion(byteBuffer, 0, strLen, (jbyte*)buf); 
+
+    callbackEnv->SetByteArrayRegion(byteBuffer, 0, strLen, (jbyte*)buf);
     dataBuffer = (jstring)callbackEnv->NewObject(strClass, ctorID, byteBuffer, encode);
 
     callbackEnv->CallVoidMethod(sJniCallbacksObj, method_dut_mode_recv, (jint)evtcode, dataBuffer);

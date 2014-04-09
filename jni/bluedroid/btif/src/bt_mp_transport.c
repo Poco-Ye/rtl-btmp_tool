@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <utils/Log.h>
 
 #include "bt_mp_transport.h"
 
@@ -11,7 +12,7 @@
 int bt_transport_SendHciCmd(
     BASE_INTERFACE_MODULE *pBaseInterface,
     unsigned char *pCmdBuffer,
-    unsigned char bufferLen
+    unsigned long bufferLen
     )
 {
     unsigned short opcode;
@@ -39,7 +40,8 @@ void bt_transport_signal_event(BASE_INTERFACE_MODULE *pBaseInterface, unsigned s
 int bt_transport_RecvHciEvt(
     BASE_INTERFACE_MODULE *pBaseInterface,
     unsigned char *pEvtBuffer,
-    unsigned char *pRetEvtLen
+    unsigned long bufferLen,
+    unsigned long *pRetEvtLen
     )
 {
     unsigned short events = 0;
@@ -54,11 +56,13 @@ int bt_transport_RecvHciEvt(
 
         events = pBaseInterface->rx_ready_events;
         pBaseInterface->rx_ready_events = 0;
-        pthread_mutex_unlock(&pBaseInterface->mutex);    
+        pthread_mutex_unlock(&pBaseInterface->mutex);
 
         if(events & MP_TRANSPORT_EVENT_RX_HCIEVT)
         {
             *pRetEvtLen = pBaseInterface->evtLen;
+            ALOGI("pEvtBuffer %p, pBaseInterface->evtBuffer %p, pBaseInterface->evtLen %d",
+                    pEvtBuffer, pBaseInterface->evtBuffer, pBaseInterface->evtLen);
             memcpy(pEvtBuffer, pBaseInterface->evtBuffer, pBaseInterface->evtLen);
             break;
         }

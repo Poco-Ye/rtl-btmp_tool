@@ -1,5 +1,3 @@
- 
-
 #include "foundation.h"
 #include <utils/Log.h>
 #include <stdlib.h>
@@ -10,43 +8,36 @@
 // Base uart interface builder
 void
 BuildTransportInterface(
-	BASE_INTERFACE_MODULE **ppBaseInterface,
-	BASE_INTERFACE_MODULE *pBaseInterfaceModuleMemory,
-	unsigned char	PortNo,
-	unsigned long Baudrate,
-	BASE_FP_OPEN Open,
-	BASE_FP_SEND Send,
-	BASE_FP_RECV Recv,
-	BASE_FP_CLOSE Close,
-	BASE_FP_WAIT_MS WaitMs
-	)
+    BASE_INTERFACE_MODULE *pBaseInterfaceModule,
+    unsigned char PortNo,
+    unsigned long Baudrate,
+    BASE_FP_OPEN Open,
+    BASE_FP_SEND Send,
+    BASE_FP_RECV Recv,
+    BASE_FP_CLOSE Close,
+    BASE_FP_WAIT_MS WaitMs
+    )
 {
-	// Set base interface module pointer.
-	*ppBaseInterface = pBaseInterfaceModuleMemory;
-	
-	(*ppBaseInterface)->InterfaceType = TYPE_USB;
-	(*ppBaseInterface)->PortNo = PortNo;
-	(*ppBaseInterface)->Baudrate = Baudrate;
+    pBaseInterfaceModule->InterfaceType = TYPE_USB;
+    pBaseInterfaceModule->PortNo = PortNo;
+    pBaseInterfaceModule->Baudrate = Baudrate;
 
-	// Set all base interface function pointers and arguments.
-	(*ppBaseInterface)->Open = Open;
-	(*ppBaseInterface)->Send = Send;
-	(*ppBaseInterface)->Recv = Recv;
-	(*ppBaseInterface)->WaitMs = WaitMs;
-	(*ppBaseInterface)->Close = Close;
-	
-	(*ppBaseInterface)->SetUserDefinedDataPointer = base_interface_SetUserDefinedDataPointer;
-	(*ppBaseInterface)->GetUserDefinedDataPointer = base_interface_GetUserDefinedDataPointer;
+    // Set all base interface function pointers and arguments.
+    pBaseInterfaceModule->Open = Open;
+    pBaseInterfaceModule->Send = Send;
+    pBaseInterfaceModule->Recv = Recv;
+    pBaseInterfaceModule->WaitMs = WaitMs;
+    pBaseInterfaceModule->Close = Close;
 
+    pBaseInterfaceModule->SetUserDefinedDataPointer = base_interface_SetUserDefinedDataPointer;
+    pBaseInterfaceModule->GetUserDefinedDataPointer = base_interface_GetUserDefinedDataPointer;
 
-
-	return;
+    return;
 }
 
 
 
 
- 
 void
 base_interface_SetUserDefinedDataPointer(
 	BASE_INTERFACE_MODULE *pBaseInterface,

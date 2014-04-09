@@ -10,7 +10,9 @@ int BTDevice_SetPowerDac_NOSUPPORT(BT_DEVICE *pBtDevice,unsigned char DacValue){
 int BTDevice_SetTestMode_NOSUPPORT(BT_DEVICE *pBtDevice,BT_TEST_MODE TestMode){return FUNCTION_NO_SUPPORT;}
 int BTDevice_SetFWPowerTrackEnable_NOSUPPORT(BT_DEVICE *pBtDevice,unsigned char FWPowerTrackEnable){return FUNCTION_NO_SUPPORT;}
 int BTDevice_SetHitTarget_NOSUPPORT(BT_DEVICE *pBtDevice,ULONG64 HitTarget){return FUNCTION_NO_SUPPORT;}
-int BTDevice_SetHoppingMode_NOSUPPORT(BT_DEVICE *pBtDevice,BT_PKT_TYPE PKTTYPE){return FUNCTION_NO_SUPPORT;}
+int BTDevice_SetHoppingMode_NOSUPPORT(BT_DEVICE *pBtDevice,	BT_PKT_TYPE pktType,unsigned char bHoppingFixChannel,
+	unsigned char Channel,
+	unsigned char WhiteningCoeffEnable){return FUNCTION_NO_SUPPORT;}
 int BTDevice_SetHCIReset_NOSUPPORT(BT_DEVICE *pBtDevice,int Delay_mSec){return FUNCTION_NO_SUPPORT;}
 int BTDevice_SetPowerGainIndex_NOSUPPORT(BT_DEVICE *pBtDevice,int Index){return FUNCTION_NO_SUPPORT;}
 int BTDevice_GetBTClockTime_NOSUPPORT(BT_DEVICE *pBtDevice,unsigned long btClockTime){return FUNCTION_NO_SUPPORT;}

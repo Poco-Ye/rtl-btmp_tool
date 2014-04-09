@@ -6,18 +6,19 @@
 int bt_transport_SendHciCmd(
     BASE_INTERFACE_MODULE *pBaseInterface,
     unsigned char *cmdBuffer,
-    unsigned char bufferLen
+    unsigned long bufferLen
     );
 
 void bt_transport_signal_event(
-    BASE_INTERFACE_MODULE *pBaseInterface, 
+    BASE_INTERFACE_MODULE *pBaseInterface,
     unsigned short event
     );
 
 int bt_transport_RecvHciEvt(
     BASE_INTERFACE_MODULE *pBaseInterface,
     unsigned char *pEvtBuffer,
-    unsigned char *pRetEvtLen
+    unsigned long bufferLen,
+    unsigned long *pRetEvtLen
     );
 
 #endif

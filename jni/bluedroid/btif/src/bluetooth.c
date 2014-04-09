@@ -74,7 +74,7 @@ uint8_t hal_interface_ready(void)
 **
 *****************************************************************************/
 
-int hal_init(bt_callbacks_t* callbacks )
+int hal_init(bt_callbacks_t* callbacks)
 {
     ALOGI("init");
 
@@ -139,7 +139,7 @@ int hal_dut_mode_configure(uint8_t enable)
 
 extern void btu_hcif_mp_notify_event (BT_HDR *p_msg);
 
-int hal_mp_op_send(uint16_t opcode, char* buf, uint8_t len)
+int hal_mp_op_send(uint16_t opcode, char *buf, uint8_t len)
 {
     ALOGI("hal_mp_op_send");
     char *pParaBuf = NULL;
@@ -160,95 +160,72 @@ int hal_mp_op_send(uint16_t opcode, char* buf, uint8_t len)
     pParaBuf = (char*)(p_buf + 1);
     memset(pParaBuf, 0, 1026);
 
+    ALOGI("hal_mp_op_send: opcode[0x%02x], buf[%s], len[%d]", opcode, buf, len);
+
     /* sanity check */
     if (hal_interface_ready() == FALSE)
         return BT_STATUS_NOT_READY;
 
-    switch(opcode)
-    {
-        case BT_MP_OP_HCI_SEND_CMD:
-        {
-            pRetBuf = BT_SendHciCmd(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    switch (opcode) {
+    case BT_MP_OP_HCI_SEND_CMD:
+        pRetBuf = BT_SendHciCmd(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-       case BT_MP_OP_DUT_MODE_CONFIGURE:
-        {
-
-        }
+    case BT_MP_OP_DUT_MODE_CONFIGURE:
         break;
 
-        case BT_MP_OP_USER_DEF_GetPara:
-        {
-            pRetBuf = BT_GetPara(&BtModuleMemory, pNotifyBuffer);
-
-        }
+    case BT_MP_OP_USER_DEF_GetPara:
+        pRetBuf = BT_GetPara(&BtModuleMemory, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_SetPara1:
-        {
-            pRetBuf = BT_SetPara1(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_SetPara1:
+        pRetBuf = BT_SetPara1(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_SetPara2:
-        {
-            pRetBuf = BT_SetPara2(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_SetPara2:
+        pRetBuf = BT_SetPara2(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_SetHit:
-        {
-            pRetBuf = BT_SetHit(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_SetHit:
+        pRetBuf = BT_SetHit(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_SetDacTable:
-        {
-            pRetBuf = BT_SetDacTable(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_SetDacTable:
+        pRetBuf = BT_SetDacTable(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_SetGainTable:
-        {
-            pRetBuf = BT_SetGainTable(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_SetGainTable:
+        pRetBuf = BT_SetGainTable(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_Exec:
-        {
-            pRetBuf = BT_Exec(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_Exec:
+        pRetBuf = BT_Exec(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_ReportTx:
-        {
-            pRetBuf = BT_ReportTx(&BtModuleMemory, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_ReportTx:
+        pRetBuf = BT_ReportTx(&BtModuleMemory, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_ReportRx:
-        {
-            pRetBuf = BT_ReportRx(&BtModuleMemory, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_ReportRx:
+        pRetBuf = BT_ReportRx(&BtModuleMemory, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_REG_RF:
-        {
-            pRetBuf = BT_RegRf(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_REG_RF:
+        pRetBuf = BT_RegRf(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-        case BT_MP_OP_USER_DEF_REG_MD:
-        {
-            pRetBuf = BT_RegMd(&BtModuleMemory, buf, pNotifyBuffer);
-        }
+    case BT_MP_OP_USER_DEF_REG_MD:
+        pRetBuf = BT_RegMd(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-        default:
-            break;
+    case BT_MP_OP_USER_DEF_SET_HOPPING_MODE:
+        pRetBuf = BT_SetHoppingMode(&BtModuleMemory, buf, pNotifyBuffer);
+        break;
 
+    default:
+        break;
     }
+
     mp_op_code = opcode;
     mp_op_buffer_len = strlen(pRetBuf);
 
@@ -261,7 +238,6 @@ int hal_mp_op_send(uint16_t opcode, char* buf, uint8_t len)
     btu_hcif_mp_notify_event(p_buf);
 
     GKI_freebuf(p_buf);
-
 
     return 0;
 }
@@ -277,7 +253,7 @@ static const bt_interface_t bluetoothInterface = {
 };
 
 
-const bt_interface_t* bluetooth__get_bluetooth_interface ()
+const bt_interface_t* bluetooth_get_bluetooth_interface ()
 {
     /* fixme -- add property to disable bt interface ? */
 
@@ -300,7 +276,7 @@ struct hw_device_t** abstraction)
     stack->common.version = 0;
     stack->common.module = (struct hw_module_t*)module;
     stack->common.close = close_bluetooth_stack;
-    stack->get_bluetooth_interface = bluetooth__get_bluetooth_interface;
+    stack->get_bluetooth_interface = bluetooth_get_bluetooth_interface;
     *abstraction = (struct hw_device_t*)stack;
     return 0;
 }

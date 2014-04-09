@@ -11,22 +11,22 @@
 
 int
 BuildBluetoothModule(
-	BASE_INTERFACE_MODULE    *pBaseInterface,
-      	BT_MODULE                **ppBtModuleBase,
-        BT_MODULE                *pBtModuleBasememory,
+        BASE_INTERFACE_MODULE    *pBaseInterfaceModule,
+        BT_MODULE                *pBtModule,
         void                     *pExtra,
         unsigned char            *pTxGainTable,
         unsigned char            *pTxDACTable
-	);
+        );
+
 int
 BuildBluetoothDevice(
-		BASE_INTERFACE_MODULE    *pBaseInterface,
-      	BT_DEVICE                **ppBtDeviceBase,
+        BASE_INTERFACE_MODULE    *pBaseInterface,
+        BT_DEVICE                **ppBtDeviceBase,
         BT_DEVICE                *pDeviceBasememory,
         void                     *pExtra,
         unsigned char            *pTxGainTable,
         unsigned char            *pTxDACTable
-	);
+        );
 
 
 #endif

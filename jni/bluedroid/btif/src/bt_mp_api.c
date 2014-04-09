@@ -1,8 +1,11 @@
+#define LOG_TAG "BTIF_MP_API"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <termios.h>
 #include <time.h>
+#include <utils/Log.h>
 
 #include "bt_mp_transport.h"
 #include "bt_mp_api.h"
@@ -18,9 +21,6 @@
 
 #include "bluetoothmp.h"
 
-
-
-#define LOG_TAG "BTIF_MP_API"
 #include "btif_api.h"
 
 #include "gki.h"
@@ -42,14 +42,14 @@
 
 #define DEFAULT_CH_NUM                      10
 #define DEFAULT_PKT_TYPE                    BT_PKT_3DH5
-#define DEFAULT_PAYLOAD_TYPE            BT_PAYLOAD_TYPE_PRBS9
+#define DEFAULT_PAYLOAD_TYPE                BT_PAYLOAD_TYPE_PRBS9
 #define DEFAULT_PKT_COUNT                   0
 #define DEFAULT_TX_GAIN_VALUE               0xA9
-#define DEFAULT_WHITE_COEFF_ENABLE    0
+#define DEFAULT_WHITE_COEFF_ENABLE          0
 
-#define DEFAULT_TX_GAIN_INDEX            0xFF
+#define DEFAULT_TX_GAIN_INDEX               0xFF
 #define DEFAULT_TSET_MODE                   BT_PSEUDO_MODE
-#define DEFAULT_TX_DAC                          0x13
+#define DEFAULT_TX_DAC                      0x13
 #define DEFAULT_PKTHEADER                   0x1234
 #define DEFAULT_MULTI_RX_ENABLE             0
 
@@ -76,10 +76,10 @@ char* BT_SendHciCmd(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     unsigned char  EventType = 0x0E;
     unsigned char  pEvent[255] = {0};
     EVENT_STRING pEventString[255];
-    unsigned char EventLen = 0;
+    unsigned long EventLen = 0;
     unsigned char i = 0;
 
-    bt_mp_LogMsg("++%s: %s\n", STR_BT_MP_HCI_CMD, p);
+    bt_mp_LogMsg("++%s: %s", STR_BT_MP_HCI_CMD, p);
 
 
     token = strtok(p, delim);
@@ -125,7 +125,7 @@ EXIT:
 
     if(rxParaCount != paraLen + 2)
     {
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_HCI_CMD, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
     }
     else
     {
@@ -137,7 +137,7 @@ EXIT:
 
         rtn = pBtModule->SendHciCommandWithEvent(pBtModule, opCode, paraLen, paraMeters,  EventType,  pEvent, &EventLen);
 
-        bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_HCI_CMD, STR_BT_MP_RX_RESULT_DELIM, rtn);
+        bt_mp_LogMsg("%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RX_RESULT_DELIM, rtn);
 
 
         sprintf(pNotifyBuffer, "%s", STR_BT_MP_HCI_CMD);
@@ -162,7 +162,7 @@ char* BT_GetPara(BT_MODULE  *pBtModule, char* pNotifyBuffer)
 {
     bt_mp_LogMsg("++%s", STR_BT_MP_GET_PARA);
 
-    bt_mp_LogMsg("%s%s%x%s%x%s%x%s%lx%s%x%s%x%s%x%s%x%s%x%s%x%s%llx\n",
+    bt_mp_LogMsg("%s%s%x%s%x%s%x%s%lx%s%x%s%x%s%x%s%x%s%x%s%x%s%llx",
                                 STR_BT_MP_GET_PARA,
                                 STR_BT_MP_RX_RESULT_DELIM,
                                 pBtModule->pBtParam->mChannelNumber,
@@ -188,7 +188,7 @@ char* BT_GetPara(BT_MODULE  *pBtModule, char* pNotifyBuffer)
                                 pBtModule->pBtParam->mHitTarget
                                 );
 
-    sprintf(pNotifyBuffer, "%s%s%x%s%x%s%x%s%lx%s%x%s%x%s%x%s%x%s%x%s%x%s%llx\n",
+    sprintf(pNotifyBuffer, "%s%s%x%s%x%s%x%s%lx%s%x%s%x%s%x%s%x%s%x%s%x%s%llx",
                                 STR_BT_MP_GET_PARA,
                                 STR_BT_MP_RX_RESULT_DELIM,
                                 pBtModule->pBtParam->mChannelNumber,
@@ -322,7 +322,7 @@ EXIT:
 
     if(rxParaCount != BT_PARA1_COUNT)
     {
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
     }
     else
     {
@@ -336,8 +336,8 @@ EXIT:
                                    pBtModule->pBtParam->TXGainTable[6]
                                    );
 
-        bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
 
@@ -428,7 +428,7 @@ EXIT:
 
     if(rxParaCount != BT_PARA1_COUNT)
     {
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
     }
     else
     {
@@ -439,8 +439,8 @@ EXIT:
                                    pBtModule->pBtParam->TXDACTable[3],
                                    pBtModule->pBtParam->TXDACTable[4]
                                    );
-        bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
     bt_mp_LogMsg("--%s", STR_BT_MP_SET_DAC_TABLE);
@@ -455,7 +455,7 @@ char* BT_SetPara1(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     const unsigned char BT_PARA1_COUNT = 5;
     unsigned char rxParaCount = 0;
 
-    bt_mp_LogMsg("++%s: %s\n", STR_BT_MP_SET_PARA1, p);
+    bt_mp_LogMsg("++%s: %s", STR_BT_MP_SET_PARA1, p);
 
     //    unsigned char mChannelNumber;
     token = strtok(p, delim);
@@ -530,11 +530,11 @@ char* BT_SetPara1(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     }
 
 EXIT:
-    bt_mp_LogMsg("%s: rxParaCount = %d\n", STR_BT_MP_SET_PARA1, rxParaCount);
+    bt_mp_LogMsg("%s: rxParaCount = %d", STR_BT_MP_SET_PARA1, rxParaCount);
 
     if(rxParaCount != BT_PARA1_COUNT)
     {
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
     }
     else
     {
@@ -547,11 +547,11 @@ EXIT:
                                    pBtModule->pBtParam->mWhiteningCoeffEnable
                                    );
 
-        bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
-    bt_mp_LogMsg("--%s\n", STR_BT_MP_SET_PARA1);
+    bt_mp_LogMsg("--%s", STR_BT_MP_SET_PARA1);
     return pNotifyBuffer;
 }
 
@@ -564,7 +564,7 @@ char* BT_SetPara2(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     const unsigned char BT_PARA1_COUNT = 5;
     unsigned char rxParaCount = 0;
 
-    bt_mp_LogMsg("++%s: %s\n", STR_BT_MP_SET_PARA2, p);
+    bt_mp_LogMsg("++%s: %s", STR_BT_MP_SET_PARA2, p);
 
     //unsigned char mTxGainIndex;
     token = strtok(p, delim);
@@ -642,7 +642,7 @@ EXIT:
 
     if(rxParaCount != BT_PARA1_COUNT)
     {
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
     }
     else
     {
@@ -654,26 +654,26 @@ EXIT:
                                    pBtModule->pBtParam->mPacketHeader
                                    );
 
-        bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
-    bt_mp_LogMsg("--%s\n", STR_BT_MP_SET_PARA2);
+    bt_mp_LogMsg("--%s", STR_BT_MP_SET_PARA2);
     return pNotifyBuffer;
 
 }
 
 char* BT_SetHit(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
 {
-    bt_mp_LogMsg("++%s: %s\n", STR_BT_MP_SET_HIT, p);
+    bt_mp_LogMsg("++%s: %s", STR_BT_MP_SET_HIT, p);
     pBtModule->pBtParam->mHitTarget = strtoull(p, NULL, 16);
 
-    bt_mp_LogMsg("%s:0x%llx\n", STR_BT_MP_SET_HIT, pBtModule->pBtParam->mHitTarget);
+    bt_mp_LogMsg("%s:0x%llx", STR_BT_MP_SET_HIT, pBtModule->pBtParam->mHitTarget);
 
-    bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_SET_HIT, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-    sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_SET_HIT, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+    bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_HIT, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_HIT, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
 
-    bt_mp_LogMsg("--%s\n", STR_BT_MP_SET_HIT);
+    bt_mp_LogMsg("--%s", STR_BT_MP_SET_HIT);
     return pNotifyBuffer;
 }
 
@@ -683,47 +683,43 @@ char* BT_SetHit(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
 char* BT_Exec(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
 {
     int ParameterIndex = 0;
-    BT_PARAMETER        *pBtParam =NULL;
+    BT_PARAMETER *pBtParam = NULL;
     int rtn = BT_FUNCTION_SUCCESS;
 
-    bt_mp_LogMsg("++%s%s\n", STR_BT_MP_EXEC, p);
-
     ParameterIndex = strtol(p, NULL ,16);
-    bt_mp_LogMsg("%s:ParameterIndex = 0x%x\n", STR_BT_MP_EXEC, ParameterIndex);
 
-    if(NOTTHING< ParameterIndex&&
-        ParameterIndex < NUMBEROFBT_ACTIONCONTROL_TAG)
-    {
+    ALOGI("BT_Exec: buf[%s], param index[%d]", p, ParameterIndex);
 
-        pBtParam=pBtModule->pBtParam;
-        pBtParam->ParameterIndex=ParameterIndex;
+    if (ParameterIndex > NOTTHING &&
+        ParameterIndex < NUMBEROFBT_ACTIONCONTROL_TAG) {
+
+        pBtParam = pBtModule->pBtParam;
+        pBtParam->ParameterIndex = ParameterIndex;
         rtn = pBtModule->ActionControlExcute(pBtModule);
 
-        sprintf(pNotifyBuffer, "%s%s%x%s%x\n",
+        sprintf(pNotifyBuffer, "%s%s%x%s%x",
                 STR_BT_MP_EXEC,
                 STR_BT_MP_RX_RESULT_DELIM,
                 ParameterIndex,
                 STR_BT_MP_RX_RESULT_DELIM,
                 rtn
                 );
-         bt_mp_LogMsg("%s%s%x%s%x\n",
+         bt_mp_LogMsg("%s%s%x%s%x",
                 STR_BT_MP_EXEC,
                 STR_BT_MP_RX_RESULT_DELIM,
                 ParameterIndex,
                 STR_BT_MP_RX_RESULT_DELIM,
                 rtn
                 );
-    }
-    else
-    {
-        sprintf(pNotifyBuffer, "%s%s%s%s%x\n",
+    } else {
+        sprintf(pNotifyBuffer, "%s%s%s%s%x",
                 STR_BT_MP_EXEC,
                 STR_BT_MP_RX_RESULT_DELIM,
                 p,
                 STR_BT_MP_RX_RESULT_DELIM,
                 FUNCTION_PARAMETER_ERROR
                 );
-        bt_mp_LogMsg("%s%s%s%s%x\n",
+        bt_mp_LogMsg("%s%s%s%s%x",
                 STR_BT_MP_EXEC,
                 STR_BT_MP_RX_RESULT_DELIM,
                 p,
@@ -731,8 +727,6 @@ char* BT_Exec(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
                 FUNCTION_PARAMETER_ERROR
                 );
     }
-
-    bt_mp_LogMsg("--%s\n", STR_BT_MP_EXEC);
 
     return pNotifyBuffer;
 }
@@ -744,7 +738,7 @@ char* BT_ReportTx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
     BT_DEVICE_REPORT    *pModuleBtReport=NULL;
     int rtn = BT_FUNCTION_SUCCESS;
 
-    bt_mp_LogMsg("++%s\n", STR_BT_MP_REPORTTX);
+    bt_mp_LogMsg("++%s", STR_BT_MP_REPORTTX);
 
     pBtParam=pBtModule->pBtParam;
     pModuleBtReport=pBtModule->pModuleBtReport;
@@ -753,20 +747,20 @@ char* BT_ReportTx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
 
     if (rtn != BT_FUNCTION_SUCCESS)
     {
-            sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
-            bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
+            sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
+            bt_mp_LogMsg("%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
             goto exit;
     }
     else
     {
-        bt_mp_LogMsg("%s%s%lx%s%lx\n",
+        bt_mp_LogMsg("%s%s%lx%s%lx",
                                 STR_BT_MP_REPORTTX,
                                 STR_BT_MP_RX_RESULT_DELIM,
                                 pModuleBtReport->TotalTXBits,
                                 STR_BT_MP_RX_RESULT_DELIM,
                                 pModuleBtReport->TotalTxCounts);
 
-        sprintf(pNotifyBuffer, "%s%s%lx%s%lx\n",
+        sprintf(pNotifyBuffer, "%s%s%lx%s%lx",
                                 STR_BT_MP_REPORTTX,
                                 STR_BT_MP_RX_RESULT_DELIM,
                                 pModuleBtReport->TotalTXBits,
@@ -776,7 +770,7 @@ char* BT_ReportTx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
 
 exit:
 
-    bt_mp_LogMsg("--%s\n", STR_BT_MP_REPORTTX);
+    bt_mp_LogMsg("--%s", STR_BT_MP_REPORTTX);
     return pNotifyBuffer;
 }
 
@@ -786,7 +780,7 @@ char* BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
     BT_DEVICE_REPORT    *pModuleBtReport=NULL;
     int rtn=BT_FUNCTION_SUCCESS;
 
-    bt_mp_LogMsg("++%s\n", STR_BT_MP_REPORTRX);
+    bt_mp_LogMsg("++%s", STR_BT_MP_REPORTRX);
 
     pBtParam=pBtModule->pBtParam;
     pModuleBtReport=pBtModule->pModuleBtReport;
@@ -796,14 +790,14 @@ char* BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
     if (rtn != BT_FUNCTION_SUCCESS)
     {
 
-        bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_PKTRXSTART, STR_BT_MP_RX_RESULT_DELIM, rtn);        
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_PKTRXSTART, STR_BT_MP_RX_RESULT_DELIM, rtn);
+        bt_mp_LogMsg("%s%s%x", STR_BT_MP_PKTRXSTART, STR_BT_MP_RX_RESULT_DELIM, rtn);        
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_PKTRXSTART, STR_BT_MP_RX_RESULT_DELIM, rtn);
         goto exit;
     }
     else
     {
 
-        bt_mp_LogMsg("%s%s%x%s%lx%s%lx%s%lx\n",
+        bt_mp_LogMsg("%s%s%x%s%lx%s%lx%s%lx",
                         STR_BT_MP_REPORTRX,
                         STR_BT_MP_RX_RESULT_DELIM,
                         pModuleBtReport->IsRxRssi,
@@ -815,7 +809,7 @@ char* BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
                         pModuleBtReport->TotalRxErrorBits
                         );
 
-        sprintf(pNotifyBuffer, "%s%s%x%s%lx%s%lx%s%lx\n",
+        sprintf(pNotifyBuffer, "%s%s%x%s%lx%s%lx%s%lx",
                         STR_BT_MP_REPORTRX,
                         STR_BT_MP_RX_RESULT_DELIM,
                         pModuleBtReport->IsRxRssi,
@@ -830,7 +824,7 @@ char* BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
 
 exit:
 
-    bt_mp_LogMsg("--%s\n", STR_BT_MP_REPORTRX);
+    bt_mp_LogMsg("--%s", STR_BT_MP_REPORTRX);
 
     return pNotifyBuffer;
 }
@@ -839,9 +833,9 @@ exit:
 /**
 
 register	    read/Write	    address	msb	        lsb	data	return(Status)	value
-bt_regmd	(write)1	            1	                1	        1	2	1	¡¡
+bt_regmd	(write)1	            1	                1	        1	2	1	ã€€
 	(read)0	1	1	1	0	1	2
-bt_regrf	(write)1	1	1	1	2	1	¡¡
+bt_regrf	(write)1	1	1	1	2	1	ã€€
 	(read)0	1	1	1	0	1	2
 
 
@@ -860,7 +854,7 @@ char* BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     unsigned char lsb = 0;
     unsigned short dataReadWrite = 0; //for opReadWrite = 1(write)
 
-    bt_mp_LogMsg("++%s: %s\n", STR_BT_MP_REG_RF, p);
+    bt_mp_LogMsg("++%s: %s", STR_BT_MP_REG_RF, p);
 
     //unsigned char opReadWrite;
     token = strtok(p, delim);
@@ -944,11 +938,11 @@ char* BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     }
 
 EXIT:
-    bt_mp_LogMsg("%s: rxParaCount = %d\n", STR_BT_MP_REG_RF, rxParaCount);
+    bt_mp_LogMsg("%s: rxParaCount = %d", STR_BT_MP_REG_RF, rxParaCount);
 
     if(rxParaCount != BT_REGRF_PARA_COUNT)
     {
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
     }
     else
     {
@@ -963,25 +957,25 @@ EXIT:
                                    dataReadWrite
                                    );   
 
-        bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-        sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bt_mp_LogMsg("%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
 
         if(opReadWrite == 0)
         {
             rtn = pBtModule->GetRfRegMaskBits(pBtModule, address, msb, lsb, &dataReadWrite);
-            bt_mp_LogMsg("%s%s%x%s%x\n", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn, STR_BT_MP_RX_RESULT_DELIM, dataReadWrite);
-            sprintf(pNotifyBuffer, "%s%s%x%s%x\n", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn, STR_BT_MP_RX_RESULT_DELIM, dataReadWrite);
+            bt_mp_LogMsg("%s%s%x%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn, STR_BT_MP_RX_RESULT_DELIM, dataReadWrite);
+            sprintf(pNotifyBuffer, "%s%s%x%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn, STR_BT_MP_RX_RESULT_DELIM, dataReadWrite);
         }
         else
         {
             rtn = pBtModule->SetRfRegMaskBits(pBtModule, address, msb, lsb, dataReadWrite);
-            bt_mp_LogMsg("%s%s%x\n", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn);
-            sprintf(pNotifyBuffer, "%s%s%x\n", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn);
+            bt_mp_LogMsg("%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn);
+            sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn);
         }
 
     }
 
-    bt_mp_LogMsg("--%s\n", STR_BT_MP_REG_RF);
+    bt_mp_LogMsg("--%s", STR_BT_MP_REG_RF);
     return pNotifyBuffer;
 }
 
@@ -991,37 +985,120 @@ char* BT_RegMd(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
 
 }
 
+char *BT_SetHoppingMode(BT_MODULE *pBtModule, char *p, char* pNotifyBuffer)
+{
+    const char *delim = STR_BT_MP_TX_PARA_DELIM;
+    char *token = NULL;
+    const unsigned char BT_PARA1_COUNT = 4;
+    unsigned char rxParaCount = 0;
+
+    bt_mp_LogMsg("++%s: %s", STR_BT_MP_SET_HOPPING_MODE, p);
+
+    // unsigned char mChannelNumber
+    token = strtok(p, delim);
+    if (token != NULL)
+    {
+        pBtModule->pBtParam->mChannelNumber = strtol(token, NULL, 16);
+        rxParaCount++;
+    }
+    else
+    {
+        goto EXIT;
+    }
+
+    // BT_PKT_TYPE mPacketType
+    token = strtok(NULL, delim);
+    if (token != NULL)
+    {
+        pBtModule->pBtParam->mPacketType = strtol(token, NULL, 16);
+        rxParaCount++;
+    }
+    else
+    {
+        goto EXIT;
+    }
+
+    // unsigned char mHoppingFixChannel
+    token = strtok(NULL, delim);
+    if (token != NULL)
+    {
+        pBtModule->pBtParam->mHoppingFixChannel = strtol(token, NULL, 16);
+        rxParaCount++;
+    }
+    else
+    {
+        goto EXIT;
+    }
+
+    // unsigned char mWhiteningCoeffEnable
+    token = strtok(NULL, delim);
+    if (token != NULL)
+    {
+        pBtModule->pBtParam->mWhiteningCoeffEnable = strtol(token, NULL, 16);
+        rxParaCount++;
+    }
+    else
+    {
+        goto EXIT;
+    }
+
+    // end of parameter
+    token = strtok(NULL, delim);
+    if (token != NULL)
+    {
+        bt_mp_LogMsg("token = %s", token);
+        rxParaCount++;
+    }
+    else
+    {
+        goto EXIT;
+    }
+
+EXIT:
+    bt_mp_LogMsg("%s: rxParaCount = %d", STR_BT_MP_SET_HOPPING_MODE, rxParaCount);
+
+    if (rxParaCount != BT_PARA1_COUNT)
+    {
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_HOPPING_MODE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
+    }
+    else
+    {
+        bt_mp_LogMsg("mChannelNumber:0x%x, mPacketType:0x%x, mHoppingFixChannel:0x%x, mWhiteningCoeffEnable:0x%x",
+                                   pBtModule->pBtParam->mChannelNumber,
+                                   pBtModule->pBtParam->mPacketType,
+                                   pBtModule->pBtParam->mHoppingFixChannel,
+                                   pBtModule->pBtParam->mWhiteningCoeffEnable
+                                   );
+
+        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_HOPPING_MODE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_HOPPING_MODE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+    }
+
+    bt_mp_LogMsg("--%s", STR_BT_MP_SET_HOPPING_MODE);
+    return pNotifyBuffer;
+}
+
 void BT_GetBDAddr(BT_MODULE  *pBtModule)
 {
-    unsigned char   pEvt[256];
-    unsigned char   EvtLen = 0;
-    unsigned char   para[256];
+    unsigned char  pEvt[256];
+    unsigned long  EvtLen = 0;
+    unsigned char  para[256];
 
     if (pBtModule->SendHciCommandWithEvent(pBtModule,0x1009,0,para,0x0e,pEvt, &EvtLen) != BT_FUNCTION_SUCCESS)
     {
-        printf("Get BD Addree Fail!!..\n");
+        printf("Get BD Addree Fail!!..");
     }
-    printf("BD_ADDR=[0x%.2x%.2x%.2x%.2x%.2x%.2x]\n",pEvt[11],pEvt[10],pEvt[9],pEvt[8],pEvt[7],pEvt[6]);
+    printf("BD_ADDR=[0x%.2x%.2x%.2x%.2x%.2x%.2x]",pEvt[11],pEvt[10],pEvt[9],pEvt[8],pEvt[7],pEvt[6]);
     return ;
 }
 
-void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModuleMemory, BT_MODULE *pBtModuleMemory)
+void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *pBtModule)
 {
-    BASE_INTERFACE_MODULE   *pBaseInterface = NULL;
-    BT_MODULE               *pBtModule = NULL;
-
     unsigned char           pTxGainTable[7]={0x49,0x4d,0x69,0x89,0x8d,0xa9,0xa9};  //RTL8761 Table
     unsigned char           pTxDACTable[5]={0x10,0x11,0x12,0x13,0x14};
 
-    BT_PARAMETER        *pBtParam =NULL;
-    BT_DEVICE           *pBtDevice=NULL;
-    BT_DEVICE_REPORT    *pModuleBtReport=NULL;
-
-
-
     BuildTransportInterface(
-            &pBaseInterface,
-            pBaseInterfaceModuleMemory,
+            pBaseInterfaceModule,
             1,
             115200,
             NULL,//open
@@ -1032,29 +1109,29 @@ void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModuleMemory, BT_MOD
             );
 
     //Build Module
-    bt_mp_LogMsg("Build Module....!!\n");
+    bt_mp_LogMsg("Build Module....!!");
+
     BuildBluetoothModule(
-            pBaseInterface,
-            &pBtModule,
-            pBtModuleMemory,
+            pBaseInterfaceModule,
+            pBtModule,
             NULL,
             pTxGainTable,
             pTxDACTable
             );
 
-    pBtModuleMemory->pBtParam->mHitTarget = 0x0000009e8b33;
+    pBtModule->pBtParam->mHitTarget = 0x0000009e8b33;
 
-    pBtModuleMemory->pBtParam->mChannelNumber = DEFAULT_CH_NUM;
-    pBtModuleMemory->pBtParam->mPacketType = DEFAULT_PKT_TYPE;
-    pBtModuleMemory->pBtParam->mPayloadType= DEFAULT_PAYLOAD_TYPE;
-    pBtModuleMemory->pBtParam->mTxPacketCount = DEFAULT_PKT_COUNT;
-    pBtModuleMemory->pBtParam->mTxGainValue= DEFAULT_TX_GAIN_VALUE;
-    pBtModuleMemory->pBtParam->mWhiteningCoeffEnable = DEFAULT_WHITE_COEFF_ENABLE;
-    pBtModuleMemory->pBtParam->mTxGainIndex= DEFAULT_TX_GAIN_INDEX;
-    pBtModuleMemory->pBtParam->mTestMode= DEFAULT_TSET_MODE;
-    pBtModuleMemory->pBtParam->mTxDAC= DEFAULT_TX_DAC;
-    pBtModuleMemory->pBtParam->mPacketHeader= DEFAULT_PKTHEADER;
-    pBtModuleMemory->pBtParam->mMutiRxEnable= DEFAULT_MULTI_RX_ENABLE;
+    pBtModule->pBtParam->mChannelNumber = DEFAULT_CH_NUM;
+    pBtModule->pBtParam->mPacketType = DEFAULT_PKT_TYPE;
+    pBtModule->pBtParam->mPayloadType= DEFAULT_PAYLOAD_TYPE;
+    pBtModule->pBtParam->mTxPacketCount = DEFAULT_PKT_COUNT;
+    pBtModule->pBtParam->mTxGainValue= DEFAULT_TX_GAIN_VALUE;
+    pBtModule->pBtParam->mWhiteningCoeffEnable = DEFAULT_WHITE_COEFF_ENABLE;
+    pBtModule->pBtParam->mTxGainIndex= DEFAULT_TX_GAIN_INDEX;
+    pBtModule->pBtParam->mTestMode= DEFAULT_TSET_MODE;
+    pBtModule->pBtParam->mTxDAC= DEFAULT_TX_DAC;
+    pBtModule->pBtParam->mPacketHeader= DEFAULT_PKTHEADER;
+    pBtModule->pBtParam->mMutiRxEnable= DEFAULT_MULTI_RX_ENABLE;
 
     return ;
 }

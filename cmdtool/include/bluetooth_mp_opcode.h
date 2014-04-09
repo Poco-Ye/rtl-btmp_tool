@@ -22,9 +22,7 @@ enum _BT_MP_OPCODE{
     BT_MP_OP_HCI_SEND_CMD = 0x00,
     BT_MP_OP_DUT_MODE_CONFIGURE = 0x01,
 
-
-
-    BT_MP_OP_USER_DEF_GetPara = 0x80, 
+    BT_MP_OP_USER_DEF_GetPara = 0x80,
     BT_MP_OP_USER_DEF_SetPara1,
     BT_MP_OP_USER_DEF_SetPara2,
     BT_MP_OP_USER_DEF_SetHit,
@@ -34,7 +32,8 @@ enum _BT_MP_OPCODE{
     BT_MP_OP_USER_DEF_ReportTx,
     BT_MP_OP_USER_DEF_ReportRx,
     BT_MP_OP_USER_DEF_REG_RF,
-    BT_MP_OP_USER_DEF_REG_MD
+    BT_MP_OP_USER_DEF_REG_MD,
+    BT_MP_OP_USER_DEF_SET_HOPPING_MODE
 
 };
 

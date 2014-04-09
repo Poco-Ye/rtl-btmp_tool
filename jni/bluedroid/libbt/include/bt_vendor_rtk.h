@@ -48,10 +48,10 @@
 
 /* Device port name where Bluetooth controller attached */
 
-//#define BLUETOOTH_UART_DEVICE_PORT      "/dev/ttyS2"    /* Customer should modify here*/
+#define BLUETOOTH_UART_DEVICE_PORT      "/dev/ttyHS2"    /* Customer should modify here*/
 
 #ifndef BLUETOOTH_UART_DEVICE_PORT
-#error "define BLUETOOTH_UART_DEVICE_POR first"
+#error "define BLUETOOTH_UART_DEVICE_PORT first"
 #endif
 
 /* Location of firmware patch files */

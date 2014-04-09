@@ -61,9 +61,9 @@
 #define LOGI0(t,s) __android_log_write(ANDROID_LOG_INFO, t, s)
 
 
-void bt_mp_LogMsg(const char *fmt_str, ...);
+static void bt_mp_LogMsg(const char *fmt_str, ...);
 
-void bdt_log(const char *fmt_str, ...);
+static void bdt_log(const char *fmt_str, ...);
 
 
 
@@ -156,7 +156,7 @@ static void config_permissions(void)
 
     header.version = _LINUX_CAPABILITY_VERSION;
 
-    cap.effective = cap.permitted =  cap.inheritable =
+    cap.effective = cap.permitted = cap.inheritable =
                     1 << CAP_NET_RAW |
                     1 << CAP_NET_ADMIN |
                     1 << CAP_NET_BIND_SERVICE |
@@ -167,9 +167,6 @@ static void config_permissions(void)
     capset(&header, &cap);
     setgroups(sizeof(groups)/sizeof(groups[0]), groups);
 }
-
-
-
 
 static void hex_dump(char *msg, void *data, int size, int trunc)
 {
@@ -232,8 +229,8 @@ static void hex_dump(char *msg, void *data, int size, int trunc)
 
 void skip_blanks(char **p)
 {
-  while (**p == ' ')
-    (*p)++;
+    while (**p == ' ')
+        (*p)++;
 }
 
 uint32_t get_int(char **p, int DefaultValue)
@@ -284,18 +281,17 @@ int get_signed_int(char **p, int DefaultValue)
     return ((NegativeNum == 0)? Value : -Value);
 }
 
-void get_str(char **p, char *Buffer)
+void get_str(char **p, char *buffer)
 {
-  skip_blanks(p);
+    skip_blanks(p);
 
-  while (**p != 0 && **p != ' ')
-    {
-      *Buffer = **p;
-      (*p)++;
-      Buffer++;
+    while (**p != '\0' && **p != ' ') {
+        *buffer = **p;
+        (*p)++;
+        buffer++;
     }
 
-  *Buffer = 0;
+    *buffer = 0;
 }
 
 uint32_t get_hex(char **p, int DefaultValue)
@@ -400,10 +396,9 @@ int HAL_load(void)
 
     bt_mp_LogMsg("Loading HAL lib + extensions\n");
 
-    err = hw_get_module("bluetoothmp", (hw_module_t const**)&module);
-    if (err == 0)
-    {
-        err = module->methods->open(module, "bluetoothmp", &device);
+    err = hw_get_module(BT_HARDWARE_MODULE_ID, (hw_module_t const**)&module);
+    if (err == 0) {
+        err = module->methods->open(module, BT_HARDWARE_MODULE_ID, &device);
         if (err == 0) {
             bt_device = (bluetooth_device_t *)device;
             sBtInterface = bt_device->get_bluetooth_interface();
@@ -459,11 +454,11 @@ static void adapter_state_changed(bt_state_t state)
 {
     bt_mp_LogMsg("ADAPTER STATE UPDATED : %s\n", (state == BT_STATE_OFF)?"OFF":"ON");
     if (state == BT_STATE_ON) {
-        bdt_log("%s%s%x\n", STR_BT_MP_ENABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bdt_log("%s%s%x", STR_BT_MP_ENABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         bt_enabled = 1;
     } else {
         bt_enabled = 0;
-        bdt_log("%s%s%x\n", STR_BT_MP_ENABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_ENABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
     }
 
 }
@@ -493,7 +488,7 @@ void bdt_enable(void)
     bt_mp_LogMsg("ENABLE BT\n");
     if (bt_enabled) {
         bt_mp_LogMsg("Bluetooth is already enabled\n");
-        bdt_log("%s%s%x\n", STR_BT_MP_ENABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bdt_log("%s%s%x", STR_BT_MP_ENABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         return;
     }
     status = sBtInterface->init(&bt_callbacks);
@@ -507,14 +502,14 @@ void bdt_disable(void)
     bt_mp_LogMsg("DISABLE BT\n");
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth is already disabled\n");
-        bdt_log("%s%s%x\n", STR_BT_MP_DISABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bdt_log("%s%s%x", STR_BT_MP_DISABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         return;
     }
     status = sBtInterface->disable();
     sBtInterface->cleanup();
     bt_enabled = 0;
     check_return_status(status);
-        bdt_log("%s%s%x\n", STR_BT_MP_DISABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        bdt_log("%s%s%x", STR_BT_MP_DISABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
 }
 void bdt_dut_mode_configure(char *p)
 {
@@ -523,7 +518,7 @@ void bdt_dut_mode_configure(char *p)
     bt_mp_LogMsg("BT DUT MODE CONFIGURE\n");
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test_mode to work.\n");
-        bdt_log("%s%s%x\n", STR_BT_MP_DUT_MODE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_DUT_MODE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -544,7 +539,7 @@ void bdt_hci(char *p)
 
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_HCI_CMD);
-        bdt_log("%s%s%x\n", STR_BT_MP_HCI_CMD, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -553,11 +548,31 @@ void bdt_hci(char *p)
     check_return_status(status);
 }
 
+void bdt_set_hopping_mode(char *p)
+{
+    int i;
+
+    uint32_t tmp;
+    uint16_t opcode;
+    uint8_t buf[260];
+    uint8_t len;
+
+    if (!bt_enabled) {
+        bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_SET_HOPPING_MODE);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_HOPPING_MODE, STR_BT_NOT_ENABLED);
+        return;
+    }
+
+     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SET_HOPPING_MODE, p, 0);
+
+    check_return_status(status);
+}
+
 void bdt_GetPara(char *p)
 {
     if (!bt_enabled) {
-        bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_GET_PARA);        
-        bdt_log("%s%s%x\n", STR_BT_MP_GET_PARA, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_GET_PARA);
+        bdt_log("%s%s%x", STR_BT_MP_GET_PARA, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -570,8 +585,8 @@ void bdt_GetPara(char *p)
 void bdt_SetHit(char *p)
 {
     if (!bt_enabled) {
-        bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_SET_HIT);        
-        bdt_log("%s%s%x\n", STR_BT_MP_SET_HIT, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_SET_HIT);
+        bdt_log("%s%s%x", STR_BT_MP_SET_HIT, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -583,7 +598,7 @@ void bdt_SetPara1(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_SET_PARA1);
-        bdt_log("%s%s%x\n", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -595,7 +610,7 @@ void bdt_SetPara2(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_SET_PARA2);
-        bdt_log("%s%s%x\n", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -608,7 +623,7 @@ void bdt_SetGainTable(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_SET_GAIN_TABLE);
-        bdt_log("%s%s%x\n", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -620,7 +635,7 @@ void bdt_SetDacTable(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_SET_DAC_TABLE);
-        bdt_log("%s%s%x\n", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -632,7 +647,7 @@ void bdt_Exec(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_EXEC);
-        bdt_log("%s%s%x\n", STR_BT_MP_EXEC, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_EXEC, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -644,7 +659,7 @@ void bdt_ReportTx(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_REPORTTX);
-        bdt_log("%s%s%x\n", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -656,7 +671,7 @@ void bdt_ReportRx(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_REPORTRX);
-        bdt_log("%s%s%x\n", STR_BT_MP_REPORTRX, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_REPORTRX, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -668,7 +683,7 @@ void bdt_RegRf(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_REG_RF);
-        bdt_log("%s%s%x\n", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -679,7 +694,7 @@ void bdt_RegMd(char *p)
 {
     if (!bt_enabled) {
         bt_mp_LogMsg("Bluetooth must be enabled for test:%s\n", STR_BT_MP_REG_MD);
-        bdt_log("%s%s%x\n", STR_BT_MP_REG_MD, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
+        bdt_log("%s%s%x", STR_BT_MP_REG_MD, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
         return;
     }
 
@@ -707,7 +722,7 @@ void do_help(char *p)
     while (console_cmd_list[i].name != NULL)
     {
         pos = sprintf(line, "%s", (char*)console_cmd_list[i].name);
-        bdt_log("%s %s\n", (char*)line, (char*)console_cmd_list[i].help);
+        bdt_log("%s %s", (char*)line, (char*)console_cmd_list[i].help);
         i++;
     }
 }
@@ -742,6 +757,11 @@ void do_dut_mode_configure(char *p)
 void do_hci(char *p)
 {
     bdt_hci(p);
+}
+
+void do_SetHoppingMode(char *p)
+{
+    bdt_set_hopping_mode(p);
 }
 
 void do_GetPara(char *p)
@@ -814,27 +834,22 @@ const t_cmd console_cmd_list[] =
     /*
      * INTERNAL
      */
-
     { "help", do_help, "lists all available console commands", 0 },
     { "quit", do_quit, "", 0},
 
     /*
      * API CONSOLE COMMANDS
      */
-     /* Init and Cleanup shall be called automatically */
+    /* Init and Cleanup shall be called automatically */
     { STR_BT_MP_ENABLE, do_enable, ":: enables bluetooth", 0 },
     { STR_BT_MP_DISABLE, do_disable, ":: disables bluetooth", 0 },
     { STR_BT_MP_DUT_MODE, do_dut_mode_configure, ":: DUT mode - 1 to enter,0 to exit", 0 },
-
-
 
     { STR_BT_MP_GET_PARA, do_GetPara, ":: do_GetPara", 0 },
     { STR_BT_MP_SET_HIT, do_SetHit, ":: do_SetHit", 0 },
     { STR_BT_MP_SET_PARA1, do_SetPara1, ":: do_SetPara1", 0 },
     { STR_BT_MP_SET_PARA2, do_SetPara2, ":: do_SetPara2", 0 },
     { STR_BT_MP_SET_GAIN_TABLE, do_SetGainTable, ":: do_SetGainTable", 0 },
-    { STR_BT_MP_SET_DAC_TABLE, do_SetDacTable, ":: do_SetDacTable", 0 },
-
     { STR_BT_MP_SET_DAC_TABLE, do_SetDacTable, ":: do_SetDacTable", 0 },
 
     { STR_BT_MP_EXEC, do_Exec, ":: do_Exec", 0 },
@@ -844,10 +859,9 @@ const t_cmd console_cmd_list[] =
     { STR_BT_MP_REG_RF, do_RegRf, ":: do_RegRf", 0 },
     { STR_BT_MP_REG_MD, do_RegMd, ":: do_RegMd", 0 },
 
-
-
     { STR_BT_MP_HCI_CMD, do_hci, ":: send hci command", 0 },
 
+    { STR_BT_MP_SET_HOPPING_MODE, do_SetHoppingMode, ":: Set Hopping Mode", 0 },
 
     /* add here */
 
@@ -858,39 +872,40 @@ const t_cmd console_cmd_list[] =
 /*
  * Main console command handler
 */
-
 static void process_cmd(char *p, unsigned char is_job)
 {
     char cmd[64];
-    int i = 0;
     char *p_saved = p;
+    int i = 0;
+
+    /* no cmd to process for single linefeed */
+    if (*p == '\0')
+        return;
 
     get_str(&p, cmd);
 
     /* table commands */
-    while (console_cmd_list[i].name != NULL)
-    {
-        if (is_cmd(console_cmd_list[i].name))
-        {
+    while (console_cmd_list[i].name != NULL) {
+        if (is_cmd(console_cmd_list[i].name)) {
 
-            if (!is_job && console_cmd_list[i].is_job)
-            {
-
+            if (!is_job && console_cmd_list[i].is_job) {
                 create_cmdjob(p_saved);
-            }
-            else
-            {
+            } else {
                 console_cmd_list[i].handler(p);
             }
+
             return;
         }
+
         i++;
     }
-    bdt_log("%s : unknown command\n", p_saved);
+
+    bdt_log("Unknown command[%s]", p_saved);
+
     do_help(NULL);
 }
 
-int main (int argc, char * argv[])
+int main(int argc, char *argv[])
 {
     int opt;
     char cmd[128];
@@ -899,10 +914,10 @@ int main (int argc, char * argv[])
 
 
     config_permissions();
-    bt_mp_LogMsg("\n:::::::::::::::::::::::::::::::::::::::::::::::::::\n");
-    bt_mp_LogMsg(":: Bluedroid test app starting\n");
+    bdt_log("\n:::::::::::::::::::::::::::::::::::::::::::::::::");
+    bdt_log(":::::::: Bluetooth MP Test Tool Starting ::::::::");
 
-    if ( HAL_load() < 0 ) {
+    if (HAL_load() < 0) {
         perror("HAL failed to initialize, exit\n");
         unlink(PID_FILE);
         exit(0);
@@ -913,18 +928,16 @@ int main (int argc, char * argv[])
     /* Automatically perform the init */
 //    bdt_init();
 
-    while(!main_done)
-    {
+    while (!main_done) {
         char line[128];
 
         /* command prompt */
-        bt_mp_LogMsg( ">" );
+        printf("> ");
         fflush(stdout);
 
-        fgets (line, 128, stdin);
+        fgets(line, 128, stdin);
 
-        if (line[0]!= '\0')
-        {
+        if (line[0] != '\0') {
             /* remove linefeed */
             line[strlen(line)-1] = 0;
 
@@ -938,12 +951,12 @@ int main (int argc, char * argv[])
 
     HAL_unload();
 
-    bt_mp_LogMsg(":: Bluedroid test app terminating\n");
+    bdt_log(":::::::: Bluetooth MP Test Tool Terminating ::::::::");
 
     return 0;
 }
 
-void bt_mp_LogMsg(const char *fmt_str, ...)
+static void bt_mp_LogMsg(const char *fmt_str, ...)
 {
     static char buffer[MPTOOL_LOG_BUF_SIZE];
 
@@ -960,7 +973,7 @@ void bt_mp_LogMsg(const char *fmt_str, ...)
 **   Logger API
 *****************************************************************************/
 
-void bdt_log(const char *fmt_str, ...)
+static void bdt_log(const char *fmt_str, ...)
 {
     static char buffer[1024];
     va_list ap;
@@ -969,6 +982,6 @@ void bdt_log(const char *fmt_str, ...)
     vsnprintf(buffer, 1024, fmt_str, ap);
     va_end(ap);
 
-    fprintf(stdout, "%s", buffer);
+    fprintf(stdout, "%s\n", buffer);
 }
 

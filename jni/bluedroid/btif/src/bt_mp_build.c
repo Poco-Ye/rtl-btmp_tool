@@ -1,16 +1,15 @@
-
 #include "bt_mp_build.h"
 
-///////////
+
 int
 BuildBluetoothDevice(
-		BASE_INTERFACE_MODULE    *pBaseInterface,
-      	BT_DEVICE                **ppBtDeviceBase,
+        BASE_INTERFACE_MODULE    *pBaseInterface,
+        BT_DEVICE                **ppBtDeviceBase,
         BT_DEVICE                *pDeviceBasememory,
         void                     *pExtra,
         unsigned char            *pTxGainTable,
         unsigned char            *pTxDACTable
-	)
+        )
 {
 
 	BT_DEVICE	*pBtDevice =pDeviceBasememory;
@@ -78,17 +77,22 @@ BuildBluetoothDevice(
 	pBtDevice->SetContinueTxBegin   =       BTDevice_SetContinueTxBegin;
 	pBtDevice->SetContinueTxStop    =       BTDevice_SetContinueTxStop;
 	pBtDevice->SetContinueTxUpdate  =       BTDevice_SetContinueTxUpdate;
-        
+
 	//PKT-TX
 	pBtDevice->SetPktTxBegin        =       BTDevice_SetPktTxBegin;
+	pBtDevice->SetPktTxBeginChannelPacketType =       BTDevice_SetPktTxBegin_Channel_PacketType;
+
 	pBtDevice->SetPktTxStop         =       BTDevice_SetPktTxStop;
 	pBtDevice->SetPktTxUpdate       =       BTDevice_SetPktTxUpdate;
+	pBtDevice->SetPktTxSendOne       =       BTDevice_SetPktTxSendOne;
 
 	//PKT-RX
 	pBtDevice->SetPktRxBegin=BTDevice_SetPktRxBegin;
+	pBtDevice->SetPktRxBeginChannelPacketType=BTDevice_SetPktRxBegin_Channel_PacketType;
+
 	pBtDevice->SetPktRxStop=BTDevice_SetPktRxStop;
 	pBtDevice->SetPktRxUpdate=BTDevice_SetPktRxUpdate;
-                
+
 	//Base Function
 	pBtDevice->GetPayLoadTypeValidFlag=BTBASE_GetPayLoadTypeValidFlag;
 	pBtDevice->HitTargetAccessCodeGen =BTBASE_HitTargetAccessCodeGen;
@@ -118,46 +122,38 @@ BuildBluetoothDevice(
 // Base Module interface builder
 int
 BuildBluetoothModule(
-	BASE_INTERFACE_MODULE    *pBaseInterface,
-      	BT_MODULE                **ppBtModuleBase,
-        BT_MODULE                *pBtModuleBasememory,
-        void                     *pExtra,
-        unsigned char            *pTxGainTable,
-        unsigned char            *pTxDACTable
-	)
+    BASE_INTERFACE_MODULE    *pBaseInterfaceModule,
+    BT_MODULE                *pBtModule,
+    void                     *pExtra,
+    unsigned char            *pTxGainTable,
+    unsigned char            *pTxDACTable
+    )
 {
-    int rtn=BT_FUNCTION_SUCCESS;
-    BT_MODULE *pBtModule            =NULL;
-    (*ppBtModuleBase)               =pBtModuleBasememory;
-    pBtModule=(*ppBtModuleBase) ;
-        ///////////////// Module /////////////////////////////////////////////
-        //interface
+    int rtn = BT_FUNCTION_SUCCESS;
 
-
-        
     pBtModule->pBtParam             =       &pBtModule->BaseBtParamMemory;
     pBtModule->pBtDevice            =       &pBtModule->BaseBtDeviceMemory;
     pBtModule->pModuleBtReport      =       &pBtModule->BaseModuleBtReportMemory;
 
-	pBtModule->UpDataParameter      =       BTModule_UpDataParameter;
-	pBtModule->ActionControlExcute  =       BTModule_ActionControlExcute;
-	pBtModule->ActionReport			=       BTModule_ActionReport ;
-	pBtModule->DownloadPatchCode	=		BTModule_DownloadPatchCode;
+    pBtModule->UpDataParameter      =       BTModule_UpDataParameter;
+    pBtModule->ActionControlExcute  =       BTModule_ActionControlExcute;
+    pBtModule->ActionReport         =       BTModule_ActionReport ;
+    pBtModule->DownloadPatchCode    =       BTModule_DownloadPatchCode;
 
-	pBtModule->SetRfRegMaskBits		=		BTModule_SetRFRegMaskBits;
-	pBtModule->GetRfRegMaskBits		=		BTModule_GetRFRegMaskBits;
-	pBtModule->SetMdRegMaskBits		=		BTModule_SetMDRegMaskBits;
-	pBtModule->GetMdRegMaskBits		=		BTModule_GetMDRegMaskBits;
+    pBtModule->SetRfRegMaskBits     =       BTModule_SetRFRegMaskBits;
+    pBtModule->GetRfRegMaskBits     =       BTModule_GetRFRegMaskBits;
+    pBtModule->SetMdRegMaskBits     =       BTModule_SetMDRegMaskBits;
+    pBtModule->GetMdRegMaskBits     =       BTModule_GetMDRegMaskBits;
 
-	pBtModule->SendHciCommandWithEvent	=	BTModule_SendHciCommandWithEvent;
-	pBtModule->RecvAnyHciEvent			=	BTModule_RecvAnyHciEvent;
+    pBtModule->SendHciCommandWithEvent  =   BTModule_SendHciCommandWithEvent;
+    pBtModule->RecvAnyHciEvent      =   BTModule_RecvAnyHciEvent;
 
-	BuildBluetoothDevice(pBaseInterface,
-						 &pBtModule->pBtDevice,
-						 &pBtModule->BaseBtDeviceMemory,
-						 pExtra,pTxGainTable,
-						 pTxDACTable);
+    BuildBluetoothDevice(pBaseInterfaceModule,
+                         &pBtModule->pBtDevice,
+                         &pBtModule->BaseBtDeviceMemory,
+                         pExtra,
+                         pTxGainTable,
+                         pTxDACTable);
 
-
-        return  rtn;
+    return  rtn;
 }

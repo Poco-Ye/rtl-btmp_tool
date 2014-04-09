@@ -1,3 +1,4 @@
+#include <utils/Log.h>
 #include "bt_mp_device_base.h"
 
 #ifndef BOOL 
@@ -30,10 +31,10 @@ typedef enum _BOOL{false, true}BOOL;
 #define MAX_RX_READ_COUNT_ADR_0X72	60000
 #define MAX_RX_READ_ERRORBITS_ADR_0X78  60000
 
-                                 //dh1     dh3     dh5    2dh1    2dh3     2dh5    3dh1    3dh3    3dh5   poll null
-static unsigned char Arrary_Hopping_ptt[10]     ={0x00   ,0x00   ,0x00   ,0x01   ,0x01   ,0x01   ,0x01   ,0x01   ,0x01,0x00};
-static unsigned char Arrary_Hopping_pkt_type[10]={0x04   ,0x0b   ,0x0f   ,0x04   ,0x0a   ,0x0e   ,0x08   ,0x0b   ,0x0f,0x01};
-static unsigned int  Arrary_Hopping_pkt_len[10] ={27     ,183    ,339    ,54     ,367    ,679    ,83     ,552    ,1021,0   };
+                                                  //dh1   dh3     dh5    2dh1    2dh3     2dh5    3dh1    3dh3    3dh5   poll null
+static unsigned char Arrary_Hopping_ptt[10]     ={0x00   ,0x00   ,0x00   ,0x01   ,0x01   ,0x01   ,0x01   ,0x01   ,0x01    ,0x00};
+static unsigned char Arrary_Hopping_pkt_type[10]={0x04   ,0x0b   ,0x0f   ,0x04   ,0x0a   ,0x0e   ,0x08   ,0x0b   ,0x0f    ,0x01};
+static unsigned int  Arrary_Hopping_pkt_len[10] ={27     ,183    ,339    ,54     ,367    ,679    ,83     ,552    ,1021   ,0   };
 static unsigned char Arrary_Interval_slot_number[]={1,3,5,1,3,5,1,3,5,1};
 static unsigned int  Arrary_PayloadLength[BT_PKT_TYPE_NUM]={
 	
@@ -127,6 +128,8 @@ int BTDevice_SetResetMDCount(BT_DEVICE *pBtDevice)
 	pBtDevice->Inner_TotalRXBits=0;
 	pBtDevice->Inner_TotalRxCounts=0;
 	pBtDevice->Inner_TotalRxErrorBits=0;
+	pBtDevice->Inner_Last_RXPktUpdateCnts=0;		
+		
 	
 
 	/* reset report counter */
@@ -180,87 +183,85 @@ int BTDevice_GetPayloadLenTable(BT_DEVICE *pBtDevice,unsigned char  *pTable,int 
 int BTDevice_SetPktRxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
 
-	int rtn=BT_FUNCTION_SUCCESS;
-   	unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-   	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-	unsigned char  EventLen = 0;    
-   	unsigned int  OpCode=0x0000;
-	int pktType=pParam->mPacketType;
+    int rtn=BT_FUNCTION_SUCCESS;
+    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned long  EventLen = 0;
+    unsigned int  OpCode=0x0000;
+    int pktType=pParam->mPacketType;
 
-	
-	if (pBtDevice->TRXSTATE == TX_TIME_RUNING)
-	{
-  		rtn = FUNCTION_TX_RUNNING;
-  		return rtn;		
-	}
-	pBtDevice->Inner_RX_First=0;
-	if (pParam->mTestMode == BT_DUT_MODE)
-	{
-   		if (pktType == BT_PKT_LE)
-   		{
-   			OpCode=0x201F;
-		}
-		else
-		{
-			rtn = FUNCTION_NO_SUPPORT;	
-			goto exit;
-		}	
-		if (OpCode >0x0000)
-		{
-     			if (pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
- 			{
- 				rtn=FUNCTION_HCISEND_ERROR;
- 				goto exit;
-			}
- 			if (pEvent[5] != 0x00)
- 			{
- 				rtn=FUNCTION_HCISEND_STAUTS_ERROR;
- 				goto exit;
- 			}		
-		
-		}			
-	}
-	else
-	{
-	      	//Back to Shut Down mode
-        	if (pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x0000) != BT_FUNCTION_SUCCESS) 
-        	{
-        		goto exit;
-			}
-			//Reset Modem
-        	if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,1,1,0x00) != BT_FUNCTION_SUCCESS) 
-        	{
-          		goto exit;
-			}
-			//Disable multi-packet Tx
+    if (pBtDevice->TRXSTATE == TX_TIME_RUNING)
+    {
+        rtn = FUNCTION_TX_RUNNING;
+        return rtn;
+    }
+    pBtDevice->Inner_RX_First=0;
+    if (pParam->mTestMode == BT_DUT_MODE)
+    {
+        if (pktType == BT_PKT_LE)
+        {
+            OpCode=0x201F;
+        }
+        else
+        {
+            rtn = FUNCTION_NO_SUPPORT;
+            goto exit;
+        }
+        if (OpCode >0x0000)
+        {
+            if (pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+            {
+                rtn=FUNCTION_HCISEND_ERROR;
+                goto exit;
+            }
+            if (pEvent[5] != 0x00)
+            {
+                rtn=FUNCTION_HCISEND_STAUTS_ERROR;
+                goto exit;
+            }
 
-        	if ( pBtDevice->SetMutiRxEnable(pBtDevice,0x00) != BT_FUNCTION_SUCCESS) 
-        	{
-        		rtn = FUNCTION_HCISEND_ERROR;
-          		goto exit;
-			}
-        	if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x00) != BT_FUNCTION_SUCCESS) 
-        	{
-        		rtn = FUNCTION_HCISEND_ERROR;
-          		goto exit;
-			}
-        	if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x01) != BT_FUNCTION_SUCCESS) 
-        	{
-        		rtn = FUNCTION_HCISEND_ERROR;
-          		goto exit;
-			}			
+        }
+    }
+    else
+    {
+        //Back to Shut Down mode
+        if (pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x0000) != BT_FUNCTION_SUCCESS) 
+        {
+            goto exit;
+        }
+        //Reset Modem
+        if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,1,1,0x00) != BT_FUNCTION_SUCCESS) 
+        {
+            goto exit;
+        }
+        //Disable multi-packet Tx
 
-	}			
-	// stop process report
-	if (pBtDevice->SetPktRxUpdate(pBtDevice,pParam,pBtReport) != BT_FUNCTION_SUCCESS)
-	{
-		//don't care report process
-		rtn = BT_FUNCTION_SUCCESS;
-	}	
-exit:	
-	pBtDevice->TRXSTATE = TRX_TIME_STOP;	
-	return rtn;	
-	
+        if ( pBtDevice->SetMutiRxEnable(pBtDevice,0x00) != BT_FUNCTION_SUCCESS) 
+        {
+            rtn = FUNCTION_HCISEND_ERROR;
+            goto exit;
+        }
+        if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x00) != BT_FUNCTION_SUCCESS) 
+        {
+            rtn = FUNCTION_HCISEND_ERROR;
+            goto exit;
+        }
+        if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x01) != BT_FUNCTION_SUCCESS) 
+        {
+            rtn = FUNCTION_HCISEND_ERROR;
+            goto exit;
+        }
+
+    }
+    // stop process report
+    if (pBtDevice->SetPktRxUpdate(pBtDevice,pParam,pBtReport) != BT_FUNCTION_SUCCESS)
+    {
+        //don't care report process
+        rtn = BT_FUNCTION_SUCCESS;
+    }
+exit:
+    pBtDevice->TRXSTATE = TRX_TIME_STOP;
+    return rtn;
 }
 int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
@@ -269,7 +270,7 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_R
     unsigned long btClockTime=0;
  	unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
    	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-   	unsigned char EventLen = 0;
+   	unsigned long EventLen = 0;
    	unsigned int  OpCode=0x0000;
    	int pktType=pParam->mPacketType;
    	unsigned char pPayload_Len=0;
@@ -300,6 +301,7 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_R
 //	pBtDevice->Inner_TotalRxErrorBits=0;  
         pBtDevice->Inner_RX_MD_0X2E=0;
 		pBtDevice->Inner_RX_First=0;
+		pBtDevice->Inner_Last_RXPktUpdateCnts=0;
         if (pBtReport != NULL)
         {
 		// RX report Clear  
@@ -309,6 +311,7 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_R
 			pBtReport->TotalRxCounts=0;
 			pBtReport->TotalRxErrorBits=0;
 			pBtReport->IsRxRssi=-90;
+			pBtReport->RXRecvPktCnts=0;
         }
     //disable modem fix tx //
    // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
@@ -481,6 +484,161 @@ exit:
 	return rtn;	
 	
 }
+
+int BTDevice_SetPktRxBegin_Channel_PacketType(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
+{
+
+    int rtn=BT_FUNCTION_SUCCESS;
+    unsigned long btClockTime=0;
+    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned int  OpCode=0x0000;
+    unsigned long EventLen = 0;
+    int pktType=pParam->mPacketType;
+    unsigned char pPayload_Len=0;
+    unsigned long tmp=0;
+
+    BT_TRX_TIME   *pRxTime = &pBtDevice->TRxTime[RX_TIME_RUNING];	
+    if (pBtDevice->TRXSTATE == TX_TIME_RUNING)
+    {
+  		rtn = FUNCTION_TX_RUNNING;
+  		return rtn;		
+	}
+   	if (pParam->mPacketType == BT_PKT_LE)
+   	{
+   	 	if (pParam->mChannelNumber > 39)
+   	 	{
+   	 		rtn=FUNCTION_PARAMETER_INVALID_CHANNEL;
+   	 		return rtn;
+   		}
+	}
+	
+	//Time clear  		
+  	pRxTime->beginTimeClockCnt=0;
+    	pRxTime->UseTimeClockCnt=0;
+    	pRxTime->endTimeClockCnt=0;
+        
+//	pBtDevice->Inner_TotalRXBits=0;
+//	pBtDevice->Inner_TotalRxCounts=0;
+//	pBtDevice->Inner_TotalRxErrorBits=0;  
+        pBtDevice->Inner_RX_MD_0X2E=0;
+		pBtDevice->Inner_RX_First=0;
+		pBtDevice->Inner_Last_RXPktUpdateCnts=0;
+        if (pBtReport != NULL)
+        {
+		// RX report Clear  
+			pBtReport->TotalRXBits=0;
+			pBtReport->RXUpdateBits=0;
+			pBtReport->RXPktUpdateCnts=0;
+			pBtReport->TotalRxCounts=0;
+			pBtReport->TotalRxErrorBits=0;
+			pBtReport->IsRxRssi=-90;
+			pBtReport->RXRecvPktCnts=0;
+        }
+    //disable modem fix tx //
+   // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
+	if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x3c,12,12,0x0) !=BT_FUNCTION_SUCCESS)
+	{
+				rtn=FUNCTION_ERROR;
+				goto exit;	 
+	}
+
+	
+    // set rate and payload length //
+    if (pBtDevice->SetPacketType(pBtDevice,pParam->mPacketType) !=BT_FUNCTION_SUCCESS)
+    {
+		rtn=FUNCTION_ERROR;
+		goto exit;	 
+    }
+
+        //set channel
+        rtn=pBtDevice->SetRxChannel(pBtDevice,pParam->mChannelNumber);
+        if (rtn != BT_FUNCTION_SUCCESS)
+        {
+        	goto exit;
+        }
+		//multi-packet Rx 
+		rtn=pBtDevice->SetMutiRxEnable(pBtDevice,pParam->mMutiRxEnable) ;
+		if (rtn != BT_FUNCTION_SUCCESS) 
+			goto exit;
+		
+
+                
+	if (pParam->mTestMode == BT_DUT_MODE)
+	{
+		if (pktType == BT_PKT_LE)
+		{
+			pPayload[0]=pParam->mChannelNumber;
+			OpCode=0x201d;
+			
+		}
+		if (OpCode > 0)
+		{
+			if(pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,pPayload_Len,pPayload,0x0E,pEvent,&EventLen) != BT_FUNCTION_SUCCESS)
+			{
+				rtn=FUNCTION_HCISEND_ERROR;
+			}
+ 			if (pEvent[5] != 0x00)
+ 			{
+ 				rtn=FUNCTION_HCISEND_STAUTS_ERROR;
+ 			}			
+		}
+		else
+		{
+			rtn = FUNCTION_NO_SUPPORT;
+				
+		}
+		return rtn;	
+	}
+	else
+	{
+		//Back to Standby Mode from Shut Down mode
+     //   if (pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x1000) != BT_FUNCTION_SUCCESS) 
+      //  {
+     //   		goto exit;
+	//	}
+
+		
+	}
+
+        
+	   if (pBtDevice->SetRestMDCount(pBtDevice) !=BT_FUNCTION_SUCCESS)
+	   {
+		   
+			goto exit; 	
+	   }	
+	//get begin clock
+        if (BTDevice_GetBTClockTime(pBtDevice,&btClockTime) ==BT_FUNCTION_SUCCESS)
+        {
+                pRxTime->beginTimeClockCnt=btClockTime;
+        }
+		if (pBtDevice->Inner_RX_MD_0X2E ==0)
+        {
+			if (pBtDevice->GetMdRegMaskBits(pBtDevice,0x2e,15,0,&tmp) !=BT_FUNCTION_SUCCESS)
+			{
+				rtn=FUNCTION_ERROR;
+				goto exit;	 
+			}
+			if (tmp == 0)
+			{
+				rtn=FUNCTION_ERROR;
+				goto exit;	 
+			}
+
+			pBtDevice->Inner_RX_MD_0X2E=tmp;
+			
+        }        
+
+        pBtDevice->TRXSTATE = RX_TIME_RUNING;
+        return rtn;         
+exit:  
+		pBtDevice->TRXSTATE = TRX_TIME_STOP;
+        rtn = FUNCTION_ERROR;       	
+	return rtn;	
+	
+}
+
+
 int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
 
@@ -490,7 +648,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
     unsigned long rxErrbits=0; 
     unsigned long rxPin=0;   
 	unsigned long reg_0x7a=0; 
-	unsigned long tmp=0;
+//	unsigned long tmp=0;
     int pktType=pParam->mPacketType;
 	int resetCountFlag=0;
 	BT_TRX_TIME   *pRxTime = &pBtDevice->TRxTime[RX_TIME_RUNING];	
@@ -531,7 +689,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
 
 	pBtReport->IsRxRssi = (int) (rxPin);
 	pBtReport->IsRxRssi = ((pBtReport->IsRxRssi >> 2) *2) -90;
-	if (pBtReport->IsRxRssi > -88)
+	if (pBtReport->IsRxRssi > -89)
 	{
 		if (pBtDevice->Inner_RX_First ==0)
         {
@@ -550,7 +708,12 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
 
 
 		pBtReport->RXPktUpdateCnts=rxCount;
+		if (rxCount>=pBtDevice->Inner_Last_RXPktUpdateCnts)
+			pBtReport->RXRecvPktCnts=rxCount-pBtDevice->Inner_Last_RXPktUpdateCnts;
+		else
+			pBtReport->RXRecvPktCnts=pBtDevice->Inner_Last_RXPktUpdateCnts-rxCount;
 	
+		pBtDevice->Inner_Last_RXPktUpdateCnts=rxCount;
         //rx Bits
         if (rxCount >0)
         {
@@ -585,6 +748,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
 	else
 	{
 		resetCountFlag =0;
+		pBtReport->RXRecvPktCnts=0;
 	}
 	
 	if ((rxCount >MAX_RX_READ_COUNT_ADR_0X72) || (rxErrbits >MAX_RX_READ_ERRORBITS_ADR_0X78) )
@@ -669,6 +833,7 @@ exit:
 		 pBtDevice->Inner_TotalRxCounts +=rxCount;
 		 pBtDevice->Inner_TotalRXBits += pBtReport->RXUpdateBits;
 		 pBtDevice->Inner_TotalRxErrorBits+=rxErrbits;
+		 pBtDevice->Inner_Last_RXPktUpdateCnts=0;
 	  }	
       return rtn;		
 	
@@ -679,10 +844,10 @@ int BTDevice_SetPktTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_RE
 {
 
 	int rtn=BT_FUNCTION_SUCCESS;
-   	unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-   	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-   	unsigned char EventLen = 0;    
-   	unsigned int  OpCode=0x0000;
+    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned int  OpCode=0x0000;
+    unsigned long EventLen = 0;
 	int pktType=pParam->mPacketType;
 	if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
 	{
@@ -828,20 +993,19 @@ exit:
 	
 int BTDevice_SetPktTxBegin_DUTMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
 {
-	int rtn=BT_FUNCTION_SUCCESS;
- 	unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-   	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-	unsigned char  EventLen = 0;        
-   	unsigned int  OpCode=0x0000;
-   	int pktType=pParam->mPacketType;
-   	unsigned char pPayload_Len=0;
-	if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
-	{
-  		rtn = FUNCTION_RX_RUNNING;
-  		return rtn;		
-	}
+    int rtn=BT_FUNCTION_SUCCESS;
+    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned long  EventLen = 0;
+    unsigned int  OpCode=0x0000;
+    int pktType=pParam->mPacketType;
+    unsigned char pPayload_Len=0;
+    if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
+    {
+        rtn = FUNCTION_RX_RUNNING;
+        return rtn;
+    }
 
-   	
    	pPayload[0]= pParam->mChannelNumber;
    	
    	if (pktType == BT_PKT_LE)
@@ -1054,7 +1218,7 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_R
 			
         }
         pBtDevice->TRXSTATE = TX_TIME_RUNING;
-		
+
 
         return rtn; 
 
@@ -1076,6 +1240,146 @@ exit:
 	return rtn;
 	
 }
+
+int BTDevice_SetPktTxBegin_Channel_PacketType(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
+{
+
+	int rtn=BT_FUNCTION_SUCCESS;
+        unsigned long btClockTime=0;
+	unsigned long tmp=0;
+	BT_TRX_TIME   *pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
+	
+	
+	if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
+	{
+  		rtn = FUNCTION_RX_RUNNING;
+  		return rtn;		
+	}
+   	if (pParam->mPacketType == BT_PKT_LE)
+   	{
+   	 	if (pParam->mChannelNumber > 39)
+   	 	{
+   	 		rtn=FUNCTION_PARAMETER_INVALID_CHANNEL;
+   	 		return rtn;
+   		}
+	} 
+  	pTxTime->beginTimeClockCnt=0;
+        pTxTime->UseTimeClockCnt=0;
+        pTxTime->endTimeClockCnt=0;
+     
+        pBtDevice->TxTriggerPktCnt=0;
+	pBtDevice->Inner_TX_MD_0X2E=0;
+        
+        if (pBtReport != NULL)
+        {	
+		pBtReport->TotalTXBits=0;
+		pBtReport->TXUpdateBits=0;
+		pBtReport->TotalTxCounts=0;
+		pBtReport->TXPktUpdateCnts=0;        	
+        }
+
+        
+	//	rtn=pBtDevice->SetPesudoOuterSetup(pBtDevice,pParam);
+    //    if (rtn != BT_FUNCTION_SUCCESS)
+    //    {
+     //   	goto exit;
+    //    }  
+        
+      //disable modem fix tx //
+   // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
+	if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x3c,12,12,0x0) !=BT_FUNCTION_SUCCESS)
+	{
+				rtn=FUNCTION_ERROR;
+				goto exit;	 
+	}
+
+    // set rate and payload length //
+    if (pBtDevice->SetPacketType(pBtDevice,pParam->mPacketType) !=BT_FUNCTION_SUCCESS)
+    {
+		rtn=FUNCTION_ERROR;
+		goto exit;	 
+    }     
+        //set channel
+        rtn=pBtDevice->SetTxChannel(pBtDevice,pParam->mChannelNumber);
+        if (rtn != BT_FUNCTION_SUCCESS)
+        {
+        	goto exit;
+        }
+
+        rtn=pBtDevice->SetMutiRxEnable(pBtDevice,pParam->mMutiRxEnable);
+	if (rtn != BT_FUNCTION_SUCCESS)
+       {
+        	goto exit;
+      	} 
+        //begin con-tx setting
+	if (pParam->mTestMode == BT_DUT_MODE)
+	{
+		if (pParam->mPacketType <= BT_PKT_LE)//1DH1~33DH5
+		{
+		 rtn= BTDevice_SetPktTxBegin_DUTMODE(pBtDevice,pParam);
+		}
+		else
+		{
+            //con-Tx don't support DUT MODE
+			rtn= FUNCTION_NO_SUPPORT;
+			goto exit;		
+		}
+	}
+	else
+	{
+		if (pParam->mPacketType <= BT_PKT_LE)
+		{
+			if (BTDevice_SetPktTxBegin_PSEUDOMODE(pBtDevice,pParam) != BT_FUNCTION_SUCCESS)
+			{
+				goto exit;	
+			}		
+		}
+		else
+		{
+			rtn= FUNCTION_NO_SUPPORT;
+			goto exit;		
+		}		
+	}                       	
+	//get begin clock
+        if (BTDevice_GetBTClockTime(pBtDevice,&btClockTime) ==BT_FUNCTION_SUCCESS)
+        {
+                pTxTime->beginTimeClockCnt=btClockTime;
+        }
+		
+	if (pBtDevice->Inner_TX_MD_0X2E ==0)
+       {
+			if (pBtDevice->GetMdRegMaskBits(pBtDevice,0x2e,15,0,&tmp) !=BT_FUNCTION_SUCCESS)
+			{
+				rtn=FUNCTION_ERROR;
+				goto exit;	 
+			}
+			if (tmp == 0)
+			{
+				rtn=FUNCTION_ERROR;
+				goto exit;	 
+			}
+
+			pBtDevice->Inner_TX_MD_0X2E=tmp;
+			
+	}
+	pBtDevice->TRXSTATE = TX_TIME_RUNING;
+
+
+        return rtn; 
+
+exit:
+        if (rtn == FUNCTION_NO_SUPPORT) 
+        {
+        	return rtn;
+	}	
+
+	pBtDevice->TRXSTATE = TRX_TIME_STOP;
+	
+	return rtn;
+	
+}
+
+
 int BTDevice_SetPktTxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
 
@@ -1185,77 +1489,148 @@ exit:
 	return rtn;	
 	
 }
-//-----------------------------------------------------------------------------------------------------
-int BTDevice_SetHoppingMode(BT_DEVICE *pBtDevice,BT_PKT_TYPE pktType)
+int BTDevice_SetPktTxSendOne(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
+
 	int rtn=BT_FUNCTION_SUCCESS;
-   	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-	unsigned char  EventLen = 0;        
-
-     	unsigned char pPayLoad[]={0x00,0x04, 0x00          ,0x00   };
-      	unsigned char *ptt	=Arrary_Hopping_ptt;
-      	unsigned char *pkt_type	=Arrary_Hopping_pkt_type;
-        unsigned int  *pkt_len	=Arrary_Hopping_pkt_len;
-        int Index=0;
-
-
-	switch (pktType)
+	unsigned long NewModemReg4Value=1;
+	if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
 	{
-		case BT_PKT_1DH1:  
-		case BT_PKT_1DH3:
-		case BT_PKT_1DH5:
-		case BT_PKT_2DH1:
-		case BT_PKT_2DH3:
-		case BT_PKT_2DH5:
-		case BT_PKT_3DH1:
-		case BT_PKT_3DH3:
-		case BT_PKT_3DH5:  	Index=pktType;
-		break;
-		case BT_PKT_TYPE_NULL:
-		    	Index=9;
-                break;
-		case BT_PKT_LE:
-			Index=-1;	
-		break;
-	//////////////////////////////////////////////////
-		default:
-			rtn=FUNCTION_PARAMETER_ERROR;
-		goto exit;
+  		rtn = FUNCTION_RX_RUNNING;
+  		return rtn;		
 	}
-	
-	if (Index >=0)
-	{
-        	pPayLoad[0]= ptt[Index];
-        	pPayLoad[1]= pkt_type[Index];
-        	pPayLoad[2]= pkt_len[Index]&0xFF;
-        	pPayLoad[3]= (pkt_len[Index]>>8)&0xFF;
 
- 		if (pBtDevice->SendHciCommandWithEvent(pBtDevice,0xFD45,4,pPayLoad,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
- 		{
- 			rtn=FUNCTION_HCISEND_ERROR;
- 			goto exit;
+	NewModemReg4Value =( NewModemReg4Value <<4 ) | (MULTIPKTINTERVAL&0x000F);
+        if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x04,15,0,NewModemReg4Value) != BT_FUNCTION_SUCCESS)
+        {
+          		goto exit;
 		}
- 		if (pEvent[5] != 0x00)
- 		{
- 			rtn=FUNCTION_HCISEND_STAUTS_ERROR;
- 			goto exit;
- 		}			
-		pPayLoad[0]=0;
-	}
-	else
-	{
-		pPayLoad[0]=1;	
-	}	
- 	if (pBtDevice->SendHciCommandWithEvent(pBtDevice,0xFD45,1,pPayLoad,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
- 	{
- 		rtn=FUNCTION_HCISEND_ERROR;
- 		goto exit;
-	}	
- 	if (pEvent[5] != 0x00)
- 		rtn=FUNCTION_HCISEND_STAUTS_ERROR;
- 	
- exit:		
- 	return rtn;
+		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x00) != BT_FUNCTION_SUCCESS) 
+         {
+                goto exit;
+		}
+		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x07) != BT_FUNCTION_SUCCESS) 
+         {
+                goto exit;
+		}		
+		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,0,0,0x01) != BT_FUNCTION_SUCCESS) 
+        	{
+               		goto exit;
+		}
+		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,0,0,0x00) != BT_FUNCTION_SUCCESS) 
+        	{
+               		goto exit;
+		}
+		
+
+        if ((pBtReport == NULL) || (pParam ==NULL))
+	  goto exit;
+
+		return rtn;
+exit:
+	
+	rtn=FUNCTION_ERROR;	
+	return rtn;	
+	
+}
+//-----------------------------------------------------------------------------------------------------
+int BTDevice_SetHoppingMode(
+    BT_DEVICE *pBtDevice,
+    unsigned char ChannelNumber,
+    BT_PKT_TYPE pktType,
+    unsigned char HoppingFixChannel,
+    unsigned char WhiteningCoeffEnable
+    )
+{
+    int rtn = BT_FUNCTION_SUCCESS;
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned long EventLen = 0;
+
+    unsigned char pPayLoad[LEN_7_BYTE];
+    unsigned char *ptt  =Arrary_Hopping_ptt;
+    unsigned char *pkt_type =Arrary_Hopping_pkt_type;
+    unsigned int  *pkt_len  =Arrary_Hopping_pkt_len;
+    int Index = 0;
+
+    ALOGI("BTDevice_SetHoppingMode: ChannelNumber %d, pktType %d, HoppingFixChannel %d, "
+          "WhiteningCoeffEnable %d", ChannelNumber, pktType, HoppingFixChannel, WhiteningCoeffEnable);
+
+    switch (pktType) {
+    case BT_PKT_1DH1:
+    case BT_PKT_1DH3:
+    case BT_PKT_1DH5:
+    case BT_PKT_2DH1:
+    case BT_PKT_2DH3:
+    case BT_PKT_2DH5:
+    case BT_PKT_3DH1:
+    case BT_PKT_3DH3:
+    case BT_PKT_3DH5:
+        Index = pktType;
+        break;
+
+    case BT_PKT_TYPE_NULL:
+        Index = 9;
+        break;
+
+    case BT_PKT_LE:
+        Index = -1;
+        break;
+
+    default:
+        rtn = FUNCTION_PARAMETER_ERROR;
+        goto exit;
+    }
+
+    if (Index >= 0)
+    {
+        pPayLoad[0] = ptt[Index];
+        pPayLoad[1] = pkt_type[Index];
+        pPayLoad[2] = pkt_len[Index] & 0xFF;
+        pPayLoad[3] = (pkt_len[Index]>>8) & 0xFF;
+        pPayLoad[4] = HoppingFixChannel;
+
+        if (HoppingFixChannel == 0)
+        {
+            pPayLoad[5] = 0;
+        }
+        else
+        {
+            pPayLoad[5] = ChannelNumber;
+        }
+
+        pPayLoad[6] = WhiteningCoeffEnable;
+
+        if (pBtDevice->SendHciCommandWithEvent(pBtDevice, 0xfc75, LEN_7_BYTE, pPayLoad, 0x0E,
+                    pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+        {
+            rtn = FUNCTION_HCISEND_ERROR;
+            goto exit;
+        }
+
+        if (pEvent[5] != 0x00)
+        {
+            rtn=FUNCTION_HCISEND_STAUTS_ERROR;
+            goto exit;
+        }
+
+        pPayLoad[0]=0;
+    }
+    else
+    {
+        pPayLoad[0]=1;
+    }
+
+    if (pBtDevice->SendHciCommandWithEvent(pBtDevice, 0xFD45, 1, pPayLoad, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+    {
+        rtn = FUNCTION_HCISEND_ERROR;
+        goto exit;
+    }
+
+    if (pEvent[5] != 0x00)
+        rtn = FUNCTION_HCISEND_STAUTS_ERROR;
+
+exit:
+    return rtn;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1464,7 +1839,7 @@ int BTDevice_SetContinueTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEV
         {
                 pTxTime->beginTimeClockCnt=btClockTime;
         }
-        pBtDevice->TRXSTATE = TX_TIME_RUNING;
+        pBtDevice->TRXSTATE = TX_TIME_RUNING;	
         return rtn;
         
 exit:
@@ -1524,42 +1899,42 @@ static int BTDevice_SetContinueTxStop_PSEUDOMODE(BT_DEVICE *pBtDevice,BT_PARAMET
 }
 static int BTDevice_SetContinueTxStop_DUTMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
 {
-	int rtn=BT_FUNCTION_SUCCESS;
-	
-   	unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-   	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-	unsigned char  EventLen = 0;        
-   	unsigned int  OpCode=0x0000;
-   	int pktType =pParam->mPacketType;
-   	
-   	if (pktType == BT_PKT_LE)
-   	{
-   		OpCode=0x201F;
-	}
-	else if (pktType < BT_PKT_LE)
-	{
-		OpCode=0xFD43;	
-	}
-	else
-	{
-		rtn = FUNCTION_PARAMETER_ERROR;	
-	}	
-	if (OpCode >0x0000)
-	{
-     		if (pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
- 		{
- 			rtn=FUNCTION_HCISEND_ERROR;
- 			goto exit;
-		}
- 		if (pEvent[5] != 0x00)
- 		{
- 			rtn=FUNCTION_HCISEND_STAUTS_ERROR;
- 			goto exit;
- 		}		
-		
-	}
-exit:	
-	return rtn;
+    int rtn=BT_FUNCTION_SUCCESS;
+
+    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned long  EventLen = 0;
+    unsigned int  OpCode=0x0000;
+    int pktType =pParam->mPacketType;
+
+    if (pktType == BT_PKT_LE)
+    {
+        OpCode=0x201F;
+    }
+    else if (pktType < BT_PKT_LE)
+    {
+        OpCode=0xFD43;
+    }
+    else
+    {
+        rtn = FUNCTION_PARAMETER_ERROR;
+    }
+    if (OpCode >0x0000)
+    {
+        if (pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+        {
+            rtn=FUNCTION_HCISEND_ERROR;
+            goto exit;
+        }
+        if (pEvent[5] != 0x00)
+        {
+            rtn=FUNCTION_HCISEND_STAUTS_ERROR;
+            goto exit;
+        }
+
+    }
+exit:
+    return rtn;
 }
 int BTDevice_CalculatedTxBits(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport,int pktTx_conTx,unsigned long  *txbits,unsigned long *txpkt_cnt)
 {
@@ -1700,34 +2075,35 @@ exit:
 }	
 //-----------------------------------------------------------------------------------------------------
 int BTDevice_GetBTClockTime(
-	BT_DEVICE *pBtDevice,
-	unsigned long *btClockTime
-	)
+    BT_DEVICE *pBtDevice,
+    unsigned long *btClockTime
+    )
 {
-        int rtn=BT_FUNCTION_SUCCESS;
-        int i=0;
-        unsigned long Time=0;
-   	unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-   	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-	unsigned char  EventLen = 0;        
-   	pPayload[0]=0x00;
-   	pPayload[1]=0x00;
-   	pPayload[2]=0x00;
-     	if (pBtDevice->SendHciCommandWithEvent(pBtDevice,0x1407,3,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
- 	{
- 			rtn=FUNCTION_HCISEND_ERROR;
- 			goto exit;
-	}
- 	if (pEvent[5] != 0x00)
- 	{
- 			rtn=FUNCTION_HCISEND_STAUTS_ERROR;
- 	}
- 	for (i=0;i<4;i++)
- 	{
- 		Time= pEvent[8+i]; 
- 		
- 		*btClockTime += (Time << (i*8));	
-	}
+    int rtn=BT_FUNCTION_SUCCESS;
+    int i=0;
+    unsigned long Time=0;
+    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned long  EventLen = 0;
+    pPayload[0]=0x00;
+    pPayload[1]=0x00;
+    pPayload[2]=0x00;
+
+    if (pBtDevice->SendHciCommandWithEvent(pBtDevice,0x1407,3,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+    {
+        rtn=FUNCTION_HCISEND_ERROR;
+        goto exit;
+    }
+    if (pEvent[5] != 0x00)
+    {
+        rtn=FUNCTION_HCISEND_STAUTS_ERROR;
+    }
+    for (i=0;i<4;i++)
+    {
+        Time= pEvent[8+i];
+
+        *btClockTime += (Time << (i*8));
+    }
 exit:
 
         return rtn;
@@ -1851,54 +2227,54 @@ exit:
 //-----------------------------------------------------------------------------------------------------
 int BTDevice_SetFWPowerTrackEnable(BT_DEVICE *pBtDevice,unsigned char FWPowerTrackEnable)
 {
-	int rtn=BT_FUNCTION_SUCCESS;
-   	unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-   	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    	unsigned char  EventLen = 0;    
-	switch (FWPowerTrackEnable)
-	{
-		case 0:		*(pPayload+0) = 0;  //disable
-		case 0xFF:	*(pPayload+0) = 2;  //default vale
-		default:	*(pPayload+0) = FWPowerTrackEnable;  //any value  	
-		
- 	}
- 	
- 	if (pBtDevice->SendHciCommandWithEvent(pBtDevice,0xFC69,1,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
- 	{
- 		rtn=FUNCTION_HCISEND_ERROR;
- 		goto exit;
-	}	
- 	if (pEvent[5] != 0x00)
- 		rtn=FUNCTION_HCISEND_STAUTS_ERROR;
-exit: 	
+    int rtn=BT_FUNCTION_SUCCESS;
+    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned long EventLen = 0;
+    switch (FWPowerTrackEnable)
+    {
+        case 0:     *(pPayload+0) = 0;  //disable
+        case 0xFF:  *(pPayload+0) = 2;  //default vale
+        default:    *(pPayload+0) = FWPowerTrackEnable;  //any value
 
- 	return rtn;	
+    }
+
+    if (pBtDevice->SendHciCommandWithEvent(pBtDevice,0xFC69,1,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+    {
+        rtn=FUNCTION_HCISEND_ERROR;
+        goto exit;
+    }
+    if (pEvent[5] != 0x00)
+        rtn=FUNCTION_HCISEND_STAUTS_ERROR;
+exit:
+
+    return rtn;
 
 }
 //-----------------------------------------------------------------------------------------------------
 int BTDevice_SetHciReset(BT_DEVICE *pBtDevice,int Delay_mSec)
 {
-	int rtn=BT_FUNCTION_SUCCESS;
-   	unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    	unsigned char  EventLen = 0;    
-   	unsigned char pPayload[1]={0};
-   	
-   	//TX/RX State = STOP
-	pBtDevice->TRXSTATE = TRX_TIME_STOP;
-	
-	//Send reset command
- 	if (pBtDevice->SendHciCommandWithEvent(pBtDevice,0x0C03,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
- 	{
- 			rtn=FUNCTION_HCISEND_ERROR;
- 			goto exit;
-	}
- 	if (pEvent[5] != 0x00)
- 	{
- 			rtn=FUNCTION_HCISEND_STAUTS_ERROR;
- 	}
- 
+    int rtn=BT_FUNCTION_SUCCESS;
+    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    unsigned long  EventLen = 0;
+    unsigned char pPayload[1]={0};
+
+    //TX/RX State = STOP
+    pBtDevice->TRXSTATE = TRX_TIME_STOP;
+
+    //Send reset command
+    if (pBtDevice->SendHciCommandWithEvent(pBtDevice,0x0C03,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+    {
+        rtn=FUNCTION_HCISEND_ERROR;
+        goto exit;
+    }
+    if (pEvent[5] != 0x00)
+    {
+        rtn=FUNCTION_HCISEND_STAUTS_ERROR;
+    }
+
 exit:
-	return rtn;
+    return rtn;
 }
 //-----------------------------------------------------------------------------------------------------	
 int BTDevice_SetHitTarget(BT_DEVICE *pBtDevice,ULONG64 HitTarget)
@@ -1909,7 +2285,7 @@ int BTDevice_SetHitTarget(BT_DEVICE *pBtDevice,ULONG64 HitTarget)
      //   BT_DEVICE *p1BtDevice=pBtDevice;
         for (i=0;i<4;i++)
              pAccessCode[i]=0;
-             
+
 	if (pBtDevice->HitTargetAccessCodeGen(pBtDevice,HitTarget,pAccessCode) != BT_FUNCTION_SUCCESS)
 	{
 		rtn=FUNCTION_ERROR;
@@ -1918,16 +2294,16 @@ int BTDevice_SetHitTarget(BT_DEVICE *pBtDevice,ULONG64 HitTarget)
 //	DBGPRINTF(">>Write Modem 0x1c AccessCode[52:67]\n");
 	if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x1c,15,0,pAccessCode[0]) != BT_FUNCTION_SUCCESS)
 	{
-		rtn=FUNCTION_ERROR;	
-		goto exit;		
+		rtn=FUNCTION_ERROR;
+		goto exit;
 	}	
 //	DBGPRINTF(">>Write Modem 0x1e AccessCode[36:51]  \n");
 	if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x1e,15,0,pAccessCode[1]) != BT_FUNCTION_SUCCESS)
 	{
-		rtn=FUNCTION_ERROR;	
-		goto exit;		
-	}	
-	
+		rtn=FUNCTION_ERROR;
+		goto exit;
+	}
+
 //	DBGPRINTF(">>Write Modem 0x20 AccessCode[20:35]\n");
 	if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x20,15,0,pAccessCode[2]) != BT_FUNCTION_SUCCESS)
 	{
@@ -2199,66 +2575,68 @@ int BTBASE_HitTargetAccessCodeGen(BT_DEVICE *pBtDevice,ULONG64 HitTarget,unsigne
 	return rtn;
 }
 //----------------------------------------------------------------------------------------------------
- 
+
 int
 BTDevice_SendHciCommandWithEvent(
-	BT_DEVICE *pBtDevice,
-	unsigned int  OpCode,
-	unsigned char PayLoadLength,
-	unsigned char *pPayLoad,
-	unsigned char  EventType,
-       unsigned char  *pEvent,
-	unsigned char  *pEventLen
-
-	)
+    BT_DEVICE *pBtDevice,
+    unsigned int  OpCode,
+    unsigned char PayLoadLength,
+    unsigned char *pPayLoad,
+    unsigned char EventType,
+    unsigned char *pEvent,
+    unsigned long *pEventLen
+    )
 {
- 	unsigned long len;
-	unsigned char pWritingBuf[MAX_HCI_COMANND_BUF_SIZ];
+    unsigned long len;
+    unsigned char pWritingBuf[MAX_HCI_COMANND_BUF_SIZ];
     unsigned long Retlen =0;
     int n=0;
     unsigned char hci_rtn=0;
 
- 	len = PayLoadLength +3;
-	pWritingBuf[0x00] = OpCode & 0xFF;
-	pWritingBuf[0x01] = (OpCode >> 0x08) & 0xFF;
-	pWritingBuf[0x02] = PayLoadLength;
+    len = PayLoadLength +3;
+    pWritingBuf[0x00] = OpCode & 0xFF;
+    pWritingBuf[0x01] = (OpCode >> 0x08) & 0xFF;
+    pWritingBuf[0x02] = PayLoadLength;
     for (n=0;n<PayLoadLength;n++)
     {
-           pWritingBuf[0x03+n]=pPayLoad[n];
+        pWritingBuf[0x03+n]=pPayLoad[n];
     }
 
- 	if (pBtDevice->SendHciCmd(pBtDevice, HCIIO_BTCMD, pWritingBuf, len) != BT_FUNCTION_SUCCESS)
-        {		         
-               goto exit;
-        }
-	if (OpCode==0xFC20)
-	{
-		pEvent[5]=0x00;
-		return BT_FUNCTION_SUCCESS;	
-	}
-	if (pBtDevice->RecvHciEvent(pBtDevice, HCIIO_BTEVT, pEvent, pEventLen) != BT_FUNCTION_SUCCESS)
-        {
-                goto exit;
-        }
-        switch (EventType)
-        {
-                case 0x0e:
-                        hci_rtn =pEvent[5];
-                break;
-                case 0x0F:
-                break;
-                default:
-                break;
-        }
-
-        if (hci_rtn != 0x00)
-        {
-                 goto exit;
-        }
-
+    if (pBtDevice->SendHciCmd(pBtDevice, HCIIO_BTCMD, pWritingBuf, len) != BT_FUNCTION_SUCCESS)
+    {
+        ALOGI("zhangmin, SendHciCmd");
+        goto exit;
+    }
+    if (OpCode==0xFC20)
+    {
+        pEvent[5]=0x00;
         return BT_FUNCTION_SUCCESS;
+    }
+    if (pBtDevice->RecvHciEvent(pBtDevice, HCIIO_BTEVT, pEvent, pEventLen) != BT_FUNCTION_SUCCESS)
+    {
+        ALOGI("zhangmin, RecvHciEvent");
+        goto exit;
+    }
+    switch (EventType)
+    {
+        case 0x0e:
+            hci_rtn =pEvent[5];
+            break;
+        case 0x0F:
+            break;
+        default:
+            break;
+    }
+
+    if (hci_rtn != 0x00)
+    {
+        ALOGI("zhangmin, hci_rtn %d", hci_rtn);
+        goto exit;
+    }
+
+    return BT_FUNCTION_SUCCESS;
 exit:
-        return FUNCTION_ERROR;
+    return FUNCTION_ERROR;
 }
 //-----------------------------------------------------------------------------------------------------
 int

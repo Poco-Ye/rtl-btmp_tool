@@ -39,38 +39,23 @@
 
 #define STR_BT_MP_HCI_CMD   "hci_cmd"
 
+#define STR_BT_MP_SET_HOPPING_MODE   "bt_mp_SetHoppingMode"
 
-typedef enum
-{
+#define STR_BT_NOT_ENABLED "BT not enabled"
+
+typedef enum {
     BT_FUNCTION_SUCCESS = 0,
     ERROR_BT_DISABLE = 0x80,
     ERROR_BT_INVALID_PARA_COUNT,
 
 
     ERROR_BT_IF_RETURN_STATUS_NUM
-}ADB_IF_FUNCTION_RETURN_STATUS;
+} ADB_IF_FUNCTION_RETURN_STATUS;
 
 
-void
-bt_mp_LogMsg(const char *fmt_str, ...);
+static void bt_mp_LogMsg(const char *fmt_str, ...);
 
-
-
-void bdt_log(const char *fmt_str, ...);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+static void bdt_log(const char *fmt_str, ...);
 
 
 #endif

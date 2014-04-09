@@ -302,7 +302,8 @@ static bt_status_t btif_mp_notify_evt(void* msg)
 
     BTIF_TRACE_DEBUG2("%s: notify1 :%s", __FUNCTION__, p);
 
-    p[mp_op_paraLen] = NULL;
+    p[mp_op_paraLen] = '\0';
+
     BTIF_TRACE_DEBUG2("%s: notify2 :%s", __FUNCTION__, p);
 
     HAL_CBACK(bt_hal_cbacks, dut_mode_recv_cb, mp_op_code, p);
@@ -367,7 +368,7 @@ static void btif_task(UINT32 params)
         if (event & EVENT_MASK(GKI_SHUTDOWN_EVT))
             break;
 
-        if(event & TASK_MBOX_1_EVT_MASK)
+        if (event & TASK_MBOX_1_EVT_MASK)
         {
             while((p_msg = GKI_read_mbox(BTU_BTIF_MBOX)) != NULL)
             {
@@ -738,5 +739,6 @@ bt_status_t btif_dut_mode_send(uint16_t opcode, uint8_t *buf, uint8_t len)
     BTIF_TRACE_DEBUG1("%s", __FUNCTION__);
 
     BTM_VendorSpecificCommand(opcode, len, buf);
+
     return BT_STATUS_SUCCESS;
 }

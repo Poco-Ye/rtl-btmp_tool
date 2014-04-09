@@ -1,6 +1,10 @@
 #ifndef __FOUNDATION_H
 #define __FOUNDATION_H
 #include <pthread.h>
+
+
+#define REALTEK_BT_MP_API_VERSION		"Realtek BT MP API 2014.02.17 - 1"
+
 // Constants
 #define INVALID_POINTER_VALUE		0
 #define NO_USE						0
@@ -11,10 +15,12 @@
 #define LEN_4_BYTE					4
 #define LEN_5_BYTE					5
 #define LEN_6_BYTE					6
+#define LEN_7_BYTE					7
 #define LEN_11_BYTE					11
 #define LEN_13_BYTE					13
 #define LEN_14_BYTE					14
 #define LEN_16_BYTE					16
+#define LEN_250_BYTE					250
 #define LEN_2048_BYTE				2048
 
 
@@ -93,6 +99,8 @@
 
 #define STR_BT_MP_HCI_CMD   "hci_cmd"
 
+#define STR_BT_MP_SET_HOPPING_MODE   "bt_mp_SetHoppingMode"
+
 /*
 enum FUNCTION_RETURN_STATUS
 {
@@ -125,17 +133,16 @@ typedef int
 (*BASE_FP_SEND)(
 	BASE_INTERFACE_MODULE *pBaseInterface,
 	unsigned char *pWritingBuf,
-	unsigned char Len
+	unsigned long Len
 	);
-
-
 
 typedef int
 (*BASE_FP_RECV )(
-	BASE_INTERFACE_MODULE *pBaseInterface,
-	unsigned char *pReadingBuf,
-	unsigned char *pRetLen
-	);
+        BASE_INTERFACE_MODULE *pBaseInterface,
+        unsigned char *pReadingBuf,
+        unsigned long  Len,
+        unsigned long *pRetLen
+        );
 
 
 
@@ -179,53 +186,44 @@ typedef void
 /// Base interface module structure
 struct BASE_INTERFACE_MODULE_TAG
 {
-	BASE_FP_OPEN Open;
-	BASE_FP_SEND Send;
-	BASE_FP_RECV Recv;
-	BASE_FP_CLOSE Close;
-	BASE_FP_WAIT_MS WaitMs;
-	
-	BASE_FP_SET_USER_DEFINED_DATA_POINTER   SetUserDefinedDataPointer;
-	BASE_FP_GET_USER_DEFINED_DATA_POINTER   GetUserDefinedDataPointer;
+    BASE_FP_OPEN Open;
+    BASE_FP_SEND Send;
+    BASE_FP_RECV Recv;
+    BASE_FP_CLOSE Close;
+    BASE_FP_WAIT_MS WaitMs;
 
-	unsigned char InterfaceType;
+    BASE_FP_SET_USER_DEFINED_DATA_POINTER   SetUserDefinedDataPointer;
+    BASE_FP_GET_USER_DEFINED_DATA_POINTER   GetUserDefinedDataPointer;
 
-	// User defined data
-	int UserDefinedData;
+    unsigned char InterfaceType;
 
-	//for usb , uart
-	unsigned char PortNo;		
+    // User defined data
+    unsigned long UserDefinedData;
 
-	//for uart
-	unsigned long Baudrate;
+    //for usb , uart
+    unsigned char PortNo;
 
-       unsigned short rx_ready_events;
-       pthread_mutex_t mutex;
-       pthread_cond_t  cond;
-       unsigned char evtBuffer[255];
-       unsigned char evtLen;
-       
+    //for uart
+    unsigned long Baudrate;
+
+    unsigned short rx_ready_events;
+    pthread_mutex_t mutex;
+    pthread_cond_t  cond;
+    unsigned char evtBuffer[255];
+    unsigned char evtLen;
+
 };
 
-
-
-
-
-void
-BuildTransportInterface(
-	BASE_INTERFACE_MODULE **ppBaseInterface,
-	BASE_INTERFACE_MODULE *pBaseInterfaceModuleMemory,
-	unsigned char	PortNo,
-	unsigned long Baudrate,
-	BASE_FP_OPEN Open,
-	BASE_FP_SEND Send,
-	BASE_FP_RECV Recv,
-	BASE_FP_CLOSE Close,
-	BASE_FP_WAIT_MS WaitMs
-	);
-
-
-
+void BuildTransportInterface(
+        BASE_INTERFACE_MODULE *pBaseInterfaceModule,
+        unsigned char PortNo,
+        unsigned long Baudrate,
+        BASE_FP_OPEN Open,
+        BASE_FP_SEND Send,
+        BASE_FP_RECV Recv,
+        BASE_FP_CLOSE Close,
+        BASE_FP_WAIT_MS WaitMs
+        );
 
 // User data pointer of base interface structure setting and getting functions
 void

@@ -27,14 +27,15 @@ int BTModule_DownloadPatchCode(
 
 int
 BTModule_SendHciCommandWithEvent(
-	BT_MODULE *pBtModule,
-	unsigned int  OpCode,
-	unsigned char PayLoadLength,
-	unsigned char *pPayLoad,
-	unsigned char  EventType,
-	unsigned char  *pEvent,
-	unsigned char  *pEventLen
-	);
+    BT_MODULE *pBtModule,
+    unsigned int  OpCode,
+    unsigned char PayLoadLength,
+    unsigned char *pPayLoad,
+    unsigned char EventType,
+    unsigned char *pEvent,
+    unsigned long *pEventLen
+    );
+
 int
 BTModule_RecvAnyHciEvent(
 	BT_MODULE *pBtModule,
@@ -56,14 +57,16 @@ BTModule_SetMDRegMaskBits(
 	unsigned char Lsb,
 	const unsigned long UserValue
 	);
+
 int
 BTModule_GetRFRegMaskBits(
-	BT_MODULE *pBtModule,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pUserValue
-	);
+    BT_MODULE *pBtModule,
+    unsigned char Addr,
+    unsigned char Msb,
+    unsigned char Lsb,
+    unsigned long *pUserValue
+    );
+
 int
 BTModule_SetRFRegMaskBits(
 	BT_MODULE *pBtModule,
