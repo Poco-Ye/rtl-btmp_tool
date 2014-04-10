@@ -156,8 +156,8 @@ typedef struct {
     /* Configure DUT Mode - Use this mode to enter/exit DUT mode */
     int (*dut_mode_configure)(uint8_t enable);
 
-    /* Send any test HCI (vendor-specific) command to the controller. Must be
-    in DUT Mode */
+    /** Send any test HCI (vendor-specific) command to the controller. Must */
+    /* be in DUT Mode */
     int (*hal_mp_op_send)(uint16_t opcode, char *buf, uint8_t len);
 } bt_interface_t;
 
