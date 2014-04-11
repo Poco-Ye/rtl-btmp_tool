@@ -478,7 +478,7 @@ typedef int
         unsigned char RegStartAddr,
         unsigned char Msb,
         unsigned char Lsb,
-        unsigned long *pReadingValue
+        unsigned int *pReadingValue
         );
 
 //------------------------------------------------------------------------------------------------------------------
@@ -525,14 +525,13 @@ typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice,unsigned char *pPatchco
 
 typedef struct   BT_TRX_TIME_TAG BT_TRX_TIME;
 
-typedef enum{
+typedef enum {
         TRX_TIME_STOP =0,
         TX_TIME_RUNING ,
         RX_TIME_RUNING,
-        
         //////////////
         NUMOFTRXTIME_TAG
-}TRXTIME_TAG;
+} TRXTIME_TAG;
 
 struct  BT_TRX_TIME_TAG{
 	unsigned long beginTimeClockCnt;
@@ -727,7 +726,7 @@ typedef int
     unsigned char RegStartAddr,
     unsigned char Msb,
     unsigned char Lsb,
-    unsigned short *pReadingValue
+    unsigned int *pReadingValue
     );
 
 //-->HCI Command & Event
@@ -893,14 +892,16 @@ bt_default_GetMDRegMaskBits(
 	unsigned char Lsb,
 	unsigned long *pUserValue
 	);
+
 int
 bt_default_GetRFRegMaskBits(
-	BT_DEVICE *pBt,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pUserValue
-	);
+        BT_DEVICE *pBt,
+        unsigned char Addr,
+        unsigned char Msb,
+        unsigned char Lsb,
+        unsigned int *pUserValue
+        );
+
 int
 bt_default_SetRFRegMaskBits(
 	BT_DEVICE *pBt,

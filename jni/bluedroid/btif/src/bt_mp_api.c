@@ -1,4 +1,4 @@
-#define LOG_TAG "BTIF_MP_API"
+#define LOG_TAG "btif_mp_api"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -734,97 +734,79 @@ char* BT_Exec(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
 
 char* BT_ReportTx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
 {
-    BT_PARAMETER        *pBtParam =NULL;
-    BT_DEVICE_REPORT    *pModuleBtReport=NULL;
+    BT_DEVICE_REPORT BtDeviceReport;
     int rtn = BT_FUNCTION_SUCCESS;
 
-    bt_mp_LogMsg("++%s", STR_BT_MP_REPORTTX);
+    ALOGI("++%s", STR_BT_MP_REPORTTX);
 
-    pBtParam=pBtModule->pBtParam;
-    pModuleBtReport=pBtModule->pModuleBtReport;
-    pBtParam->ParameterIndex=PACKET_TX_UPDATE;
-    rtn=pBtModule->ActionControlExcute(pBtModule);
+    rtn=pBtModule->ActionReport(pBtModule, REPORT_TX, &BtDeviceReport);
 
-    if (rtn != BT_FUNCTION_SUCCESS)
-    {
-            sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
-            bt_mp_LogMsg("%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
-            goto exit;
-    }
-    else
-    {
-        bt_mp_LogMsg("%s%s%lx%s%lx",
-                                STR_BT_MP_REPORTTX,
-                                STR_BT_MP_RX_RESULT_DELIM,
-                                pModuleBtReport->TotalTXBits,
-                                STR_BT_MP_RX_RESULT_DELIM,
-                                pModuleBtReport->TotalTxCounts);
+    if (rtn != BT_FUNCTION_SUCCESS) {
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
+        ALOGI("%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
+        goto exit;
+    } else {
+        ALOGI("%s%s%lx%s%lx",
+                STR_BT_MP_REPORTTX,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.TotalTXBits,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.TotalTxCounts);
 
         sprintf(pNotifyBuffer, "%s%s%lx%s%lx",
                                 STR_BT_MP_REPORTTX,
                                 STR_BT_MP_RX_RESULT_DELIM,
-                                pModuleBtReport->TotalTXBits,
+                                BtDeviceReport.TotalTXBits,
                                 STR_BT_MP_RX_RESULT_DELIM,
-                                pModuleBtReport->TotalTxCounts);
+                                BtDeviceReport.TotalTxCounts);
     }
 
 exit:
+    ALOGI("--%s", STR_BT_MP_REPORTTX);
 
-    bt_mp_LogMsg("--%s", STR_BT_MP_REPORTTX);
     return pNotifyBuffer;
 }
 
 char* BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
 {
-    BT_PARAMETER        *pBtParam =NULL;
-    BT_DEVICE_REPORT    *pModuleBtReport=NULL;
-    int rtn=BT_FUNCTION_SUCCESS;
+    BT_DEVICE_REPORT BtDeviceReport;
+    int rtn = BT_FUNCTION_SUCCESS;
 
-    bt_mp_LogMsg("++%s", STR_BT_MP_REPORTRX);
+    ALOGI("++%s", STR_BT_MP_REPORTRX);
 
-    pBtParam=pBtModule->pBtParam;
-    pModuleBtReport=pBtModule->pModuleBtReport;
-
-    pBtParam->ParameterIndex=PACKET_RX_UPDATE;
-    rtn=pBtModule->ActionControlExcute(pBtModule) ;
-    if (rtn != BT_FUNCTION_SUCCESS)
-    {
-
-        bt_mp_LogMsg("%s%s%x", STR_BT_MP_PKTRXSTART, STR_BT_MP_RX_RESULT_DELIM, rtn);        
+    rtn = pBtModule->ActionReport(pBtModule, REPORT_RX, &BtDeviceReport);
+    if (rtn != BT_FUNCTION_SUCCESS) {
+        ALOGI("%s%s%x", STR_BT_MP_PKTRXSTART, STR_BT_MP_RX_RESULT_DELIM, rtn);
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_PKTRXSTART, STR_BT_MP_RX_RESULT_DELIM, rtn);
         goto exit;
-    }
-    else
-    {
-
-        bt_mp_LogMsg("%s%s%x%s%lx%s%lx%s%lx",
-                        STR_BT_MP_REPORTRX,
-                        STR_BT_MP_RX_RESULT_DELIM,
-                        pModuleBtReport->IsRxRssi,
-                        STR_BT_MP_RX_RESULT_DELIM,
-                        pModuleBtReport->TotalRXBits,
-                         STR_BT_MP_RX_RESULT_DELIM,
-                        pModuleBtReport->TotalRxCounts,
-                         STR_BT_MP_RX_RESULT_DELIM,
-                        pModuleBtReport->TotalRxErrorBits
-                        );
+    } else {
+        ALOGI("%s%s%x%s%lx%s%lx%s%lx",
+                STR_BT_MP_REPORTRX,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.IsRxRssi,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.TotalRXBits,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.TotalRxCounts,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.TotalRxErrorBits
+             );
 
         sprintf(pNotifyBuffer, "%s%s%x%s%lx%s%lx%s%lx",
-                        STR_BT_MP_REPORTRX,
-                        STR_BT_MP_RX_RESULT_DELIM,
-                        pModuleBtReport->IsRxRssi,
-                        STR_BT_MP_RX_RESULT_DELIM,
-                        pModuleBtReport->TotalRXBits,
-                         STR_BT_MP_RX_RESULT_DELIM,
-                        pModuleBtReport->TotalRxCounts,
-                         STR_BT_MP_RX_RESULT_DELIM,
-                        pModuleBtReport->TotalRxErrorBits
-                    );
+                STR_BT_MP_REPORTRX,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.IsRxRssi,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.TotalRXBits,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.TotalRxCounts,
+                STR_BT_MP_RX_RESULT_DELIM,
+                BtDeviceReport.TotalRxErrorBits
+               );
     }
 
 exit:
-
-    bt_mp_LogMsg("--%s", STR_BT_MP_REPORTRX);
+    ALOGI("--%s", STR_BT_MP_REPORTRX);
 
     return pNotifyBuffer;
 }
@@ -852,7 +834,7 @@ char* BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     unsigned char address = 0;
     unsigned char msb = 0;
     unsigned char lsb = 0;
-    unsigned short dataReadWrite = 0; //for opReadWrite = 1(write)
+    unsigned int dataReadWrite = 0; //for opReadWrite = 1(write)
 
     bt_mp_LogMsg("++%s: %s", STR_BT_MP_REG_RF, p);
 
@@ -955,7 +937,7 @@ EXIT:
                                    msb,
                                    lsb,
                                    dataReadWrite
-                                   );   
+                                   );
 
         bt_mp_LogMsg("%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);

@@ -551,7 +551,7 @@ bt_default_GetRFRegMaskBits(
         unsigned char Addr,
         unsigned char Msb,
         unsigned char Lsb,
-        unsigned long *pUserValue
+        unsigned int *pUserValue
         )
 {
 	int i;

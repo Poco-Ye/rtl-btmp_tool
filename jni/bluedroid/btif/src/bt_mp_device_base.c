@@ -263,6 +263,7 @@ exit:
     pBtDevice->TRXSTATE = TRX_TIME_STOP;
     return rtn;
 }
+
 int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
 
@@ -843,80 +844,83 @@ exit:
 int BTDevice_SetPktTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
 
-	int rtn=BT_FUNCTION_SUCCESS;
+    int rtn=BT_FUNCTION_SUCCESS;
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
     unsigned int  OpCode=0x0000;
     unsigned long EventLen = 0;
-	int pktType=pParam->mPacketType;
-	if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
-	{
-  		rtn = FUNCTION_RX_RUNNING;
-  		return rtn;		
-	}
-	if (pParam->mTestMode == BT_DUT_MODE)
-	{	
-   		if (pktType == BT_PKT_LE)
-   		{
-   			OpCode=0x201F;
-     		if (pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
- 			{
- 				rtn=FUNCTION_HCISEND_ERROR;
- 				goto exit;
-			}
-		}
-		else
-		{
-			rtn = FUNCTION_NO_SUPPORT;	
-			goto exit;
-		}	
-	}
-	else
-	{
-		//disable multi-packet Tx
-        if ( pBtDevice->SetMutiRxEnable(pBtDevice,0x00) != BT_FUNCTION_SUCCESS) 
-        {
-        		rtn = FUNCTION_HCISEND_ERROR;
-          		goto exit;
-		}
-		//Back to Shut Down mode
-       		if ( pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x00) != BT_FUNCTION_SUCCESS) 
-        	{
-        		rtn = FUNCTION_HCISEND_ERROR;
-          		goto exit;
-		}
-        	if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x04,15,0,pBtDevice->OldModemReg4Value) != BT_FUNCTION_SUCCESS) 
-        	{
-        		rtn = FUNCTION_HCISEND_ERROR;
-          		goto exit;
-		}							
-	}
+    int pktType=pParam->mPacketType;
 
-
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x00) != BT_FUNCTION_SUCCESS) 
+    if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
     {
-          	goto exit;
-	}
-        if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x01) != BT_FUNCTION_SUCCESS) 
+        rtn = FUNCTION_RX_RUNNING;
+        return rtn;
+    }
+    if (pParam->mTestMode == BT_DUT_MODE)
+    {
+        if (pktType == BT_PKT_LE)
         {
-          	goto exit;
-	}		
-	pBtDevice->TRXSTATE = TRX_TIME_STOP;
+            OpCode=0x201F;
+            if (pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+            {
+                rtn=FUNCTION_HCISEND_ERROR;
+                goto exit;
+            }
+        }
+        else
+        {
+            rtn = FUNCTION_NO_SUPPORT;
+            goto exit;
+        }
+    }
+    else
+    {
+        //disable multi-packet Tx
+        if ( pBtDevice->SetMutiRxEnable(pBtDevice,0x00) != BT_FUNCTION_SUCCESS)
+        {
+            rtn = FUNCTION_HCISEND_ERROR;
+            goto exit;
+        }
+        //Back to Shut Down mode
+        if ( pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x00) != BT_FUNCTION_SUCCESS)
+        {
+            rtn = FUNCTION_HCISEND_ERROR;
+            goto exit;
+        }
+        if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x04,15,0,pBtDevice->OldModemReg4Value) != BT_FUNCTION_SUCCESS)
+        {
+            rtn = FUNCTION_HCISEND_ERROR;
+            goto exit;
+        }
+    }
+
+
+    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x00) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x01) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+    pBtDevice->TRXSTATE = TRX_TIME_STOP;
 
     if ((pBtReport != NULL) && (pParam !=NULL))
     {
-         //report
+        //report
         ///////////////////////////////////////////////////////////////////////////////////////////////
         BTDevice_CalculatedTxBits(pBtDevice,pParam,pBtReport,PKT_TX,&pBtReport->TXUpdateBits,&pBtReport->TXPktUpdateCnts);
         pBtReport->TotalTXBits += pBtReport->TXUpdateBits;
-		pBtDevice->TxTriggerPktCnt += pBtReport->TXPktUpdateCnts;
-		pBtReport->TotalTxCounts += pBtReport->TXPktUpdateCnts;
+        pBtDevice->TxTriggerPktCnt += pBtReport->TXPktUpdateCnts;
+        pBtReport->TotalTxCounts += pBtReport->TXPktUpdateCnts;
         //////////////////////////////////////////////////////////////////////////////////////////////	
-	}	
-exit:		
-	return rtn;	
-	
+    }
+
+exit:
+    return rtn;
+
 }
+
 int BTDevice_SetPktTxBegin_PSEUDOMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
 {
 	int rtn=BT_FUNCTION_SUCCESS;
@@ -1040,205 +1044,173 @@ int BTDevice_SetPktTxBegin_DUTMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
 exit:	
 	return rtn;	
 			
-}	
-int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
+}
+
+int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport)
 {
 
-	int rtn=BT_FUNCTION_SUCCESS;
-        unsigned long btClockTime=0;
-	unsigned long tmp=0;
-	BT_TRX_TIME   *pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
-	
-	
-	if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
-	{
-  		rtn = FUNCTION_RX_RUNNING;
-  		return rtn;		
-	}
-   	if (pParam->mPacketType == BT_PKT_LE)
-   	{
-   	 	if (pParam->mChannelNumber > 39)
-   	 	{
-   	 		rtn=FUNCTION_PARAMETER_INVALID_CHANNEL;
-   	 		return rtn;
-   		}
-	} 
-  		pTxTime->beginTimeClockCnt=0;
-        pTxTime->UseTimeClockCnt=0;
-        pTxTime->endTimeClockCnt=0;
-     
-        pBtDevice->TxTriggerPktCnt=0;
-		pBtDevice->Inner_TX_MD_0X2E=0;
-        
-        if (pBtReport != NULL)
-        {	
-		pBtReport->TotalTXBits=0;
-		pBtReport->TXUpdateBits=0;
-		pBtReport->TotalTxCounts=0;
-		pBtReport->TXPktUpdateCnts=0;        	
+    int rtn = BT_FUNCTION_SUCCESS;
+    unsigned long btClockTime = 0;
+    unsigned long tmp = 0;
+    BT_TRX_TIME   *pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
+
+    if (pBtDevice->TRXSTATE == RX_TIME_RUNING) {
+        rtn = FUNCTION_RX_RUNNING;
+        return rtn;
+    }
+
+    if (pParam->mPacketType == BT_PKT_LE) {
+        if (pParam->mChannelNumber > 39) {
+            rtn = FUNCTION_PARAMETER_INVALID_CHANNEL;
+            return rtn;
         }
+    }
 
-        
-	//	rtn=pBtDevice->SetPesudoOuterSetup(pBtDevice,pParam);
-    //    if (rtn != BT_FUNCTION_SUCCESS)
-    //    {
-     //   	goto exit;
-    //    }  
-        
-      //disable modem fix tx //
-   // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
-	if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x3c,12,12,0x0) !=BT_FUNCTION_SUCCESS)
-	{
-				rtn=FUNCTION_ERROR;
-				goto exit;	 
-	}
+    pTxTime->beginTimeClockCnt=0;
+    pTxTime->UseTimeClockCnt=0;
+    pTxTime->endTimeClockCnt=0;
 
-    // enable pesudo outter mode //
-   // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x2E), BIT8, BIT8);
-//	if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2E,8,8,0x1) !=BT_FUNCTION_SUCCESS)
-//	{
-//				rtn=FUNCTION_ERROR;
-//				goto exit;	 
-//	}
+    pBtDevice->TxTriggerPktCnt=0;
+    pBtDevice->Inner_TX_MD_0X2E=0;
+
+    if (pBtReport != NULL) {
+        pBtReport->TotalTXBits=0;
+        pBtReport->TXUpdateBits=0;
+        pBtReport->TotalTxCounts=0;
+        pBtReport->TXPktUpdateCnts=0;
+    }
+
+    //disable modem fix tx //
+    // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
+    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x3c,12,12,0x0) != BT_FUNCTION_SUCCESS) {
+        rtn = FUNCTION_ERROR;
+        goto exit;
+    }
 
     // set payload type //
-
-	if (pBtDevice->SetPayloadType(pBtDevice,pParam->mPayloadType)  !=BT_FUNCTION_SUCCESS)
-	{
-				rtn=FUNCTION_ERROR;
-				goto exit;	 
-	}	
+    if (pBtDevice->SetPayloadType(pBtDevice,pParam->mPayloadType)  != BT_FUNCTION_SUCCESS) {
+        rtn=FUNCTION_ERROR;
+        goto exit;
+    }
     // set rate and payload length //
-    if (pBtDevice->SetPacketType(pBtDevice,pParam->mPacketType) !=BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetPacketType(pBtDevice,pParam->mPacketType) != BT_FUNCTION_SUCCESS) {
+        rtn=FUNCTION_ERROR;
+        goto exit;
+    }
+    // set packet header
+    if (pBtDevice->SetPackHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS) {
+        rtn=FUNCTION_ERROR;
+        goto exit;
+    }
+
+    //set target bd address
+    rtn=pBtDevice->SetHitTarget(pBtDevice,pParam->mHitTarget);
+    if (rtn != BT_FUNCTION_SUCCESS)
     {
-		rtn=FUNCTION_ERROR;
-		goto exit;	 
-    }     
-    // set packet header 
-    if (pBtDevice->SetPackHeader(pBtDevice,pParam->mPacketHeader)!=BT_FUNCTION_SUCCESS)
+        goto exit;
+    }
+
+    // set WhiteningCoeffEnable
+    rtn=pBtDevice->SetWhiteningCoeffEnable(pBtDevice,pParam->mWhiteningCoeffEnable);
+    if (rtn != BT_FUNCTION_SUCCESS)
     {
-		rtn=FUNCTION_ERROR;
-		goto exit;	 
-    } 
-    
+        goto exit;
+    }
 
 
-        //set target bd address
-        rtn=pBtDevice->SetHitTarget(pBtDevice,pParam->mHitTarget);
-        if (rtn != BT_FUNCTION_SUCCESS)
-        {
-        	goto exit;
-        } 
+    //set test mode
+    rtn=pBtDevice->SetTestMode(pBtDevice,pParam->mTestMode);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
 
-  	    // set WhiteningCoeffEnable
-        rtn=pBtDevice->SetWhiteningCoeffEnable(pBtDevice,pParam->mWhiteningCoeffEnable);
-        if (rtn != BT_FUNCTION_SUCCESS)
+    //set channel
+    rtn=pBtDevice->SetTxChannel(pBtDevice,pParam->mChannelNumber);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+    //set outpower
+    if (pParam->mTxGainIndex<=7)
+        rtn=pBtDevice->SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
+    else
+        rtn=pBtDevice->SetPowerGain(pBtDevice,pParam->mTxGainValue);
+
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+    rtn=pBtDevice->SetMutiRxEnable(pBtDevice,pParam->mMutiRxEnable);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+    //begin con-tx setting
+    if (pParam->mTestMode == BT_DUT_MODE)
+    {
+        if (pParam->mPacketType <= BT_PKT_LE)//1DH1~33DH5
         {
-        	goto exit;
-        }		
-      
-  
-        //set test mode
-        rtn=pBtDevice->SetTestMode(pBtDevice,pParam->mTestMode);
-        if (rtn != BT_FUNCTION_SUCCESS)
-        {
-        	goto exit;
+            rtn= BTDevice_SetPktTxBegin_DUTMODE(pBtDevice,pParam);
         }
-
-        //set channel
-        rtn=pBtDevice->SetTxChannel(pBtDevice,pParam->mChannelNumber);
-        if (rtn != BT_FUNCTION_SUCCESS)
+        else
         {
-        	goto exit;
-        }
-        //set outpower 
-		if (pParam->mTxGainIndex<=7)
-			rtn=pBtDevice->SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
-		else
-			rtn=pBtDevice->SetPowerGain(pBtDevice,pParam->mTxGainValue);
-        
-		if (rtn != BT_FUNCTION_SUCCESS)
-        {
-        	goto exit;
-      	}          
-        rtn=pBtDevice->SetMutiRxEnable(pBtDevice,pParam->mMutiRxEnable);
-		if (rtn != BT_FUNCTION_SUCCESS)
-        {
-        	goto exit;
-      	} 
-        //begin con-tx setting
-	if (pParam->mTestMode == BT_DUT_MODE)
-	{
-		if (pParam->mPacketType <= BT_PKT_LE)//1DH1~33DH5
-		{
-		 rtn= BTDevice_SetPktTxBegin_DUTMODE(pBtDevice,pParam);
-		}
-		else
-		{
             //con-Tx don't support DUT MODE
-			rtn= FUNCTION_NO_SUPPORT;
-			goto exit;		
-		}
-	}
-	else
-	{
-		if (pParam->mPacketType <= BT_PKT_LE)
-		{
-			if (BTDevice_SetPktTxBegin_PSEUDOMODE(pBtDevice,pParam) != BT_FUNCTION_SUCCESS)
-			{
-				goto exit;	
-			}		
-		}
-		else
-		{
-			rtn= FUNCTION_NO_SUPPORT;
-			goto exit;		
-		}		
-	}                       	
-	//get begin clock
-        if (BTDevice_GetBTClockTime(pBtDevice,&btClockTime) ==BT_FUNCTION_SUCCESS)
-        {
-                pTxTime->beginTimeClockCnt=btClockTime;
+            rtn= FUNCTION_NO_SUPPORT;
+            goto exit;
         }
-		
-		if (pBtDevice->Inner_TX_MD_0X2E ==0)
+    }
+    else
+    {
+        if (pParam->mPacketType <= BT_PKT_LE)
         {
-			if (pBtDevice->GetMdRegMaskBits(pBtDevice,0x2e,15,0,&tmp) !=BT_FUNCTION_SUCCESS)
-			{
-				rtn=FUNCTION_ERROR;
-				goto exit;	 
-			}
-			if (tmp == 0)
-			{
-				rtn=FUNCTION_ERROR;
-				goto exit;	 
-			}
-
-			pBtDevice->Inner_TX_MD_0X2E=tmp;
-			
+            if (BTDevice_SetPktTxBegin_PSEUDOMODE(pBtDevice,pParam) != BT_FUNCTION_SUCCESS)
+            {
+                goto exit;
+            }
         }
-        pBtDevice->TRXSTATE = TX_TIME_RUNING;
+        else
+        {
+            rtn= FUNCTION_NO_SUPPORT;
+            goto exit;
+        }
+    }
+    //get begin clock
+    if (BTDevice_GetBTClockTime(pBtDevice,&btClockTime) ==BT_FUNCTION_SUCCESS)
+    {
+        pTxTime->beginTimeClockCnt=btClockTime;
+    }
+
+    if (pBtDevice->Inner_TX_MD_0X2E ==0)
+    {
+        if (pBtDevice->GetMdRegMaskBits(pBtDevice,0x2e,15,0,&tmp) !=BT_FUNCTION_SUCCESS)
+        {
+            rtn=FUNCTION_ERROR;
+            goto exit;
+        }
+        if (tmp == 0)
+        {
+            rtn=FUNCTION_ERROR;
+            goto exit;
+        }
+
+        pBtDevice->Inner_TX_MD_0X2E=tmp;
+
+    }
+    pBtDevice->TRXSTATE = TX_TIME_RUNING;
 
 
-        return rtn; 
+    return rtn;
 
 exit:
-        if (rtn == FUNCTION_NO_SUPPORT) 
-        {
-        	return rtn;
-	}	
-//	 rtn = FUNCTION_ERROR;
-	//if Error to reset 
-      // 	if (pBtDevice->SetContinueTxStop(pBtDevice,pParam,pBtReport) != BT_FUNCTION_SUCCESS)  
-     //   {
-      //  	rtn = FUNCTION_HCISEND_ERROR;	
-      //    	return rtn;	
-     //   }
+    if (rtn == FUNCTION_NO_SUPPORT)
+    {
+        return rtn;
+    }
 
-	pBtDevice->TRXSTATE = TRX_TIME_STOP;
-	
-	return rtn;
-	
+    pBtDevice->TRXSTATE = TRX_TIME_STOP;
+
+    return rtn;
 }
 
 int BTDevice_SetPktTxBegin_Channel_PacketType(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
@@ -1383,112 +1355,112 @@ exit:
 int BTDevice_SetPktTxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
 
-	int rtn=BT_FUNCTION_SUCCESS;
-	unsigned long NewModemReg4Value=0;
-	unsigned long tmp=0;
-	if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
-	{
-  		rtn = FUNCTION_RX_RUNNING;
-  		return rtn;		
-	}
-    if (pBtDevice->GetMdRegMaskBits(pBtDevice,0x2e,15,0,&tmp) != BT_FUNCTION_SUCCESS) 
+    int rtn=BT_FUNCTION_SUCCESS;
+    unsigned long NewModemReg4Value=0;
+    unsigned long tmp=0;
+    if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
     {
-                goto exit;
-	}
-	if (tmp == 0)
+        rtn = FUNCTION_RX_RUNNING;
+        return rtn;
+    }
+    if (pBtDevice->GetMdRegMaskBits(pBtDevice,0x2e,15,0,&tmp) != BT_FUNCTION_SUCCESS)
     {
-		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,15,0,pBtDevice->Inner_TX_MD_0X2E |0x01) != BT_FUNCTION_SUCCESS) 
-         {
-                goto exit;
-		}
-		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,15,0,pBtDevice->Inner_TX_MD_0X2E |0x00) != BT_FUNCTION_SUCCESS) 
-         {
-                goto exit;
-		}
+        goto exit;
+    }
+    if (tmp == 0)
+    {
+        if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,15,0,pBtDevice->Inner_TX_MD_0X2E |0x01) != BT_FUNCTION_SUCCESS)
+        {
+            goto exit;
+        }
+        if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,15,0,pBtDevice->Inner_TX_MD_0X2E |0x00) != BT_FUNCTION_SUCCESS)
+        {
+            goto exit;
+        }
 
-	}
-         //report
-        ///////////////////////////////////////////////////////////////////////////////////////////////
-        BTDevice_CalculatedTxBits(pBtDevice,pParam,pBtReport,PKT_TX,&pBtReport->TXUpdateBits,&pBtReport->TXPktUpdateCnts);
-        pBtReport->TotalTXBits += pBtReport->TXUpdateBits;
-		pBtDevice->TxTriggerPktCnt += pBtReport->TXPktUpdateCnts;
-		pBtReport->TotalTxCounts += pBtReport->TXPktUpdateCnts;	        
-        //////////////////////////////////////////////////////////////////////////////////////////////	
+    }
 
-	bt_mp_LogMsg("TxTriggerPktCnt= %ld (%ld)\n",pBtDevice->TxTriggerPktCnt ,pBtReport->TXPktUpdateCnts);
-	if ((pBtReport->TotalTxCounts >= pParam->mTxPacketCount) && (pParam->mTxPacketCount !=0 ))
-	{
-		//stop
-		rtn = pBtDevice->SetPktTxStop(pBtDevice,pParam,pBtReport);
-		rtn = FUNCTION_TX_FINISH;
-		return rtn;
-	}
-	if (pBtDevice->TxTriggerPktCnt >= 0xFFF) 
-	{
-	        pBtDevice->TxTriggerPktCnt=0;
-	        
-	        if (pParam->mTxPacketCount == 0)
-	        {
-	        	NewModemReg4Value = 0xFFF;		        	
-	        }
-	        else
-	        {	
-	
-	        	tmp=pParam->mTxPacketCount- pBtReport->TotalTxCounts;
-	        		
-			if ( tmp >= 0xFFF)
-			{
-				NewModemReg4Value = 0xFFF;
-			}
-			else
-			{
-				NewModemReg4Value=tmp;
-			}
-		}	
-		NewModemReg4Value =( NewModemReg4Value <<4 ) | (MULTIPKTINTERVAL&0x000F);
+    //report
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    BTDevice_CalculatedTxBits(pBtDevice,pParam,pBtReport,PKT_TX,&pBtReport->TXUpdateBits,&pBtReport->TXPktUpdateCnts);
+    pBtReport->TotalTXBits += pBtReport->TXUpdateBits;
+    pBtDevice->TxTriggerPktCnt += pBtReport->TXPktUpdateCnts;
+    pBtReport->TotalTxCounts += pBtReport->TXPktUpdateCnts;
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    ALOGI("TxTriggerPktCnt= %ld (%ld)",pBtDevice->TxTriggerPktCnt ,pBtReport->TXPktUpdateCnts);
+    if ((pBtReport->TotalTxCounts >= pParam->mTxPacketCount) && (pParam->mTxPacketCount !=0 ))
+    {
+        //stop
+        rtn = pBtDevice->SetPktTxStop(pBtDevice,pParam,pBtReport);
+        rtn = FUNCTION_TX_FINISH;
+        return rtn;
+    }
+
+    if (pBtDevice->TxTriggerPktCnt >= 0xFFF)
+    {
+        pBtDevice->TxTriggerPktCnt=0;
+
+        if (pParam->mTxPacketCount == 0)
+        {
+            NewModemReg4Value = 0xFFF;
+        }
+        else
+        {
+
+            tmp=pParam->mTxPacketCount- pBtReport->TotalTxCounts;
+
+            if ( tmp >= 0xFFF)
+            {
+                NewModemReg4Value = 0xFFF;
+            }
+            else
+            {
+                NewModemReg4Value=tmp;
+            }
+        }
+        NewModemReg4Value =( NewModemReg4Value <<4 ) | (MULTIPKTINTERVAL&0x000F);
         if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x04,15,0,NewModemReg4Value) != BT_FUNCTION_SUCCESS)
         {
-          		goto exit;
-		}
-		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x00) != BT_FUNCTION_SUCCESS) 
-         {
-                goto exit;
-		}
-		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x07) != BT_FUNCTION_SUCCESS) 
-         {
-                goto exit;
-		}		
-		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,0,0,0x01) != BT_FUNCTION_SUCCESS) 
-        	{
-               		goto exit;
-		}
-		if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,0,0,0x00) != BT_FUNCTION_SUCCESS) 
-        	{
-               		goto exit;
-		}
-		
+            goto exit;
+        }
+        if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x00) != BT_FUNCTION_SUCCESS)
+        {
+            goto exit;
+        }
+        if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x07) != BT_FUNCTION_SUCCESS)
+        {
+            goto exit;
+        }
+        if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,0,0,0x01) != BT_FUNCTION_SUCCESS)
+        {
+            goto exit;
+        }
+        if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,0,0,0x00) != BT_FUNCTION_SUCCESS)
+        {
+            goto exit;
+        }
 
-	}
-        if ((pBtReport == NULL) || (pParam ==NULL))
-	  goto exit;
 
-         //report
-        ///////////////////////////////////////////////////////////////////////////////////////////////
- //       BTDevice_CalculatedTxBits(pBtDevice,pParam,pBtReport,PKT_TX,&pBtReport->TXUpdateBits,&pBtReport->TXPktUpdateCnts);
-    //    pBtReport->TotalTXBits += pBtReport->TXUpdateBits;
-        //////////////////////////////////////////////////////////////////////////////////////////////
-		return rtn;
+    }
+
+    if ((pBtReport == NULL) || (pParam ==NULL))
+        goto exit;
+
+    return rtn;
+
 exit:
-	
-	rtn=FUNCTION_ERROR;	
-	if ((pBtReport->TotalTxCounts >=  pParam->mTxPacketCount) && (pParam->mTxPacketCount !=0) && (pParam->mTxPacketCount !=0xFFF))
-	{
-		rtn =FUNCTION_TX_FINISH; 
-	}
-	
-	return rtn;	
-	
+
+    rtn=FUNCTION_ERROR;
+    if ((pBtReport->TotalTxCounts >=  pParam->mTxPacketCount) && (pParam->mTxPacketCount !=0) && (pParam->mTxPacketCount !=0xFFF))
+    {
+        rtn =FUNCTION_TX_FINISH;
+    }
+
+    return rtn;
+
 }
+
 int BTDevice_SetPktTxSendOne(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
 
