@@ -93,8 +93,6 @@ static unsigned char bt_enabled = 0;
 static void process_cmd(char *p, unsigned char is_job);
 static void job_handler(void *param);
 
-typedef unsigned char UINT8;
-
 /************************************************************************************
 **  Externs
 ************************************************************************************/
@@ -699,20 +697,13 @@ void bdt_reg_rf(char *p)
 
 void bdt_hci(char *p)
 {
-    int i;
-
-    uint32_t tmp;
-    uint16_t opcode;
-    uint8_t buf[260];
-    uint8_t len;
-
     if (!bt_enabled) {
         ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_HCI_CMD);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_HCI_CMD, STR_BT_NOT_ENABLED);
         return;
     }
 
-     status = sBtInterface->hal_mp_op_send(BT_MP_OP_HCI_SEND_CMD, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_HCI_SEND_CMD, p, 0);
 
     check_return_status(STR_BT_MP_HCI_CMD, status);
 }
