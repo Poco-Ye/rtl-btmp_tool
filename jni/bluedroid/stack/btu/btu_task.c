@@ -103,13 +103,9 @@ BTU_API UINT32 btu_task (UINT32 param)
 
     BT_TRACE_0(TRACE_LAYER_BTU, TRACE_TYPE_API,
                 "btu_task received preload complete event");
-    
-
 
     /* Send a startup evt message to BTIF_TASK to kickstart the init procedure */
     GKI_send_event(BTIF_TASK, BT_EVT_TRIGGER_STACK_INIT);
-
-
 
     /* Wait for, and process, events */
     for (;;)
@@ -125,27 +121,21 @@ BTU_API UINT32 btu_task (UINT32 param)
                 switch (p_msg->event & BT_EVT_MASK)
                 {
                     case BT_EVT_TO_BTU_HCI_ACL:
-                        /* All Acl Data goes to L2CAP */
-                        //l2c_rcv_acl_data (p_msg);
+                        /* MP ignores ACL data */
                         break;
 
                     case BT_EVT_TO_BTU_L2C_SEG_XMIT:
-                        /* L2CAP segment transmit complete */
+                        /* MP ignores ACL SEG data */
                         break;
-
-
 
                     case BT_EVT_TO_BTU_HCI_EVT:
                         btu_hcif_process_event ((UINT8)(p_msg->event & BT_SUB_EVT_MASK), p_msg);
                         GKI_freebuf(p_msg);
-
-
                         break;
 
                     case BT_EVT_TO_BTU_HCI_CMD:
                         btu_hcif_send_cmd ((UINT8)(p_msg->event & BT_SUB_EVT_MASK), p_msg);
                         break;
-
 
                     case BT_EVT_TO_START_TIMER :
                         /* Start free running 1 second timer for list management */

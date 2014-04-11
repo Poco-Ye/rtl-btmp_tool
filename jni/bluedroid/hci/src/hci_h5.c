@@ -24,7 +24,8 @@
  *
  ******************************************************************************/
 
-#define LOG_TAG "bt_h5"
+#define LOG_TAG "hci_h5"
+
 #include <utils/Log.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -2844,7 +2845,7 @@ static int create_data_retransfer_thread()
 *******************************************************************************/
 void hci_h5_init(void)
 {
-    LogMsg("hci_h5_init");
+    ALOGI("hci_h5_init");
 
     memset(&rtk_h5, 0, sizeof(struct tHCI_H5_CB));
     utils_queue_init(&(rtk_h5.acl_rx_q));

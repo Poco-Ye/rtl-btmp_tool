@@ -550,16 +550,16 @@ bt_status_t btif_disable_bluetooth(void)
 
     bte_main_disable();
 
+    btif_core_state = BTIF_CORE_STATE_DISABLED;
+
+    HAL_CBACK(bt_hal_cbacks, adapter_state_changed_cb, BT_STATE_OFF);
+
     GKI_destroy_task(BTIF_TASK);
 
     bte_main_shutdown();
 
 
     BTIF_TRACE_DEBUG0("BTIF DISABLE BLUETOOTH");
-
-    btif_core_state = BTIF_CORE_STATE_DISABLED;
-
-    HAL_CBACK(bt_hal_cbacks, adapter_state_changed_cb, BT_STATE_OFF);
 
     return BT_STATUS_SUCCESS;
 }

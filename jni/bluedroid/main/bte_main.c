@@ -184,9 +184,8 @@ void bte_main_shutdown()
 void bte_main_enable(uint8_t *local_addr)
 {
     APPL_TRACE_DEBUG1("%s", __FUNCTION__);
-    
+
     preload_start_wait_timer();
-        
 
     if (bt_hc_if)
     {
@@ -225,8 +224,9 @@ void bte_main_enable(uint8_t *local_addr)
 void bte_main_disable(void)
 {
     APPL_TRACE_DEBUG1("%s", __FUNCTION__);
+
     preload_stop_wait_timer();
-    
+
     if (bt_hc_if)
     {
         bt_hc_if->cleanup();

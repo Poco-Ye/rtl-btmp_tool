@@ -24,7 +24,7 @@
  *                 implementation
  *
  ******************************************************************************/
-//#undef NDEBUG
+
 #define LOG_TAG "bt_hci_bdroid"
 
 #include <utils/Log.h>
@@ -121,7 +121,7 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr)
     struct sched_param param;
     int policy, result;
 
-    ALOGI("=============init");
+    ALOGI("%s: H5", __FUNCTION__);
 
     if (p_cb == NULL)
     {
@@ -136,7 +136,6 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr)
 
     utils_init();
 
-    ALOGI("=============use H5");
     extern tHCI_IF hci_h5_func_table;
     p_hci_if = &hci_h5_func_table;
 

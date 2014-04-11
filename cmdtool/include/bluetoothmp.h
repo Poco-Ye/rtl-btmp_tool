@@ -54,7 +54,7 @@ typedef enum {
 typedef enum {
     BT_STATE_OFF,
     BT_STATE_ON
-}   bt_state_t;
+} bt_state_t;
 
 /** Bluetooth Error Status */
 /** We need to build on this */

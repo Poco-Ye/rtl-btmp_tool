@@ -72,6 +72,7 @@
 
 static unsigned char main_done = 0;
 static bt_status_t status;
+static int bt_try_enable = 0; /* 0: try to disable; 1: try to enable */
 
 /* Main API */
 static bluetooth_device_t* bt_device;
@@ -431,15 +432,21 @@ void check_return_status(const char *mp_str, bt_status_t status)
 
 static void adapter_state_changed(bt_state_t state)
 {
+    const char *bt_try_str;
+    bt_status_t bt_status;
+
     ALOGI("ADAPTER STATE UPDATED : %s", (state == BT_STATE_OFF)?"OFF":"ON");
 
     if (state == BT_STATE_ON) {
-        bdt_log("%s%s%x", STR_BT_MP_ENABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         bt_enabled = 1;
     } else {
         bt_enabled = 0;
-        bdt_log("%s%s%x", STR_BT_MP_ENABLE, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_DISABLE);
     }
+
+    bt_try_str = (bt_try_enable == 1) ? STR_BT_MP_ENABLE: STR_BT_MP_DISABLE;
+    bt_status = (bt_try_enable == bt_enabled) ? BT_STATUS_SUCCESS : BT_STATUS_FAIL;
+
+    check_return_status(bt_try_str, bt_status);
 
 }
 
@@ -478,10 +485,11 @@ void bdt_enable(void)
         return;
     }
 
+    /* check the enable result in bt_callbacks */
+    bt_try_enable = 1;
+
     status = sBtInterface->init(&bt_callbacks);
     status = sBtInterface->enable();
-
-    check_return_status(STR_BT_MP_ENABLE, status);
 }
 
 void bdt_disable(void)
@@ -494,12 +502,11 @@ void bdt_disable(void)
         return;
     }
 
+    /* check the disable result in bt_callbacks */
+    bt_try_enable = 0;
+
     status = sBtInterface->disable();
     sBtInterface->cleanup();
-    bt_enabled = 0;
-    check_return_status(STR_BT_MP_DISABLE, status);
-
-    bdt_log("%s%s%x", STR_BT_MP_DISABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
 }
 
 void bdt_dut_mode_configure(char *p)
