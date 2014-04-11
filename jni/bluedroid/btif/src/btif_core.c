@@ -25,6 +25,8 @@
  *
  ***********************************************************************************/
 
+#define LOG_TAG "btif_core"
+
 #include <stdlib.h>
 #include "bluetoothmp.h"
 #include <string.h>
@@ -35,8 +37,8 @@
 #include <dirent.h>
 #include <ctype.h>
 #include <cutils/properties.h>
+#include <utils/Log.h>
 
-#define LOG_TAG "BTIF_CORE"
 #include "btif_api.h"
 
 #include "gki.h"
@@ -278,12 +280,15 @@ static bt_status_t btif_mp_test_evt(void* msg)
 {
     BT_HDR *p_msg = (BT_HDR *)msg;
     UINT8   *p = (UINT8 *)(p_msg + 1) + p_msg->offset;
-    UINT8   hci_evt_len;
     UINT8   hci_evt_code;
+    UINT8   hci_evt_len;
+
     STREAM_TO_UINT8  (hci_evt_code, p);
     STREAM_TO_UINT8  (hci_evt_len, p);
-    BTIF_TRACE_DEBUG1("%s: notify btif_mp_test_evt", __FUNCTION__);
-    if(btif_dut_mode)
+
+    ALOGI("%s: evtcode[0x%02x]", __FUNCTION__, hci_evt_code);
+
+    if (btif_dut_mode)
     {
         btif_mp_rx_data_ind(hci_evt_code, (uint8_t*)p, hci_evt_len);
     }
@@ -295,19 +300,17 @@ static bt_status_t btif_mp_notify_evt(void* msg)
 {
     BT_HDR *p_msg = (BT_HDR *)msg;
     char   *p = (char *)(p_msg + 1);
-    UINT8 mp_op_code;
-    UINT8 mp_op_paraLen;
-    STREAM_TO_UINT8  (mp_op_code, p);
-    STREAM_TO_UINT8  (mp_op_paraLen, p);
+    UINT8 opcode;
+    UINT8 param_len;
 
-    BTIF_TRACE_DEBUG2("%s: notify1 :%s", __FUNCTION__, p);
+    STREAM_TO_UINT8(opcode, p);
+    STREAM_TO_UINT8(param_len, p);
 
-    p[mp_op_paraLen] = '\0';
+    p[param_len] = '\0'; /* exceed boundary? */
 
-    BTIF_TRACE_DEBUG2("%s: notify2 :%s", __FUNCTION__, p);
+    ALOGI("%s: opcode[0x%02x], params[%s]", __FUNCTION__, opcode, p);
 
-    HAL_CBACK(bt_hal_cbacks, dut_mode_recv_cb, mp_op_code, p);
-
+    HAL_CBACK(bt_hal_cbacks, dut_mode_recv_cb, opcode, p);
 
     return BT_STATUS_SUCCESS;
 }
@@ -381,12 +384,12 @@ static void btif_task(UINT32 params)
                         break;
 
                     case BT_EVT_RX:
-                    btif_mp_test_evt(p_msg);
-                    break;
+                        btif_mp_test_evt(p_msg);
+                        break;
 
                     case BT_EVT_MP_NOTIFY_BTIF:
-                    btif_mp_notify_evt(p_msg);
-                    break;
+                        btif_mp_notify_evt(p_msg);
+                        break;
 
                     default:
                         BTIF_TRACE_ERROR1("unhandled btif event (%d)", p_msg->event & BT_EVT_MASK);

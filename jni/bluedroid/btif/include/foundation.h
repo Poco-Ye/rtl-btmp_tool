@@ -101,20 +101,11 @@
 
 #define STR_BT_MP_SET_HOPPING_MODE   "bt_mp_SetHoppingMode"
 
-/*
-enum FUNCTION_RETURN_STATUS
-{
-	FUNCTION_SUCCESS = 0,
-	FUNCTION_ERROR,
-};
-
-*/
-
 
 enum INTERFACE_TYPE
 {
-	TYPE_USB = 0,
-	TYPE_UART,
+    TYPE_USB = 0,
+    TYPE_UART,
 };
 
 /// Base interface module alias

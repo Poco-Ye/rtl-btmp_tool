@@ -84,6 +84,8 @@ int hal_init(bt_callbacks_t* callbacks)
 
     /* store reference to user callbacks */
     bt_hal_cbacks = callbacks;
+
+    /* init mp module */
     bt_mp_module_init(&BaseInterfaceModuleMemory, &BtModuleMemory);
 
     /* init btif */

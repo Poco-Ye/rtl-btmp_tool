@@ -1076,8 +1076,10 @@ void BT_GetBDAddr(BT_MODULE  *pBtModule)
 
 void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *pBtModule)
 {
-    unsigned char           pTxGainTable[7]={0x49,0x4d,0x69,0x89,0x8d,0xa9,0xa9};  //RTL8761 Table
-    unsigned char           pTxDACTable[5]={0x10,0x11,0x12,0x13,0x14};
+    unsigned char pTxGainTable[7] = {0x49,0x4d,0x69,0x89,0x8d,0xa9,0xa9};  //RTL8761 Table
+    unsigned char pTxDACTable[5] = {0x10,0x11,0x12,0x13,0x14};
+
+    ALOGI("bt_mp_module_init, pBaseInterfaceModule %p, pBtModule %p", pBaseInterfaceModule, pBtModule);
 
     BuildTransportInterface(
             pBaseInterfaceModule,
@@ -1089,9 +1091,6 @@ void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *p
             NULL,//close
             UserDefinedWaitMs
             );
-
-    //Build Module
-    bt_mp_LogMsg("Build Module....!!");
 
     BuildBluetoothModule(
             pBaseInterfaceModule,

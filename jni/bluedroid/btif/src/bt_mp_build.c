@@ -11,114 +11,109 @@ BuildBluetoothDevice(
         unsigned char            *pTxDACTable
         )
 {
+    BT_DEVICE *pBtDevice = pDeviceBasememory;
+    *ppBtDeviceBase = pDeviceBasememory;
 
-	BT_DEVICE	*pBtDevice =pDeviceBasememory;
-	*ppBtDeviceBase = pDeviceBasememory;
-		
-	pBtDevice->pExtra=pExtra;
-	pBtDevice->InterfaceType=pBaseInterface->InterfaceType;
-	pBtDevice->pBaseInterface=pBaseInterface;
+    pBtDevice->pExtra = pExtra;
+    pBtDevice->InterfaceType = pBaseInterface->InterfaceType;
+    pBtDevice->pBaseInterface = pBaseInterface;
 
+    pBtDevice->pBTInfo = &pBtDevice->BaseBTInfoMemory ;
 
-	pBtDevice->pBTInfo = &pBtDevice->BaseBTInfoMemory ;
+    pBtDevice->SetTxGainTable       =       BTDevice_SetTxGainTable;
+    pBtDevice->SetTxDACTable        =       BTDevice_SetTxDACTable;
+    pBtDevice->GetPayloadLenTable   =       BTDevice_GetPayloadLenTable;
 
+    ////////////////  USE Register /////////////////////////////////////
+    //-->Register Read/Write
+    pBtDevice->SetMdRegMaskBits=bt_default_SetMDRegMaskBits;
+    pBtDevice->GetMdRegMaskBits=bt_default_GetMDRegMaskBits;
 
-	pBtDevice->SetTxGainTable       =       BTDevice_SetTxGainTable;
-	pBtDevice->SetTxDACTable        =       BTDevice_SetTxDACTable;
-	pBtDevice->GetPayloadLenTable   =       BTDevice_GetPayloadLenTable;
+    pBtDevice->SetRfRegMaskBits =bt_default_SetRFRegMaskBits;;
+    pBtDevice->GetRfRegMaskBits =bt_default_GetRFRegMaskBits;
+    //-->HCI command raw data
+    pBtDevice->SendHciCmd =bt_default_SendHCICmd;
+    pBtDevice->RecvHciEvent =  bt_default_RecvHCIEvent;
 
-        ////////////////  USE Register /////////////////////////////////////
-	//-->Register Read/Write 
-	pBtDevice->SetMdRegMaskBits=bt_default_SetMDRegMaskBits;
-	pBtDevice->GetMdRegMaskBits=bt_default_GetMDRegMaskBits;
+    //-->HCI Command & Event
+    pBtDevice->SendHciCommandWithEvent=BTDevice_SendHciCommandWithEvent;
+    pBtDevice->RecvAnyHciEvent=BTDevice_RecvAnyHciEvent;
 
-	pBtDevice->SetRfRegMaskBits =bt_default_SetRFRegMaskBits;;
-	pBtDevice->GetRfRegMaskBits =bt_default_GetRFRegMaskBits;
-        //-->HCI command raw data
-	pBtDevice->SendHciCmd =bt_default_SendHCICmd;
-	pBtDevice->RecvHciEvent =  bt_default_RecvHCIEvent;
-
-
-	//-->HCI Command & Event
-	pBtDevice->SendHciCommandWithEvent=BTDevice_SendHciCommandWithEvent;
-	pBtDevice->RecvAnyHciEvent=BTDevice_RecvAnyHciEvent;
-
-
-	
-	//Device member
-	//-->Register Control 
-	pBtDevice->SetTxChannel=BTDevice_SetTxChannel;
-	pBtDevice->SetLETxChannel=BTDevice_SetLETxChannel;
-	pBtDevice->SetRxChannel=BTDevice_SetRxChannel;
-	pBtDevice->SetPowerGainIndex=BTDevice_SetPowerGainIndex;
-	pBtDevice->SetPowerGain=BTDevice_SetPowerGain;
-	pBtDevice->SetPowerDac=BTDevice_SetPowerDac;
-	pBtDevice->SetPayloadType=BTDevice_SetPayloadType;
-	pBtDevice->SetWhiteningCoeffEnable=BTDevice_SetWhiteningCoeffEnable;
-	pBtDevice->SetPacketType=BTDevice_SetPacketType;
-	pBtDevice->SetHitTarget=BTDevice_SetHitTarget;
-	pBtDevice->SetTestMode=BTDevice_SetTestMode;
-	pBtDevice->SetMutiRxEnable=BTDevice_SetMutiRxEnable;
+    //Device member
+    //-->Register Control
+    pBtDevice->SetTxChannel=BTDevice_SetTxChannel;
+    pBtDevice->SetLETxChannel=BTDevice_SetLETxChannel;
+    pBtDevice->SetRxChannel=BTDevice_SetRxChannel;
+    pBtDevice->SetPowerGainIndex=BTDevice_SetPowerGainIndex;
+    pBtDevice->SetPowerGain=BTDevice_SetPowerGain;
+    pBtDevice->SetPowerDac=BTDevice_SetPowerDac;
+    pBtDevice->SetPayloadType=BTDevice_SetPayloadType;
+    pBtDevice->SetWhiteningCoeffEnable=BTDevice_SetWhiteningCoeffEnable;
+    pBtDevice->SetPacketType=BTDevice_SetPacketType;
+    pBtDevice->SetHitTarget=BTDevice_SetHitTarget;
+    pBtDevice->SetTestMode=BTDevice_SetTestMode;
+    pBtDevice->SetMutiRxEnable=BTDevice_SetMutiRxEnable;
     pBtDevice->SetRestMDCount=BTDevice_SetResetMDCount;
-	pBtDevice->SetPackHeader=BTDevice_SetPackHeader;
-	pBtDevice->SetPesudoOuterSetup=	BTDevice_SetPesudoOuterSetup;
-	
-	//-->Vendor HCI Command Control 	
-	pBtDevice->SetFWPowerTrackEnable=       BTDevice_SetFWPowerTrackEnable;
-	pBtDevice->SetHoppingMode       =       BTDevice_SetHoppingMode;
-	pBtDevice->SetHciReset          =       BTDevice_SetHciReset;
-	pBtDevice->GetBTClockTime       =       BTDevice_GetBTClockTime;
-        
-	//--->Control Flow
-	pBtDevice->TRXSTATE = 0;
-	pBtDevice->OldModemReg4Value=0;
-	pBtDevice->TxTriggerPktCnt=0;
+    pBtDevice->SetPackHeader=BTDevice_SetPackHeader;
+    pBtDevice->SetPesudoOuterSetup= BTDevice_SetPesudoOuterSetup;
 
-	pBtDevice->SetContinueTxBegin   =       BTDevice_SetContinueTxBegin;
-	pBtDevice->SetContinueTxStop    =       BTDevice_SetContinueTxStop;
-	pBtDevice->SetContinueTxUpdate  =       BTDevice_SetContinueTxUpdate;
+    //-->Vendor HCI Command Control
+    pBtDevice->SetFWPowerTrackEnable=       BTDevice_SetFWPowerTrackEnable;
+    pBtDevice->SetHoppingMode       =       BTDevice_SetHoppingMode;
+    pBtDevice->SetHciReset          =       BTDevice_SetHciReset;
+    pBtDevice->GetBTClockTime       =       BTDevice_GetBTClockTime;
 
-	//PKT-TX
-	pBtDevice->SetPktTxBegin        =       BTDevice_SetPktTxBegin;
-	pBtDevice->SetPktTxBeginChannelPacketType =       BTDevice_SetPktTxBegin_Channel_PacketType;
+    //--->Control Flow
+    pBtDevice->TRXSTATE = 0;
+    pBtDevice->OldModemReg4Value=0;
+    pBtDevice->TxTriggerPktCnt=0;
 
-	pBtDevice->SetPktTxStop         =       BTDevice_SetPktTxStop;
-	pBtDevice->SetPktTxUpdate       =       BTDevice_SetPktTxUpdate;
-	pBtDevice->SetPktTxSendOne       =       BTDevice_SetPktTxSendOne;
+    pBtDevice->SetContinueTxBegin   =       BTDevice_SetContinueTxBegin;
+    pBtDevice->SetContinueTxStop    =       BTDevice_SetContinueTxStop;
+    pBtDevice->SetContinueTxUpdate  =       BTDevice_SetContinueTxUpdate;
 
-	//PKT-RX
-	pBtDevice->SetPktRxBegin=BTDevice_SetPktRxBegin;
-	pBtDevice->SetPktRxBeginChannelPacketType=BTDevice_SetPktRxBegin_Channel_PacketType;
+    //PKT-TX
+    pBtDevice->SetPktTxBegin        =       BTDevice_SetPktTxBegin;
+    pBtDevice->SetPktTxBeginChannelPacketType =       BTDevice_SetPktTxBegin_Channel_PacketType;
 
-	pBtDevice->SetPktRxStop=BTDevice_SetPktRxStop;
-	pBtDevice->SetPktRxUpdate=BTDevice_SetPktRxUpdate;
+    pBtDevice->SetPktTxStop         =       BTDevice_SetPktTxStop;
+    pBtDevice->SetPktTxUpdate       =       BTDevice_SetPktTxUpdate;
+    pBtDevice->SetPktTxSendOne       =       BTDevice_SetPktTxSendOne;
 
-	//Base Function
-	pBtDevice->GetPayLoadTypeValidFlag=BTBASE_GetPayLoadTypeValidFlag;
-	pBtDevice->HitTargetAccessCodeGen =BTBASE_HitTargetAccessCodeGen;
+    //PKT-RX
+    pBtDevice->SetPktRxBegin=BTDevice_SetPktRxBegin;
+    pBtDevice->SetPktRxBeginChannelPacketType=BTDevice_SetPktRxBegin_Channel_PacketType;
 
-	//Table
+    pBtDevice->SetPktRxStop=BTDevice_SetPktRxStop;
+    pBtDevice->SetPktRxUpdate=BTDevice_SetPktRxUpdate;
+
+    //Base Function
+    pBtDevice->GetPayLoadTypeValidFlag=BTBASE_GetPayLoadTypeValidFlag;
+    pBtDevice->HitTargetAccessCodeGen =BTBASE_HitTargetAccessCodeGen;
+
+    //Table
     pBtDevice->SetTxGainTable(pBtDevice,pTxGainTable);
     pBtDevice->SetTxDACTable(pBtDevice,pTxDACTable);
 
-	pBtDevice->GetChipId=bt_default_GetChipId;
-	pBtDevice->GetECOVersion=bt_default_GetECOVersion;
-	pBtDevice->GetChipVersionInfo=bt_default_GetBTChipVersionInfo;
-	pBtDevice->BTDlFW=bt_default_BTDlFW;
-	pBtDevice->BTDlMERGERFW=bt_default_BTDlMergerFW;
+    pBtDevice->GetChipId=bt_default_GetChipId;
+    pBtDevice->GetECOVersion=bt_default_GetECOVersion;
+    pBtDevice->GetChipVersionInfo=bt_default_GetBTChipVersionInfo;
+    pBtDevice->BTDlFW=bt_default_BTDlFW;
+    pBtDevice->BTDlMERGERFW=bt_default_BTDlMergerFW;
 
     ////////////////////////rtl8723A /////////////////////////////////////
 
-     //   pBtDevice->SetTxChannel=BTDevice_SetTxChannel_RTL8723A;
-     //   pBtDevice->SetTestMode=BTDevice_SetTestMode_RTL8723A;
-     //   pBtDevice->SetPayloadType=BTDevice_SetPayloadType_RTL8723A;
-     //   pBtDevice->SetRxChannel=BTDevice_SetRxChannel_RTL8723A;
-     //   pBtDevice->SetPowerGain=BTDevice_SetPowerGain_RTL8723A;
-     //   pBtDevice->SetPowerGainIndex=BTDevice_SetPowerGainIndex_RTL8723A;
-     //   pBtDevice->SetTestMode=BTDevice_SetTestMode_RTL8723A;
+    //   pBtDevice->SetTxChannel=BTDevice_SetTxChannel_RTL8723A;
+    //   pBtDevice->SetTestMode=BTDevice_SetTestMode_RTL8723A;
+    //   pBtDevice->SetPayloadType=BTDevice_SetPayloadType_RTL8723A;
+    //   pBtDevice->SetRxChannel=BTDevice_SetRxChannel_RTL8723A;
+    //   pBtDevice->SetPowerGain=BTDevice_SetPowerGain_RTL8723A;
+    //   pBtDevice->SetPowerGainIndex=BTDevice_SetPowerGainIndex_RTL8723A;
+    //   pBtDevice->SetTestMode=BTDevice_SetTestMode_RTL8723A;
 
-		return 0;
+    return 0;
 }
+
 // Base Module interface builder
 int
 BuildBluetoothModule(
