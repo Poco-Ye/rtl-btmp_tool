@@ -463,257 +463,242 @@ error:
 	return FUNCTION_ERROR;
 }
 
-
-
-
-
-
-
 int
 bt_default_SetRFRegMaskBits(
-	BT_DEVICE *pBt,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	) 
+        BT_DEVICE *pBt,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        )
 {
-	int i;
-	unsigned long ReadingValue;
-	unsigned long WritingValue;
-	unsigned char RegAddr;
-	unsigned char pEvtBuf[HCI_EVT_LEN_MAX];
-	unsigned long len;
-	unsigned long Mask;
-	unsigned char Shift;
+    int i;
+    unsigned long ReadingValue;
+    unsigned long WritingValue;
+    unsigned char RegAddr;
+    unsigned char pEvtBuf[HCI_EVT_LEN_MAX];
+    unsigned long len;
+    unsigned long Mask;
+    unsigned char Shift;
 
+    RegAddr = Addr & 0x3f;
 
-	RegAddr = Addr & 0x3f;
+    // Generate mask and shift according to MSB and LSB.
+    Mask = 0;
 
-	// Generate mask and shift according to MSB and LSB.
-	Mask = 0;
+    for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
+        Mask |= 0x1 << i;
 
-	for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
-		Mask |= 0x1 << i;
+    Shift = Lsb;
 
-	Shift = Lsb;
+    if (Mask != 0xffff)
+    {
+        if (bt_default_GetBytes(pBt, RegAddr, &ReadingValue, pEvtBuf, &len))
+        {
+            goto error;
+        }
+        BTHCI_EvtReport(pEvtBuf, len);
 
-	if (Mask != 0xffff)
-	{
-		if (bt_default_GetBytes(pBt, RegAddr, &ReadingValue, pEvtBuf, &len))
-		{
-			goto error;
-		}
-		BTHCI_EvtReport(pEvtBuf, len);  
-        
-		WritingValue = (((ReadingValue) & (~Mask)) | (UserValue << Shift));
-        
-		if (bt_default_SetBytes(pBt, RegAddr, WritingValue, pEvtBuf, &len))
-		{
-			goto error;
-		}
-	}
-	else
-	{
-		if (bt_default_SetBytes(pBt, RegAddr, UserValue, pEvtBuf, &len))
-		{
-			goto error;
-		}
-	}
-	BTHCI_EvtReport(pEvtBuf, len);
+        WritingValue = (((ReadingValue) & (~Mask)) | (UserValue << Shift));
+
+        if (bt_default_SetBytes(pBt, RegAddr, WritingValue, pEvtBuf, &len))
+        {
+            goto error;
+        }
+    }
+    else
+    {
+        if (bt_default_SetBytes(pBt, RegAddr, UserValue, pEvtBuf, &len))
+        {
+            goto error;
+        }
+    }
+    BTHCI_EvtReport(pEvtBuf, len);
 #ifdef DBG_REG_SETTING
-	{
-		unsigned long rUserValue =0;
-		bt_default_GetRFRegMaskBits(
-				pBt,
-				Addr,
-				Msb,
-				Lsb,
-				&rUserValue
-		);
-		DBGPRINTF("[RF][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]\n",Addr,Msb,Lsb,rUserValue,UserValue);
+    {
+        unsigned long rUserValue =0;
+        bt_default_GetRFRegMaskBits(
+                pBt,
+                Addr,
+                Msb,
+                Lsb,
+                &rUserValue
+                );
+        DBGPRINTF("[RF][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]\n",Addr,Msb,Lsb,rUserValue,UserValue);
 
-	}
+    }
 #endif
 
-	return BT_FUNCTION_SUCCESS;
+    return BT_FUNCTION_SUCCESS;
 
 error:
-	
-	return FUNCTION_ERROR;          
+
+    return FUNCTION_ERROR;
 }
-
-
 
 int
 bt_default_GetRFRegMaskBits(
         BT_DEVICE *pBt,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
-        unsigned int *pUserValue
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
         )
 {
-	int i;
-	unsigned long ReadingValue;
-	unsigned char RegAddr;	
-	unsigned char pEvtBuf[HCI_EVT_LEN_MAX];
-	unsigned long len;
-	unsigned long Mask;
-	unsigned char Shift;
-
-	
-	RegAddr = Addr & 0x3f;
-
-	// Generate mask and shift according to MSB and LSB.
-	Mask = 0;
-
-	for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
-		Mask |= 0x1 << i;
-
-	Shift = Lsb;	
-
-	if (bt_default_GetBytes(pBt, RegAddr, &ReadingValue, pEvtBuf, &len))
-	{
-			goto error;
-	}
-	
-	BTHCI_EvtReport(pEvtBuf, len);  
-
-	*pUserValue = (ReadingValue & Mask) >> Shift;
+    int i;
+    unsigned long ReadingValue;
+    unsigned char RegAddr;
+    unsigned char pEvtBuf[HCI_EVT_LEN_MAX];
+    unsigned long len;
+    unsigned long Mask;
+    unsigned char Shift;
 
 
-	return BT_FUNCTION_SUCCESS;
+    RegAddr = Addr & 0x3f;
+
+    // Generate mask and shift according to MSB and LSB.
+    Mask = 0;
+
+    for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
+        Mask |= 0x1 << i;
+
+    Shift = Lsb;
+
+    if (bt_default_GetBytes(pBt, RegAddr, &ReadingValue, pEvtBuf, &len))
+    {
+        goto error;
+    }
+
+    BTHCI_EvtReport(pEvtBuf, len);
+
+    *pUserValue = (ReadingValue & Mask) >> Shift;
+
+    return BT_FUNCTION_SUCCESS;
 
 error:
-	
-	return FUNCTION_ERROR;       
+
+    return FUNCTION_ERROR;
 }
-
-
 
 int
 bt_default_SetMDRegMaskBits(
-	BT_DEVICE *pBtDevice,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	) 
-{ 
-	int i;
-	unsigned long ReadingValue;
-	unsigned long WritingValue;
-	unsigned char RegAddr;
-	unsigned char pEvtBuf[HCI_EVT_LEN_MAX];
-	unsigned long len;
-	unsigned long Mask;
-	unsigned char Shift;
+        BT_DEVICE *pBtDevice,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        )
+{
+    int i;
+    unsigned long ReadingValue;
+    unsigned long WritingValue;
+    unsigned char RegAddr;
+    unsigned char pEvtBuf[HCI_EVT_LEN_MAX];
+    unsigned long len;
+    unsigned long Mask;
+    unsigned char Shift;
 
-    
-	RegAddr = ( (Addr & 0x7f) >> 1)  + 0x80;
+    RegAddr = ( (Addr & 0x7f) >> 1)  + 0x80;
 
-	// Generate mask and shift according to MSB and LSB.
-	Mask = 0;
+    // Generate mask and shift according to MSB and LSB.
+    Mask = 0;
 
-	for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
-		Mask |= 0x1 << i;
+    for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
+        Mask |= 0x1 << i;
 
-	Shift = Lsb;	
+    Shift = Lsb;
 
-	if (Mask != 0xffff)
-	{ 
-		if (bt_default_GetBytes(pBtDevice, RegAddr, &ReadingValue, pEvtBuf, &len))
-		{
-			goto error;
-		}
-		BTHCI_EvtReport(pEvtBuf, len);  
-        
-		WritingValue = (((ReadingValue) & (~Mask)) | (UserValue << Shift));
-        
-		if (bt_default_SetBytes(pBtDevice, RegAddr, WritingValue, pEvtBuf, &len))
-		{
-			goto error;        
-		}
-	}
-	else 
-	{ 
-		if (bt_default_SetBytes(pBtDevice, RegAddr, UserValue, pEvtBuf, &len))
-		{
-			goto error;
-		}
-	}
-	BTHCI_EvtReport(pEvtBuf, len);
+    if (Mask != 0xffff)
+    {
+        if (bt_default_GetBytes(pBtDevice, RegAddr, &ReadingValue, pEvtBuf, &len))
+        {
+            goto error;
+        }
+        BTHCI_EvtReport(pEvtBuf, len);
+
+        WritingValue = (((ReadingValue) & (~Mask)) | (UserValue << Shift));
+
+        if (bt_default_SetBytes(pBtDevice, RegAddr, WritingValue, pEvtBuf, &len))
+        {
+            goto error;
+        }
+    }
+    else
+    {
+        if (bt_default_SetBytes(pBtDevice, RegAddr, UserValue, pEvtBuf, &len))
+        {
+            goto error;
+        }
+    }
+    BTHCI_EvtReport(pEvtBuf, len);
 
 #ifdef DBG_REG_SETTING
-	{
-		unsigned long rUserValue =0;
-		bt_default_GetMDRegMaskBits(
-				pBtDevice,
-				Addr,
-				Msb,
-				Lsb,
-				&rUserValue
-		);
-		DBGPRINTF("[MD][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]\n",Addr,Msb,Lsb,rUserValue,UserValue);
+    {
+        unsigned long rUserValue =0;
+        bt_default_GetMDRegMaskBits(
+                pBtDevice,
+                Addr,
+                Msb,
+                Lsb,
+                &rUserValue
+                );
+        DBGPRINTF("[MD][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]\n",Addr,Msb,Lsb,rUserValue,UserValue);
 
-	}
+    }
 #endif
 
-	return BT_FUNCTION_SUCCESS;
+    return BT_FUNCTION_SUCCESS;
 
 error:
-	
-	return FUNCTION_ERROR;           
+
+    return FUNCTION_ERROR;
 }
-
-
 
 int
 bt_default_GetMDRegMaskBits(
-	BT_DEVICE *pBt,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pUserValue
-	) 
+        BT_DEVICE *pBt,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        )
 {
-	int i;
-	unsigned long ReadingValue;
-	unsigned char RegAddr;	
-	unsigned char pEvtBuf[HCI_EVT_LEN_MAX];
-	unsigned long len;
-	unsigned long Mask;
-	unsigned char Shift;
+    int i;
+    unsigned long ReadingValue;
+    unsigned char RegAddr;
+    unsigned char pEvtBuf[HCI_EVT_LEN_MAX];
+    unsigned long len;
+    unsigned long Mask;
+    unsigned char Shift;
 
 
-	RegAddr = ( (Addr & 0x7f) >> 1) + 0x80; 
+    RegAddr = ( (Addr & 0x7f) >> 1) + 0x80;
 
-	// Generate mask and shift according to MSB and LSB.
-	Mask = 0;
+    // Generate mask and shift according to MSB and LSB.
+    Mask = 0;
 
-	for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
-		Mask |= 0x1 << i;
+    for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
+        Mask |= 0x1 << i;
 
-	Shift = Lsb;
-	
-	if (bt_default_GetBytes(pBt, RegAddr, &ReadingValue, pEvtBuf, &len))
-	{
-		goto error;
-	}
+    Shift = Lsb;
 
-	BTHCI_EvtReport(pEvtBuf, len);  
+    if (bt_default_GetBytes(pBt, RegAddr, &ReadingValue, pEvtBuf, &len))
+    {
+        goto error;
+    }
 
-	*pUserValue = (ReadingValue & Mask) >> Shift;
+    BTHCI_EvtReport(pEvtBuf, len);
+
+    *pUserValue = (ReadingValue & Mask) >> Shift;
 
 
-	return BT_FUNCTION_SUCCESS;
+    return BT_FUNCTION_SUCCESS;
 
 error:
-	
-	return FUNCTION_ERROR;          
-        
+
+    return FUNCTION_ERROR;
 }
+
 int bt_default_GetChipId(BT_DEVICE *pBtDevice)
 {
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];

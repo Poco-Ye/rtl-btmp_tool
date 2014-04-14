@@ -2,7 +2,7 @@
 #define _BT_MP_MODULE_BASE_H
 
 #include "bt_mp_base.h"
- 
+
 int BTModule_ActionControlExcute(
 				BT_MODULE *pBtModule
 	                        );
@@ -38,42 +38,44 @@ BTModule_SendHciCommandWithEvent(
 
 int
 BTModule_RecvAnyHciEvent(
-	BT_MODULE *pBtModule,
-	unsigned char  *pEvent
-	);
+        BT_MODULE *pBtModule,
+        unsigned char *pEvent
+        );
+
 int
 BTModule_GetMDRegMaskBits(
-	BT_MODULE *pBtModule,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pUserValue
-	); 
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        );
+
 int
 BTModule_SetMDRegMaskBits(
-	BT_MODULE *pBtModule,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	);
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        );
 
 int
 BTModule_GetRFRegMaskBits(
-    BT_MODULE *pBtModule,
-    unsigned char Addr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    unsigned int *pUserValue
-    );
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        );
 
 int
 BTModule_SetRFRegMaskBits(
-	BT_MODULE *pBtModule,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	);
-#endif
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        );
 
+#endif

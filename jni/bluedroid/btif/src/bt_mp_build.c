@@ -26,14 +26,14 @@ BuildBluetoothDevice(
 
     ////////////////  USE Register /////////////////////////////////////
     //-->Register Read/Write
-    pBtDevice->SetMdRegMaskBits=bt_default_SetMDRegMaskBits;
-    pBtDevice->GetMdRegMaskBits=bt_default_GetMDRegMaskBits;
+    pBtDevice->SetMdRegMaskBits = bt_default_SetMDRegMaskBits;
+    pBtDevice->GetMdRegMaskBits = bt_default_GetMDRegMaskBits;
 
-    pBtDevice->SetRfRegMaskBits =bt_default_SetRFRegMaskBits;;
-    pBtDevice->GetRfRegMaskBits =bt_default_GetRFRegMaskBits;
+    pBtDevice->SetRfRegMaskBits = bt_default_SetRFRegMaskBits;;
+    pBtDevice->GetRfRegMaskBits = bt_default_GetRFRegMaskBits;
     //-->HCI command raw data
-    pBtDevice->SendHciCmd =bt_default_SendHCICmd;
-    pBtDevice->RecvHciEvent =  bt_default_RecvHCIEvent;
+    pBtDevice->SendHciCmd = bt_default_SendHCICmd;
+    pBtDevice->RecvHciEvent = bt_default_RecvHCIEvent;
 
     //-->HCI Command & Event
     pBtDevice->SendHciCommandWithEvent=BTDevice_SendHciCommandWithEvent;

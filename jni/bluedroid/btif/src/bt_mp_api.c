@@ -794,84 +794,66 @@ bt_regrf	(write)1	1	1	1	2	1	　
 int BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
 {
     int rtn = BT_FUNCTION_SUCCESS;
-    const char  *delim = STR_BT_MP_TX_PARA_DELIM;
-    char    * token = NULL;
-    unsigned char BT_REGRF_PARA_COUNT = 4;//4// 4 -read, 5- write
-    unsigned char rxParaCount = 0;
-    unsigned char opReadWrite = 0;
-    unsigned char address = 0;
-    unsigned char msb = 0;
-    unsigned char lsb = 0;
-    unsigned int dataReadWrite = 0; //for opReadWrite = 1(write)
+    const char *delim = STR_BT_MP_TX_PARA_DELIM;
+    char *token = NULL;
+    uint8_t BT_REGRF_PARA_COUNT = 4;// 4:read, 5:write
+    uint8_t rxParaCount = 0;
+    uint8_t opReadWrite = 0;
+    uint8_t address = 0;
+    uint8_t msb = 0;
+    uint8_t lsb = 0;
+    uint16_t dataReadWrite = 0; //for opReadWrite = 1(write)
 
-    bt_mp_LogMsg("++%s: %s", STR_BT_MP_REG_RF, p);
+    ALOGI("++%s: %s", STR_BT_MP_REG_RF, p);
 
     //unsigned char opReadWrite;
     token = strtok(p, delim);
-    if(token != NULL)
-    {
-        opReadWrite =  strtol(token, NULL ,16);
+    if (token != NULL) {
+        opReadWrite = strtol(token, NULL, 16);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
     //unsigned char address
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
-        address =  strtol(token, NULL ,16);
+    if (token != NULL) {
+        address = strtol(token, NULL, 16);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
     //unsigned char msb;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
-        msb =  strtol(token, NULL ,16);
+    if (token != NULL) {
+        msb = strtol(token, NULL, 16);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
     //unsigned char lsb;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
-        lsb =  strtol(token, NULL ,16);
+    if (token != NULL) {
+        lsb = strtol(token, NULL, 16);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-    if(opReadWrite == 1)//write
-    {
+    if (opReadWrite == 1) { //write
         BT_REGRF_PARA_COUNT = 5;
         //unsigned char dataToWrite;
         token = strtok(NULL, delim);
-        if(token != NULL)
-        {
-            dataReadWrite =  strtol(token, NULL ,16);
+        if (token != NULL) {
+            dataReadWrite = strtol(token, NULL, 16);
             rxParaCount++;
-        }
-        else
-        {
+        } else {
             goto EXIT;
         }
 
-    }
-    else
-    {
+    } else {
         BT_REGRF_PARA_COUNT = 4;
     }
 
@@ -879,60 +861,136 @@ int BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        bt_mp_LogMsg("token = %s", token);
+        ALOGI("BT_RegRf: redundant token[%s]", token);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
 EXIT:
-    bt_mp_LogMsg("%s: rxParaCount = %d", STR_BT_MP_REG_RF, rxParaCount);
+    ALOGI("%s: rxParaCount = %d", STR_BT_MP_REG_RF, rxParaCount);
 
-    if(rxParaCount != BT_REGRF_PARA_COUNT)
-    {
+    if (rxParaCount != BT_REGRF_PARA_COUNT) {
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
-    }
-    else
-    {
+    } else {
+        ALOGI("BT_RegRf: opReadWrite 0x%02x, address 0x%02x, msb 0x%02x, lsb 0x%02x, dataToWrite 0x%04x",
+                opReadWrite, address, msb, lsb, dataReadWrite);
 
+        //sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
 
-
-        bt_mp_LogMsg("opReadWrite:0x%x, address:0x%x, msb:0x%x, lsb:0x%x, dataToWrite:0x%x",
-                                   opReadWrite,
-                                   address,
-                                   msb,
-                                   lsb,
-                                   dataReadWrite
-                                   );
-
-        bt_mp_LogMsg("%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-
-        if(opReadWrite == 0)
-        {
+        if (opReadWrite == 0) {
             rtn = pBtModule->GetRfRegMaskBits(pBtModule, address, msb, lsb, &dataReadWrite);
-            bt_mp_LogMsg("%s%s%x%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn, STR_BT_MP_RX_RESULT_DELIM, dataReadWrite);
             sprintf(pNotifyBuffer, "%s%s%x%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn, STR_BT_MP_RX_RESULT_DELIM, dataReadWrite);
-        }
-        else
-        {
+        } else {
             rtn = pBtModule->SetRfRegMaskBits(pBtModule, address, msb, lsb, dataReadWrite);
-            bt_mp_LogMsg("%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn);
             sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RF, STR_BT_MP_RX_RESULT_DELIM, rtn);
         }
 
     }
 
-    bt_mp_LogMsg("--%s", STR_BT_MP_REG_RF);
+    ALOGI("--%s", STR_BT_MP_REG_RF);
     return rtn;
 }
 
-int BT_RegMd(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
+int BT_RegMd(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
 {
-    return 0;
+    int rtn = BT_FUNCTION_SUCCESS;
+    const char *delim = STR_BT_MP_TX_PARA_DELIM;
+    char *token = NULL;
+    uint8_t BT_REGRF_PARA_COUNT = 4;// 4:read, 5:write
+    uint8_t rxParaCount = 0;
+    uint8_t opReadWrite = 0;
+    uint8_t address = 0;
+    uint8_t msb = 0;
+    uint8_t lsb = 0;
+    uint16_t dataReadWrite = 0; //for opReadWrite = 1(write)
 
+    ALOGI("++%s: %s", STR_BT_MP_REG_MD, p);
+
+    //unsigned char opReadWrite;
+    token = strtok(p, delim);
+    if (token != NULL) {
+        opReadWrite = strtol(token, NULL, 16);
+        rxParaCount++;
+    } else {
+        goto EXIT;
+    }
+
+    //unsigned char address
+    token = strtok(NULL, delim);
+    if (token != NULL) {
+        address = strtol(token, NULL, 16);
+        rxParaCount++;
+    } else {
+        goto EXIT;
+    }
+
+    //unsigned char msb;
+    token = strtok(NULL, delim);
+    if (token != NULL) {
+        msb = strtol(token, NULL, 16);
+        rxParaCount++;
+    } else {
+        goto EXIT;
+    }
+
+    //unsigned char lsb;
+    token = strtok(NULL, delim);
+    if (token != NULL) {
+        lsb = strtol(token, NULL, 16);
+        rxParaCount++;
+    } else {
+        goto EXIT;
+    }
+
+    if (opReadWrite == 1) { //write
+        BT_REGRF_PARA_COUNT = 5;
+        //unsigned char dataToWrite;
+        token = strtok(NULL, delim);
+        if (token != NULL) {
+            dataReadWrite = strtol(token, NULL, 16);
+            rxParaCount++;
+        } else {
+            goto EXIT;
+        }
+
+    } else {
+        BT_REGRF_PARA_COUNT = 4;
+    }
+
+    //end of parameter
+    token = strtok(NULL, delim);
+    if(token != NULL)
+    {
+        ALOGI("BT_RegMd: redundant token[%s]", token);
+        rxParaCount++;
+    } else {
+        goto EXIT;
+    }
+
+EXIT:
+    ALOGI("%s: rxParaCount = %d", STR_BT_MP_REG_MD, rxParaCount);
+
+    if (rxParaCount != BT_REGRF_PARA_COUNT) {
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_MD, STR_BT_MP_RX_RESULT_DELIM, ERROR_BT_INVALID_PARA_COUNT);
+    } else {
+        ALOGI("BT_RegMd: opReadWrite 0x%x, address 0x%x, msb 0x%x, lsb 0x%x, dataToWrite 0x%x",
+                opReadWrite, address, msb, lsb, dataReadWrite);
+
+        //sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_MD, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+
+        if (opReadWrite == 0) {
+            rtn = pBtModule->GetMdRegMaskBits(pBtModule, address, msb, lsb, &dataReadWrite);
+            sprintf(pNotifyBuffer, "%s%s%x%s%x", STR_BT_MP_REG_MD, STR_BT_MP_RX_RESULT_DELIM, rtn, STR_BT_MP_RX_RESULT_DELIM, dataReadWrite);
+        } else {
+            rtn = pBtModule->SetMdRegMaskBits(pBtModule, address, msb, lsb, dataReadWrite);
+            sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_MD, STR_BT_MP_RX_RESULT_DELIM, rtn);
+        }
+
+    }
+
+    ALOGI("--%s", STR_BT_MP_REG_MD);
+    return rtn;
 }
 
 int BT_SetHoppingMode(BT_MODULE *pBtModule, char *p, char* pNotifyBuffer)

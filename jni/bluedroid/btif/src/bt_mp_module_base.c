@@ -327,40 +327,40 @@ BTModule_SendHciCommandWithEvent(
 //------------------------------------------------------------------------------------------------------------------
 int
 BTModule_GetMDRegMaskBits(
-	BT_MODULE *pBtModule,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pUserValue
-	)
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        )
 {
-	 BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
-	 return pBtDevice->GetMdRegMaskBits(pBtDevice,Addr,Msb,Lsb,pUserValue);
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+    return pBtDevice->GetMdRegMaskBits(pBtDevice,Addr,Msb,Lsb,pUserValue);
 }
 //------------------------------------------------------------------------------------------------------------------
 
 int
 BTModule_SetMDRegMaskBits(
-	BT_MODULE *pBtModule,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	)
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        )
 {
-	 BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
-	return pBtDevice->SetMdRegMaskBits(pBtDevice,Addr,Msb,Lsb,UserValue);
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+    return pBtDevice->SetMdRegMaskBits(pBtDevice,Addr,Msb,Lsb,UserValue);
 }
 //------------------------------------------------------------------------------------------------------------------
 
 int
 BTModule_GetRFRegMaskBits(
-    BT_MODULE *pBtModule,
-    unsigned char Addr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    unsigned int *pUserValue
-    )
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
     return pBtDevice->GetRfRegMaskBits(pBtDevice,Addr,Msb,Lsb,pUserValue);
@@ -369,15 +369,15 @@ BTModule_GetRFRegMaskBits(
 
 int
 BTModule_SetRFRegMaskBits(
-	BT_MODULE *pBtModule,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	)
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        )
 {
-	 BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
 
-	 return pBtDevice->SetRfRegMaskBits(pBtDevice,Addr,Msb,Lsb,UserValue);
+    return pBtDevice->SetRfRegMaskBits(pBtDevice,Addr,Msb,Lsb,UserValue);
 }
 //------------------------------------------------------------------------------------------------------------------

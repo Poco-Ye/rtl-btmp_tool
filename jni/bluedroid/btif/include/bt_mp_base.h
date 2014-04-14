@@ -443,42 +443,42 @@ typedef int
 	);		
 
 //------------------------------------------------------------------------------------------------------------------
-//-->Register Read/Write 
+//-->Register Read/Write
 typedef int
-  (*BT_FP_SET_MD_REG_MASK_BITS)(
-	BT_DEVICE *pBtDevice,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	);
+(*BT_FP_SET_MD_REG_MASK_BITS)(
+        BT_DEVICE *pBtDevice,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        );
 
 typedef int
 (*BT_FP_GET_MD_REG_MASK_BITS)(
-	BT_DEVICE *pBtDevice,
-	unsigned char RegStartAddr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pReadingValue
-	);
+        BT_DEVICE *pBtDevice,
+        uint8_t RegStartAddr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pReadingValue
+        );
 
 
 typedef int
 (*BT_FP_SET_RF_REG_MASK_BITS)(
-	BT_DEVICE *pBtDevice,
-	unsigned char RegStartAddr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long WritingValue
-	);
+        BT_DEVICE *pBtDevice,
+        uint8_t RegStartAddr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t WritingValue
+        );
 
 typedef int
 (*BT_FP_GET_RF_REG_MASK_BITS)(
         BT_DEVICE *pBtDevice,
-        unsigned char RegStartAddr,
-        unsigned char Msb,
-        unsigned char Lsb,
-        unsigned int *pReadingValue
+        uint8_t RegStartAddr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pReadingValue
         );
 
 //------------------------------------------------------------------------------------------------------------------
@@ -548,12 +548,12 @@ struct BT_DEVICE_TAG  // Chip
 	BT_FP_SET_TXDACTABLE		  SetTxDACTable;
 	BT_FP_GET_PAYLOADLENTABLE	  GetPayloadLenTable;
 		
-	//-->Register Read/Write 
-	BT_FP_SET_MD_REG_MASK_BITS        SetMdRegMaskBits;
-	BT_FP_GET_MD_REG_MASK_BITS        GetMdRegMaskBits;	
+    //-->Register Read/Write 
+    BT_FP_SET_MD_REG_MASK_BITS        SetMdRegMaskBits;
+    BT_FP_GET_MD_REG_MASK_BITS        GetMdRegMaskBits;
 
-	BT_FP_SET_RF_REG_MASK_BITS        SetRfRegMaskBits;
-	BT_FP_GET_RF_REG_MASK_BITS        GetRfRegMaskBits;
+    BT_FP_SET_RF_REG_MASK_BITS        SetRfRegMaskBits;
+    BT_FP_GET_RF_REG_MASK_BITS        GetRfRegMaskBits;
 
 	//-->HCI Command & Event
 	BT_FP_SEND_HCICOMMANDWITHEVENT	  SendHciCommandWithEvent;
@@ -584,35 +584,35 @@ struct BT_DEVICE_TAG  // Chip
 	
 	
 	
-	//-->Vendor HCI Command Control 	
-	BT_FP_SET_FWPOWERTRACKENABLE		SetFWPowerTrackEnable;
-	BT_FP_SET_HOPPINGMODE				SetHoppingMode;
-	BT_FP_SET_HCIRESET					SetHciReset;
+    //-->Vendor HCI Command Control 	
+    BT_FP_SET_FWPOWERTRACKENABLE		SetFWPowerTrackEnable;
+    BT_FP_SET_HOPPINGMODE				SetHoppingMode;
+    BT_FP_SET_HCIRESET					SetHciReset;
     BT_FP_GET_BT_CLOCK_TIME				GetBTClockTime;
-        
-        
-        //--->Control Flow
-        unsigned int  TRXSTATE;
-        unsigned long OldModemReg4Value;
-        unsigned long TxTriggerPktCnt;
 
-        //0:TRX STOP  1 : is TX 2: IS rx 
-        //Con-TX
-        BT_TRX_TIME                             TRxTime[NUMOFTRXTIME_TAG];
-        BT_FP_SET_CONTINUETX_BEGIN		SetContinueTxBegin;
-        BT_FP_SET_CONTINUETX_STOP		SetContinueTxStop;
-        BT_FP_SET_CONTINUETX_UPDATE		SetContinueTxUpdate;
-        
-        //PKT-TX
-        BT_FP_SET_PKTTX_BEGIN			SetPktTxBegin;
-        BT_FP_SET_PKTTX_BEGIN_CHANNEL_PKTTYPE			SetPktTxBeginChannelPacketType;
 
-        BT_FP_SET_PKTTX_STOP			SetPktTxStop;
-        BT_FP_SET_PKTTX_UPDATE			SetPktTxUpdate; 
-        BT_FP_SET_PKTTX_SEND_ONE		SetPktTxSendOne; 
+    //--->Control Flow
+    unsigned int  TRXSTATE;
+    uint16_t OldModemReg4Value;
+    unsigned long TxTriggerPktCnt;
 
- 
-         //PKT-RX
+    //0:TRX STOP  1 : is TX 2: IS rx 
+    //Con-TX
+    BT_TRX_TIME                             TRxTime[NUMOFTRXTIME_TAG];
+    BT_FP_SET_CONTINUETX_BEGIN		SetContinueTxBegin;
+    BT_FP_SET_CONTINUETX_STOP		SetContinueTxStop;
+    BT_FP_SET_CONTINUETX_UPDATE		SetContinueTxUpdate;
+
+    //PKT-TX
+    BT_FP_SET_PKTTX_BEGIN			SetPktTxBegin;
+    BT_FP_SET_PKTTX_BEGIN_CHANNEL_PKTTYPE			SetPktTxBeginChannelPacketType;
+
+    BT_FP_SET_PKTTX_STOP			SetPktTxStop;
+    BT_FP_SET_PKTTX_UPDATE			SetPktTxUpdate; 
+    BT_FP_SET_PKTTX_SEND_ONE		SetPktTxSendOne; 
+
+
+    //PKT-RX
         BT_FP_SET_PKTRX_BEGIN			SetPktRxBegin;
         BT_FP_SET_PKTRX_BEGIN_CHANNEL_PKTTYPE			SetPktRxBeginChannelPacketType;
 
@@ -691,43 +691,42 @@ typedef int
 				int patchLength,
 				int Mode);
 
-//-->Register Read/Write 
+//-->Register Read/Write
 typedef int
 (*BT_MODULE_FP_SET_MD_REG_MASK_BITS)(
-	BT_MODULE *pBtModule,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	);
+        BT_MODULE *pBtModule,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        );
 
 typedef int
 (*BT_MODULE_FP_GET_MD_REG_MASK_BITS)(
-	BT_MODULE *pBtModule,
-	unsigned char RegStartAddr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pReadingValue
-	);
-
+        BT_MODULE *pBtModule,
+        uint8_t RegStartAddr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pReadingValue
+        );
 
 typedef int
 (*BT_MODULE_FP_SET_RF_REG_MASK_BITS)(
-	BT_MODULE *pBtModule,
-	unsigned char RegStartAddr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long WritingValue
-	);
+        BT_MODULE *pBtModule,
+        uint8_t RegStartAddr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t WritingValue
+        );
 
 typedef int
 (*BT_MODULE_FP_GET_RF_REG_MASK_BITS)(
-    BT_MODULE *pBtModule,
-    unsigned char RegStartAddr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    unsigned int *pReadingValue
-    );
+        BT_MODULE *pBtModule,
+        uint8_t RegStartAddr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pReadingValue
+        );
 
 //-->HCI Command & Event
 typedef int
@@ -878,38 +877,40 @@ enum BT_HCI_EVENT_FIELD
 
 //member function
 int bt_default_SetMDRegMaskBits(
-	BT_DEVICE *pBtDevice,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	);
+        BT_DEVICE *pBtDevice,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        );
+
 int
 bt_default_GetMDRegMaskBits(
-	BT_DEVICE *pBt,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pUserValue
-	);
+        BT_DEVICE *pBt,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        );
 
 int
 bt_default_GetRFRegMaskBits(
         BT_DEVICE *pBt,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
-        unsigned int *pUserValue
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
         );
 
 int
 bt_default_SetRFRegMaskBits(
-	BT_DEVICE *pBt,
-	unsigned char Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long UserValue
-	) ;
+        BT_DEVICE *pBt,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint16_t UserValue
+        ) ;
+
 int
 bt_default_GetBytes(
 	BT_DEVICE *pBt,
