@@ -83,7 +83,7 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 
     token = strtok(p, delim);
     if (token != NULL) {
-        opcode = strtol(token, NULL, 16);
+        opcode = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -91,7 +91,7 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 
     token = strtok(NULL, delim);
     if (token != NULL) {
-        paraLen= strtol(token, NULL ,16);
+        paraLen = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -101,7 +101,7 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         //end of parameter
         token = strtok(NULL, delim);
         if (token != NULL) {
-            paraMeters[i++] = strtol(token, NULL, 16);
+            paraMeters[i++] = strtol(token, NULL, 0);
             rxParaCount++;
         } else {
             goto EXIT;
@@ -133,9 +133,9 @@ EXIT:
 
 int BT_GetPara(BT_MODULE  *pBtModule, char* pNotifyBuffer)
 {
-    bt_mp_LogMsg("++%s", STR_BT_MP_GET_PARA);
+    ALOGI("++%s", STR_BT_MP_GET_PARA);
 
-    bt_mp_LogMsg("%s%s%x%s%x%s%x%s%lx%s%x%s%x%s%x%s%x%s%x%s%x%s%llx",
+    ALOGI("%s%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%llx",
                                 STR_BT_MP_GET_PARA,
                                 STR_BT_MP_RX_RESULT_DELIM,
                                 pBtModule->pBtParam->mChannelNumber,
@@ -161,7 +161,7 @@ int BT_GetPara(BT_MODULE  *pBtModule, char* pNotifyBuffer)
                                 pBtModule->pBtParam->mHitTarget
                                 );
 
-    sprintf(pNotifyBuffer, "%s%s%x%s%x%s%x%s%lx%s%x%s%x%s%x%s%x%s%x%s%x%s%llx",
+    sprintf(pNotifyBuffer, "%s%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%llx",
                                 STR_BT_MP_GET_PARA,
                                 STR_BT_MP_RX_RESULT_DELIM,
                                 pBtModule->pBtParam->mChannelNumber,
@@ -187,7 +187,7 @@ int BT_GetPara(BT_MODULE  *pBtModule, char* pNotifyBuffer)
                                 pBtModule->pBtParam->mHitTarget
                                 );
 
-    bt_mp_LogMsg("--%s", STR_BT_MP_GET_PARA);
+    ALOGI("--%s", STR_BT_MP_GET_PARA);
     return 0;
 }
 
@@ -199,12 +199,12 @@ int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     const unsigned char BT_PARA1_COUNT = 7;
     unsigned char rxParaCount = 0;
 
-    bt_mp_LogMsg("++%s: %s", STR_BT_MP_SET_GAIN_TABLE, p);
+    ALOGI("++%s: %s", STR_BT_MP_SET_GAIN_TABLE, p);
 
     token = strtok(p, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXGainTable[0]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXGainTable[0] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -215,7 +215,7 @@ int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXGainTable[1]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXGainTable[1] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -226,7 +226,7 @@ int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXGainTable[2]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXGainTable[2] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -237,7 +237,7 @@ int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXGainTable[3]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXGainTable[3] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -248,7 +248,7 @@ int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXGainTable[4]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXGainTable[4] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -259,7 +259,7 @@ int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXGainTable[5]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXGainTable[5] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -270,7 +270,7 @@ int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXGainTable[6]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXGainTable[6] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -291,7 +291,7 @@ int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     }
 
 EXIT:
-    bt_mp_LogMsg("%s: rxParaCount = %d", STR_BT_MP_SET_GAIN_TABLE, rxParaCount);
+    ALOGI("%s: rxParaCount = %d", STR_BT_MP_SET_GAIN_TABLE, rxParaCount);
 
     if(rxParaCount != BT_PARA1_COUNT)
     {
@@ -309,12 +309,12 @@ EXIT:
                                    pBtModule->pBtParam->TXGainTable[6]
                                    );
 
-        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        ALOGI("%s%s%x", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
 
-    bt_mp_LogMsg("--%s", STR_BT_MP_SET_GAIN_TABLE);
+    ALOGI("--%s", STR_BT_MP_SET_GAIN_TABLE);
     return 0;
 }
 
@@ -327,12 +327,12 @@ int BT_SetDacTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     const unsigned char BT_PARA1_COUNT = 5;
     unsigned char rxParaCount = 0;
 
-    bt_mp_LogMsg("++%s: %s", STR_BT_MP_SET_DAC_TABLE, p);
+    ALOGI("++%s: %s", STR_BT_MP_SET_DAC_TABLE, p);
 
     token = strtok(p, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXDACTable[0]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXDACTable[0] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -343,7 +343,7 @@ int BT_SetDacTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXDACTable[1]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXDACTable[1] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -354,7 +354,7 @@ int BT_SetDacTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXDACTable[2]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXDACTable[2] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -365,7 +365,7 @@ int BT_SetDacTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXDACTable[3]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXDACTable[3] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -376,7 +376,7 @@ int BT_SetDacTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->TXDACTable[4]=  strtol(token, NULL ,16);
+        pBtModule->pBtParam->TXDACTable[4] = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -397,7 +397,7 @@ int BT_SetDacTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     }
 
 EXIT:
-    bt_mp_LogMsg("%s: rxParaCount = %d", STR_BT_MP_SET_DAC_TABLE, rxParaCount);
+    ALOGI("%s: rxParaCount = %d", STR_BT_MP_SET_DAC_TABLE, rxParaCount);
 
     if(rxParaCount != BT_PARA1_COUNT)
     {
@@ -405,18 +405,18 @@ EXIT:
     }
     else
     {
-        bt_mp_LogMsg("TXDACTable:0x%02x, 0x%02x,0x%02x, 0x%02x,0x%02x",
+        ALOGI("TXDACTable:0x%02x, 0x%02x,0x%02x, 0x%02x,0x%02x",
                                    pBtModule->pBtParam->TXDACTable[0],
                                    pBtModule->pBtParam->TXDACTable[1],
                                    pBtModule->pBtParam->TXDACTable[2],
                                    pBtModule->pBtParam->TXDACTable[3],
                                    pBtModule->pBtParam->TXDACTable[4]
                                    );
-        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        ALOGI("%s%s%x", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
-    bt_mp_LogMsg("--%s", STR_BT_MP_SET_DAC_TABLE);
+    ALOGI("--%s", STR_BT_MP_SET_DAC_TABLE);
     return 0;
 }
 
@@ -434,7 +434,7 @@ int BT_SetPara1(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(p, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mChannelNumber =  strtol(token, NULL ,16);
+        pBtModule->pBtParam->mChannelNumber = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -446,7 +446,7 @@ int BT_SetPara1(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mPacketType =  strtol(token, NULL ,16);
+        pBtModule->pBtParam->mPacketType = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -458,7 +458,7 @@ int BT_SetPara1(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mPayloadType =  strtol(token, NULL ,16);
+        pBtModule->pBtParam->mPayloadType = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -470,7 +470,7 @@ int BT_SetPara1(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mTxPacketCount =  strtol(token, NULL ,16);
+        pBtModule->pBtParam->mTxPacketCount = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -482,7 +482,7 @@ int BT_SetPara1(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mTxGainValue =  strtol(token, NULL ,16);
+        pBtModule->pBtParam->mTxGainValue = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -503,7 +503,7 @@ int BT_SetPara1(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     }
 
 EXIT:
-    bt_mp_LogMsg("%s: rxParaCount = %d", STR_BT_MP_SET_PARA1, rxParaCount);
+    ALOGI("%s: rxParaCount = %d", STR_BT_MP_SET_PARA1, rxParaCount);
 
     if(rxParaCount != BT_PARA1_COUNT)
     {
@@ -511,7 +511,7 @@ EXIT:
     }
     else
     {
-        bt_mp_LogMsg("mChannelNumber:0x%x, mPacketType:0x%x, mPayloadType:0x%x, mTxPacketCount:0x%x, mTxGainValue:0x%x, mWhiteningCoeffEnable:0x%x",
+        ALOGI("mChannelNumber:0x%x, mPacketType:0x%x, mPayloadType:0x%x, mTxPacketCount:0x%x, mTxGainValue:0x%x, mWhiteningCoeffEnable:0x%x",
                                    pBtModule->pBtParam->mChannelNumber,
                                    pBtModule->pBtParam->mPacketType,
                                    pBtModule->pBtParam->mPayloadType,
@@ -520,11 +520,11 @@ EXIT:
                                    pBtModule->pBtParam->mWhiteningCoeffEnable
                                    );
 
-        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        ALOGI("%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
-    bt_mp_LogMsg("--%s", STR_BT_MP_SET_PARA1);
+    ALOGI("--%s", STR_BT_MP_SET_PARA1);
     return 0;
 }
 
@@ -541,7 +541,7 @@ int BT_SetPara2(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(p, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mTxGainIndex = strtol(token, NULL ,16);
+        pBtModule->pBtParam->mTxGainIndex = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -553,7 +553,7 @@ int BT_SetPara2(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mTestMode = strtol(token, NULL ,16);
+        pBtModule->pBtParam->mTestMode = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -565,7 +565,7 @@ int BT_SetPara2(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mTxDAC =  strtol(token, NULL ,16);
+        pBtModule->pBtParam->mTxDAC = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -577,7 +577,7 @@ int BT_SetPara2(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mWhiteningCoeffEnable =  strtol(token, NULL ,16);
+        pBtModule->pBtParam->mWhiteningCoeffEnable = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -589,7 +589,7 @@ int BT_SetPara2(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     token = strtok(NULL, delim);
     if(token != NULL)
     {
-        pBtModule->pBtParam->mPacketHeader =  strtol(token, NULL ,16);
+        pBtModule->pBtParam->mPacketHeader = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -609,7 +609,7 @@ int BT_SetPara2(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     }
 
 EXIT:
-    bt_mp_LogMsg("%s: rxParaCount = %d", STR_BT_MP_SET_PARA2, rxParaCount);
+    ALOGI("%s: rxParaCount = %d", STR_BT_MP_SET_PARA2, rxParaCount);
 
     if(rxParaCount != BT_PARA1_COUNT)
     {
@@ -617,19 +617,19 @@ EXIT:
     }
     else
     {
-        bt_mp_LogMsg("mTxGainIndex:0x%x, mTestMode:0x%x, mTxDAC:0x%x, mWhiteningCoeffEnable:0x%x, mPacketHeader:0x%x",
+        ALOGI("mTxGainIndex:0x%x, mTestMode:0x%x, mTxDAC:0x%x, mWhiteningCoeffEnable:0x%x, mPacketHeader:0x%x",
                                    pBtModule->pBtParam->mTxGainIndex,
                                    pBtModule->pBtParam->mTestMode,
                                    pBtModule->pBtParam->mTxDAC,
-                                    pBtModule->pBtParam->mWhiteningCoeffEnable,
+                                   pBtModule->pBtParam->mWhiteningCoeffEnable,
                                    pBtModule->pBtParam->mPacketHeader
                                    );
 
-        bt_mp_LogMsg("%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        ALOGI("%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
-    bt_mp_LogMsg("--%s", STR_BT_MP_SET_PARA2);
+    ALOGI("--%s", STR_BT_MP_SET_PARA2);
     return 0;
 
 }
@@ -654,7 +654,7 @@ int BT_Exec(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     BT_PARAMETER *pBtParam = NULL;
     int rtn = BT_FUNCTION_SUCCESS;
 
-    ParameterIndex = strtol(p, NULL ,16);
+    ParameterIndex = strtol(p, NULL, 0);
 
     ALOGI("BT_Exec: buf[%s], param index[%d]", p, ParameterIndex);
 
@@ -809,7 +809,7 @@ int BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     //unsigned char opReadWrite;
     token = strtok(p, delim);
     if (token != NULL) {
-        opReadWrite = strtol(token, NULL, 16);
+        opReadWrite = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -818,7 +818,7 @@ int BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     //unsigned char address
     token = strtok(NULL, delim);
     if (token != NULL) {
-        address = strtol(token, NULL, 16);
+        address = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -827,7 +827,7 @@ int BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     //unsigned char msb;
     token = strtok(NULL, delim);
     if (token != NULL) {
-        msb = strtol(token, NULL, 16);
+        msb = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -836,7 +836,7 @@ int BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
     //unsigned char lsb;
     token = strtok(NULL, delim);
     if (token != NULL) {
-        lsb = strtol(token, NULL, 16);
+        lsb = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -847,7 +847,7 @@ int BT_RegRf(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
         //unsigned char dataToWrite;
         token = strtok(NULL, delim);
         if (token != NULL) {
-            dataReadWrite = strtol(token, NULL, 16);
+            dataReadWrite = strtol(token, NULL, 0);
             rxParaCount++;
         } else {
             goto EXIT;
@@ -910,7 +910,7 @@ int BT_RegMd(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     //unsigned char opReadWrite;
     token = strtok(p, delim);
     if (token != NULL) {
-        opReadWrite = strtol(token, NULL, 16);
+        opReadWrite = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -919,7 +919,7 @@ int BT_RegMd(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     //unsigned char address
     token = strtok(NULL, delim);
     if (token != NULL) {
-        address = strtol(token, NULL, 16);
+        address = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -928,7 +928,7 @@ int BT_RegMd(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     //unsigned char msb;
     token = strtok(NULL, delim);
     if (token != NULL) {
-        msb = strtol(token, NULL, 16);
+        msb = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -937,7 +937,7 @@ int BT_RegMd(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
     //unsigned char lsb;
     token = strtok(NULL, delim);
     if (token != NULL) {
-        lsb = strtol(token, NULL, 16);
+        lsb = strtol(token, NULL, 0);
         rxParaCount++;
     } else {
         goto EXIT;
@@ -948,7 +948,7 @@ int BT_RegMd(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
         //unsigned char dataToWrite;
         token = strtok(NULL, delim);
         if (token != NULL) {
-            dataReadWrite = strtol(token, NULL, 16);
+            dataReadWrite = strtol(token, NULL, 0);
             rxParaCount++;
         } else {
             goto EXIT;
@@ -1006,7 +1006,7 @@ int BT_SetHoppingMode(BT_MODULE *pBtModule, char *p, char* pNotifyBuffer)
     token = strtok(p, delim);
     if (token != NULL)
     {
-        pBtModule->pBtParam->mChannelNumber = strtol(token, NULL, 16);
+        pBtModule->pBtParam->mChannelNumber = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -1018,7 +1018,7 @@ int BT_SetHoppingMode(BT_MODULE *pBtModule, char *p, char* pNotifyBuffer)
     token = strtok(NULL, delim);
     if (token != NULL)
     {
-        pBtModule->pBtParam->mPacketType = strtol(token, NULL, 16);
+        pBtModule->pBtParam->mPacketType = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -1030,7 +1030,7 @@ int BT_SetHoppingMode(BT_MODULE *pBtModule, char *p, char* pNotifyBuffer)
     token = strtok(NULL, delim);
     if (token != NULL)
     {
-        pBtModule->pBtParam->mHoppingFixChannel = strtol(token, NULL, 16);
+        pBtModule->pBtParam->mHoppingFixChannel = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else
@@ -1042,7 +1042,7 @@ int BT_SetHoppingMode(BT_MODULE *pBtModule, char *p, char* pNotifyBuffer)
     token = strtok(NULL, delim);
     if (token != NULL)
     {
-        pBtModule->pBtParam->mWhiteningCoeffEnable = strtol(token, NULL, 16);
+        pBtModule->pBtParam->mWhiteningCoeffEnable = strtol(token, NULL, 0);
         rxParaCount++;
     }
     else

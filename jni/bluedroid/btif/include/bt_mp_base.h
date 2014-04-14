@@ -227,7 +227,7 @@ struct  BT_PARAMETER_TAG
     BT_PKT_TYPE   mPacketType;
     unsigned char mTxGainIndex;
     unsigned char mTxGainValue;
-    unsigned long mTxPacketCount;
+    uint32_t mTxPacketCount;
     BT_PAYLOAD_TYPE mPayloadType;
     unsigned int  mPacketHeader;
     unsigned char mWhiteningCoeffEnable;
