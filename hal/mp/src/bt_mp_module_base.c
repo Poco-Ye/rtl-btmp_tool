@@ -14,6 +14,7 @@ int BTModule_ActionReport(
     int rtn = BT_FUNCTION_SUCCESS;
     BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
     BT_DEVICE_REPORT *pModuleBtReport = pBtModule->pModuleBtReport;
+    uint32_t i;
 
     switch (ActiceItem) {
     case NO_THING:
@@ -51,50 +52,83 @@ int BTModule_ActionReport(
         pReport->ber = pModuleBtReport->ber;
         pReport->IsRxRssi = pModuleBtReport->IsRxRssi;
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
+        for( i = 0 ; i <MAX_TXGAIN_TABLE_SIZE; i++)
+        {
+            pReport->CurrTXGainTable[i] = pModuleBtDevice->TXGainTable[i];
+        }
+        for(i = 0 ; i <MAX_TXDAC_TABLE_SIZE; i++)
+        {
+            pReport->CurrTXDACTable[i]= pModuleBtDevice->TXDACTable[i];
+        }
+        break;
+
+    case REPORT_TX_GAIN_TABLE:
+        for( i = 0 ; i <MAX_TXGAIN_TABLE_SIZE; i++)
+        {
+            pReport->CurrTXGainTable[i] = pModuleBtDevice->TXGainTable[i];
+        }
+        break;
+
+    case REPORT_TX_DAC_TABLE:
+        for(i = 0 ; i <MAX_TXDAC_TABLE_SIZE; i++)
+        {
+            pReport->CurrTXDACTable[i]= pModuleBtDevice->TXDACTable[i];
+        }
+        break;
+
+    case REPORT_RTL8761_XTAL:
+        rtn = pModuleBtDevice->GetRtl8761Xtal(pModuleBtDevice, &pReport->CurrRtl8761Xtal);
+        break;
+
+
+    case REPORT_THERMAL:
+        rtn = pModuleBtDevice->ReadThermal(pModuleBtDevice, pBtModule->pBtParam, &pReport->CurrThermalValue);
+        break;
+
+    case REPORT_BT_STAGE:
+        rtn = pModuleBtDevice->GetStage(pModuleBtDevice, &pReport->CurrStage);
         break;
     }
 
     return rtn;
 }
 
-//------------------------------------------------------------------------------------------------------------------
 int BTModule_UpDataParameter(
-                                BT_MODULE *pBtModule,
-                                BT_PARAMETER 	*pParam
-                            )
+        BT_MODULE *pBtModule,
+        BT_PARAMETER *pParam
+        )
 {
-	int rtn=BT_FUNCTION_SUCCESS;
-	BT_PARAMETER 	*pBtModuleParam		=pBtModule->pBtParam;
-	int n=0;
+    int rtn=BT_FUNCTION_SUCCESS;
+    BT_PARAMETER *pBtModuleParam = pBtModule->pBtParam;
+    int n=0;
 //	memcpy(pBtModuleParam,pParam,sizeof(BT_PARAMETER));
 
-	pBtModuleParam->ParameterIndex			=pParam->ParameterIndex;
-	pBtModuleParam->mTestMode				=pParam->mTestMode;
-	pBtModuleParam->mChannelNumber			=pParam->mChannelNumber;
-	pBtModuleParam->mPacketType				=pParam->mPacketType;
-	pBtModuleParam->mTxGainIndex			=pParam->mTxGainIndex;
-	pBtModuleParam->mTxGainValue			=pParam->mTxGainValue;
-	pBtModuleParam->mTxPacketCount			=pParam->mTxPacketCount;
-	pBtModuleParam->mPayloadType			=pParam->mPayloadType;
-	pBtModuleParam->mPacketHeader			=pParam->mPacketHeader;
-	pBtModuleParam->mWhiteningCoeffEnable	=pParam->mWhiteningCoeffEnable;
-	pBtModuleParam->mTxDAC					=pParam->mTxDAC;
-	pBtModuleParam->mHitTarget				=pParam->mHitTarget;
-	pBtModuleParam->mMutiRxEnable			=pParam->mMutiRxEnable;
-	pBtModuleParam->mHoppingFixChannel			=pParam->mHoppingFixChannel;
-	
-	for (n=0;n<MAX_TXGAIN_TABLE_SIZE;n++)
-	{
-		pBtModuleParam->TXGainTable[n]		=pParam->TXGainTable[n];
-	}
-	for (n=0;n<MAX_TXDAC_TABLE_SIZE;n++)
-	{
-		pBtModuleParam->TXDACTable[n]		=pParam->TXDACTable[n];
-	}	
+    pBtModuleParam->ParameterIndex          = pParam->ParameterIndex;
+    pBtModuleParam->mTestMode               = pParam->mTestMode;
+    pBtModuleParam->mChannelNumber          = pParam->mChannelNumber;
+    pBtModuleParam->mPacketType             = pParam->mPacketType;
+    pBtModuleParam->mTxGainIndex            = pParam->mTxGainIndex;
+    pBtModuleParam->mTxGainValue            = pParam->mTxGainValue;
+    pBtModuleParam->mTxPacketCount          = pParam->mTxPacketCount;
+    pBtModuleParam->mPayloadType            = pParam->mPayloadType;
+    pBtModuleParam->mPacketHeader           = pParam->mPacketHeader;
+    pBtModuleParam->mWhiteningCoeffEnable   = pParam->mWhiteningCoeffEnable;
+    pBtModuleParam->mTxDAC                  = pParam->mTxDAC;
+    pBtModuleParam->mHitTarget              = pParam->mHitTarget;
+    pBtModuleParam->mMutiRxEnable           = pParam->mMutiRxEnable;
+    pBtModuleParam->mHoppingFixChannel      = pParam->mHoppingFixChannel;
 
-	return rtn;
+    for (n=0;n<MAX_TXGAIN_TABLE_SIZE;n++)
+    {
+        pBtModuleParam->TXGainTable[n] = pParam->TXGainTable[n];
+    }
+    for (n=0;n<MAX_TXDAC_TABLE_SIZE;n++)
+    {
+        pBtModuleParam->TXDACTable[n] = pParam->TXDACTable[n];
+    }
+
+    return rtn;
 }
-//------------------------------------------------------------------------------------------------------------------
 
 int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
 {
@@ -233,18 +267,25 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
     case CONTINUE_TX_UPDATE:
         rtn=pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
-        /////////////////////////// HOPPING  /////////////////////////////////////////////////////////
+    /////////////////////////// HOPPING  /////////////////////////////////////////////////////////
     case HOPPING_DWELL_TIME:
-        ALOGI("zhangmin, before...");
         rtn = pModuleBtDevice->SetHoppingMode(pModuleBtDevice,
                 pModuleBtParam->mChannelNumber,
                 pModuleBtParam->mPacketType,
                 pModuleBtParam->mHoppingFixChannel,
                 pModuleBtParam->mWhiteningCoeffEnable
                 );
-        ALOGI("zhangmin, after..., ret %d", rtn);
         break;
-        /////////////////////////// REPORT /////////////////////////////////////////////////////////
+
+    case TEST_MODE_ENABLE:
+        rtn=pModuleBtDevice->TestModeEnable(pModuleBtDevice);
+        break;
+
+    case SET_PACKET_HEADER:
+        rtn=pModuleBtDevice->SetPackHeader(pModuleBtDevice, pModuleBtParam->mPacketHeader);
+        break;
+
+    /////////////////////////// REPORT /////////////////////////////////////////////////////////
     case REPORT_CLEAR:
         pModuleBtReport->TotalTXBits=0;
         pModuleBtReport->TXUpdateBits=0;
@@ -261,71 +302,82 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         rtn=pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
         break;
 
+    case SET_DEFAULT_TX_GAIN_TABLE:
+        rtn=pModuleBtDevice->SetTxGainTable(pModuleBtDevice, NULL);
+        break;
+
+    case SET_DEFAULT_TX_DAC_TABLE:
+        rtn=pModuleBtDevice->SetTxDACTable(pModuleBtDevice, NULL);
+        break;
+
+    case SET_RTL8761_XTAL:
+        rtn=pModuleBtDevice->SetRtl8761Xtal(pModuleBtDevice, pModuleBtParam->Rtl8761Xtal);
+        break;
+
     default:
         break;
     }
 
     return rtn;
 }
-//------------------------------------------------------------------------------------------------------------------
 
 int BTModule_DownloadPatchCode(
-				BT_MODULE *pBtModule
-				,unsigned char *pPatchcode
-				,int patchLength
-				,int Mode)
+        BT_MODULE *pBtModule,
+        unsigned char *pPatchcode,
+        int patchLength,
+        int Mode
+        )
 {
-				int rtn=BT_FUNCTION_SUCCESS;
+    int rtn=BT_FUNCTION_SUCCESS;
 
-				BT_DEVICE 	 *pModuleBtDevice	=pBtModule->pBtDevice;
-				
-				if (Mode)
-				{
-					if (pModuleBtDevice->GetChipVersionInfo(pModuleBtDevice) != BT_FUNCTION_SUCCESS)
-					{
-							rtn=FUNCTION_ERROR;
-							goto exit;
-					}
+    BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
 
-					rtn=pModuleBtDevice->BTDlMERGERFW(pModuleBtDevice,pPatchcode,patchLength);
-				}
-				else
-				{
-					rtn=pModuleBtDevice->BTDlFW(pModuleBtDevice,pPatchcode,patchLength);
-				}
+    if (Mode)
+    {
+        if (pModuleBtDevice->GetChipVersionInfo(pModuleBtDevice) != BT_FUNCTION_SUCCESS)
+        {
+            rtn=FUNCTION_ERROR;
+            goto exit;
+        }
+
+        rtn=pModuleBtDevice->BTDlMERGERFW(pModuleBtDevice,pPatchcode,patchLength);
+    }
+    else
+    {
+        rtn=pModuleBtDevice->BTDlFW(pModuleBtDevice,pPatchcode,patchLength);
+    }
+
 exit:
-				return rtn;
-
+    return rtn;
 }
-//------------------------------------------------------------------------------------------------------------------
+
 int
 BTModule_RecvAnyHciEvent(
-	BT_MODULE *pBtModule,
-	unsigned char  *pEvent
-	)
+        BT_MODULE *pBtModule,
+        unsigned char *pEvent
+        )
 {
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
 
-		BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
-
-		return pBtDevice->RecvAnyHciEvent(pBtDevice,pEvent);
+    return pBtDevice->RecvAnyHciEvent(pBtDevice,pEvent);
 }
-//------------------------------------------------------------------------------------------------------------------
+
 int
 BTModule_SendHciCommandWithEvent(
-    BT_MODULE *pBtModule,
-    unsigned int  OpCode,
-    unsigned char PayLoadLength,
-    unsigned char *pPayLoad,
-    unsigned char EventType,
-    unsigned char *pEvent,
-    unsigned long *pEventLen
-    )
+        BT_MODULE *pBtModule,
+        unsigned int OpCode,
+        unsigned char PayLoadLength,
+        unsigned char *pPayLoad,
+        unsigned char EventType,
+        unsigned char *pEvent,
+        unsigned long *pEventLen
+        )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
 
     return pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,PayLoadLength,pPayLoad,EventType,pEvent, pEventLen);
 }
-//------------------------------------------------------------------------------------------------------------------
+
 int
 BTModule_GetMDRegMaskBits(
         BT_MODULE *pBtModule,
@@ -338,7 +390,6 @@ BTModule_GetMDRegMaskBits(
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
     return pBtDevice->GetMdRegMaskBits(pBtDevice,Addr,Msb,Lsb,pUserValue);
 }
-//------------------------------------------------------------------------------------------------------------------
 
 int
 BTModule_SetMDRegMaskBits(
@@ -352,7 +403,6 @@ BTModule_SetMDRegMaskBits(
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
     return pBtDevice->SetMdRegMaskBits(pBtDevice,Addr,Msb,Lsb,UserValue);
 }
-//------------------------------------------------------------------------------------------------------------------
 
 int
 BTModule_GetRFRegMaskBits(
@@ -366,7 +416,6 @@ BTModule_GetRFRegMaskBits(
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
     return pBtDevice->GetRfRegMaskBits(pBtDevice,Addr,Msb,Lsb,pUserValue);
 }
-//------------------------------------------------------------------------------------------------------------------
 
 int
 BTModule_SetRFRegMaskBits(
@@ -381,4 +430,59 @@ BTModule_SetRFRegMaskBits(
 
     return pBtDevice->SetRfRegMaskBits(pBtDevice,Addr,Msb,Lsb,UserValue);
 }
-//------------------------------------------------------------------------------------------------------------------
+
+int
+BTModule_GetSysRegMaskBits(
+        BT_MODULE *pBtModule,
+        unsigned char Addr,
+        unsigned char Msb,
+        unsigned char Lsb,
+        uint32_t *pUserValue
+        )
+{
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+    return pBtDevice->GetSysRegMaskBits(pBtDevice, Addr, Msb, Lsb, pUserValue);
+}
+
+int
+BTModule_SetSysRegMaskBits(
+        BT_MODULE *pBtModule,
+        unsigned char Addr,
+        unsigned char Msb,
+        unsigned char Lsb,
+        const uint32_t UserValue
+        )
+{
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+
+    return pBtDevice->SetSysRegMaskBits(pBtDevice, Addr, Msb, Lsb, UserValue);
+}
+
+int
+BTModule_GetBBRegMaskBits(
+        BT_MODULE *pBtModule,
+        uint8_t Page,
+        unsigned char Addr,
+        unsigned char Msb,
+        unsigned char Lsb,
+        uint32_t *pUserValue
+        )
+{
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+    return pBtDevice->GetBBRegMaskBits(pBtDevice, Page, Addr, Msb, Lsb, pUserValue);
+}
+
+int
+BTModule_SetBBRegMaskBits(
+        BT_MODULE *pBtModule,
+        uint8_t Page,
+        unsigned char Addr,
+        unsigned char Msb,
+        unsigned char Lsb,
+        const uint32_t UserValue
+        )
+{
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+
+    return pBtDevice->SetBBRegMaskBits(pBtDevice, Page, Addr, Msb, Lsb, UserValue);
+}

@@ -57,6 +57,17 @@ BuildBluetoothDevice(
     pBtDevice->SetPackHeader=BTDevice_SetPackHeader;
     pBtDevice->SetPesudoOuterSetup= BTDevice_SetPesudoOuterSetup;
 
+    pBtDevice->TestModeEnable = BTDevice_TestModeEnable;
+    pBtDevice->SetRtl8761Xtal = BTDevice_SetRTL8761Xtal;
+    pBtDevice->GetRtl8761Xtal = BTDevice_GetRTL8761Xtal;
+    pBtDevice->ReadThermal = BTDevice_ReadThermal;
+
+    pBtDevice->GetStage = BT_GetStage;
+    pBtDevice->SetSysRegMaskBits = BT_SetSysRegMaskBits;
+    pBtDevice->GetSysRegMaskBits = BT_GetSysRegMaskBits;
+    pBtDevice->SetBBRegMaskBits = BT_SetBBRegMaskBits;
+    pBtDevice->GetBBRegMaskBits = BT_GetBBRegMaskBits;
+
     //-->Vendor HCI Command Control
     pBtDevice->SetFWPowerTrackEnable=       BTDevice_SetFWPowerTrackEnable;
     pBtDevice->SetHoppingMode       =       BTDevice_SetHoppingMode;
@@ -101,16 +112,6 @@ BuildBluetoothDevice(
     pBtDevice->BTDlFW=bt_default_BTDlFW;
     pBtDevice->BTDlMERGERFW=bt_default_BTDlMergerFW;
 
-    ////////////////////////rtl8723A /////////////////////////////////////
-
-    //   pBtDevice->SetTxChannel=BTDevice_SetTxChannel_RTL8723A;
-    //   pBtDevice->SetTestMode=BTDevice_SetTestMode_RTL8723A;
-    //   pBtDevice->SetPayloadType=BTDevice_SetPayloadType_RTL8723A;
-    //   pBtDevice->SetRxChannel=BTDevice_SetRxChannel_RTL8723A;
-    //   pBtDevice->SetPowerGain=BTDevice_SetPowerGain_RTL8723A;
-    //   pBtDevice->SetPowerGainIndex=BTDevice_SetPowerGainIndex_RTL8723A;
-    //   pBtDevice->SetTestMode=BTDevice_SetTestMode_RTL8723A;
-
     return 0;
 }
 
@@ -143,12 +144,18 @@ BuildBluetoothModule(
     pBtModule->SendHciCommandWithEvent  =   BTModule_SendHciCommandWithEvent;
     pBtModule->RecvAnyHciEvent      =   BTModule_RecvAnyHciEvent;
 
+    pBtModule->SetSysRegMaskBits    =       BTModule_SetSysRegMaskBits;
+    pBtModule->GetSysRegMaskBits    =       BTModule_GetSysRegMaskBits;
+    pBtModule->SetBBRegMaskBits     =       BTModule_SetBBRegMaskBits;
+    pBtModule->GetBBRegMaskBits     =       BTModule_GetBBRegMaskBits;
+
     BuildBluetoothDevice(pBaseInterfaceModule,
-                         &pBtModule->pBtDevice,
-                         &pBtModule->BaseBtDeviceMemory,
-                         pExtra,
-                         pTxGainTable,
-                         pTxDACTable);
+            &pBtModule->pBtDevice,
+            &pBtModule->BaseBtDeviceMemory,
+            pExtra,
+            pTxGainTable,
+            pTxDACTable
+            );
 
     return  rtn;
 }
