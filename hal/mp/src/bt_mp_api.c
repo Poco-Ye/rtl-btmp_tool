@@ -413,217 +413,185 @@ EXIT:
 }
 
 
-int BT_SetPara1(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
+int BT_SetPara1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
-    const char  *delim = STR_BT_MP_TX_PARA_DELIM;
-    char    * token = NULL;
-    const unsigned char BT_PARA1_COUNT = 5;
-    unsigned char rxParaCount = 0;
+    const char *delim = STR_BT_MP_TX_PARA_DELIM;
+    char *token = NULL;
+    const uint8_t BT_PARA1_COUNT = 6;
+    uint8_t rxParaCount = 0;
+    int ret = BT_FUNCTION_SUCCESS;
 
     ALOGI("++%s: %s", STR_BT_MP_SET_PARA1, p);
 
-    //    unsigned char mChannelNumber;
+    // unsigned char mChannelNumber;
     token = strtok(p, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mChannelNumber = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-    //BT_PKT_TYPE   mPacketType;
+    // BT_PKT_TYPE mPacketType;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mPacketType = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-    //BT_PAYLOAD_TYPE mPayloadType;
+    // BT_PAYLOAD_TYPE mPayloadType;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mPayloadType = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-    //unsigned long mTxPacketCount;
+    // uint16_t mTxPacketCount;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mTxPacketCount = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-    //unsigned char mTxGainValue;
+    // unsigned char mTxGainValue;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mTxGainValue = strtol(token, NULL, 0);
         rxParaCount++;
+    } else {
+        goto EXIT;
     }
-    else
-    {
+
+    // unsigned char mWhiteningCoeffEnable;
+    token = strtok(NULL, delim);
+    if (token != NULL) {
+        pBtModule->pBtParam->mWhiteningCoeffEnable = strtol(token, NULL, 0);
+        rxParaCount++;
+    } else {
         goto EXIT;
     }
 
     //end of parameter
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
-        ALOGI("token = %s", token);
+    if (token != NULL) {
+        ALOGI("BT_SetPara1: redundant token[%s]", token);
         rxParaCount++;
-    }
-    else
-    {
-        goto EXIT;
     }
 
 EXIT:
     ALOGI("%s: rxParaCount = %d", STR_BT_MP_SET_PARA1, rxParaCount);
 
-    if(rxParaCount != BT_PARA1_COUNT)
-    {
+    if (rxParaCount != BT_PARA1_COUNT) {
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-    }
-    else
-    {
-        ALOGI("mChannelNumber:0x%x, mPacketType:0x%x, mPayloadType:0x%x, mTxPacketCount:0x%x, mTxGainValue:0x%x, mWhiteningCoeffEnable:0x%x",
-                                   pBtModule->pBtParam->mChannelNumber,
-                                   pBtModule->pBtParam->mPacketType,
-                                   pBtModule->pBtParam->mPayloadType,
-                                   pBtModule->pBtParam->mTxPacketCount,
-                                   pBtModule->pBtParam->mTxGainValue,
-                                   pBtModule->pBtParam->mWhiteningCoeffEnable
-                                   );
+        ret = FUNCTION_PARAMETER_ERROR;
+    } else {
+        ALOGI("mChannelNumber:0x%02x, mPacketType:0x%02x, mPayloadType:0x%02x, "
+              "mTxPacketCount:0x%04x, mTxGainValue:0x%x, mWhiteningCoeffEnable:0x%02x",
+              pBtModule->pBtParam->mChannelNumber,
+              pBtModule->pBtParam->mPacketType,
+              pBtModule->pBtParam->mPayloadType,
+              pBtModule->pBtParam->mTxPacketCount,
+              pBtModule->pBtParam->mTxGainValue,
+              pBtModule->pBtParam->mWhiteningCoeffEnable
+             );
 
-        ALOGI("%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA1, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
     ALOGI("--%s", STR_BT_MP_SET_PARA1);
-    return 0;
+    return ret;
 }
 
-int BT_SetPara2(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
+int BT_SetPara2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
-    const char  *delim = ",";
-    char    * token = NULL;
-    const unsigned char BT_PARA1_COUNT = 5;
-    unsigned char rxParaCount = 0;
+    const char *delim = STR_BT_MP_TX_PARA_DELIM;
+    char *token = NULL;
+    const uint8_t BT_PARA2_COUNT = 5;
+    uint8_t rxParaCount = 0;
+    int ret = BT_FUNCTION_SUCCESS;
 
     ALOGI("++%s: %s", STR_BT_MP_SET_PARA2, p);
 
-    //unsigned char mTxGainIndex;
+    // unsigned char mTxGainIndex;
     token = strtok(p, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mTxGainIndex = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-    //BT_TEST_MODE mTestMode;
+    // BT_TEST_MODE mTestMode;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mTestMode = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-    //unsigned char mTxDAC;
+    // unsigned char mTxDAC;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mTxDAC = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-     //unsigned char mWhiteningCoeffEnable;
+    // uint16_t mPacketHeader;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
-        pBtModule->pBtParam->mWhiteningCoeffEnable = strtol(token, NULL, 0);
-        rxParaCount++;
-    }
-    else
-    {
-        goto EXIT;
-    }
-
-    //unsigned int  mPacketHeader;
-    token = strtok(NULL, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
         pBtModule->pBtParam->mPacketHeader = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
     }
 
-     //end of parameter
+    // uint8_t mMutiRxEnable;
     token = strtok(NULL, delim);
-    if(token != NULL)
-    {
+    if (token != NULL) {
+        pBtModule->pBtParam->mMutiRxEnable = strtol(token, NULL, 0);
         rxParaCount++;
-    }
-    else
-    {
+    } else {
         goto EXIT;
+    }
+
+    //end of parameter
+    token = strtok(NULL, delim);
+    if (token != NULL) {
+        ALOGI("BT_SetPara2: redundant token[%s]", token);
+        rxParaCount++;
     }
 
 EXIT:
     ALOGI("%s: rxParaCount = %d", STR_BT_MP_SET_PARA2, rxParaCount);
 
-    if(rxParaCount != BT_PARA1_COUNT)
-    {
+    if (rxParaCount != BT_PARA2_COUNT) {
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-    }
-    else
-    {
-        ALOGI("mTxGainIndex:0x%x, mTestMode:0x%x, mTxDAC:0x%x, mWhiteningCoeffEnable:0x%x, mPacketHeader:0x%x",
-                                   pBtModule->pBtParam->mTxGainIndex,
-                                   pBtModule->pBtParam->mTestMode,
-                                   pBtModule->pBtParam->mTxDAC,
-                                   pBtModule->pBtParam->mWhiteningCoeffEnable,
-                                   pBtModule->pBtParam->mPacketHeader
-                                   );
+        ret = FUNCTION_PARAMETER_ERROR;
+    } else {
+        ALOGI("mTxGainIndex:0x%02x, mTestMode:0x%02x, mTxDAC:0x%02x, "
+              "mWhiteningCoeffEnable:0x%02x, mPacketHeader:0x%04x, mMutiRxEnable 0x%02x",
+              pBtModule->pBtParam->mTxGainIndex,
+              pBtModule->pBtParam->mTestMode,
+              pBtModule->pBtParam->mTxDAC,
+              pBtModule->pBtParam->mWhiteningCoeffEnable,
+              pBtModule->pBtParam->mPacketHeader,
+              pBtModule->pBtParam->mMutiRxEnable
+             );
 
-        ALOGI("%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARA2, STR_BT_MP_RX_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
     ALOGI("--%s", STR_BT_MP_SET_PARA2);
-    return 0;
-
+    return ret;
 }
 
 int BT_SetHit(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)

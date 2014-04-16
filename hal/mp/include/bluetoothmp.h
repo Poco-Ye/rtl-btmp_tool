@@ -143,7 +143,7 @@ typedef enum {
 /** We need to build on this */
 
 typedef enum {
-    BT_STATUS_SUCCESS,
+    BT_STATUS_SUCCESS = 0,
     BT_STATUS_FAIL,
     BT_STATUS_NOT_READY,
     BT_STATUS_NOMEM,

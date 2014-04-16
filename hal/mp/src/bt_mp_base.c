@@ -53,26 +53,24 @@ BTHCI_EvtReport(
 
 int
 bt_Send(
-	BT_DEVICE *pBt,
-	unsigned char PktType,
-	unsigned char *pWritingBuf,
-	unsigned long Len
-	)
+        BT_DEVICE *pBt,
+        unsigned char PktType,
+        unsigned char *pWritingBuf,
+        unsigned long Len
+       )
 {
-	BASE_INTERFACE_MODULE *pBaseInterface;
-//	unsigned long i;
-	
-	pBaseInterface = pBt->pBaseInterface;
+    BASE_INTERFACE_MODULE *pBaseInterface;
 
-	if(pBaseInterface->Send(pBaseInterface, pWritingBuf, Len) != BT_FUNCTION_SUCCESS)
-		goto error;	
+    pBaseInterface = pBt->pBaseInterface;
 
+    if (pBaseInterface->Send(pBaseInterface, pWritingBuf, Len) != BT_FUNCTION_SUCCESS)
+        goto error;
 
-	return BT_FUNCTION_SUCCESS;
+    return BT_FUNCTION_SUCCESS;
 
 error:
-	
-	return FUNCTION_ERROR;   
+
+    return FUNCTION_ERROR;
 }
 
 
@@ -205,53 +203,53 @@ error:
 
 int
 bt_uart_Send(
-	BT_DEVICE *pBt,
-	unsigned char PktType,
-	unsigned char *pWritingBuf,
-	unsigned long Len
-	)
+        BT_DEVICE *pBt,
+        unsigned char PktType,
+        unsigned char *pWritingBuf,
+        unsigned long Len
+        )
 {
-	BASE_INTERFACE_MODULE *pBaseInterface;
-	unsigned char ucWriteBuf[HCI_CMD_LEN_MAX];
+    BASE_INTERFACE_MODULE *pBaseInterface;
+    unsigned char ucWriteBuf[HCI_CMD_LEN_MAX];
 
-	pBaseInterface = pBt->pBaseInterface;
+    pBaseInterface = pBt->pBaseInterface;
 
-	switch (PktType)
-	{
-		case HCIIO_BTCMD:         
-			*ucWriteBuf = IF_UART_CMD;
-			memcpy((ucWriteBuf + 0x01), pWritingBuf, Len);
-			Len++;              
-			break;
+    switch (PktType)
+    {
+        case HCIIO_BTCMD:
+            *ucWriteBuf = IF_UART_CMD;
+            memcpy((ucWriteBuf + 0x01), pWritingBuf, Len);
+            Len++;
+            break;
 
-		case HCIIO_BTACLOUT:         
-			*ucWriteBuf = IF_UART_ACL;
-			memcpy((ucWriteBuf + 0x01), pWritingBuf, Len);
-			Len++;
-			break;
+        case HCIIO_BTACLOUT:
+            *ucWriteBuf = IF_UART_ACL;
+            memcpy((ucWriteBuf + 0x01), pWritingBuf, Len);
+            Len++;
+            break;
 
-		case HCIIO_BTSCOOUT:         
-			*ucWriteBuf = IF_UART_SCO;
-			memcpy((ucWriteBuf + 0x01), pWritingBuf, Len);
-			Len++;
-			break;
-	            
-		case HCIIO_BTEVT:
-		case HCIIO_BTACLIN:
-		case HCIIO_BTSCOIN:
-		default:
-			goto error;
-	}
+        case HCIIO_BTSCOOUT:
+            *ucWriteBuf = IF_UART_SCO;
+            memcpy((ucWriteBuf + 0x01), pWritingBuf, Len);
+            Len++;
+            break;
+
+        case HCIIO_BTEVT:
+        case HCIIO_BTACLIN:
+        case HCIIO_BTSCOIN:
+        default:
+            goto error;
+    }
 
 
-	if(pBaseInterface->Send(pBaseInterface, ucWriteBuf, Len) != BT_FUNCTION_SUCCESS)
-		goto error;
+    if(pBaseInterface->Send(pBaseInterface, ucWriteBuf, Len) != BT_FUNCTION_SUCCESS)
+        goto error;
 
-	return BT_FUNCTION_SUCCESS;
+    return BT_FUNCTION_SUCCESS;
 
 error:
 
-	return FUNCTION_ERROR;
+    return FUNCTION_ERROR;
 }
 
 
@@ -342,36 +340,36 @@ error:
 
 int
 bt_default_SendHCICmd(
-	BT_DEVICE *pBt,
-	unsigned char PktType,
-	unsigned char *pWritingBuf,
-	unsigned long Len
-	)
+        BT_DEVICE *pBt,
+        unsigned char PktType,
+        unsigned char *pWritingBuf,
+        unsigned long Len
+        )
 {
-        int rtn=BT_FUNCTION_SUCCESS;
-	switch(pBt->InterfaceType)
-	{
-		case TYPE_USB:
-		default:
-                        rtn =bt_Send(pBt, PktType, pWritingBuf, Len);
-		    //	if(rtn != BT_FUNCTION_SUCCESS)
-                    //   {
-                   //             goto error;
-                   //    }
-                       
-                       break;
+    int rtn = BT_FUNCTION_SUCCESS;
 
-		case TYPE_UART:
-                        rtn= bt_uart_Send(pBt, PktType, pWritingBuf, Len);
-		    //	if(bt_uart_Send(pBt, PktType, pWritingBuf, Len) != BT_FUNCTION_SUCCESS)
-                    //    {
-                     //           goto error;
-                     //   }
-                break;
-	}
+    switch(pBt->InterfaceType)
+    {
+        case TYPE_USB:
+        default:
+            rtn = bt_Send(pBt, PktType, pWritingBuf, Len);
+            //	if(rtn != BT_FUNCTION_SUCCESS)
+            //   {
+            //             goto error;
+            //    }
 
-	return rtn;
+            break;
 
+        case TYPE_UART:
+            rtn = bt_uart_Send(pBt, PktType, pWritingBuf, Len);
+            //	if(bt_uart_Send(pBt, PktType, pWritingBuf, Len) != BT_FUNCTION_SUCCESS)
+            //    {
+            //           goto error;
+            //   }
+            break;
+    }
+
+    return rtn;
 }
 
 

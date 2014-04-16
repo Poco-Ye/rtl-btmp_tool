@@ -179,7 +179,7 @@ typedef struct BT_DEVICE_REPORT_TAG BT_DEVICE_REPORT;
 typedef struct BT_CHIPINFO_TAG   BT_CHIPINFO;
 
 
-struct  BT_PARAMETER_TAG
+struct BT_PARAMETER_TAG
 {
     int ParameterIndex;
 
@@ -188,14 +188,14 @@ struct  BT_PARAMETER_TAG
     BT_PKT_TYPE   mPacketType;
     unsigned char mTxGainIndex;
     unsigned char mTxGainValue;
-    uint32_t mTxPacketCount;
+    uint16_t mTxPacketCount;
     BT_PAYLOAD_TYPE mPayloadType;
-    unsigned int  mPacketHeader;
+    uint16_t mPacketHeader;
     unsigned char mWhiteningCoeffEnable;
     unsigned char mTxDAC;
     unsigned char mHoppingFixChannel;
     ULONG64 mHitTarget;
-    unsigned int  mMutiRxEnable;
+    uint8_t mMutiRxEnable;
     unsigned char TXGainTable[MAX_TXGAIN_TABLE_SIZE];
     unsigned char TXDACTable[MAX_TXDAC_TABLE_SIZE];
 };

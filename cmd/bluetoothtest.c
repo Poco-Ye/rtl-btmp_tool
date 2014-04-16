@@ -541,7 +541,6 @@ void bdt_set_param1(char *p)
         return;
     }
 
-//    BT_SetPara1(&BtModuleMemory, p);
     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetPara1, p, 0);
 
     check_return_status(STR_BT_MP_SET_PARA1, status);
@@ -555,7 +554,6 @@ void bdt_set_param2(char *p)
         return;
     }
 
-//    BT_SetPara2(&BtModuleMemory, p);
     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetPara2, p, 0);
 
     check_return_status(STR_BT_MP_SET_PARA2, status);
