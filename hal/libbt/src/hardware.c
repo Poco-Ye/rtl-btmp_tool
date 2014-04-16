@@ -418,8 +418,8 @@ uint8_t line_speed_to_userial_baud(uint32_t line_speed)
 
 typedef struct _baudrate_ex
 {
-    int rtk_speed;
-    int uart_speed;
+    uint32_t rtk_speed;
+    uint32_t uart_speed;
 }baudrate_ex;
 
 baudrate_ex baudrates[] =
@@ -498,7 +498,7 @@ static void rtk_speed_to_uart_speed(uint32_t rtk_speed, uint32_t* uart_speed)
 * @param rtk_speed realtek Bluetooth speed
 *
 */
-static inline void uart_speed_to_rtk_speed(int uart_speed, int* rtk_speed)
+static inline void uart_speed_to_rtk_speed(uint32_t uart_speed, uint32_t *rtk_speed)
 {
     *rtk_speed = 0x701D;
 
@@ -546,7 +546,7 @@ static uint8_t hw_config_set_controller_baudrate(HC_BT_HDR *p_buf, uint32_t baud
 static const char *get_firmware_name()
 {
     static char firmware_file_name[PATH_MAX] = {0};
-    sprintf(firmware_file_name, FIRMWARE_DIRECTORY"rtlbtmp_fw");
+    sprintf(firmware_file_name, FIRMWARE_DIRECTORY, "rtlbtmp_fw");
     return firmware_file_name;
 }
 
@@ -771,7 +771,7 @@ uint32_t rtk_get_bt_config(unsigned char** config_buf,
 
 int rtk_get_bt_firmware(uint8_t** fw_buf, size_t addi_len, char* fw_short_name)
 {
-    const char *filename[PATH_MAX] = {0};
+    char filename[PATH_MAX] = {0};
     struct stat st;
     int fd = -1;
     size_t fwsize = 0;

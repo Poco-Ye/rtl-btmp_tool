@@ -419,8 +419,8 @@ static void *bt_hc_worker_thread(void *arg)
             int sending_hci_cmd_pkts_count = 0;
             utils_lock();
             p_next_msg = tx_q.p_first;
-            while (p_next_msg && sending_msg_count <
-                            (int)sizeof(sending_msg_que)/sizeof(sending_msg_que[0]))
+            while (p_next_msg &&
+                   sending_msg_count < (int)(sizeof(sending_msg_que)/sizeof(sending_msg_que[0])))
             {
                 if ((p_next_msg->event & MSG_EVT_MASK)==MSG_STACK_TO_HC_HCI_CMD)
                 {
