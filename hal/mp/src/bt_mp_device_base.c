@@ -1,3 +1,5 @@
+#define LOG_TAG "bt_mp_device_base"
+
 #include <utils/Log.h>
 
 #include "bluetoothmp.h"
@@ -284,9 +286,9 @@ int BTDevice_TestModeEnable(BT_DEVICE *pBtDevice)
     status = pEvent[5];
 
     if ( (status == 0) && (OpCode == 0x0c1c) )
-        DBGPRINTF(">> Set Page Scan Interval = %fms, Page Scan Window = %fms\n", BT_SCAN_INTERVAL*0.625, BT_SCAN_WINDOW*0.625);
+        ALOGI(">> Set Page Scan Interval = %fms, Page Scan Window = %fms", BT_SCAN_INTERVAL*0.625, BT_SCAN_WINDOW*0.625);
     else
-        DBGPRINTF(">> Set Page Scan Activity Fail \n");
+        ALOGI(">> Set Page Scan Activity Fail");
 
 
     //Inquiry sacn Interval:
@@ -305,9 +307,9 @@ int BTDevice_TestModeEnable(BT_DEVICE *pBtDevice)
 
 
     if ( (status == 0) && (OpCode == 0x0c1e) )
-        DBGPRINTF(">> Set Inq Scan Interval = %.2fms, Inq Scan Window = %.2fms\n", BT_SCAN_INTERVAL*0.625, BT_SCAN_WINDOW*0.625);
+        ALOGI(">> Set Inq Scan Interval = %.2fms, Inq Scan Window = %.2fms", BT_SCAN_INTERVAL*0.625, BT_SCAN_WINDOW*0.625);
     else
-        DBGPRINTF(">> Set Inquiry Scan Activity Fail \n");
+        ALOGI(">> Set Inquiry Scan Activity Fail");
 
     return BT_FUNCTION_SUCCESS;
 
@@ -971,7 +973,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
             goto exit;
         }
 #ifdef DBG_REG_SETTING
-        DBGPRINTF(">>>>[MD] REG_RX_PKT_Cnt=%x REG_RX_ERR_Bits=%x REG_RX_Pin=%d\n",rxCount,rxErrbits,rxPin);
+        ALOGI(">>>>[MD] REG_RX_PKT_Cnt=%x REG_RX_ERR_Bits=%x REG_RX_Pin=%d",rxCount,rxErrbits,rxPin);
 #endif
 
 
@@ -1045,7 +1047,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
         goto exit;
     }
 #ifdef DBG_REG_SETTING
-    DBGPRINTF(">>>>[MD] REG_RX_PKT_Cnt=%x REG_RX_ERR_Bits=%x REG_RX_Pin=%d 0xREG_72=%x\n",rxCount,rxErrbits,rxPin,reg_0x7a);
+    ALOGI(">>>>[MD] REG_RX_PKT_Cnt=%x REG_RX_ERR_Bits=%x REG_RX_Pin=%d 0xREG_72=%x",rxCount,rxErrbits,rxPin,reg_0x7a);
 #endif
 
     if (((reg_0x7a & 0x01) == 0x01) || (resetCountFlag == 1))
@@ -1082,8 +1084,8 @@ exit:
     }
 
 #ifdef DBG_REG_SETTING
-    DBGPRINTF(">>>>[MD] REG_RX_PKT_Cnt=%x REG_RX_ERR_Bits=%x REG_RX_Pin=%d 0xREG_72=%x\n",rxCount,rxErrbits,rxPin,reg_0x7a);
-    DBGPRINTF(">>>>[MD] REG_0x3f =%x \n",tmp);
+    ALOGI(">>>>[MD] REG_RX_PKT_Cnt=%x REG_RX_ERR_Bits=%x REG_RX_Pin=%d 0xREG_72=%x",rxCount,rxErrbits,rxPin,reg_0x7a);
+    ALOGI(">>>>[MD] REG_0x3f =%x",tmp);
 #endif
 
     if (resetCountFlag)
@@ -2576,27 +2578,27 @@ int BTDevice_SetHitTarget(BT_DEVICE *pBtDevice, uint64_t HitTarget)
         rtn=FUNCTION_ERROR;
         goto exit;
     }
-//	DBGPRINTF(">>Write Modem 0x1c AccessCode[52:67]\n");
+//	ALOGI(">>Write Modem 0x1c AccessCode[52:67]");
     if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x1c,15,0,pAccessCode[0]) != BT_FUNCTION_SUCCESS)
     {
         rtn=FUNCTION_ERROR;
         goto exit;
     }
-//	DBGPRINTF(">>Write Modem 0x1e AccessCode[36:51]  \n");
+//	ALOGI(">>Write Modem 0x1e AccessCode[36:51]");
     if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x1e,15,0,pAccessCode[1]) != BT_FUNCTION_SUCCESS)
     {
         rtn=FUNCTION_ERROR;
         goto exit;
     }
 
-//	DBGPRINTF(">>Write Modem 0x20 AccessCode[20:35]\n");
+//	ALOGI(">>Write Modem 0x20 AccessCode[20:35]");
     if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x20,15,0,pAccessCode[2]) != BT_FUNCTION_SUCCESS)
     {
         rtn=FUNCTION_ERROR;
         goto exit;
     }
 
-//	DBGPRINTF(">>Write Modem 0x22 AccessCode[4:19]\n");
+//	ALOGI(">>Write Modem 0x22 AccessCode[4:19]");
     if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x22,15,0,pAccessCode[3]) != BT_FUNCTION_SUCCESS)
     {
         rtn=FUNCTION_ERROR;

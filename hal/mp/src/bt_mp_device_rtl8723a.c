@@ -1,3 +1,7 @@
+#define LOG_TAG "bt_mp_device_rtl8723a"
+
+#include <utils/Log.h>
+
 #include "bluetoothmp.h"
 #include "bt_mp_device_rtl8723a.h"
 

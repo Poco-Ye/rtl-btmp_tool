@@ -28,43 +28,6 @@ enum _bool{ false, true }bool;
 #define FALSE 0
 #endif
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//Debug
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#define DBG_ON
-// Debug Window
-#define DBG_CONSOLE
-
-//Debug LEVEL
-//#define DBG_REG_SETTING
-
-//////////////////////////////////////////////////
-#ifdef DBG_ON
-
-#ifdef DBG_CONSOLE
-#define DBGPRINTF printf
-#else
-void DBGPRINTF(char *prompt, ...)
-{
-    char buf[2048];
-    va_list argptr;
-    //int cnt;
-
-    va_start(argptr, prompt);
-    vsprintf(buf, prompt, argptr);
-    OutputDebugString(buf);
-    va_end(argptr);
-    return ;
-}
-#endif
-
-#else
-void DBGPRINTF(char *prompt, ...)
-{
-
-    return ;
-}
-#endif
 //--------------------------------------------------
 //  Realtek define
 //--------------------------------------------------

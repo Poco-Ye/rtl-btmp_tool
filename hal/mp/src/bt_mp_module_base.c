@@ -1,3 +1,5 @@
+#define LOG_TAG "bt_mp_module_base"
+
 #include <utils/Log.h>
 
 #include "bluetoothmp.h"

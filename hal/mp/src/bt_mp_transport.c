@@ -1,3 +1,5 @@
+#define LOG_TAG "bt_mp_transport"
+
 #include <stdio.h>
 #include <utils/Log.h>
 #include <pthread.h>

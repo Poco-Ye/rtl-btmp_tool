@@ -1,13 +1,18 @@
-#include "bt_user_func.h"
+#define LOG_TAG "bt_user_func"
+
 #include <unistd.h>
+#include <utils/Log.h>
+
+#include "bt_user_func.h"
+
 void
 UserDefinedWaitMs(
-	BASE_INTERFACE_MODULE *pBaseInterface,
-	unsigned long WaitTimeMs
-	)
+        BASE_INTERFACE_MODULE *pBaseInterface,
+        unsigned long WaitTimeMs
+        )
 {
     usleep(WaitTimeMs*1000);
-	return;
+    return;
 }
 
 unsigned int OsSleepSeconds(unsigned int seconds)

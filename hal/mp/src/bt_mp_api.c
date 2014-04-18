@@ -610,13 +610,29 @@ int BT_SetHit(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
 
 int BT_Exec(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
 {
+    const char *delim = STR_BT_MP_TX_PARA_DELIM;
+    char *token = NULL;
     int ParameterIndex = 0;
     BT_PARAMETER *pBtParam = NULL;
     int rtn = BT_FUNCTION_SUCCESS;
 
-    ParameterIndex = strtol(p, NULL, 0);
+    // index
+    token = strtok(p, delim);
+    if (token != NULL) {
+        ParameterIndex = strtol(token, NULL, 0);
+    } else {
+        goto EXIT;
+    }
 
-    ALOGI("BT_Exec: buf[%s], param index[%d]", p, ParameterIndex);
+    // end of parameter
+    token = strtok(NULL, delim);
+    if (token != NULL) {
+        ALOGI("BT_Exec: redundant token[%s]", token);
+        rtn = FUNCTION_PARAMETER_ERROR;
+        goto EXIT;
+    }
+
+    ALOGI("BT_Exec: param index[%d]", ParameterIndex);
 
     if (ParameterIndex > NOTTHING &&
         ParameterIndex < NUMBEROFBT_ACTIONCONTROL_TAG) {
@@ -656,6 +672,7 @@ int BT_Exec(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
                 );
     }
 
+EXIT:
     return rtn;
 }
 

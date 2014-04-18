@@ -265,8 +265,6 @@ static void btif_mp_rx_data_ind(uint8_t evtcode, uint8_t *buf, uint8_t len)
         ALOGI("0x%x ",buf[i]);
     }
 
-
-
     UINT8_TO_STREAM(pEvtBuf, evtcode);
     UINT8_TO_STREAM(pEvtBuf, len);
 
