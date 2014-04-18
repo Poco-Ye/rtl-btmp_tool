@@ -515,7 +515,7 @@ void bdt_dut_mode_configure(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_DUT_MODE_CONFIGURE, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_DUT_MODE_CONFIGURE, p);
 
     check_return_status(STR_BT_MP_DUT_MODE, status);
 }
@@ -528,7 +528,7 @@ void bdt_get_params(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_GetPara, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_GetPara, p);
 
     check_return_status(STR_BT_MP_GET_PARA, status);
 }
@@ -541,7 +541,7 @@ void bdt_set_param1(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetPara1, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetPara1, p);
 
     check_return_status(STR_BT_MP_SET_PARA1, status);
 }
@@ -554,7 +554,7 @@ void bdt_set_param2(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetPara2, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetPara2, p);
 
     check_return_status(STR_BT_MP_SET_PARA2, status);
 }
@@ -574,7 +574,7 @@ void bdt_set_hopping_mode(char *p)
         return;
     }
 
-     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SET_HOPPING_MODE, p, 0);
+     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SET_HOPPING_MODE, p);
 
     check_return_status(STR_BT_MP_SET_HOPPING_MODE, status);
 }
@@ -587,8 +587,7 @@ void bdt_set_hit(char *p)
         return;
     }
 
-//    BT_SetHit(&BtModuleMemory, p);
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetHit, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetHit, p);
 
     check_return_status(STR_BT_MP_SET_HIT, status);
 }
@@ -602,8 +601,7 @@ void bdt_set_gain_table(char *p)
         return;
     }
 
-//    BT_SetGainTable(&BtModuleMemory, p);
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetGainTable, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetGainTable, p);
 
     check_return_status(STR_BT_MP_SET_GAIN_TABLE, status);
 }
@@ -616,8 +614,7 @@ void bdt_set_dac_table(char *p)
         return;
     }
 
-//    BT_SetDacTable(&BtModuleMemory, p);
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetDacTable, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetDacTable, p);
 
     check_return_status(STR_BT_MP_SET_DAC_TABLE, status);
 }
@@ -630,8 +627,7 @@ void bdt_exec(char *p)
         return;
     }
 
-//    BT_Exec(&BtModuleMemory, p);
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_Exec, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_Exec, p);
 
     check_return_status(STR_BT_MP_EXEC, status);
 }
@@ -644,8 +640,7 @@ void bdt_report_tx(char *p)
         return;
     }
 
-//    BT_ReportTx(&BtModuleMemory);
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportTx, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportTx, p);
 
     check_return_status(STR_BT_MP_REPORTTX, status);
 }
@@ -658,8 +653,7 @@ void bdt_report_rx(char *p)
         return;
     }
 
-//    BT_ReportRx(&BtModuleMemory);
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportRx, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportRx, p);
 
     check_return_status(STR_BT_MP_REPORTRX, status);
 }
@@ -672,7 +666,7 @@ void bdt_reg_modem(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_REG_MD, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_REG_MD, p);
 
     check_return_status(STR_BT_MP_REG_MD, status);
 }
@@ -685,7 +679,7 @@ void bdt_reg_rf(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_REG_RF, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_REG_RF, p);
 
     check_return_status(STR_BT_MP_REG_RF, status);
 }
@@ -698,7 +692,7 @@ void bdt_hci(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_HCI_SEND_CMD, p, 0);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_HCI_SEND_CMD, p);
 
     check_return_status(STR_BT_MP_HCI_CMD, status);
 }

@@ -140,7 +140,7 @@ int hal_dut_mode_configure(uint8_t enable)
 
 extern void btu_hcif_mp_notify_event (BT_HDR *p_msg);
 
-int hal_mp_op_send(uint16_t opcode, char *buf, uint8_t len)
+int hal_mp_op_send(uint16_t opcode, char *buf)
 {
     BT_HDR *p_buf = NULL;
     char *p = NULL;
@@ -156,7 +156,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf, uint8_t len)
     p = (char *)(p_buf + 1);
     memset(p, 0, 1026);
 
-    ALOGI("hal_mp_op_send: opcode[0x%02x], buf[%s], len[%d]", opcode, buf, len);
+    ALOGI("hal_mp_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)

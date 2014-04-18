@@ -265,15 +265,15 @@ static jint hciSendNative(JNIEnv* env, jobject obj, jint opcode, jstring data)
     if (!sBluetoothInterface) return bytesSend;
 
     const char *input_data = NULL;
-    jsize len = 0;
-    if(data != NULL)
+
+    if (data != NULL)
     {
         input_data = env->GetStringUTFChars(data, NULL);
     }
 
-    bytesSend = sBluetoothInterface->hal_mp_op_send(opcode, (char*)input_data, len);
+    bytesSend = sBluetoothInterface->hal_mp_op_send(opcode, (char*)input_data);
 
-    if(input_data != NULL)
+    if (input_data != NULL)
     {
         env->ReleaseStringUTFChars(data, input_data);
     }

@@ -1333,23 +1333,25 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         pBtReport->TXPktUpdateCnts=0;
     }
 
-    //disable modem fix tx //
+    //disable modem fix tx
     // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
     if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x3c,12,12,0x0) != BT_FUNCTION_SUCCESS) {
         rtn = FUNCTION_ERROR;
         goto exit;
     }
 
-    // set payload type //
+    // set payload type
     if (pBtDevice->SetPayloadType(pBtDevice,pParam->mPayloadType)  != BT_FUNCTION_SUCCESS) {
         rtn=FUNCTION_ERROR;
         goto exit;
     }
-    // set rate and payload length //
+
+    // set rate and payload length
     if (pBtDevice->SetPacketType(pBtDevice,pParam->mPacketType) != BT_FUNCTION_SUCCESS) {
         rtn=FUNCTION_ERROR;
         goto exit;
     }
+
     // set packet header
     if (pBtDevice->SetPackHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS) {
         rtn=FUNCTION_ERROR;
@@ -1369,7 +1371,6 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     {
         goto exit;
     }
-
 
     //set test mode
     rtn=pBtDevice->SetTestMode(pBtDevice,pParam->mTestMode);
