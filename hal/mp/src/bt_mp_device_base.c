@@ -1303,11 +1303,19 @@ exit:
 
 int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport)
 {
-
     int rtn = BT_FUNCTION_SUCCESS;
     unsigned long btClockTime = 0;
     uint16_t tmp = 0;
     BT_TRX_TIME *pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
+
+    ALOGI("BTDevice_SetPktTxBegin: mChannelNumber 0x%02x, mPacketType 0x%02x, "
+          "mPayloadType 0x%02x, mTxPacketCount 0x%04x, mTxGainValue 0x%02x, "
+          "mWhiteningCoeffEnable 0x%02x, mTxGainIndex 0x%02x, mTestMode 0x%02x, "
+          "mTxDAC 0x%02x, mPacketHeader 0x%04x, mMutiRxEnable 0x%02x",
+          pParam->mChannelNumber, pParam->mPacketType,
+          pParam->mPayloadType, pParam->mTxPacketCount, pParam->mTxGainValue,
+          pParam->mWhiteningCoeffEnable, pParam->mTxGainIndex, pParam->mTestMode,
+          pParam->mTxDAC, pParam->mPacketHeader, pParam->mMutiRxEnable);
 
     if (pBtDevice->TRXSTATE == RX_TIME_RUNING) {
         rtn = FUNCTION_RX_RUNNING;

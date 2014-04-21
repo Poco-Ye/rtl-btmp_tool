@@ -676,7 +676,6 @@ EXIT:
     return rtn;
 }
 
-
 int BT_ReportTx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
 {
     BT_DEVICE_REPORT BtDeviceReport;
