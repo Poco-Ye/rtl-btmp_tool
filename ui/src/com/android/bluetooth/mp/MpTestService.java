@@ -18,7 +18,7 @@
  * @hide
  */
 
-package com.android.bluetooth.btservice;
+package com.android.bluetooth.mp;
 
 import android.app.Application;
 import android.app.Service;
@@ -81,8 +81,10 @@ public class MpTestService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate");
+
         super.onCreate();
-        boolean ret = true;
+        //boolean ret = true;
         classInitNative();
     }
 

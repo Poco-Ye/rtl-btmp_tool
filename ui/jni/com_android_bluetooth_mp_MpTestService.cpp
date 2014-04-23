@@ -157,7 +157,7 @@ static void classInitNative(JNIEnv* env, jclass clazz) {
     ALOGI("%s", __FUNCTION__);
 
     jclass jniCallbackClass =
-        env->FindClass("com/android/bluetooth/btservice/MpTestService");
+        env->FindClass("com/android/bluetooth/mp/MpTestService");
 
     method_stateChangeCallback = env->GetMethodID(jniCallbackClass, "stateChangeCallback", "(I)V");
     method_dut_mode_recv = env->GetMethodID(jniCallbackClass, "dut_mode_recv", "(BLjava/lang/String;)V");
@@ -303,9 +303,9 @@ static JNINativeMethod sMethods[] = {
 
 };
 
-int register_com_android_bluetooth_btservice_MpTestService(JNIEnv* env)
+int register_com_android_bluetooth_mp_MpTestService(JNIEnv* env)
 {
-    return jniRegisterNativeMethods(env, "com/android/bluetooth/btservice/MpTestService",
+    return jniRegisterNativeMethods(env, "com/android/bluetooth/mp/MpTestService",
                                     sMethods, NELEM(sMethods));
 }
 
@@ -328,7 +328,7 @@ jint JNI_OnLoad(JavaVM *jvm, void *reserved)
       return JNI_ERR;
    }
 
-   if ((status = android::register_com_android_bluetooth_btservice_MpTestService(e)) < 0) {
+   if ((status = android::register_com_android_bluetooth_mp_MpTestService(e)) < 0) {
        ALOGE("jni mptest service registration failure, status: %d", status);
       return JNI_ERR;
    }

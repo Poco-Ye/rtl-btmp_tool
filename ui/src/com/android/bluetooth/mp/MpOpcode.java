@@ -1,4 +1,4 @@
-package com.android.bluetooth.btservice;
+package com.android.bluetooth.mp;
 
 public final class MpOpcode {
     public static final  int BT_MP_OP_HCI_SEND_CMD =    0x00;

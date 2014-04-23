@@ -1,12 +1,12 @@
-package com.android.bluetooth.btservice;
+package com.android.bluetooth.mp;
 
 import java.util.ArrayList;
 
-import com.android.bluetooth.btservice.MpOpcode;
-import com.android.bluetooth.btservice.MpTestService;
-import com.android.bluetooth.btservice.MpTestService.MpTestServiceBinder;
-import com.android.bluetooth.btservice.R;
-import com.android.bluetooth.btservice.R.id;
+import com.android.bluetooth.mp.MpOpcode;
+import com.android.bluetooth.mp.MpTestService;
+import com.android.bluetooth.mp.MpTestService.MpTestServiceBinder;
+import com.android.bluetooth.mp.R;
+import com.android.bluetooth.mp.R.id;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -134,7 +134,7 @@ public class MainActivity extends Activity {
         mspTxGainIndex =  (Spinner) findViewById(R.id.spinner_Tx_Gain_Index);
         mspTestMode  =  (Spinner) findViewById(R.id.spinner_Test_Mode);
         mspHitTarget =  (Spinner) findViewById(R.id.spinner_Hit_Target);
-        mspPayloadType =  (Spinner) findViewById(R.id.spineer_Payload_Type);	
+        mspPayloadType =  (Spinner) findViewById(R.id.spineer_Payload_Type);
         mspTxDACCurrent =  (Spinner) findViewById(R.id.spinner_Tx_DAC_current);
         mspLEConnect=  (Spinner) findViewById(R.id.spinner_LE_Connect);
         //add intems and listener to all spinners
@@ -272,17 +272,19 @@ public class MainActivity extends Activity {
         ArrayList<String> items;
         String[] str;
         items = new ArrayList<String>();
-        //action _items
-        str = new String[]{"Packet Tx","Continue Tx", "Packet Rx",
-            "Enable Inquiry + Page Scan","Page + Create ACL Connection"};
-        for (int i = 0; i<str.length; i++) {
+
+        //action items
+        str = new String[] {"Packet Tx", "Packet Rx",
+                            "Continue Tx", "Continue LE Tx"};
+        for (int i = 0; i < str.length; i++) {
             items.add(str[i]);
         }
-        adpActionItem = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,items);
+        adpActionItem = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, items);
         adpActionItem.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspActionItem.setAdapter(adpActionItem);
+
         //data rate
-        str = new String[]{"1M","2M", "3M", "LE"};
+        str = new String[] {"1M","2M", "3M", "LE"};
         items = new ArrayList<String>();
         for(int i = 0; i<str.length; i++) {
             items.add(str[i]);
@@ -572,7 +574,6 @@ public class MainActivity extends Activity {
             }
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -18,7 +18,7 @@
  * @hide
  */
 
-package com.android.bluetooth.btservice;
+package com.android.bluetooth.mp;
 
 import android.app.Application;
 import android.util.Log;
