@@ -241,4 +241,4 @@ const bt_vendor_interface_t BLUETOOTH_VENDOR_LIB_INTERFACE = {
     cleanup
 };
 
-bt_vendor_interface_t *bt_vnd_if = &BLUETOOTH_VENDOR_LIB_INTERFACE;
+const bt_vendor_interface_t *bt_vnd_if = &BLUETOOTH_VENDOR_LIB_INTERFACE;

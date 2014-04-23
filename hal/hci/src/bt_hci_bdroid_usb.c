@@ -24,7 +24,7 @@
  *                 implementation
  *
  ******************************************************************************/
-//#undef NDEBUG
+
 #define LOG_TAG "bt_hci_bdroid"
 
 #include <utils/Log.h>
@@ -54,7 +54,6 @@
 
 extern bt_vendor_interface_t *bt_vnd_if;
 extern int num_hci_cmd_pkts;
-
 
 void lpm_init(void);
 void lpm_cleanup(void);
@@ -145,7 +144,6 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr)
     p_hci_if->init();
 
     userial_init();
-
 
     utils_queue_init(&tx_q);
 
@@ -302,7 +300,6 @@ static void cleanup( void )
         pthread_join(hc_cb.worker_thread, NULL);
     }
 
-
     userial_close();
     p_hci_if->cleanup();
     utils_cleanup();
@@ -423,8 +420,8 @@ static void *bt_hc_worker_thread(void *arg)
             int sending_hci_cmd_pkts_count = 0;
             utils_lock();
             p_next_msg = tx_q.p_first;
-            while (p_next_msg && sending_msg_count <
-                            (int)sizeof(sending_msg_que)/sizeof(sending_msg_que[0]))
+            while (p_next_msg &&
+                   sending_msg_count < (int)(sizeof(sending_msg_que)/sizeof(sending_msg_que[0])))
             {
                 if ((p_next_msg->event & MSG_EVT_MASK)==MSG_STACK_TO_HC_HCI_CMD)
                 {
@@ -437,7 +434,7 @@ static void *bt_hc_worker_thread(void *arg)
                      *  CommandStatusEvent.
                      */
                     if ((tx_cmd_pkts_pending == TRUE) ||
-                             (sending_hci_cmd_pkts_count >= num_hci_cmd_pkts))
+                        (sending_hci_cmd_pkts_count >= num_hci_cmd_pkts))
                     {
                         tx_cmd_pkts_pending = TRUE;
                         p_next_msg = utils_getnext(p_next_msg);
@@ -459,7 +456,6 @@ static void *bt_hc_worker_thread(void *arg)
                 BTHCDBG("Used up Tx Cmd credits");
 
         }
-
 
 
         if (events & HC_EVENT_EXIT)

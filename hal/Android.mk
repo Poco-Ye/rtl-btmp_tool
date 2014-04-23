@@ -69,14 +69,14 @@ LOCAL_SRC_FILES += \
 ifeq ($(BLUETOOTH_HCI_USE_RTK_H5),true)
 # UART LIBBT
 LOCAL_SRC_FILES += \
-    libbt/src/bt_vendor_rtk_uart.c \
+    libbt/src/bt_vendor_uart.c \
     libbt/src/hardware.c \
     libbt/src/userial_vendor.c \
     libbt/src/upio.c
 else
 # USB LIBBT
 LOCAL_SRC_FILES += \
-    libbt/src/bt_vendor_rtk_usb.c
+    libbt/src/bt_vendor_usb.c
 endif
 
 # UTILS

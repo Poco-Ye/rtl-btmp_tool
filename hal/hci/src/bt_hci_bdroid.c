@@ -54,7 +54,6 @@
 
 extern bt_vendor_interface_t *bt_vnd_if;
 extern int num_hci_cmd_pkts;
-extern uint8_t h5_log_enable;
 
 void lpm_init(void);
 void lpm_cleanup(void);
@@ -121,7 +120,7 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr)
     struct sched_param param;
     int policy, result;
 
-    ALOGI("%s: H5", __FUNCTION__);
+    ALOGI("init");
 
     if (p_cb == NULL)
     {
@@ -274,7 +273,6 @@ static int logging(bt_hc_logging_state_t state, char *p_path)
 
     if (state == BT_HC_LOGGING_ON)
     {
-        h5_log_enable = 1;
         if (p_path != NULL)
             btsnoop_open(p_path);
     }

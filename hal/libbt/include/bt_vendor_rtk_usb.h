@@ -47,7 +47,7 @@
 
 /* Device port name where Bluetooth controller attached */
 #ifndef BLUETOOTH_UART_DEVICE_PORT
-#define BLUETOOTH_UART_DEVICE_PORT      "/dev/rtk_btusb_mp"    /* maguro */
+#define BLUETOOTH_UART_DEVICE_PORT      "/dev/rtk_btusb"    /* maguro */
 #endif
 
 /******************************************************************************
