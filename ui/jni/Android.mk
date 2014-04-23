@@ -19,7 +19,7 @@ LOCAL_SHARED_LIBRARIES := \
     libc
 
 
-LOCAL_MODULE := libbluetooth_mptest_jni
+LOCAL_MODULE := libbluetoothmp_jni
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)

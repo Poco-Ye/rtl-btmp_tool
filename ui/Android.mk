@@ -9,9 +9,9 @@ LOCAL_SRC_FILES := \
 LOCAL_PACKAGE_NAME := BluetoothMpTest
 LOCAL_CERTIFICATE := platform
 
-LOCAL_JNI_SHARED_LIBRARIES := libbluetooth_mptest_jni
+LOCAL_JNI_SHARED_LIBRARIES := libbluetoothmp_jni
 
-LOCAL_REQUIRED_MODULES := libbluetooth_mptest_jni bluetoothmp.default
+LOCAL_REQUIRED_MODULES := libbluetoothmp_jni bluetoothmp.default
 
 LOCAL_PROGUARD_ENABLED := disabled
 

@@ -31,7 +31,7 @@ public class MpTestApp extends Application {
 
     static {
         if (DBG) Log.d(TAG,"Loading JNI Library");
-        System.loadLibrary("bluetooth_mptest_jni");
+        System.loadLibrary("bluetoothmp_jni");
     }
 
     public MpTestApp() {

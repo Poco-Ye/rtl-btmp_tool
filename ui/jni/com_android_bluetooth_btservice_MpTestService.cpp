@@ -95,7 +95,7 @@ static void dut_mode_recv(uint8_t evtcode, char *buf)
     jbyteArray byteBuffer = NULL;
     jstring encode = NULL;
     int strLen = 0;
-    ALOGE("dut_mode_recv1: %s", buf);
+    ALOGI("dut_mode_recv1: %s", buf);
     if (!checkCallbackThread()) {
         ALOGE("Callback: '%s' is not called on the correct thread", __FUNCTION__);
         return;
@@ -154,7 +154,7 @@ bt_callbacks_t sBluetoothCallbacks = {
 static void classInitNative(JNIEnv* env, jclass clazz) {
     int err;
     hw_module_t* module;
-    ALOGE("%s:",__FUNCTION__);
+    ALOGI("%s", __FUNCTION__);
 
     jclass jniCallbackClass =
         env->FindClass("com/android/bluetooth/btservice/MpTestService");
@@ -162,13 +162,11 @@ static void classInitNative(JNIEnv* env, jclass clazz) {
     method_stateChangeCallback = env->GetMethodID(jniCallbackClass, "stateChangeCallback", "(I)V");
     method_dut_mode_recv = env->GetMethodID(jniCallbackClass, "dut_mode_recv", "(BLjava/lang/String;)V");
 
-
-
-    err = hw_get_module("bluetoothmp", (hw_module_t const**)&module);
+    err = hw_get_module(BT_STACK_MODULE_ID, (hw_module_t const**)&module);
 
     if (err == 0) {
         hw_device_t* abstraction;
-        err = module->methods->open(module, "bluetoothmp", &abstraction);
+        err = module->methods->open(module, BT_STACK_MODULE_ID, &abstraction);
         if (err == 0) {
             bluetooth_module_t* btStack = (bluetooth_module_t *)abstraction;
             sBluetoothInterface = btStack->get_bluetooth_interface();
@@ -181,12 +179,12 @@ static void classInitNative(JNIEnv* env, jclass clazz) {
 }
 
 static bool initNative(JNIEnv* env, jobject obj) {
-    ALOGE("%s:",__FUNCTION__);
+    ALOGI("%s", __FUNCTION__);
 
     char propBuf[PROPERTY_VALUE_MAX];
     propBuf[0] = '1';
-    if(property_set("rt.bt.mp.mode", propBuf) < 0){
-        ALOGE("property_set rt.bt.mp.mode fail ");
+    if (property_set("rt.bt.mp.mode", propBuf) < 0) {
+        ALOGE("property_set rt.bt.mp.mode fail");
     }
 
     if (sJniCallbacksObj != NULL) {
@@ -209,7 +207,7 @@ static bool initNative(JNIEnv* env, jobject obj) {
 }
 
 static bool cleanupNative(JNIEnv *env, jobject obj) {
-    ALOGE("%s:",__FUNCTION__);
+    ALOGI("%s", __FUNCTION__);
 
     char propBuf[PROPERTY_VALUE_MAX];
     propBuf[0] = '0';
@@ -222,7 +220,7 @@ static bool cleanupNative(JNIEnv *env, jobject obj) {
     if (!sBluetoothInterface) return result;
 
     sBluetoothInterface->cleanup();
-    ALOGI("%s: return from cleanup",__FUNCTION__);
+    ALOGI("%s: return from cleanup", __FUNCTION__);
 
     if (sJniCallbacksObj != NULL) {
          env->DeleteGlobalRef(sJniCallbacksObj);
@@ -233,7 +231,7 @@ static bool cleanupNative(JNIEnv *env, jobject obj) {
 }
 
 static jboolean enableNative(JNIEnv* env, jobject obj) {
-    ALOGE("%s:",__FUNCTION__);
+    ALOGI("%s", __FUNCTION__);
 
     jboolean result = JNI_FALSE;
     if (!sBluetoothInterface) return result;
@@ -245,7 +243,7 @@ static jboolean enableNative(JNIEnv* env, jobject obj) {
 }
 
 static jboolean disableNative(JNIEnv* env, jobject obj) {
-    ALOGE("%s:",__FUNCTION__);
+    ALOGI("%s", __FUNCTION__);
 
     jboolean result = JNI_FALSE;
     if (!sBluetoothInterface) return result;
@@ -259,7 +257,7 @@ static jboolean disableNative(JNIEnv* env, jobject obj) {
 
 static jint hciSendNative(JNIEnv* env, jobject obj, jint opcode, jstring data)
 {
-    ALOGE("%s:",__FUNCTION__);
+    ALOGI("%s", __FUNCTION__);
 
     jint bytesSend = 0;
     if (!sBluetoothInterface) return bytesSend;
@@ -282,7 +280,7 @@ static jint hciSendNative(JNIEnv* env, jobject obj, jint opcode, jstring data)
 }
 
 static jboolean dutModeConfigureNative(JNIEnv *env, jobject obj, jint type) {
-    ALOGE("%s:",__FUNCTION__);
+    ALOGI("%s", __FUNCTION__);
 
     jboolean result = JNI_FALSE;
     if (!sBluetoothInterface) return result;
@@ -322,7 +320,7 @@ jint JNI_OnLoad(JavaVM *jvm, void *reserved)
    JNIEnv *e;
    int status;
 
-   ALOGE("Bluetooth MpTest Service : loading JNI\n");
+   ALOGI("Bluetooth MpTest Service: loading JNI");
 
    // Check JNI version
    if(jvm->GetEnv((void **)&e, JNI_VERSION_1_6)) {
