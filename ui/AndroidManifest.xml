@@ -33,7 +33,7 @@
         <uses-permission android:name="com.google.android.gallery3d.permission.GALLERY_PROVIDER" />
         <uses-permission android:name="com.android.gallery3d.permission.GALLERY_PROVIDER" />
 
-        <application
+    <application
         android:name=".MpTestApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
