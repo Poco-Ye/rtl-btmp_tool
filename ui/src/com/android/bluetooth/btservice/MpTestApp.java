@@ -23,26 +23,21 @@ package com.android.bluetooth.btservice;
 import android.app.Application;
 import android.util.Log;
 
-public class MpTestApp extends Application 
-{
+public class MpTestApp extends Application {
     private static final String TAG = "BluetoothMpTestApp";
     private static final boolean DBG = true;
     //For Debugging only
     private static int sRefCount=0;
 
-    static 
-    {
+    static {
         if (DBG) Log.d(TAG,"Loading JNI Library");
         System.loadLibrary("bluetooth_mptest_jni");
     }
 
-    public MpTestApp() 
-    {
+    public MpTestApp() {
         super();
-        if (DBG) 
-        {
-            synchronized (MpTestApp.class) 
-            {
+        if (DBG) {
+            synchronized (MpTestApp.class) {
                 sRefCount++;
                 Log.d(TAG, "REFCOUNT: Constructed "+ this + " Instance Count = " + sRefCount);
             }
@@ -50,19 +45,15 @@ public class MpTestApp extends Application
     }
 
     @Override
-    public void onCreate() 
-    {
+    public void onCreate() {
         super.onCreate();
         if (DBG) Log.d(TAG, "onCreate");
     }
 
     @Override
-    protected void finalize() 
-    {
-        if (DBG) 
-        {
-            synchronized (MpTestApp.class) 
-            {
+    protected void finalize() {
+        if (DBG) {
+            synchronized (MpTestApp.class) {
                 sRefCount--;
                 Log.d(TAG, "REFCOUNT: Finalized: " + this +", Instance Count = " + sRefCount);
             }

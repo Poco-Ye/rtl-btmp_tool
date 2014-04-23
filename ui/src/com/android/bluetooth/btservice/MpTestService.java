@@ -55,13 +55,11 @@ import android.content.pm.PackageManager;
 //import android.os.ServiceManager;
 
 
-public class MpTestService extends Service
-{
-	
+public class MpTestService extends Service {
     private static final String TAG = "BluetoothMpTestService";
     //private static final boolean DBG = false;
     private static final boolean DBG = true;
-	private Handler mHandler = null;
+    private Handler mHandler = null;
     // Binder given to clients
     private final IBinder mBinder = new MpTestServiceBinder();
 
@@ -69,103 +67,89 @@ public class MpTestService extends Service
      * Class used for the client Binder.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
-    public class MpTestServiceBinder extends Binder
-    {
-        MpTestService getService() 
-        {
+    public class MpTestServiceBinder extends Binder {
+        MpTestService getService() {
             // Return this instance of LocalService so clients can call public methods
             return MpTestService.this;
         }
     }
 
     //get the handler from MainActivity
-    public void RegisterHandler(Handler handler)
-    {
-    	mHandler = handler;  	
+    public void RegisterHandler(Handler handler) {
+        mHandler = handler;
     }
-    
-	@Override
-	public void onCreate()
-	{
-	  super.onCreate();
-         boolean ret = true;
-         classInitNative();
-	
-	}
 
-	@Override
-	public IBinder onBind(Intent intent) 
-	{
-	  return mBinder;
-	}
-	public boolean onUnbind(Intent intent)
-	{
-	  return super.onUnbind(intent);
-	}
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        boolean ret = true;
+        classInitNative();
+    }
 
-	public void onDestroy() 
-	{
-		disableNative();
-		cleanupNative();
-	}
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
 
-	//1--start sucessfully 0--start failed
-	void stateChangeCallback(int status) 
-	{
-		Log.d(TAG, "stateChangeCallback, status" + status);		
-		//send the start result to MainActivity
-		Message msg = new Message();
-		msg.what = MainActivity.MSG_START_RESULT;
-		msg.arg1 = status;
-		mHandler.sendMessage(msg);		
-	}
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
+    }
 
-	//HCI event call back
-	void dut_mode_recv(byte opcode, String data)
-	{
-		Log.d(TAG, "dut_mode_recv, opcode:" + opcode + "data:");
-	
-		Message msg = new Message();
-		msg.what = MainActivity.MSG_HCI_EVENT_BACK;
-		msg.obj = data;
-		mHandler.sendMessage(msg);		
-	}
+    public void onDestroy() {
+        disableNative();
+        cleanupNative();
+    }
 
-	public boolean enableMpTestMode()
-	{
-		Log.d(TAG, "enableMpTestMode");		  
-		boolean ret = true;
-         	initNative();	
-		ret = enableNative();
+    //1--start sucessfully 0--start failed
+    void stateChangeCallback(int status) {
+        Log.d(TAG, "stateChangeCallback, status" + status);
+        //send the start result to MainActivity
+        Message msg = new Message();
+        msg.what = MainActivity.MSG_START_RESULT;
+        msg.arg1 = status;
+        mHandler.sendMessage(msg);
+    }
 
-		return ret;
+    //HCI event call back
+    void dut_mode_recv(byte opcode, String data) {
+        Log.d(TAG, "dut_mode_recv, opcode:" + opcode + "data:");
 
-	}
-	
-	public boolean disableMpTestMode()
-	{
-		
-		Log.d(TAG, "disableMpTestMode");	
-		boolean ret = true;
+        Message msg = new Message();
+        msg.what = MainActivity.MSG_HCI_EVENT_BACK;
+        msg.obj = data;
+        mHandler.sendMessage(msg);
+    }
 
-		ret = disableNative();
-		cleanupNative();
-		return ret;
-	}
+    public boolean enableMpTestMode() {
+        Log.d(TAG, "enableMpTestMode");
+        boolean ret = true;
+        initNative();
+        ret = enableNative();
 
-	public int hciSend(int opcode, String data)
-	{
-		Log.d(TAG,"service send hci command");
-		return hciSendNative(opcode, data);
-	}
+        return ret;
 
-	native void classInitNative();
-	native boolean initNative();
-	native void cleanupNative();
-	native boolean enableNative();
-	native boolean disableNative();
-	native int hciSendNative(int opcode, String data);
-	native boolean dutModeConfigureNative(int configure);
+    }
 
+    public boolean disableMpTestMode() {
+        Log.d(TAG, "disableMpTestMode");
+        boolean ret = true;
+
+        ret = disableNative();
+        cleanupNative();
+        return ret;
+    }
+
+    public int hciSend(int opcode, String data) {
+        Log.d(TAG,"service send hci command");
+        return hciSendNative(opcode, data);
+    }
+
+    native void classInitNative();
+    native boolean initNative();
+    native void cleanupNative();
+    native boolean enableNative();
+    native boolean disableNative();
+    native int hciSendNative(int opcode, String data);
+    native boolean dutModeConfigureNative(int configure);
 }
 
