@@ -391,7 +391,6 @@ public class MainActivity extends Activity {
                     Message msg;
                     Bundle boudle;
 
-
                     //BT_MP_OP_USER_DEF_GetPara
                     opcode = MpOpcode.BT_MP_OP_USER_DEF_GetPara;
                     opcodeBuffer = String.format("%x ", opcode);
@@ -596,6 +595,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG,"onDestroy");
+
         // TODO Auto-generated method stub
         super.onDestroy();
         // Unbind from the service
@@ -607,6 +608,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onStop() {
+        Log.d(TAG,"onStop");
+
         super.onStop();
         // Unbind from the service
         if (mBound) {
@@ -637,6 +640,8 @@ public class MainActivity extends Activity {
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            Log.d(TAG,"onServiceDisconnected");
+
             mBound = false;
             //mbuttonStart.setEnabled(false);
             //mbuttonStop.setEnabled(false);

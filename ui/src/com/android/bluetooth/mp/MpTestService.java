@@ -90,14 +90,20 @@ public class MpTestService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind");
+
         return mBinder;
     }
 
     public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "onUnbind");
+
         return super.onUnbind(intent);
     }
 
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+
         disableNative();
         cleanupNative();
     }
