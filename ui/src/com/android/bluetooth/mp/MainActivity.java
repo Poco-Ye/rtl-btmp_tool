@@ -100,6 +100,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG,"onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Button
@@ -584,6 +586,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onStart() {
+        Log.d(TAG,"onStart");
+
         super.onStart();
         // Bind to LocalService
         Intent intent = new Intent(this, MpTestService.class);
@@ -616,6 +620,8 @@ public class MainActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName className,
                 IBinder service) {
+            Log.d(TAG,"onServiceConnected");
+
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             MpTestServiceBinder binder = (MpTestServiceBinder) service;
             mService = binder.getService();
