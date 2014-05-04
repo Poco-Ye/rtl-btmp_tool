@@ -110,7 +110,7 @@ public class MpTestService extends Service {
 
     //1--start sucessfully 0--start failed
     void stateChangeCallback(int status) {
-        Log.d(TAG, "stateChangeCallback, status" + status);
+        Log.d(TAG, "stateChangeCallback, status " + status);
         //send the start result to MainActivity
         Message msg = new Message();
         msg.what = MainActivity.MSG_START_RESULT;
@@ -128,22 +128,25 @@ public class MpTestService extends Service {
         mHandler.sendMessage(msg);
     }
 
-    public boolean enableMpTestMode() {
-        Log.d(TAG, "enableMpTestMode");
+    public boolean enableMpTestMode(String hci_if, String node) {
         boolean ret = true;
-        initNative();
+
+        Log.d(TAG, "enableMpTestMode");
+
+        initNative(hci_if, node);
         ret = enableNative();
 
         return ret;
-
     }
 
     public boolean disableMpTestMode() {
-        Log.d(TAG, "disableMpTestMode");
         boolean ret = true;
+
+        Log.d(TAG, "disableMpTestMode");
 
         ret = disableNative();
         cleanupNative();
+
         return ret;
     }
 
@@ -153,7 +156,7 @@ public class MpTestService extends Service {
     }
 
     native void classInitNative();
-    native boolean initNative();
+    native boolean initNative(String hci_if, String node);
     native void cleanupNative();
     native boolean enableNative();
     native boolean disableNative();

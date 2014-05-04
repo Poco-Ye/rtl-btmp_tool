@@ -177,14 +177,11 @@ static void classInitNative(JNIEnv* env, jclass clazz) {
     }
 }
 
-static bool initNative(JNIEnv* env, jobject obj, jint interface, jstring node) {
-    ALOGI("%s", __FUNCTION__);
-
-    char propBuf[PROPERTY_VALUE_MAX];
-    propBuf[0] = '1';
-    if (property_set("rt.bt.mp.mode", propBuf) < 0) {
-        ALOGE("property_set rt.bt.mp.mode fail");
-    }
+static bool initNative(JNIEnv* env, jobject obj, jstring interface, jstring node) {
+    int ret;
+    bt_hci_if_t if_type = BT_HCI_IF_NONE;
+    const char *if_str = NULL;
+    const char *node_str = NULL;
 
     if (sJniCallbacksObj != NULL) {
          env->DeleteGlobalRef(sJniCallbacksObj);
@@ -192,8 +189,19 @@ static bool initNative(JNIEnv* env, jobject obj, jint interface, jstring node) {
     }
     sJniCallbacksObj = env->NewGlobalRef(obj);
 
+    if_str = env->GetStringUTFChars(interface, NULL);
+    node_str = env->GetStringUTFChars(node, NULL);
+
+    ALOGI("%s: interface %s, node %s", __FUNCTION__, if_str, node_str);
+
+    if (!strcasecmp(if_str, "UART")) {
+        if_type = BT_HCI_IF_UART;
+    } else if (!strcasecmp(if_str, "USB")) {
+        if_type = BT_HCI_IF_USB;
+    }
+
     if (sBluetoothInterface) {
-        int ret = sBluetoothInterface->init(&sBluetoothCallbacks, (bt_hci_if_t)interface, (const char *)node);
+        ret = sBluetoothInterface->init(&sBluetoothCallbacks, if_type, node_str);
         if (ret != BT_STATUS_SUCCESS) {
             ALOGE("Error while setting the callbacks");
             sBluetoothInterface = NULL;
@@ -207,13 +215,6 @@ static bool initNative(JNIEnv* env, jobject obj, jint interface, jstring node) {
 
 static bool cleanupNative(JNIEnv *env, jobject obj) {
     ALOGI("%s", __FUNCTION__);
-
-    char propBuf[PROPERTY_VALUE_MAX];
-    propBuf[0] = '0';
-    if(property_set("rt.bt.mp.mode", propBuf) < 0)
-    {
-        ALOGE("property_set rt.bt.mp.mode fail ");
-    }
 
     jboolean result = JNI_FALSE;
     if (!sBluetoothInterface) return result;
@@ -293,7 +294,7 @@ static jboolean dutModeConfigureNative(JNIEnv *env, jobject obj, jint type) {
 static JNINativeMethod sMethods[] = {
      /* name, signature, funcPtr */
     {"classInitNative", "()V", (void *) classInitNative},
-    {"initNative", "()Z", (void *) initNative},
+    {"initNative", "(Ljava/lang/String;Ljava/lang/String;)Z", (void *) initNative},
     {"cleanupNative", "()V", (void*) cleanupNative},
     {"enableNative", "()Z",  (void*) enableNative},
     {"disableNative", "()Z",  (void*) disableNative},

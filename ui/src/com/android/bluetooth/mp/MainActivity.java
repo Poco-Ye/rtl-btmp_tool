@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Switch;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -47,6 +48,9 @@ public class MainActivity extends Activity {
     private static final String TAG = "BluetoothMpTestActivity";
     public MpTestService mService = null;
     boolean mBound = false;
+
+    // Switch
+    Switch mSwitchOnOff = null;
     //Button
     Button mbuttonStart = null;
     Button mbuttonStop = null;
@@ -96,6 +100,10 @@ public class MainActivity extends Activity {
     ArrayAdapter<String> adpLEConnect = null;
     ArrayAdapter<String> adpTxDACCurrent = null;
 
+    // All variables we need to cache
+    String mHciInterface = null;
+    String mDevNode = null;
+
     //Message
     public static final int MSG_START_RESULT = 0;
     public static final int MSG_HCI_SEND = 1;
@@ -107,6 +115,13 @@ public class MainActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Switch
+        mSwitchOnOff = (Switch)findViewById(R.id.switchOnOff);
+        if (mSwitchOnOff != null) {
+            mSwitchOnOff.setOnCheckedChangeListener(new SwitchOnCheckedChange());
+        }
+
         //Button
         mbuttonStart = (Button) findViewById(R.id.button_Start);
         mbuttonStop = (Button) findViewById(R.id.button_Stop);
@@ -133,7 +148,7 @@ public class MainActivity extends Activity {
         SetButtonStateBeforStart();
 
         //Spinner
-        mspHCIInterface = (Spinner) findViewById(R.id.spinner_hci_interface);
+        mspHCIInterface = (Spinner)findViewById(R.id.spinner_hci_interface);
         mspActionItem =  (Spinner) findViewById(R.id.spinner_action_item);
         mspDataRate =  (Spinner) findViewById(R.id.spinner_Data_Rate);
         mspRFChannel =  (Spinner) findViewById(R.id.spinner_RF_Channel);
@@ -147,7 +162,7 @@ public class MainActivity extends Activity {
         InitAllSpinners();
 
         //EditText
-        metxDevNode = (EditText) findViewById(R.id.editText_Dev_Node);
+        metxDevNode = (EditText)findViewById(R.id.editText_Dev_Node);
         //metxRxPacketsCount = (EditText) findViewById(R.id.editText_Rx_Packets);
         //metxErrorBits = (EditText) findViewById(R.id.editText_ErrorBits);
         //metxBER = (EditText) findViewById(R.id.editText_BER);
@@ -382,14 +397,33 @@ public class MainActivity extends Activity {
         mspTxDACCurrent.setOnItemSelectedListener(new SpinnerListener());
     }
 
-    //Button response implementation here
+    // Switch Click response
+    class SwitchOnCheckedChange implements OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton bv, boolean isChecked) {
+            Toast.makeText(getApplicationContext(), "Bluetooth MP tool is " + (isChecked ? "on" : "off"),
+                    Toast.LENGTH_SHORT).show();
+
+            mDevNode = metxDevNode.getText().toString();
+
+            Log.d(TAG, "HCI Interface: " + mHciInterface + "; Device Node: " + mDevNode);
+
+            if (isChecked) {
+                mService.enableMpTestMode(mHciInterface, mDevNode);
+            } else {
+                mService.disableMpTestMode();
+            }
+        }
+    }
+
+    // Button response implementation here
     class ButtonClick implements OnClickListener {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.button_Start:
                     Log.v(TAG,"button_Start clicked");
-                    mService.enableMpTestMode();
-                    mbuttonStart.setEnabled(false);
+                    //mService.enableMpTestMode();
+                    //mbuttonStart.setEnabled(false);
 
                     break;
 
@@ -517,6 +551,7 @@ public class MainActivity extends Activity {
             switch (arg0.getId()) {
                 case R.id.spinner_hci_interface:
                     Log.v(TAG,"Spinner HCI Interface selected: " + mspHCIInterface.getSelectedItem().toString());
+                    mHciInterface = mspHCIInterface.getSelectedItem().toString();
                     break;
 
                 case R.id.spinner_action_item:
