@@ -11,36 +11,106 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="0px"
-        android:layout_weight="5">
+        android:layout_weight="2" >
 
-        <!-- part1-L1 -->
+        <!-- part1-L1 interface, dev_node, on/off switch -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="1">
+            android:layout_height="64dip"
+            android:layout_weight="1" >
+            <!-- HCI Interface -->
+            <TextView
+                android:text="@string/HCIInterface"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <Spinner
+                android:id="@+id/spinner_hci_interface"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <TextView
+                android:text="@string/DevNode"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <EditText
+                android:id="@+id/editText_Dev_Node"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:hint="@string/hint_Dev_Node" />
+            <Switch
+                android:id="@+id/switchOnOff"
+                android:layout_gravity="bottom|center"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:padding="8dip"
+                android:focusable="false"
+                android:clickable="true" />
+        </LinearLayout>
+
+        <!-- part1-L2 action item, start/stop button -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="64dip"
+            android:layout_weight="1" >
             <!-- Action Item -->
             <TextView
                 android:text="@string/ActionItem"
                 android:gravity="bottom|center"
                 android:layout_height="match_parent"
                 android:layout_width="0px"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
             <Spinner
                 android:id="@+id/spinner_action_item"
-                android:layout_width="0px"
                 android:layout_height="match_parent"
-                android:layout_weight="3"/>
+                android:layout_width="0px"
+                android:layout_weight="2" />
+            <Button
+                android:id="@+id/button_Start"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:text="@string/Start" />
+             <Button
+                android:id="@+id/button_Stop"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:text="@string/Stop" />
         </LinearLayout>
+    </LinearLayout>
 
-        <!-- part1-L2 -->
-        <LinearLayout
+    <!-- part2 -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="6" >
+        <!-- part2-L1 params button bar -->
+        <include layout="@layout/buttonbar" />
+        <!-- part2-L2 add contents -->
+
+    </LinearLayout>
+
+        <!-- part1-L3 -->
+<!--       <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="0px"
             android:layout_weight="3">
+-->
             <!-- part1-L2-v1 -->
-            <LinearLayout
+<!--           <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="0px"
                 android:layout_height="match_parent"
@@ -64,9 +134,9 @@
                     android:layout_width="match_parent"
                     android:layout_weight="1"/>
             </LinearLayout>
-
+-->
             <!-- part1-L2-v2 -->
-            <LinearLayout
+<!--            <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="0px"
                 android:layout_height="match_parent"
@@ -93,9 +163,9 @@
                     android:layout_weight="1"
                     android:inputType="number"/>
             </LinearLayout>
-
+-->
             <!-- part1-L2-v3 -->
-            <LinearLayout
+<!--            <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="0px"
                 android:layout_height="match_parent"
@@ -122,9 +192,9 @@
                     android:layout_weight="1"
                     android:text="@string/Send"/>
             </LinearLayout>
-
+-->
             <!-- part1-L2-v4 -->
-            <LinearLayout
+<!--            <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="0px"
                 android:layout_height="match_parent"
@@ -152,15 +222,16 @@
                     android:text="@string/Whitening_Coeff"/>
             </LinearLayout>
         </LinearLayout>
-
+-->
         <!-- part1-L3 -->
-        <LinearLayout
+<!--        <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0px"
             android:layout_weight="1">
+-->
             <!-- part1-L3-L1 -->
-            <LinearLayout
+<!--            <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
@@ -195,9 +266,10 @@
                     android:layout_weight="1"/>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+-->
+<!--    </LinearLayout> -->
 
-    <!-- part2 -->
+    <!-- part3 -->
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -379,7 +451,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- part3 -->
+    <!-- part4 -->
     <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="0px"

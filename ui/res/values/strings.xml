@@ -4,7 +4,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
 
-    <string name="ActionItem">Action Item:</string>
+    <string name="HCIInterface">HCI Interface</string>
+    <string name="DevNode">Device Node</string>
+    <string name="ActionItem">Action Item</string>
     <string name="Rx_Packets">Rx Packets:</string>
     <string name="Start">Start</string>
     <string name="Stop">Stop</string>
@@ -31,4 +33,13 @@
     <string name="Clear_Log">Clear_Log</string>
     <string name="Host_ReInit"> Host_ReInit</string>
     <string name="HCI_Reset">HCI_Reset</string>
+
+    <!-- hint string list  -->
+    <string name="hint_Dev_Node">/dev/ttyS0</string>
+
+    <!-- button bar menu -->
+    <string name="NonLinkMode_menu">Non Link Mode</string>
+    <string name="RegisterRW_menu">Register RW</string>
+    <string name="Report_menu">Report</string>
+    <string name="Others_menu">Others</string>
 </resources>

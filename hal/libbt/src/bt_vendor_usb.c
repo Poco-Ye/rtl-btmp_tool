@@ -193,7 +193,8 @@ int usb_vendor_open(void)
 
     if ((vnd_userial.fd = open(vnd_userial.port_name, O_RDWR)) == -1)
     {
-        ALOGE("userial vendor open: unable to open %s: %s", vnd_userial.port_name, strerror(errno));
+        ALOGE("userial vendor open: unable to open %s(uid %d, gid %d): %s",
+                vnd_userial.port_name, getuid(), getgid(), strerror(errno));
         return -1;
     }
 

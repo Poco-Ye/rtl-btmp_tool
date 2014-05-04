@@ -126,7 +126,7 @@ static void config_permissions(void)
     prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
 
     setuid(AID_BLUETOOTH);
-    setgid(AID_BLUETOOTH);
+    setgid(AID_NET_BT_STACK);
 
     header.version = _LINUX_CAPABILITY_VERSION;
 
