@@ -418,7 +418,7 @@ static pthread_mutex_t h5_wakeup_mutex = PTHREAD_MUTEX_INITIALIZER;
 ******************************************************************************/
 
 /* Num of allowed outstanding HCI CMD packets */
-volatile int num_hci_cmd_pkts = 1;
+volatile int H5_num_hci_cmd_pkts = 1;
 
 /******************************************************************************
 **  Static variables
@@ -1849,7 +1849,7 @@ uint8_t internal_event_intercept_h5(void)
 
     if (event_code == HCI_COMMAND_COMPLETE_EVT)
     {
-        num_hci_cmd_pkts = *p++;
+        H5_num_hci_cmd_pkts = *p++;
         STREAM_TO_UINT16(opcode, p)
 
     if (opcode == HCI_READ_BUFFER_SIZE)
@@ -1942,7 +1942,7 @@ uint8_t internal_event_intercept_h5(void)
     else if (event_code == HCI_COMMAND_STATUS_EVT)
     {
 
-        num_hci_cmd_pkts = *(++p);
+        H5_num_hci_cmd_pkts = *(++p);
         STREAM_TO_UINT16(opcode, p);
         if(opcode == 0x0001)
         {
@@ -2851,7 +2851,7 @@ void hci_h5_init(void)
     utils_queue_init(&(rtk_h5.acl_rx_q));
 
     /* Per HCI spec., always starts with 1 */
-    num_hci_cmd_pkts = 1;
+    H5_num_hci_cmd_pkts = 1;
     h5_log_enable = 0;
     /* Give an initial values of Host Controller's ACL data packet length
      * Will update with an internal HCI(_LE)_Read_Buffer_Size request
@@ -3130,7 +3130,7 @@ void hci_h5_send_msg(HC_BT_HDR *p_msg)
 
     if (event == MSG_STACK_TO_HC_HCI_CMD)
     {
-        num_hci_cmd_pkts--;
+        H5_num_hci_cmd_pkts--;
 
         /* If this is an internal Cmd packet, the layer_specific field would
          * have stored with the opcode of HCI command.
@@ -3683,65 +3683,3 @@ const tHCI_IF hci_h5_func_table =
     hci_h5_get_acl_data_length,
     hci_h5_receive_msg
 };
-
-#ifdef BT_FW_CAL_ENABLE
-uint32_t rtk_set_bt_cal_inqury_result(uint8_t result)
-{
-    char bt_cal_file_name[PATH_MAX] = {0};
-    int fd = -1;
-    off_t offset = 0;
-ssize_t ret_len = 0;
-uint16_t host_info = 0;
-
-    sprintf(bt_cal_file_name, BT_CAL_DIRECTORY"rtlbt_cal");
-    if ((fd = open(bt_cal_file_name, O_RDWR)) < 0)
-    {
-        ALOGE("Can't open bt cal file, errno = %d", errno);
-        return -1;
-    }
-
-    offset = lseek(fd, 3, SEEK_SET);
-    if(offset != 3)
-    {
-        ALOGE("lseek for read fail return, errno = %d", errno);
-        close(fd);
-        return -1;
-    }
-
-    ret_len = read(fd, &host_info, sizeof(host_info));
-    if ( ret_len != sizeof(host_info)) {
-        ALOGE("read host_info fail, ret_len(%d), errno = %d", ret_len, errno);
-        close(fd);
-        return -1;
-    }
-    LogMsg("Get CAL Host info success, host_info = 0x%04x", host_info);
-    if(result == CAL_INQUIRY_SUCCESS)
-    {
-        host_info |= IS_LAST_INQUIRY_SUCCESS;
-    }
-    else
-    {
-        host_info &= (~IS_LAST_INQUIRY_SUCCESS);
-    }
-
-    LogMsg("Update CAL Host info to file, host_info = 0x%04x", host_info);
-
-    offset = lseek(fd, 3, SEEK_SET);
-    if(offset != 3)
-    {
-        ALOGE("lseek for write fail return, errno = %d", errno);
-        close(fd);
-        return -1;
-    }
-
-    ret_len = write(fd, &host_info, sizeof(host_info));
-    if ( ret_len != sizeof(host_info)) {
-        ALOGE("write host_info fail, ret_len = %d, errno = %d", ret_len, errno);
-        close(fd);
-        return -1;
-    }
-
-    close(fd);
-    return ret_len;
-}
-#endif

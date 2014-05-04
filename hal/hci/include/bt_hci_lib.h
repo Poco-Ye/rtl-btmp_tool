@@ -23,6 +23,8 @@
 #include <sys/cdefs.h>
 #include <sys/types.h>
 
+#include "bluetoothmp.h"
+
 /** Struct types */
 
 
@@ -164,7 +166,8 @@ typedef struct {
      * Opens the interface and provides the callback routines
      * to the implemenation of this interface.
      */
-    int   (*init)(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr);
+    int (*init)(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
+            bt_hci_if_t hci_if, const char *dev_node);
 
     /** Chip power control */
     void (*set_power)(bt_hc_chip_power_state_t state);

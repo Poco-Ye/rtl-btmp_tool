@@ -36,6 +36,8 @@
 #include "bt_hci_lib.h"
 #include "bt_hci_bdroid.h"
 
+#include "bluetoothmp.h"
+
 /*******************************************************************************
 **  Constants & Macros
 *******************************************************************************/
@@ -130,9 +132,8 @@ UINT32 bte_btu_stack[(BTE_BTU_STACK_SIZE + 3) / 4];
 ******************************************************************************/
 void bte_main_in_hw_init(void)
 {
-    if ( (bt_hc_if = (bt_hc_interface_t *) bt_hc_get_interface()) \
-         == NULL)
-    {
+    bt_hc_if = (bt_hc_interface_t *)bt_hc_get_interface();
+    if (bt_hc_if == NULL) {
         APPL_TRACE_ERROR0("!!! Failed to get BtHostControllerInterface !!!");
     }
 }
@@ -181,15 +182,14 @@ void bte_main_shutdown()
 ** Returns          None
 **
 ******************************************************************************/
-void bte_main_enable(uint8_t *local_addr)
+void bte_main_enable(uint8_t *local_addr, bt_hci_if_t hci_if, const char *dev_node)
 {
     APPL_TRACE_DEBUG1("%s", __FUNCTION__);
 
     preload_start_wait_timer();
 
-    if (bt_hc_if)
-    {
-        int result = bt_hc_if->init(&hc_callbacks, local_addr);
+    if (bt_hc_if) {
+        int result = bt_hc_if->init(&hc_callbacks, local_addr, hci_if, dev_node);
 
         assert(result == BT_HC_STATUS_SUCCESS);
 

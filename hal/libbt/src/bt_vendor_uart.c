@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright (C) 2009-2012 Realtek Corporation
+ *  Copyright (C) 2012-2014 Realtek Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,18 +16,10 @@
  *
  ******************************************************************************/
 
-/******************************************************************************
- *
- *  Filename:      bt_vendor_rtk.c
- *
- *  Description:   Realtek vendor specific library implementation
- *
- ******************************************************************************/
+#define LOG_TAG "bt_vendor_uart"
 
-#undef NDEBUG
-#define LOG_TAG "bt_vendor"
 #include <utils/Log.h>
-#include "bt_vendor_rtk.h"
+#include "bt_vendor_uart.h"
 #include "upio.h"
 #include "userial_vendor.h"
 
@@ -52,8 +44,8 @@ void hw_config_start(void);
 **  Variables
 ******************************************************************************/
 
-bt_vendor_callbacks_t *bt_vendor_cbacks = NULL;
-uint8_t vnd_local_bd_addr[6]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+bt_vendor_callbacks_t *UART_bt_vendor_cbacks = NULL;
+uint8_t UART_vnd_local_bd_addr[6]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 /******************************************************************************
 **  Local type definitions
@@ -80,7 +72,7 @@ static const tUSERIAL_CFG userial_init_cfg =
 **
 *****************************************************************************/
 
-int bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr)
+static int UART_bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr, const char *dev_node)
 {
     ALOGI("init");
 
@@ -90,21 +82,21 @@ int bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr)
         return -1;
     }
 
-    userial_vendor_init();
+    userial_vendor_init(dev_node);
     upio_init();
 
     /* store reference to user callbacks */
-    bt_vendor_cbacks = (bt_vendor_callbacks_t *) p_cb;
+    UART_bt_vendor_cbacks = (bt_vendor_callbacks_t *)p_cb;
 
     /* This is handed over from the stack */
-    memcpy(vnd_local_bd_addr, local_bdaddr, 6);
+    memcpy(UART_vnd_local_bd_addr, local_bdaddr, 6);
 
     return 0;
 }
 
 
 /** Requested operations */
-int bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
+static int UART_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 {
     int retval = 0;
 
@@ -175,21 +167,21 @@ int bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 }
 
 /** Closes the interface */
-void bt_vnd_cleanup( void )
+static void UART_bt_vnd_cleanup( void )
 {
     BTVNDDBG("cleanup");
 
     upio_cleanup();
 
-    bt_vendor_cbacks = NULL;
+    UART_bt_vendor_cbacks = NULL;
 }
 
 // Entry point of DLib
-const bt_vendor_interface_t BLUETOOTH_VENDOR_INTERFACE = {
+const bt_vendor_interface_t UART_BLUETOOTH_VENDOR_LIB_INTERFACE = {
     sizeof(bt_vendor_interface_t),
-    bt_vnd_init,
-    bt_vnd_op,
-    bt_vnd_cleanup
+    UART_bt_vnd_init,
+    UART_bt_vnd_op,
+    UART_bt_vnd_cleanup
 };
 
-const bt_vendor_interface_t *bt_vnd_if = &BLUETOOTH_VENDOR_INTERFACE;
+const bt_vendor_interface_t *UART_bt_vnd_if = &UART_BLUETOOTH_VENDOR_LIB_INTERFACE;

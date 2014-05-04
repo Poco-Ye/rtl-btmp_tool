@@ -29,14 +29,15 @@
 
 #include <utils/Log.h>
 #include <pthread.h>
+#include <sys/prctl.h>
 #include "bt_hci_bdroid.h"
 #include "bt_vendor_lib.h"
 #include "utils.h"
 #include "hci.h"
 #include "userial.h"
 #include "bt_utils.h"
-#include <sys/prctl.h>
 
+#include "bluetoothmp.h"
 
 #ifndef BTHC_DBG
 #define BTHC_DBG TRUE
@@ -53,7 +54,8 @@
 ******************************************************************************/
 
 extern bt_vendor_interface_t *bt_vnd_if;
-extern int num_hci_cmd_pkts;
+extern int H4_num_hci_cmd_pkts;
+extern int H5_num_hci_cmd_pkts;
 
 void lpm_init(void);
 void lpm_cleanup(void);
@@ -61,7 +63,7 @@ void lpm_enable(uint8_t turn_on);
 void lpm_wake_deassert(void);
 void lpm_allow_bt_device_sleep(void);
 void lpm_wake_assert(void);
-void init_vnd_if(unsigned char *local_bdaddr);
+void init_vnd_if(unsigned char *local_bdaddr, bt_hci_if_t hci_if, const char *dev_node);
 void btsnoop_open(char *p_path);
 void btsnoop_close(void);
 
@@ -72,6 +74,7 @@ void btsnoop_close(void);
 bt_hc_callbacks_t *bt_hc_cbacks = NULL;
 BUFFER_Q tx_q;
 tHCI_IF *p_hci_if;
+int *num_hci_cmd_pkts = NULL;
 
 /******************************************************************************
 **  Local type definitions
@@ -114,7 +117,8 @@ void bthc_signal_event(uint16_t event)
 **
 *****************************************************************************/
 
-static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr)
+static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
+        bt_hci_if_t hci_if, const char *dev_node)
 {
     pthread_attr_t thread_attr;
     struct sched_param param;
@@ -124,19 +128,29 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr)
 
     if (p_cb == NULL)
     {
-        ALOGE("init failed with no user callbacks!");
+        ALOGE("Init failed with no user callbacks!");
         return BT_HC_STATUS_FAIL;
     }
 
     /* store reference to user callbacks */
-    bt_hc_cbacks = (bt_hc_callbacks_t *) p_cb;
+    bt_hc_cbacks = (bt_hc_callbacks_t *)p_cb;
 
-    init_vnd_if(local_bdaddr);
+    init_vnd_if(local_bdaddr, hci_if, dev_node);
 
     utils_init();
 
-    extern tHCI_IF hci_h5_func_table;
-    p_hci_if = &hci_h5_func_table;
+    if (hci_if == BT_HCI_IF_UART) {
+        extern tHCI_IF hci_h5_func_table;
+        p_hci_if = &hci_h5_func_table;
+        num_hci_cmd_pkts = &H5_num_hci_cmd_pkts;
+    } else if (hci_if == BT_HCI_IF_USB) {
+        extern tHCI_IF hci_h4_func_table;
+        p_hci_if = &hci_h4_func_table;
+        num_hci_cmd_pkts = &H4_num_hci_cmd_pkts;
+    } else {
+        ALOGE("Init failed with no HCI interface specified!");
+        return BT_HC_STATUS_FAIL;
+    }
 
     p_hci_if->init();
 
@@ -362,7 +376,7 @@ static void *bt_hc_worker_thread(void *arg)
         {
             p_hci_if->rcv();
 
-            if ((tx_cmd_pkts_pending == TRUE) && (num_hci_cmd_pkts > 0))
+            if ((tx_cmd_pkts_pending == TRUE) && (*num_hci_cmd_pkts > 0))
             {
                 /* Got HCI Cmd Credits from Controller.
                  * Prepare to send prior pending Cmd packets in the
@@ -431,7 +445,7 @@ static void *bt_hc_worker_thread(void *arg)
                      *  CommandStatusEvent.
                      */
                     if ((tx_cmd_pkts_pending == TRUE) ||
-                        (sending_hci_cmd_pkts_count >= num_hci_cmd_pkts))
+                        (sending_hci_cmd_pkts_count >= *num_hci_cmd_pkts))
                     {
                         tx_cmd_pkts_pending = TRUE;
                         p_next_msg = utils_getnext(p_next_msg);

@@ -41,6 +41,8 @@
 
 
 bt_callbacks_t *bt_hal_cbacks = NULL;
+bt_hci_if_t bt_hci_if = BT_HCI_IF_NONE;
+const char *bt_dev_node = NULL;
 
 
 /************************************************************************************
@@ -73,7 +75,7 @@ uint8_t hal_interface_ready(void)
 **
 *****************************************************************************/
 
-int hal_init(bt_callbacks_t* callbacks)
+int hal_init(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node)
 {
     ALOGI("init");
 
@@ -84,6 +86,10 @@ int hal_init(bt_callbacks_t* callbacks)
     /* store reference to user callbacks */
     bt_hal_cbacks = callbacks;
 
+    /* store bt hci if type and device driver node */
+    bt_hci_if = hci_if;
+    bt_dev_node = dev_node;
+
     /* init mp module */
     bt_mp_module_init(&BaseInterfaceModuleMemory, &BtModuleMemory);
 
@@ -93,7 +99,7 @@ int hal_init(bt_callbacks_t* callbacks)
     return BT_STATUS_SUCCESS;
 }
 
-int hal_enable( void )
+int hal_enable(void)
 {
     ALOGI("enable");
 
@@ -101,7 +107,7 @@ int hal_enable( void )
     if (hal_interface_ready() == FALSE)
         return BT_STATUS_NOT_READY;
 
-    return btif_enable_bluetooth();
+    return btif_enable_bluetooth(bt_hci_if, bt_dev_node);
 }
 
 int hal_disable(void)

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright (C) 2009-2012 Broadcom Corporation
+ *  Copyright (C) 2012-2014 Realtek Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,20 +16,13 @@
  *
  ******************************************************************************/
 
-/******************************************************************************
- *
- *  Filename:      bt_vendor_rtk.c
- *
- *  Description:   Broadcom vendor specific library implementation
- *
- ******************************************************************************/
-
-#define LOG_TAG "bt_vendor"
+#define LOG_TAG "bt_vendor_usb"
 
 #include <fcntl.h>
 #include <errno.h>
 #include <utils/Log.h>
-#include "bt_vendor_rtk_usb.h"
+
+#include "bt_vendor_usb.h"
 
 #ifndef BTVND_DBG
 #define BTVND_DBG FALSE
@@ -49,17 +42,58 @@
 typedef struct
 {
     int fd;                     /* fd to Bluetooth device */
-    uint16_t dev_id;
     char port_name[VND_PORT_NAME_MAXLEN];
-} vnd_userial_cb_t;
+} vnd_usb_cb_t;
 
 /******************************************************************************
 **  Variables
 ******************************************************************************/
 
-bt_vendor_callbacks_t *bt_vendor_cbacks = NULL;
-uint8_t vnd_local_bd_addr[6]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static vnd_userial_cb_t vnd_userial;
+bt_vendor_callbacks_t *USB_bt_vendor_cbacks = NULL;
+uint8_t USB_vnd_local_bd_addr[6]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static vnd_usb_cb_t vnd_usb;
+
+static void usb_vendor_init(const char *dev_node)
+{
+    const char *port;
+
+    vnd_usb.fd = -1;
+
+    port = dev_node ?: BLUETOOTH_USB_DEVICE_PORT;
+    snprintf(vnd_usb.port_name, VND_PORT_NAME_MAXLEN, "%s", port);
+}
+
+static int usb_vendor_open(void)
+{
+    ALOGI("usb vendor open: opening %s", vnd_usb.port_name);
+
+    if ((vnd_usb.fd = open(vnd_usb.port_name, O_RDWR)) == -1)
+    {
+        ALOGE("usb vendor open: unable to open %s(uid %d, gid %d): %s",
+                vnd_usb.port_name, getuid(), getgid(), strerror(errno));
+        return -1;
+    }
+
+    ALOGI("device fd = %d open", vnd_usb.fd);
+
+    return vnd_usb.fd;
+}
+
+static void usb_vendor_close(void)
+{
+    int res;
+
+    if (vnd_usb.fd == -1)
+        return;
+
+    ALOGI("device fd = %d close", vnd_usb.fd);
+
+    res = close(vnd_usb.fd);
+    if (res  < 0)
+        ALOGE("Failed to close(fd %d): %s", vnd_usb.fd, strerror(res));
+
+    vnd_usb.fd = -1;
+}
 
 /*****************************************************************************
 **
@@ -67,30 +101,29 @@ static vnd_userial_cb_t vnd_userial;
 **
 *****************************************************************************/
 
-static int init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr)
+static int USB_bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr, const char *dev_node)
 {
     ALOGI("init");
 
-    if (p_cb == NULL)
-    {
+    if (p_cb == NULL) {
         ALOGE("init failed with no user callbacks!");
         return -1;
     }
 
-    userial_vendor_init();
+    usb_vendor_init(dev_node);
 
     /* store reference to user callbacks */
-    bt_vendor_cbacks = (bt_vendor_callbacks_t *) p_cb;
+    USB_bt_vendor_cbacks = (bt_vendor_callbacks_t *)p_cb;
 
     /* This is handed over from the stack */
-    memcpy(vnd_local_bd_addr, local_bdaddr, 6);
+    memcpy(USB_vnd_local_bd_addr, local_bdaddr, 6);
 
     return 0;
 }
 
 
 /** Requested operations */
-static int op(bt_vendor_opcode_t opcode, void *param)
+static int USB_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 {
     int retval = 0;
 
@@ -106,7 +139,7 @@ static int op(bt_vendor_opcode_t opcode, void *param)
 
         case BT_VND_OP_FW_CFG:
             {
-                bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
+                USB_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
             }
             break;
 
@@ -134,7 +167,7 @@ static int op(bt_vendor_opcode_t opcode, void *param)
 
         case BT_VND_OP_USERIAL_CLOSE:
             {
-                userial_vendor_close();
+                usb_vendor_close();
             }
             break;
 
@@ -147,8 +180,8 @@ static int op(bt_vendor_opcode_t opcode, void *param)
 
         case BT_VND_OP_LPM_SET_MODE:
             {
-                if (bt_vendor_cbacks)
-                    bt_vendor_cbacks->lpm_cb(BT_VND_OP_RESULT_SUCCESS);
+                if (USB_bt_vendor_cbacks)
+                    USB_bt_vendor_cbacks->lpm_cb(BT_VND_OP_RESULT_SUCCESS);
             }
             break;
 
@@ -161,85 +194,19 @@ static int op(bt_vendor_opcode_t opcode, void *param)
     return retval;
 }
 
-/*******************************************************************************
-**
-** Function        userial_vendor_init
-**
-** Description     Initialize userial vendor-specific control block
-**
-** Returns         None
-**
-*******************************************************************************/
-void userial_vendor_init(void)
-{
-    vnd_userial.fd = -1;
-    vnd_userial.dev_id = 0;
-    snprintf(vnd_userial.port_name, VND_PORT_NAME_MAXLEN, "%s", \
-            BLUETOOTH_UART_DEVICE_PORT);
-}
-
-/*******************************************************************************
-**
-** Function        usb_vendor_open
-**
-** Description     Open the serial port with the given configuration
-**
-** Returns         device fd
-**
-*******************************************************************************/
-int usb_vendor_open(void)
-{
-    ALOGI("userial vendor open: opening %s", vnd_userial.port_name);
-
-    if ((vnd_userial.fd = open(vnd_userial.port_name, O_RDWR)) == -1)
-    {
-        ALOGE("userial vendor open: unable to open %s(uid %d, gid %d): %s",
-                vnd_userial.port_name, getuid(), getgid(), strerror(errno));
-        return -1;
-    }
-
-    ALOGI("device fd = %d open", vnd_userial.fd);
-
-    return vnd_userial.fd;
-}
-
-/*******************************************************************************
-**
-** Function        userial_vendor_close
-**
-** Description     Conduct vendor-specific close work
-**
-** Returns         None
-**
-*******************************************************************************/
-void userial_vendor_close(void)
-{
-    int result;
-
-    if (vnd_userial.fd == -1)
-        return;
-
-    ALOGI("device fd = %d close", vnd_userial.fd);
-
-    if ((result = close(vnd_userial.fd)) < 0)
-        ALOGE( "close(fd:%d) FAILED result:%d", vnd_userial.fd, result);
-
-    vnd_userial.fd = -1;
-}
-
 /** Closes the interface */
-static void cleanup( void )
+static void USB_bt_vnd_cleanup( void )
 {
     BTVNDDBG("cleanup");
-    bt_vendor_cbacks = NULL;
+    USB_bt_vendor_cbacks = NULL;
 }
 
 // Entry point of DLib
-const bt_vendor_interface_t BLUETOOTH_VENDOR_LIB_INTERFACE = {
+const bt_vendor_interface_t USB_BLUETOOTH_VENDOR_LIB_INTERFACE = {
     sizeof(bt_vendor_interface_t),
-    init,
-    op,
-    cleanup
+    USB_bt_vnd_init,
+    USB_bt_vnd_op,
+    USB_bt_vnd_cleanup
 };
 
-const bt_vendor_interface_t *bt_vnd_if = &BLUETOOTH_VENDOR_LIB_INTERFACE;
+const bt_vendor_interface_t *USB_bt_vnd_if = &USB_BLUETOOTH_VENDOR_LIB_INTERFACE;

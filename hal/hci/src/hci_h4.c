@@ -165,7 +165,7 @@ uint8_t hci_h4_send_int_cmd(uint16_t opcode, HC_BT_HDR *p_buf, \
 ******************************************************************************/
 
 /* Num of allowed outstanding HCI CMD packets */
-volatile int num_hci_cmd_pkts = 1;
+volatile int H4_num_hci_cmd_pkts = 1;
 
 /******************************************************************************
 **  Static variables
@@ -264,7 +264,7 @@ uint8_t internal_event_intercept(void)
 
     if (event_code == HCI_COMMAND_COMPLETE_EVT)
     {
-        num_hci_cmd_pkts = *p++;
+        H4_num_hci_cmd_pkts = *p++;
 
         if (p_cb->int_cmd_rsp_pending > 0)
         {
@@ -298,7 +298,7 @@ uint8_t internal_event_intercept(void)
     }
     else if (event_code == HCI_COMMAND_STATUS_EVT)
     {
-        num_hci_cmd_pkts = *(++p);
+        H4_num_hci_cmd_pkts = *(++p);
     }
 
     return FALSE;
@@ -551,7 +551,7 @@ void hci_h4_init(void)
     utils_queue_init(&(h4_cb.acl_rx_q));
 
     /* Per HCI spec., always starts with 1 */
-    num_hci_cmd_pkts = 1;
+    H4_num_hci_cmd_pkts = 1;
 
     /* Give an initial values of Host Controller's ACL data packet length
      * Will update with an internal HCI(_LE)_Read_Buffer_Size request
@@ -700,7 +700,7 @@ void hci_h4_send_msg(HC_BT_HDR *p_msg)
 
     if (event == MSG_STACK_TO_HC_HCI_CMD)
     {
-        num_hci_cmd_pkts--;
+        H4_num_hci_cmd_pkts--;
 
         /* If this is an internal Cmd packet, the layer_specific field would
          * have stored with the opcode of HCI command.

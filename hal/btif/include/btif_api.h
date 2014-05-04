@@ -57,7 +57,7 @@ bt_status_t btif_init_bluetooth(void);
 ** Returns          bt_status_t
 **
 *******************************************************************************/
-bt_status_t btif_enable_bluetooth(void);
+bt_status_t btif_enable_bluetooth(bt_hci_if_t hci_if, const char *dev_node);
 
 /*******************************************************************************
 **

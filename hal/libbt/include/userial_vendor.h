@@ -28,7 +28,7 @@
 #ifndef USERIAL_VENDOR_H
 #define USERIAL_VENDOR_H
 
-#include "bt_vendor_rtk.h"
+#include "bt_vendor_uart.h"
 #include "userial.h"
 
 /******************************************************************************
@@ -130,7 +130,7 @@ typedef enum {
 ** Returns         None
 **
 *******************************************************************************/
-void userial_vendor_init(void);
+void userial_vendor_init(const char *dev_node);
 
 /*******************************************************************************
 **

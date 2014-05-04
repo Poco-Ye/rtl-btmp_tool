@@ -116,6 +116,12 @@ typedef enum {
     NumOf_FUNCTION_RETURN_STATUS
 } FUNCTION_RETURN_STATUS;
 
+typedef enum {
+    BT_HCI_IF_NONE = 0,
+    BT_HCI_IF_UART,
+    BT_HCI_IF_USB
+} bt_hci_if_t;
+
 /** Bluetooth Address */
 typedef struct {
     uint8_t address[6];
@@ -219,7 +225,7 @@ typedef struct {
      * Opens the interface and provides the callback routines
      * to the implemenation of this interface.
      */
-    int (*init)(bt_callbacks_t* callbacks );
+    int (*init)(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node);
 
     /** Enable Bluetooth. */
     int (*enable)(void);

@@ -36,7 +36,6 @@
 #include <cutils/properties.h>
 
 
-
 namespace android {
 
 
@@ -178,7 +177,7 @@ static void classInitNative(JNIEnv* env, jclass clazz) {
     }
 }
 
-static bool initNative(JNIEnv* env, jobject obj) {
+static bool initNative(JNIEnv* env, jobject obj, jint interface, jstring node) {
     ALOGI("%s", __FUNCTION__);
 
     char propBuf[PROPERTY_VALUE_MAX];
@@ -194,9 +193,9 @@ static bool initNative(JNIEnv* env, jobject obj) {
     sJniCallbacksObj = env->NewGlobalRef(obj);
 
     if (sBluetoothInterface) {
-        int ret = sBluetoothInterface->init(&sBluetoothCallbacks);
+        int ret = sBluetoothInterface->init(&sBluetoothCallbacks, (bt_hci_if_t)interface, (const char *)node);
         if (ret != BT_STATUS_SUCCESS) {
-            ALOGE("Error while setting the callbacks \n");
+            ALOGE("Error while setting the callbacks");
             sBluetoothInterface = NULL;
             return JNI_FALSE;
         }

@@ -30,10 +30,8 @@ LOCAL_SRC_FILES += \
 
 LOCAL_CFLAGS += -Wno-error=maybe-uninitialized -Wno-error=uninitialized
 
-ifeq ($(BLUETOOTH_HCI_USE_RTK_H5),true)
-LOCAL_CFLAGS += -DHCI_USE_RTK_H5
-# HCI UART H5
 LOCAL_SRC_FILES += \
+    hci/src/hci_h4.c \
     hci/src/hci_h5.c \
     hci/src/userial.c \
     hci/src/bt_skbuff.c \
@@ -42,16 +40,6 @@ LOCAL_SRC_FILES += \
     hci/src/bt_hw.c \
     hci/src/btsnoop.c \
     hci/src/utils.c
-else
-# HCI USB
-LOCAL_SRC_FILES += \
-    hci/src/hci_h4.c \
-    hci/src/userial.c \
-    hci/src/bt_hci_bdroid_usb.c \
-    hci/src/bt_hw.c \
-    hci/src/btsnoop.c \
-    hci/src/utils.c
-endif
 
 # MAIN
 LOCAL_SRC_FILES += \
@@ -66,18 +54,12 @@ LOCAL_SRC_FILES += \
     stack/hcic/hcicmds.c \
     stack/hcic/hciblecmds.c
 
-ifeq ($(BLUETOOTH_HCI_USE_RTK_H5),true)
-# UART LIBBT
 LOCAL_SRC_FILES += \
     libbt/src/bt_vendor_uart.c \
+    libbt/src/bt_vendor_usb.c \
     libbt/src/hardware.c \
     libbt/src/userial_vendor.c \
     libbt/src/upio.c
-else
-# USB LIBBT
-LOCAL_SRC_FILES += \
-    libbt/src/bt_vendor_usb.c
-endif
 
 # UTILS
 LOCAL_SRC_FILES += \

@@ -34,18 +34,20 @@
 #include "hci.h"
 #include "userial.h"
 
+#include <bluetoothmp.h>
+
 /******************************************************************************
 **  Externs
 ******************************************************************************/
 
 extern tHCI_IF *p_hci_if;
-bt_vendor_interface_t *bt_vnd_if;
-
-
+extern bt_vendor_interface_t *UART_bt_vnd_if;
+extern bt_vendor_interface_t *USB_bt_vnd_if;
 
 /******************************************************************************
 **  Variables
 ******************************************************************************/
+bt_vendor_interface_t *bt_vnd_if;
 
 
 /******************************************************************************
@@ -185,9 +187,18 @@ static const bt_vendor_callbacks_t vnd_callbacks = {
 ** Returns          None
 **
 ******************************************************************************/
-void init_vnd_if(unsigned char *local_bdaddr)
+void init_vnd_if(unsigned char *local_bdaddr, bt_hci_if_t hci_if, const char *dev_node)
 {
+    if (hci_if == BT_HCI_IF_UART) {
+        bt_vnd_if = UART_bt_vnd_if;
+    } else if (hci_if == BT_HCI_IF_USB) {
+        bt_vnd_if = USB_bt_vnd_if;
+    } else {
+        bt_vnd_if = NULL;
+        ALOGE("!!! Failed to get bt vendor interface !!!");
+        return;
+    }
 
-    bt_vnd_if->init(&vnd_callbacks, local_bdaddr);
+    bt_vnd_if->init(&vnd_callbacks, local_bdaddr, dev_node);
 
 }

@@ -18,7 +18,7 @@
 
 /******************************************************************************
  *
- *  Filename:      bt_vendor_rtk.h
+ *  Filename:      bt_vendor_uart.h
  *
  *  Description:   A wrapper header file of bt_vendor_lib.h
  *
@@ -198,6 +198,6 @@
 **  Extern variables and functions
 ******************************************************************************/
 
-extern bt_vendor_callbacks_t *bt_vendor_cbacks;
+extern bt_vendor_callbacks_t *UART_bt_vendor_cbacks;
 
 #endif /* BT_VENDOR_RTK_H */

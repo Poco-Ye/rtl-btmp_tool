@@ -31,7 +31,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
-#include "bt_vendor_rtk.h"
+#include "bt_vendor_uart.h"
 #include "userial.h"
 #include "userial_vendor.h"
 
@@ -167,11 +167,14 @@ void userial_ioctl_init_bt_wake(int fd)
 ** Returns         None
 **
 *******************************************************************************/
-void userial_vendor_init(void)
+void userial_vendor_init(const char *dev_node)
 {
+    const char *port;
+
     vnd_userial.fd = -1;
-    snprintf(vnd_userial.port_name, VND_PORT_NAME_MAXLEN, "%s", \
-            BLUETOOTH_UART_DEVICE_PORT);
+
+    port = dev_node ?: BLUETOOTH_UART_DEVICE_PORT;
+    snprintf(vnd_userial.port_name, VND_PORT_NAME_MAXLEN, "%s", port);
 }
 
 /*******************************************************************************

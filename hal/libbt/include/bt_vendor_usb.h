@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright (C) 2009-2012 Broadcom Corporation
+ *  Copyright (C) 2009-2012 RealTek Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
 
 /******************************************************************************
  *
- *  Filename:      bt_vendor_rtk.h
+ *  Filename:      bt_vendor_usb.h
  *
  *  Description:   A wrapper header file of bt_vendor_lib.h
  *
- *                 Contains definitions specific for interfacing with Broadcom
+ *                 Contains definitions specific for interfacing with RealTek
  *                 Bluetooth chipsets
  *
  ******************************************************************************/
@@ -46,17 +46,13 @@
 #endif
 
 /* Device port name where Bluetooth controller attached */
-#ifndef BLUETOOTH_UART_DEVICE_PORT
-#define BLUETOOTH_UART_DEVICE_PORT      "/dev/rtk_btusb"    /* maguro */
+#ifndef BLUETOOTH_USB_DEVICE_PORT
+#define BLUETOOTH_USB_DEVICE_PORT      "/dev/rtk_btusb"    /* maguro */
 #endif
 
 /******************************************************************************
 **  Extern variables and functions
 ******************************************************************************/
-void userial_vendor_init(void);
-int usb_vendor_open(void);
-void userial_vendor_close(void);
-
-extern bt_vendor_callbacks_t *bt_vendor_cbacks;
+extern bt_vendor_callbacks_t *USB_bt_vendor_cbacks;
 
 #endif /* BT_VENDOR_RTK_H */

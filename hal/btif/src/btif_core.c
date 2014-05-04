@@ -128,7 +128,7 @@ static bt_status_t btif_mp_notify_evt(void* msg);
 
 /** TODO: Move these to _common.h */
 void bte_main_boot_entry(void);
-void bte_main_enable(uint8_t *local_addr);
+void bte_main_enable(uint8_t *local_addr, bt_hci_if_t hci_if, const char *dev_node);
 void bte_main_disable(void);
 void bte_main_shutdown(void);
 void bte_main_postload_cfg(void);
@@ -485,20 +485,20 @@ static bt_status_t btif_associate_evt(void)
 **
 *******************************************************************************/
 
-bt_status_t btif_enable_bluetooth(void)
+bt_status_t btif_enable_bluetooth(bt_hci_if_t hci_if, const char *dev_node)
 {
     BTIF_TRACE_DEBUG0("BTIF ENABLE BLUETOOTH");
 
     if (btif_core_state != BTIF_CORE_STATE_DISABLED)
     {
-        ALOGD("not disabled\n");
+        ALOGD("not disabled");
         return BT_STATUS_DONE;
     }
 
     btif_core_state = BTIF_CORE_STATE_ENABLING;
 
     /* Create the GKI tasks and run them */
-    bte_main_enable(btif_local_bd_addr.address);
+    bte_main_enable(btif_local_bd_addr.address, hci_if, dev_node);
 
     return BT_STATUS_SUCCESS;
 }

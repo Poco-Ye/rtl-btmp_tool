@@ -463,16 +463,16 @@ static void bdt_shutdown(void)
     main_done = 1;
 }
 
-void bdt_init(void)
+void bdt_init(bt_hci_if_t hci_if, const char *dev_node)
 {
     ALOGI("INIT BT");
-    status = sBtInterface->init(&bt_callbacks);
+    status = sBtInterface->init(&bt_callbacks, hci_if, dev_node);
     //check_return_status(status);
 }
 
-void bdt_enable(void)
+void bdt_enable(bt_hci_if_t hci_if, const char *dev_node)
 {
-    ALOGI("ENABLE BT");
+    ALOGI("ENABLE BT, hci_if[%d], dev_node[%s]", hci_if, dev_node);
 
     if (bt_enabled) {
         ALOGI("Bluetooth is already enabled");
@@ -483,7 +483,7 @@ void bdt_enable(void)
     /* check the enable result in bt_callbacks */
     bt_try_enable = 1;
 
-    status = sBtInterface->init(&bt_callbacks);
+    status = sBtInterface->init(&bt_callbacks, hci_if, dev_node);
     status = sBtInterface->enable();
 }
 
@@ -737,7 +737,25 @@ void do_quit(char *p)
 
 void do_enable(char *p)
 {
-    bdt_enable();
+    char parse_buf[30];
+    char *p_node = NULL;
+    bt_hci_if_t hci_if = BT_HCI_IF_NONE;
+
+    /* Parse hci interface & device node first */
+    snprintf(parse_buf, sizeof(parse_buf), "%s", p);
+
+    p_node = strchr(parse_buf, ':');
+    if (p_node) {
+        *p_node++ = '\0';
+    }
+
+    if (!strcasecmp(parse_buf, "UART")) {
+        hci_if = BT_HCI_IF_UART;
+    } else if (!strcasecmp(parse_buf, "USB")) {
+        hci_if = BT_HCI_IF_USB;
+    }
+
+    bdt_enable(hci_if, p_node);
 }
 
 void do_disable(char *p)

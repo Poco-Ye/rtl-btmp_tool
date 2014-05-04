@@ -40,7 +40,7 @@
 #include <cutils/properties.h>
 #include <stdlib.h>
 #include "bt_hci_bdroid.h"
-#include "bt_vendor_rtk.h"
+#include "bt_vendor_uart.h"
 #include "userial.h"
 #include "userial_vendor.h"
 #include "upio.h"
@@ -537,7 +537,7 @@ static uint8_t hw_config_set_controller_baudrate(HC_BT_HDR *p_buf, uint32_t baud
     p_buf->len = HCI_CMD_PREAMBLE_SIZE + 4;
     hw_cfg_cb.state = HW_CFG_SET_UART_BAUD_HOST;
 
-    retval = bt_vendor_cbacks->xmit_cb(HCI_VSC_UPDATE_BAUDRATE, p_buf, \
+    retval = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_UPDATE_BAUDRATE, p_buf, \
                                  hw_config_cback);
 
     return (retval);
@@ -831,7 +831,7 @@ static int hci_download_patch_h4(HC_BT_HDR *p_buf, int index, uint8_t *data, int
 
     hw_cfg_cb.state = HW_CFG_DL_FW_PATCH;
 
-    retval = bt_vendor_cbacks->xmit_cb(HCI_VSC_DOWNLOAD_FW_PATCH, p_buf, \
+    retval = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_DOWNLOAD_FW_PATCH, p_buf, \
                                  hw_config_cback);
     return retval;
 }
@@ -926,7 +926,7 @@ void rtk_get_eversion_timeout(int sig)
 {
     ALOGE("RTK get eversion timeout\n");
     need_download_fw = 0;
-    bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
+    UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
 }
 
 
@@ -938,7 +938,7 @@ void rtk_get_eversion(void)
 {
     HC_BT_HDR  *p_buf=NULL;
 
-    p_buf = (HC_BT_HDR *) bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
+    p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
                                                     HCI_CMD_MAX_LEN);
     p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
     p_buf->offset = 0;
@@ -955,7 +955,7 @@ void rtk_get_eversion(void)
 
     p_buf->len = HCI_CMD_PREAMBLE_SIZE;
 
-    bt_vendor_cbacks->xmit_cb(HCI_VENDOR_READ_RTK_ROM_VERISION, p_buf, \
+    UART_bt_vendor_cbacks->xmit_cb(HCI_VENDOR_READ_RTK_ROM_VERISION, p_buf, \
                                  hw_config_cback);
 
     gRom_version_cmd_state = cmd_has_sent;
@@ -974,7 +974,7 @@ void rtk_get_lmp_timeout(int sig)
 {
     ALOGE("RTK get lmp timeout\n");
     need_download_fw = 0;
-    bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
+    UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
 }
 
 void rtk_get_lmp()
@@ -982,7 +982,7 @@ void rtk_get_lmp()
     HC_BT_HDR  *p_buf=NULL;
     struct sigaction sa;
 
-    p_buf = (HC_BT_HDR *) bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
+    p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
                                                         HCI_CMD_MAX_LEN);
     p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
     p_buf->offset = 0;
@@ -998,7 +998,7 @@ void rtk_get_lmp()
 
     p_buf->len = HCI_CMD_PREAMBLE_SIZE;
 
-    bt_vendor_cbacks->xmit_cb(HCI_READ_LMP, p_buf, rtk_get_lmp_cback);
+    UART_bt_vendor_cbacks->xmit_cb(HCI_READ_LMP, p_buf, rtk_get_lmp_cback);
 
     gRom_version_cmd_state = cmd_has_sent;
     ALOGI("RTK send HCI_READ_LMP_Command \n");
@@ -1036,10 +1036,10 @@ void rtk_get_lmp_cback(void *p_mem)
         }
     }
 
-    if (bt_vendor_cbacks)
+    if (UART_bt_vendor_cbacks)
     {
-        bt_vendor_cbacks->lpm_cb(status);
-        bt_vendor_cbacks->dealloc(p_evt_buf);
+        UART_bt_vendor_cbacks->lpm_cb(status);
+        UART_bt_vendor_cbacks->dealloc(p_evt_buf);
     }
 
 }
@@ -1087,7 +1087,7 @@ void hw_config_cback(void *p_mem)
     uint8_t* epatch_buf = NULL;
     int epatch_length = -1;
     struct rtk_epatch* epatch_info = NULL;
-    struct rtk_epatch_entry current_entry = {0};
+    struct rtk_epatch_entry current_entry = {0, 0, 0};
     patch_info* prtk_patch_file_info = NULL;
 
 #ifdef BT_FW_CAL_ENABLE
@@ -1110,10 +1110,10 @@ void hw_config_cback(void *p_mem)
 
 
     /* Ask a new buffer big enough to hold any HCI commands sent in here */
-    //if ((status == 0) && bt_vendor_cbacks)
-    if (bt_vendor_cbacks) //a fc6d status==1
+    //if ((status == 0) && UART_bt_vendor_cbacks)
+    if (UART_bt_vendor_cbacks) //a fc6d status==1
     {
-        p_buf = (HC_BT_HDR *) bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
+        p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
                                                        HCI_CMD_MAX_LEN);
     }
 
@@ -1236,7 +1236,7 @@ void hw_config_cback(void *p_mem)
                     }
                     else
                     {
-                        struct rtk_extension_entry patch_lmp = {0};
+                        struct rtk_extension_entry patch_lmp = {0, 0, NULL};
                         //check Extension Section Field
                         if(memcmp(epatch_buf + buf_len-config_len-4 ,Extension_Section_SIGNATURE,4) != 0)
                         {
@@ -1286,19 +1286,16 @@ void hw_config_cback(void *p_mem)
                                     ALOGI("number_of_total_patch = %d",epatch_info->number_of_total_patch);
 
                                     //get right epatch entry
-                                    for(i; i<epatch_info->number_of_total_patch; i++)
-                                    {
-                                        if(*(uint16_t*)(epatch_buf+14+2*i) == gEVersion + 1)
-                                        {
+                                    for(i; i<epatch_info->number_of_total_patch; i++) {
+                                        if(*(uint16_t*)(epatch_buf+14+2*i) == gEVersion + 1) {
                                             current_entry.chipID = gEVersion + 1;
                                             current_entry.patch_length = *(uint16_t*)(epatch_buf+14+2*epatch_info->number_of_total_patch+2*i);
                                             current_entry.start_offset = *(uint32_t*)(epatch_buf+14+4*epatch_info->number_of_total_patch+4*i);
+                                            ALOGI("chipID %d, patch_length 0x%x, start_offset 0x%x",
+                                                    current_entry.chipID, current_entry.patch_length, current_entry.start_offset);
                                             break;
                                         }
                                     }
-                                    ALOGI("chipID = %d",current_entry.chipID);
-                                    ALOGI("patch_length = 0x%x",current_entry.patch_length);
-                                    ALOGI("start_offset = 0x%x",current_entry.start_offset);
 
                                     //get right eversion patch: buf, buf_len
                                     buf_len = current_entry.patch_length + config_len;
@@ -1531,8 +1528,8 @@ DOWNLOAD_FW:
                         free(buf);
                         buf = NULL;
                     }
-                    bt_vendor_cbacks->dealloc(p_buf);
-                    bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
+                    UART_bt_vendor_cbacks->dealloc(p_buf);
+                    UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
 
                     hw_cfg_cb.state = 0;
 
@@ -1599,18 +1596,18 @@ DOWNLOAD_FW:
     } // if (p_buf != NULL)
 
     /* Free the RX event buffer */
-    if ((bt_vendor_cbacks) && (p_mem != NULL))
-        bt_vendor_cbacks->dealloc(p_evt_buf);
+    if (UART_bt_vendor_cbacks && (p_mem != NULL))
+        UART_bt_vendor_cbacks->dealloc(p_evt_buf);
 
     if (is_proceeding == FALSE)
     {
         ALOGE("vendor lib fwcfg aborted!!!");
-        if (bt_vendor_cbacks)
+        if (UART_bt_vendor_cbacks)
         {
             if (p_buf != NULL)
-                bt_vendor_cbacks->dealloc(p_buf);
+                UART_bt_vendor_cbacks->dealloc(p_buf);
 
-            bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
+            UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
         }
 
         if (hw_cfg_cb.fw_fd != -1)
@@ -1646,10 +1643,10 @@ void hw_lpm_ctrl_cback(void *p_mem)
         status = BT_VND_OP_RESULT_SUCCESS;
     }
 
-    if (bt_vendor_cbacks)
+    if (UART_bt_vendor_cbacks)
     {
-        bt_vendor_cbacks->lpm_cb(status);
-        bt_vendor_cbacks->dealloc(p_evt_buf);
+        UART_bt_vendor_cbacks->lpm_cb(status);
+        UART_bt_vendor_cbacks->dealloc(p_evt_buf);
     }
 }
 
@@ -1682,9 +1679,9 @@ void hw_config_start(void)
 
     /* Start from sending H5 SYNC */
 
-    if (bt_vendor_cbacks)
+    if (UART_bt_vendor_cbacks)
     {
-        p_buf = (HC_BT_HDR *) bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
+        p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
                                                        2);
     }
 
@@ -1700,15 +1697,15 @@ void hw_config_start(void)
 
         hw_cfg_cb.state = HW_CFG_START;
         ALOGI("hw_config_start:Realtek version %s \n",RTK_VERSION);
-        //bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, hw_config_cback);
-        bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, rtk_get_lmp);
+        //UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, hw_config_cback);
+        UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, rtk_get_lmp);
     }
     else
     {
-        if (bt_vendor_cbacks)
+        if (UART_bt_vendor_cbacks)
         {
             ALOGE("vendor lib fw conf aborted [no buffer]");
-            bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
+            UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
         }
     }
 }
