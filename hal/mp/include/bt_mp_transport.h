@@ -5,8 +5,8 @@
 
 int bt_transport_SendHciCmd(
     BASE_INTERFACE_MODULE *pBaseInterface,
-    unsigned char *cmdBuffer,
-    unsigned long bufferLen
+    uint8_t *cmdBuffer,
+    uint32_t bufferLen
     );
 
 void bt_transport_signal_event(
@@ -16,9 +16,9 @@ void bt_transport_signal_event(
 
 int bt_transport_RecvHciEvt(
     BASE_INTERFACE_MODULE *pBaseInterface,
-    unsigned char *pEvtBuffer,
-    unsigned long bufferLen,
-    unsigned long *pRetEvtLen
+    uint8_t *pEvtBuffer,
+    uint32_t bufferLen,
+    uint32_t *pRetEvtLen
     );
 
 #endif

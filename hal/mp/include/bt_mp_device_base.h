@@ -158,12 +158,12 @@ BTDevice_RecvAnyHciEvent(
 int
 BTDevice_SendHciCommandWithEvent(
         BT_DEVICE *pBtDevice,
-        unsigned int OpCode,
+        uint16_t OpCode,
         unsigned char PayLoadLength,
         unsigned char *pPayLoad,
         unsigned char EventType,
         unsigned char *pEvent,
-        unsigned long *pEventLen
+        uint32_t *pEventLen
         );
 
 int

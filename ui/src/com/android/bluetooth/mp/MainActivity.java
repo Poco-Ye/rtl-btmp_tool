@@ -51,7 +51,7 @@ public class MainActivity extends Activity {
 
     // Switch
     Switch mSwitchOnOff = null;
-    //Button
+    // Button
     Button mbuttonStart = null;
     Button mbuttonStop = null;
     //Button mbuttonSend = null;
@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
     Button mbuttonTestMode= null;
     Button mbuttonRegRw = null;
     Button mbuttonHostReInit = null;
-    //Spineer
+    // Spineer
     Spinner mspHCIInterface = null;
     Spinner mspActionItem = null;
     Spinner mspDataRate = null;
@@ -123,8 +123,8 @@ public class MainActivity extends Activity {
         }
 
         //Button
-        mbuttonStart = (Button) findViewById(R.id.button_Start);
-        mbuttonStop = (Button) findViewById(R.id.button_Stop);
+        mbuttonStart = (Button)findViewById(R.id.button_Start);
+        mbuttonStop = (Button)findViewById(R.id.button_Stop);
         //mbuttonSend = (Button) findViewById(R.id.button_Send);
         //mbuttonPause = (Button) findViewById(R.id.button_Pause);
         //mbuttonClear = (Button) findViewById(R.id.button_Clear);
@@ -416,7 +416,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    // Button response implementation here
+    // Button Click response
     class ButtonClick implements OnClickListener {
         public void onClick(View v) {
             switch (v.getId()) {

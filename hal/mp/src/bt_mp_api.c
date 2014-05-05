@@ -64,11 +64,10 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
     const unsigned char nTotalParaCount = 2;//at least 2 parameters: opcode, parameterlen, parameters
     unsigned char rxParaCount = 0;
 
-
     uint8_t EventType = 0x0E;
     uint8_t pEvent[255] = {0};
     EVENT_STRING pEventString[255];
-    unsigned long EventLen = 0;
+    uint32_t EventLen = 0;
     uint8_t i = 0;
 
     ALOGI("++%s: %s", STR_BT_MP_HCI_CMD, p);
@@ -1064,9 +1063,9 @@ EXIT:
 
 void BT_GetBDAddr(BT_MODULE  *pBtModule)
 {
-    unsigned char  pEvt[256];
-    unsigned long  EvtLen = 0;
-    unsigned char  para[256];
+    uint8_t pEvt[256];
+    uint32_t EvtLen = 0;
+    uint8_t para[256];
 
     if (pBtModule->SendHciCommandWithEvent(pBtModule,0x1009,0,para,0x0e,pEvt, &EvtLen) != BT_FUNCTION_SUCCESS)
     {

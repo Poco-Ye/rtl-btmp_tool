@@ -94,16 +94,16 @@ typedef int
 typedef int
 (*BASE_FP_SEND)(
         BASE_INTERFACE_MODULE *pBaseInterface,
-        unsigned char *pWritingBuf,
-        unsigned long Len
+        uint8_t *pWritingBuf,
+        uint32_t Len
         );
 
 typedef int
 (*BASE_FP_RECV )(
         BASE_INTERFACE_MODULE *pBaseInterface,
-        unsigned char *pReadingBuf,
-        unsigned long  Len,
-        unsigned long *pRetLen
+        uint8_t *pReadingBuf,
+        uint32_t  Len,
+        uint32_t *pRetLen
         );
 
 typedef int

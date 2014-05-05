@@ -53,7 +53,7 @@ static unsigned int  Arrary_PayloadLength[BT_PKT_TYPE_NUM]={
 #define OCF_HCI_ENABLE_DUT_MODE     0x03
 #define OGF_TESTING                 0x06
 
-#define OPCODE(ocf, ogf)            ((unsigned short) ( (ocf) | ((ogf)<<10) ))
+#define OPCODE(ocf, ogf)            ((uint16_t) ( (ocf) | ((ogf)<<10) ))
 
 #define BT_SCAN_INTERVAL            0x200
 #define BT_SCAN_WINDOW              0x12
@@ -61,13 +61,13 @@ static unsigned int  Arrary_PayloadLength[BT_PKT_TYPE_NUM]={
 static int
 BT_SetGlobalReg2Bytes(
         BT_DEVICE *pBtDevice,
-        unsigned short Addr,
-        unsigned short Val
+        uint16_t Addr,
+        uint16_t Val
         )
 {
-    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long EvtLen;
+    uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint32_t EvtLen;
 
     //Register Address
     *(pPayload+0) = Addr & 0xff;
@@ -89,13 +89,13 @@ error:
 static int
 BT_GetGlobalReg2Bytes(
         BT_DEVICE *pBtDevice,
-        unsigned short Addr,
-        unsigned short *pVal
+        uint16_t Addr,
+        uint16_t *pVal
         )
 {
-    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long EvtLen;
+    uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint32_t EvtLen;
 
 
     //Register Address
@@ -205,16 +205,16 @@ error:
 
 
 
-int BTDevice_ReadThermal(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, unsigned char *pThermalValue)
+int BTDevice_ReadThermal(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, uint8_t *pThermalValue)
 {
     uint16_t Value;
 
     if( pParam->mPacketType==BT_PKT_LE)
     {
 
-        if( BT_SetGlobalReg2Bytes(pBtDevice, 0x1ba, 0x800f) )
+        if (BT_SetGlobalReg2Bytes(pBtDevice, 0x1ba, 0x800f))
             goto error;
-        if( BT_GetGlobalReg2Bytes(pBtDevice, 0x1ba, (unsigned short *)&Value) )
+        if (BT_GetGlobalReg2Bytes(pBtDevice, 0x1ba, &Value))
             goto error;
 
         *pThermalValue = (Value >> 9)&0x1f;
@@ -245,10 +245,10 @@ error:
 
 int BTDevice_TestModeEnable(BT_DEVICE *pBtDevice)
 {
-    unsigned short OpCode;
-    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long EvtLen;
+    uint16_t OpCode;
+    uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint32_t EvtLen;
     int status;
 
     //Set BT HCI Scan Enable
@@ -461,8 +461,8 @@ int BTDevice_SetPktRxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_RE
     int rtn=BT_FUNCTION_SUCCESS;
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long  EventLen = 0;
-    unsigned int  OpCode=0x0000;
+    uint32_t EventLen = 0;
+    uint16_t OpCode=0x0000;
     int pktType=pParam->mPacketType;
 
     if (pBtDevice->TRXSTATE == TX_TIME_RUNING)
@@ -546,8 +546,8 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_R
     unsigned long btClockTime=0;
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long EventLen = 0;
-    unsigned int  OpCode=0x0000;
+    uint32_t EventLen = 0;
+    uint16_t OpCode=0x0000;
     int pktType=pParam->mPacketType;
     unsigned char pPayload_Len=0;
     uint16_t tmp = 0;
@@ -767,8 +767,8 @@ int BTDevice_SetPktRxBegin_Channel_PacketType(BT_DEVICE *pBtDevice,BT_PARAMETER 
     unsigned long btClockTime=0;
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned int  OpCode=0x0000;
-    unsigned long EventLen = 0;
+    uint16_t OpCode=0x0000;
+    uint32_t EventLen = 0;
     int pktType=pParam->mPacketType;
     unsigned char pPayload_Len=0;
     uint16_t tmp = 0;
@@ -1106,8 +1106,8 @@ int BTDevice_SetPktTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_RE
     int rtn=BT_FUNCTION_SUCCESS;
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned int  OpCode=0x0000;
-    unsigned long EventLen = 0;
+    uint16_t OpCode=0x0000;
+    uint32_t EventLen = 0;
     int pktType=pParam->mPacketType;
 
     if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
@@ -1257,8 +1257,8 @@ int BTDevice_SetPktTxBegin_DUTMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
     int rtn=BT_FUNCTION_SUCCESS;
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long  EventLen = 0;
-    unsigned int  OpCode=0x0000;
+    uint32_t EventLen = 0;
+    uint16_t OpCode=0x0000;
     int pktType=pParam->mPacketType;
     unsigned char pPayload_Len=0;
     if (pBtDevice->TRXSTATE == RX_TIME_RUNING)
@@ -1781,7 +1781,7 @@ int BTDevice_SetHoppingMode(
 {
     int rtn = BT_FUNCTION_SUCCESS;
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long EventLen = 0;
+    uint32_t EventLen = 0;
 
     unsigned char pPayLoad[LEN_7_BYTE];
     unsigned char *ptt  =Arrary_Hopping_ptt;
@@ -2133,8 +2133,8 @@ static int BTDevice_SetContinueTxStop_DUTMODE(BT_DEVICE *pBtDevice,BT_PARAMETER 
 
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long  EventLen = 0;
-    unsigned int  OpCode=0x0000;
+    uint32_t EventLen = 0;
+    uint16_t OpCode=0x0000;
     int pktType =pParam->mPacketType;
 
     if (pktType == BT_PKT_LE)
@@ -2316,7 +2316,7 @@ int BTDevice_GetBTClockTime(
     unsigned long Time=0;
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long  EventLen = 0;
+    uint32_t EventLen = 0;
     pPayload[0]=0x00;
     pPayload[1]=0x00;
     pPayload[2]=0x00;
@@ -2476,11 +2476,11 @@ int BTDevice_SetPayloadType(BT_DEVICE *pBtDevice,BT_PAYLOAD_TYPE PayloadType)
 //-----------------------------------------------------------------------------------------------------
 int BTDevice_SetPacketType(BT_DEVICE *pBtDevice,BT_PKT_TYPE PktType)
 {
-    int rtn=BT_FUNCTION_SUCCESS;
-    unsigned char PktBandWidth=0;
-    unsigned long Payload_length=0;
-    switch (PktType)
-    {
+    int rtn = BT_FUNCTION_SUCCESS;
+    unsigned char PktBandWidth = 0;
+    unsigned long Payload_length = 0;
+
+    switch (PktType) {
         case BT_PKT_1DH1: PktBandWidth=1;  break;
         case BT_PKT_1DH3: PktBandWidth=1;  break;
         case BT_PKT_1DH5: PktBandWidth=1;  break;
@@ -2494,24 +2494,21 @@ int BTDevice_SetPacketType(BT_DEVICE *pBtDevice,BT_PKT_TYPE PktType)
         default:
                           rtn=FUNCTION_ERROR;
     }
-    if (rtn != FUNCTION_ERROR)
-    {
+
+    if (rtn != FUNCTION_ERROR) {
         Payload_length=Arrary_PayloadLength[PktType];
     }
-    if (PktBandWidth !=0)
-    {
 
-        rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x2c,15,14,PktBandWidth); 
-        if (rtn != BT_FUNCTION_SUCCESS)
-        {
+    if (PktBandWidth != 0) {
+
+        rtn = pBtDevice->SetMdRegMaskBits(pBtDevice,0x2c,15,14,PktBandWidth);
+        if (rtn != BT_FUNCTION_SUCCESS) {
             goto exit;
         }
 
-        rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x2c,12,0,Payload_length); 
-    }
-    else
-    {
-        rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x2c,12,0,Payload_length);	
+        rtn = pBtDevice->SetMdRegMaskBits(pBtDevice,0x2c,12,0,Payload_length);
+    } else {
+        rtn = pBtDevice->SetMdRegMaskBits(pBtDevice,0x2c,12,0,Payload_length);
     }
 
 exit:
@@ -2524,7 +2521,7 @@ int BTDevice_SetFWPowerTrackEnable(BT_DEVICE *pBtDevice,unsigned char FWPowerTra
     int rtn=BT_FUNCTION_SUCCESS;
     unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
     unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long EventLen = 0;
+    uint32_t EventLen = 0;
     switch (FWPowerTrackEnable)
     {
         case 0:     *(pPayload+0) = 0;  //disable
@@ -2548,10 +2545,10 @@ exit:
 //-----------------------------------------------------------------------------------------------------
 int BTDevice_SetHciReset(BT_DEVICE *pBtDevice,int Delay_mSec)
 {
-    int rtn=BT_FUNCTION_SUCCESS;
-    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    unsigned long  EventLen = 0;
-    unsigned char pPayload[1]={0};
+    int rtn = BT_FUNCTION_SUCCESS;
+    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint32_t EventLen = 0;
+    uint8_t pPayload[1]={0};
 
     //TX/RX State = STOP
     pBtDevice->TRXSTATE = TRX_TIME_STOP;
@@ -2874,17 +2871,16 @@ int BTBASE_HitTargetAccessCodeGen(BT_DEVICE *pBtDevice, uint64_t HitTarget,unsig
 int
 BTDevice_SendHciCommandWithEvent(
     BT_DEVICE *pBtDevice,
-    unsigned int  OpCode,
-    unsigned char PayLoadLength,
-    unsigned char *pPayLoad,
-    unsigned char EventType,
-    unsigned char *pEvent,
-    unsigned long *pEventLen
+    uint16_t OpCode,
+    uint8_t PayLoadLength,
+    uint8_t *pPayLoad,
+    uint8_t EventType,
+    uint8_t *pEvent,
+    uint32_t *pEventLen
     )
 {
-    unsigned long len;
-    unsigned char pWritingBuf[MAX_HCI_COMANND_BUF_SIZ];
-    unsigned long Retlen =0;
+    uint32_t len;
+    uint8_t pWritingBuf[MAX_HCI_COMANND_BUF_SIZ];
     int n=0;
     unsigned char hci_rtn=0;
 
@@ -2941,7 +2937,7 @@ BTDevice_RecvAnyHciEvent(
         unsigned char *pEvent
         )
 {
-    unsigned long Retlen =0;
+    uint32_t Retlen =0;
     if (pBtDevice->RecvHciEvent(pBtDevice, HCIIO_BTEVT, pEvent, &Retlen) != BT_FUNCTION_SUCCESS)
     {
         goto exit;

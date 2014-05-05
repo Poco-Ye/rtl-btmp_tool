@@ -367,12 +367,12 @@ BTModule_RecvAnyHciEvent(
 int
 BTModule_SendHciCommandWithEvent(
         BT_MODULE *pBtModule,
-        unsigned int OpCode,
-        unsigned char PayLoadLength,
-        unsigned char *pPayLoad,
-        unsigned char EventType,
-        unsigned char *pEvent,
-        unsigned long *pEventLen
+        uint16_t OpCode,
+        uint8_t PayLoadLength,
+        uint8_t *pPayLoad,
+        uint8_t EventType,
+        uint8_t *pEvent,
+        uint32_t *pEventLen
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
@@ -478,10 +478,10 @@ int
 BTModule_SetBBRegMaskBits(
         BT_MODULE *pBtModule,
         uint8_t Page,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
-        const uint32_t UserValue
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint32_t UserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;

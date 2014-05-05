@@ -40,8 +40,8 @@ BuildBluetoothDevice(
     pBtDevice->RecvHciEvent = bt_default_RecvHCIEvent;
 
     //-->HCI Command & Event
-    pBtDevice->SendHciCommandWithEvent=BTDevice_SendHciCommandWithEvent;
-    pBtDevice->RecvAnyHciEvent=BTDevice_RecvAnyHciEvent;
+    pBtDevice->SendHciCommandWithEvent = BTDevice_SendHciCommandWithEvent;
+    pBtDevice->RecvAnyHciEvent = BTDevice_RecvAnyHciEvent;
 
     //Device member
     //-->Register Control
@@ -146,7 +146,7 @@ BuildBluetoothModule(
     pBtModule->GetMdRegMaskBits     =       BTModule_GetMDRegMaskBits;
 
     pBtModule->SendHciCommandWithEvent  =   BTModule_SendHciCommandWithEvent;
-    pBtModule->RecvAnyHciEvent      =   BTModule_RecvAnyHciEvent;
+    pBtModule->RecvAnyHciEvent      =       BTModule_RecvAnyHciEvent;
 
     pBtModule->SetSysRegMaskBits    =       BTModule_SetSysRegMaskBits;
     pBtModule->GetSysRegMaskBits    =       BTModule_GetSysRegMaskBits;

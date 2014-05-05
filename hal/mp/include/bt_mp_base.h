@@ -235,12 +235,12 @@ typedef int
 typedef int
 (*BT_FP_SEND_HCICOMMANDWITHEVENT)(
         BT_DEVICE *pBtDevice,
-        unsigned int  OpCode,
+        uint16_t OpCode,
         uint8_t PayLoadLength,
         uint8_t *pPayLoad,
         uint8_t EventType,
         uint8_t *pEvent,
-        unsigned long *pEventLen
+        uint32_t *pEventLen
         );
 
 typedef int
@@ -252,17 +252,17 @@ typedef int
 typedef int
 (*BT_FB_SEND_HCI_CMD)(
         BT_DEVICE *pBt,
-        unsigned char PktType,
-        unsigned char *pWritingBuf,
-        unsigned long Len
+        uint8_t PktType,
+        uint8_t *pWritingBuf,
+        uint32_t Len
         );
 
 typedef int
 (*BT_FB_RECV_HCI_EVENT)(
         BT_DEVICE *pBt,
-        unsigned char PktType,
-        unsigned char *pReadingBuf,
-        unsigned long *pLen
+        uint8_t PktType,
+        uint8_t *pReadingBuf,
+        uint32_t *pLen
         );
 
 //------------------------------------------------------------------------------------------------------------------	
@@ -745,12 +745,12 @@ typedef int
 typedef int
 (*BT_MODULE_FP_SEND_HCICOMMANDWITHEVENT)(
         BT_MODULE *pBtModule,
-        unsigned int OpCode,
-        unsigned char PayLoadLength,
-        unsigned char *pPayLoad,
-        unsigned char EventType,
-        unsigned char *pEvent,
-        unsigned long *pEventLen
+        uint16_t OpCode,
+        uint8_t PayLoadLength,
+        uint8_t *pPayLoad,
+        uint8_t EventType,
+        uint8_t *pEvent,
+        uint32_t *pEventLen
         );
 
 typedef int
@@ -926,7 +926,7 @@ bt_default_SetMDRegMaskBits(
         uint8_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint16_t UserValue
+        uint16_t UserValue
         );
 
 int
@@ -953,73 +953,73 @@ bt_default_SetRFRegMaskBits(
         uint8_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint16_t UserValue
-        ) ;
+        uint16_t UserValue
+        );
 
 int
 bt_default_GetBytes(
         BT_DEVICE *pBt,
-        unsigned char Addr,
-        unsigned long *pReadingValue,
-        unsigned char *pEvtCode,
-        unsigned long *pEvtCodeLen
+        uint8_t Addr,
+        uint32_t *pReadingValue,
+        uint8_t *pEvtCode,
+        uint32_t *pEvtCodeLen
         );
 
 int
 bt_default_SetBytes(
         BT_DEVICE *pBt,
-        unsigned char Addr,
-        unsigned long WritingValue,
-        unsigned char *pEvtCode,
-        unsigned long *pEvtCodeLen
+        uint8_t Addr,
+        uint32_t WritingValue,
+        uint8_t *pEvtCode,
+        uint32_t *pEvtCodeLen
         );
 
 int
 bt_default_RecvHCIEvent(
         BT_DEVICE *pBt,
-        unsigned char PktType,
-        unsigned char *pReadingBuf,
-        unsigned long *pLen
+        uint8_t PktType,
+        uint8_t *pReadingBuf,
+        uint32_t *pLen
         );
 
 int
 bt_default_SendHCICmd(
         BT_DEVICE *pBt,
-        unsigned char PktType,
-        unsigned char *pWritingBuf,
-        unsigned long Len
+        uint8_t PktType,
+        uint8_t *pWritingBuf,
+        uint32_t Len
         );
 
 int
 bt_uart_Recv(
         BT_DEVICE *pBt,
-        unsigned char PktType,
-        unsigned char *pReadingBuf,
-        unsigned long *pLen
+        uint8_t PktType,
+        uint8_t *pReadingBuf,
+        uint32_t *pLen
         );
 
 int
 bt_uart_Send(
         BT_DEVICE *pBt,
-        unsigned char PktType,
-        unsigned char *pWritingBuf,
-        unsigned long Len
+        uint8_t PktType,
+        uint8_t *pWritingBuf,
+        uint32_t Len
         );
 
 int
 bt_Recv(
         BT_DEVICE *pBt,
-        unsigned char PktType,
-        unsigned char *pReadingBuf,
-        unsigned long *pLen
+        uint8_t PktType,
+        uint8_t *pReadingBuf,
+        uint32_t *pLen
         );
 
 int
 bt_Send(
         BT_DEVICE *pBt,
-        unsigned char PktType,
-        unsigned char *pWritingBuf,
-        unsigned long Len
+        uint8_t PktType,
+        uint8_t *pWritingBuf,
+        uint32_t Len
         );
 
 int
@@ -1062,8 +1062,8 @@ BT_GetBBRegMaskBits(
 
 void
 BTHCI_EvtReport(
-        unsigned char *pEvtCode,
-        unsigned long EvtCodeLen
+        uint8_t *pEvtCode,
+        uint32_t EvtCodeLen
         );
 
 int

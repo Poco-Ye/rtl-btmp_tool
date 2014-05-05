@@ -27,18 +27,19 @@ BTModule_DownloadPatchCode(
         BT_MODULE *pBtModule,
         unsigned char *pPatchcode,
         int patchLength,
-        int Mode);
+        int Mode
+        );
 
 int
 BTModule_SendHciCommandWithEvent(
-    BT_MODULE *pBtModule,
-    unsigned int  OpCode,
-    unsigned char PayLoadLength,
-    unsigned char *pPayLoad,
-    unsigned char EventType,
-    unsigned char *pEvent,
-    unsigned long *pEventLen
-    );
+        BT_MODULE *pBtModule,
+        uint16_t OpCode,
+        uint8_t PayLoadLength,
+        uint8_t *pPayLoad,
+        uint8_t EventType,
+        uint8_t *pEvent,
+        uint32_t *pEventLen
+        );
 
 int
 BTModule_RecvAnyHciEvent(

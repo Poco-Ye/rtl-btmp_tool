@@ -10,16 +10,17 @@
 
 int bt_transport_SendHciCmd(
     BASE_INTERFACE_MODULE *pBaseInterface,
-    unsigned char *pCmdBuffer,
-    unsigned long bufferLen
+    uint8_t *pCmdBuffer,
+    uint32_t bufferLen
     )
 {
-    unsigned short opcode;
-    unsigned char paraLen = 0;
-    unsigned char *pParaBuffer = NULL;
+    uint16_t opcode;
+    uint8_t paraLen = 0;
+    uint8_t *pParaBuffer = NULL;
 
-    opcode = *(unsigned short*)(pCmdBuffer);
-    paraLen = *(unsigned char*)(pCmdBuffer + sizeof(opcode));
+    opcode = *pCmdBuffer;
+    opcode |= *(pCmdBuffer + 1) << 8;
+    paraLen = *(uint8_t *)(pCmdBuffer + sizeof(opcode));
 
     pParaBuffer = pCmdBuffer +sizeof(opcode) + sizeof(paraLen);
 
@@ -29,7 +30,6 @@ int bt_transport_SendHciCmd(
 
 void bt_transport_signal_event(BASE_INTERFACE_MODULE *pBaseInterface, unsigned short event)
 {
-
     pthread_mutex_lock(&pBaseInterface->mutex);
     pBaseInterface->rx_ready_events |= event;
     pthread_cond_signal(&pBaseInterface->cond);
@@ -37,11 +37,11 @@ void bt_transport_signal_event(BASE_INTERFACE_MODULE *pBaseInterface, unsigned s
 }
 
 int bt_transport_RecvHciEvt(
-    BASE_INTERFACE_MODULE *pBaseInterface,
-    unsigned char *pEvtBuffer,
-    unsigned long bufferLen,
-    unsigned long *pRetEvtLen
-    )
+        BASE_INTERFACE_MODULE *pBaseInterface,
+        uint8_t *pEvtBuffer,
+        uint32_t bufferLen,
+        uint32_t *pRetEvtLen
+        )
 {
     unsigned short events = 0;
 
