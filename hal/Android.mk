@@ -28,8 +28,6 @@ LOCAL_SRC_FILES += \
     gki/common/gki_time.c \
     gki/common/gki_buffer.c
 
-LOCAL_CFLAGS += -Wno-error=maybe-uninitialized -Wno-error=uninitialized
-
 LOCAL_SRC_FILES += \
     hci/src/hci_h4.c \
     hci/src/hci_h5.c \
@@ -65,10 +63,8 @@ LOCAL_SRC_FILES += \
 LOCAL_SRC_FILES += \
    utils/src/bt_utils.c
 
-
 LOCAL_C_INCLUDES += \
-    $(LOCAL_PATH)/include \
-    $(BDROID_DIR)/hci/include
+    $(LOCAL_PATH)/include
 
 # BTIF
 LOCAL_C_INCLUDES += \
@@ -100,6 +96,7 @@ LOCAL_C_INCLUDES += \
 LOCAL_C_INCLUDES += \
    $(LOCAL_PATH)/mp/include
 
+LOCAL_CFLAGS += -Wno-error=maybe-uninitialized -Wno-error=uninitialized
 
 LOCAL_SHARED_LIBRARIES := \
     libandroid_runtime \
