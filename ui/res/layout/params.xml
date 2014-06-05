@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+        <!-- param1 -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1" >
+            <TextView
+                android:text="@string/RF_Channel"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <Spinner
+                android:id="@+id/spinner_RF_Channel"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <TextView
+                android:text="@string/Pkt_Type"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <Spinner
+                android:id="@+id/spinner_Pkt_Type"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <TextView
+                android:text="@string/Payload_Type"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <Spinner
+                android:id="@+id/spinner_Payload_Type"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <TextView
+                android:text="@string/Pkt_Count"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <EditText
+                android:id="@+id/editText_Pkt_Count"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:hint="@string/hint_Pkt_Count" />
+            <TextView
+                android:text="@string/Tx_Gain_Value"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <EditText
+                android:id="@+id/editText_Tx_Gain_Value"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:hint="@string/hint_Tx_Gain_Value" />
+            <TextView
+                android:text="@string/Whitening_Value"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1" />
+            <EditText
+                android:id="@+id/editText_Whitening_Value"
+                android:gravity="bottom|center"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:hint="@string/hint_Whitening_Value" />
+        </LinearLayout>
+</LinearLayout>

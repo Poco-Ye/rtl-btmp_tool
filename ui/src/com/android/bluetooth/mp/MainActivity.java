@@ -59,18 +59,19 @@ public class MainActivity extends Activity {
     //Button mbuttonClear = null;
     Button mbuttonClearLog = null;
     Button mbuttonHCIReset = null;
-    Button mbuttonTestMode= null;
+    //Button mbuttonTestMode= null;
     Button mbuttonRegRw = null;
     Button mbuttonHostReInit = null;
     // Spineer
     Spinner mspHCIInterface = null;
     Spinner mspActionItem = null;
-    Spinner mspDataRate = null;
     Spinner mspRFChannel = null;
+    Spinner mspPktType = null;
+    Spinner mspPayloadType = null;
+    Spinner mspDataRate = null;
     Spinner mspTxGainIndex = null;
     Spinner mspTestMode = null;
     Spinner mspHitTarget = null;
-    Spinner mspPayloadType = null;
     Spinner mspTxDACCurrent = null;
     //Spinner mspLEConnect = null;
     //EditText
@@ -78,10 +79,11 @@ public class MainActivity extends Activity {
     //EditText metxRxPacketsCount = null;
     //EditText metxErrorBits = null;
     //EditText metxBER = null;
-    EditText metxTxPacketsCount = null;
+    EditText metxPacketCount = null;
+    EditText metxTxGainValue = null;
+    EditText metxWhiteningValue = null;
     EditText metxPayloadBits = null;
     EditText metxPacketHeader = null;
-    //EditText metxWhiteningCoeff = null;
     //CheckBox
     //CheckBox cbUploadThermal = null;
     //CheckBox cbLEConnect = null;
@@ -91,8 +93,9 @@ public class MainActivity extends Activity {
     //Spinner Adapter
     ArrayAdapter<String> adpHCIInterface = null;
     ArrayAdapter<String> adpActionItem = null;
-    ArrayAdapter<String> adpDataRate = null;
     ArrayAdapter<String> adpRFChannel = null;
+    ArrayAdapter<String> adpPktType = null;
+    ArrayAdapter<String> adpDataRate = null;
     ArrayAdapter<String> adpTxGainIndex = null;
     ArrayAdapter<String> adpPayloadType = null;
     ArrayAdapter<String> adpTestMode = null;
@@ -130,7 +133,7 @@ public class MainActivity extends Activity {
         //mbuttonClear = (Button) findViewById(R.id.button_Clear);
         mbuttonClearLog = (Button) findViewById(R.id.button_Clear_Log);
         mbuttonHCIReset = (Button) findViewById(R.id.button_HCI_Reset);
-        mbuttonTestMode = (Button) findViewById(R.id.button_Test_Mode);
+        //mbuttonTestMode = (Button) findViewById(R.id.button_Test_Mode);
         mbuttonRegRw = (Button) findViewById(R.id.button_Reg_RW);
         mbuttonHostReInit = (Button) findViewById(R.id.button_Host_ReInit);
         //Button Listener
@@ -141,35 +144,37 @@ public class MainActivity extends Activity {
         //mbuttonClear.setOnClickListener(new ButtonClick());
         mbuttonClearLog.setOnClickListener(new ButtonClick());
         mbuttonHCIReset.setOnClickListener(new ButtonClick());
-        mbuttonTestMode.setOnClickListener(new ButtonClick());
+        //mbuttonTestMode.setOnClickListener(new ButtonClick());
         mbuttonRegRw.setOnClickListener(new ButtonClick());
         mbuttonHostReInit.setOnClickListener(new ButtonClick());
         //Button Enable
         SetButtonStateBeforStart();
 
         //Spinner
-        mspHCIInterface = (Spinner)findViewById(R.id.spinner_hci_interface);
-        mspActionItem =  (Spinner) findViewById(R.id.spinner_action_item);
-        mspDataRate =  (Spinner) findViewById(R.id.spinner_Data_Rate);
-        mspRFChannel =  (Spinner) findViewById(R.id.spinner_RF_Channel);
-        mspTxGainIndex =  (Spinner) findViewById(R.id.spinner_Tx_Gain_Index);
-        mspTestMode  =  (Spinner) findViewById(R.id.spinner_Test_Mode);
-        mspHitTarget =  (Spinner) findViewById(R.id.spinner_Hit_Target);
-        mspPayloadType =  (Spinner) findViewById(R.id.spineer_Payload_Type);
-        mspTxDACCurrent =  (Spinner) findViewById(R.id.spinner_Tx_DAC_current);
+        mspHCIInterface = (Spinner) findViewById(R.id.spinner_hci_interface);
+        mspActionItem = (Spinner) findViewById(R.id.spinner_action_item);
+        mspRFChannel = (Spinner) findViewById(R.id.spinner_RF_Channel);
+        mspPktType = (Spinner) findViewById(R.id.spinner_Pkt_Type);
+        mspPayloadType = (Spinner) findViewById(R.id.spinner_Payload_Type);
+        mspDataRate = (Spinner) findViewById(R.id.spinner_Data_Rate);
+        mspTxGainIndex = (Spinner) findViewById(R.id.spinner_Tx_Gain_Index);
+        mspTestMode  = (Spinner) findViewById(R.id.spinner_Test_Mode);
+        mspHitTarget = (Spinner) findViewById(R.id.spinner_Hit_Target);
+        mspTxDACCurrent = (Spinner) findViewById(R.id.spinner_Tx_DAC_current);
         //mspLEConnect=  (Spinner) findViewById(R.id.spinner_LE_Connect);
         //add intems and listener to all spinners
         InitAllSpinners();
 
         //EditText
         metxDevNode = (EditText)findViewById(R.id.editText_Dev_Node);
+        metxPacketCount = (EditText)findViewById(R.id.editText_Pkt_Count);
+        metxTxGainValue = (EditText)findViewById(R.id.editText_Tx_Gain_Value);
+        metxWhiteningValue = (EditText)findViewById(R.id.editText_Whitening_Value);
         //metxRxPacketsCount = (EditText) findViewById(R.id.editText_Rx_Packets);
         //metxErrorBits = (EditText) findViewById(R.id.editText_ErrorBits);
         //metxBER = (EditText) findViewById(R.id.editText_BER);
-        metxTxPacketsCount = (EditText) findViewById(R.id.editText_Tx_Packets_Count);
         metxPayloadBits = (EditText) findViewById(R.id.editText_Payload_Bits);
-        metxPacketHeader = (EditText) findViewById(R.id.editText_Packet_Header);
-        //metxWhiteningCoeff = (EditText) findViewById(R.id.editText_Whitening_Coeff);
+        metxPacketHeader = (EditText) findViewById(R.id.editText_Pkt_Header);
 
         //Init EditText here
         metxDevNode.setTextColor(Color.rgb(255, 0, 0));
@@ -184,8 +189,9 @@ public class MainActivity extends Activity {
         //metxBER.setTextColor(Color.rgb(255, 0, 0));
         //metxBER.setText("xxx");
         //metxBER.setKeyListener(null);
-        metxTxPacketsCount.setText("xxx");
-        metxTxPacketsCount.setKeyListener(null);
+        //metxPacketCount.setText("xxxx");
+        metxPacketCount.setKeyListener(null);
+        metxTxGainValue.setKeyListener(null);
         metxPayloadBits.setText("xxx");
         metxPacketHeader.setText("xxx");
         //metxWhiteningCoeff.setText("xxx");
@@ -258,7 +264,7 @@ public class MainActivity extends Activity {
         //mbuttonClear.setEnabled(false);
         mbuttonClearLog.setEnabled(true);
         mbuttonHCIReset.setEnabled(false);
-        mbuttonTestMode.setEnabled(false);
+        //mbuttonTestMode.setEnabled(false);
         mbuttonRegRw.setEnabled(false);
         mbuttonHostReInit.setEnabled(false);
     }
@@ -272,7 +278,7 @@ public class MainActivity extends Activity {
         //mbuttonClear.setEnabled(true);
         mbuttonClearLog.setEnabled(true);
         mbuttonHCIReset.setEnabled(true);
-        mbuttonTestMode.setEnabled(true);
+        //mbuttonTestMode.setEnabled(true);
         mbuttonRegRw.setEnabled(true);
         mbuttonHostReInit.setEnabled(true);
     }
@@ -286,7 +292,7 @@ public class MainActivity extends Activity {
         //mbuttonClear.setEnabled(false);
         mbuttonClearLog.setEnabled(false);
         mbuttonHCIReset.setEnabled(false);
-        mbuttonTestMode.setEnabled(false);
+        //mbuttonTestMode.setEnabled(false);
         mbuttonRegRw.setEnabled(false);
         mbuttonHostReInit.setEnabled(false);
         metxLog.clearAnimation();
@@ -307,7 +313,7 @@ public class MainActivity extends Activity {
         adpHCIInterface.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspHCIInterface.setAdapter(adpHCIInterface);
 
-        //action items
+        // action items
         items = new ArrayList<String>();
         str = new String[] {"Packet Tx", "Packet Rx",
                             "Continue Tx", "Continue LE Tx"};
@@ -318,42 +324,57 @@ public class MainActivity extends Activity {
         adpActionItem.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspActionItem.setAdapter(adpActionItem);
 
+        // Rf channel
+        int RF_CHANNEL_MAX = 79;
+        items = new ArrayList<String>();
+        for (int i = 0; i < RF_CHANNEL_MAX; i++) {
+            items.add(String.valueOf(i));
+        }
+        adpRFChannel = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, items);
+        adpRFChannel.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mspRFChannel.setAdapter(adpRFChannel);
+
+        // Pkt Type
+        items = new ArrayList<String>();
+        str = new String[] {"1DH1", "1DH3", "1DH5", "2DH1", "2DH3", "2DH5", "3DH1", "3DH3", "3DH5",
+                            "LE", "NULL", "RTL8723A"};
+        for (int i = 0; i < str.length; i++) {
+            items.add(str[i]);
+        }
+        adpPktType = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, items);
+        adpPktType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mspPktType.setAdapter(adpPktType);
+
+        // Payload Type
+        str = new String[] {"All_0","All_1", "0101", "1010", "0x0~0xF", "0000~1111", "1111~0000", "PRBS9"};
+        items = new ArrayList<String>();
+        for (int i = 0; i < str.length; i++) {
+            items.add(str[i]);
+        }
+        adpPayloadType = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, items);
+        adpPayloadType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mspPayloadType.setAdapter(adpPayloadType);
+
         //data rate
         str = new String[] {"1M","2M", "3M", "LE"};
         items = new ArrayList<String>();
-        for(int i = 0; i<str.length; i++) {
+        for(int i = 0; i < str.length; i++) {
             items.add(str[i]);
         }
         adpDataRate = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,items);
         adpDataRate.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspDataRate.setAdapter(adpDataRate);
-        //Rf channel
-        int RF_CHANNEL_MAX = 80;
-        items = new ArrayList<String>();
-        for(int i = 0; i<= RF_CHANNEL_MAX; i++) {
-            items.add(String.valueOf(i));
-        }
-        adpRFChannel = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,items);
-        adpRFChannel.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mspRFChannel.setAdapter(adpRFChannel);
+
         //Tx Gain Index
         int Tx_Gain_Index_MAX = 40;
         items = new ArrayList<String>();
-        for(int i = 0; i<= Tx_Gain_Index_MAX; i++) {
+        for (int i = 0; i <= Tx_Gain_Index_MAX; i++) {
             items.add(String.valueOf(i));
         }
-        adpTxGainIndex = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,items);
+        adpTxGainIndex = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
         adpTxGainIndex.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspTxGainIndex.setAdapter(adpTxGainIndex);
-        //Payload Type
-        str = new String[]{"All_0","All_1", "0101", "1010", "0x0~0xf"};
-        items = new ArrayList<String>();
-        for(int i = 0; i< str.length; i++) {
-            items.add(str[i]);
-        }
-        adpPayloadType = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,items);
-        adpPayloadType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mspPayloadType.setAdapter(adpPayloadType);
+
         //TestMode
         str = new String[]{"Nomal Test"};
         items = new ArrayList<String>();
@@ -387,8 +408,9 @@ public class MainActivity extends Activity {
         //Set Listener
         mspHCIInterface.setOnItemSelectedListener(new SpinnerListener());
         mspActionItem.setOnItemSelectedListener(new SpinnerListener());
-        mspDataRate.setOnItemSelectedListener(new SpinnerListener());
         mspRFChannel.setOnItemSelectedListener(new SpinnerListener());
+        mspPktType.setOnItemSelectedListener(new SpinnerListener());
+        mspDataRate.setOnItemSelectedListener(new SpinnerListener());
         mspTxGainIndex.setOnItemSelectedListener(new SpinnerListener());
         mspPayloadType.setOnItemSelectedListener(new SpinnerListener());
         mspTestMode.setOnItemSelectedListener(new SpinnerListener());
@@ -523,10 +545,10 @@ public class MainActivity extends Activity {
                     Log.v(TAG,"button_HCI_Reset clicked");
                     break;
 
-                case R.id.button_Test_Mode:
-                    //test mode
-                    Log.v(TAG,"button_Test_Mode clicked");
-                    break;
+                //case R.id.button_Test_Mode:
+                //    //test mode
+                //    Log.v(TAG,"button_Test_Mode clicked");
+                //    break;
 
                 case R.id.button_Reg_RW:
                     //do read reg here
@@ -558,20 +580,24 @@ public class MainActivity extends Activity {
                     Log.v(TAG,"Spinner Action Item selected: " + mspActionItem.getSelectedItem().toString());
                     break;
 
-                case R.id.spinner_Data_Rate:
-                    Log.v(TAG,"Spinner Data Rate selected: " + mspDataRate.getSelectedItem().toString());
-                    break;
-
                 case R.id.spinner_RF_Channel:
                     Log.v(TAG,"Spinner RF Channel selected: " + mspRFChannel.getSelectedItem().toString());
                     break;
 
-                case R.id.spinner_Tx_Gain_Index:
-                    Log.v(TAG,"Spinner Tx Gain Index selected: " + mspTxGainIndex.getSelectedItem().toString());
+                case R.id.spinner_Pkt_Type:
+                    Log.v(TAG,"Spinner Packet Type selected: " + mspPktType.getSelectedItem().toString());
                     break;
 
-                case R.id.spineer_Payload_Type:
+                case R.id.spinner_Payload_Type:
                     Log.v(TAG,"Spinner payload Type selected: " + mspPayloadType.getSelectedItem().toString());
+                    break;
+
+                case R.id.spinner_Data_Rate:
+                    Log.v(TAG,"Spinner Data Rate selected: " + mspDataRate.getSelectedItem().toString());
+                    break;
+
+                case R.id.spinner_Tx_Gain_Index:
+                    Log.v(TAG,"Spinner Tx Gain Index selected: " + mspTxGainIndex.getSelectedItem().toString());
                     break;
 
                 case R.id.spinner_Test_Mode:

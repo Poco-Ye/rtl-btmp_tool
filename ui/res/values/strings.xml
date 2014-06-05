@@ -7,6 +7,20 @@
     <string name="HCIInterface">HCI Interface</string>
     <string name="DevNode">Device Node</string>
     <string name="ActionItem">Action Item</string>
+    <!-- param1 -->
+    <string name="RF_Channel">RF Channel</string>
+    <string name="Pkt_Type">Packet Type</string>
+    <string name="Payload_Type">Payload Type</string>
+    <string name="Pkt_Count">Packet Count</string>
+    <string name="Tx_Gain_Value">Tx Gain Value</string>
+    <string name="Whitening_Value">Whitening Value</string>
+    <!-- param2 -->
+    <string name="Tx_Gain_Index">Tx Gain Index</string>
+    <string name="Test_Mode">Test Mode</string>
+    <string name="Tx_Dac">Tx Dac</string>
+    <string name="Pkt_Header">Packet Header</string>
+    <string name="Multi_Rx_Enable">Mulit Rx Enable</string>
+
     <string name="Rx_Packets">Rx Packets:</string>
     <string name="Start">Start</string>
     <string name="Stop">Stop</string>
@@ -14,19 +28,12 @@
     <string name="Error_Bits">Error Bits:</string>
     <string name="BER">BER%:</string>
     <string name="LE_Connect">LE Connect</string>
-    <string name="Whitening_Coeff">Whitening Coeff</string>
     <string name="Upload_Thermal">Upload Thermal</string>
     <string name="Clear">Clear</string>
     <string name="Pause">Pause</string>
     <string name="Data_Rate"> Data Rate:</string>
-    <string name="RF_Channel">RF Channel:</string>
-    <string name="Tx_Gain_Index">Tx Gain Index:</string>
-    <string name="Tx_Packets_Count">Tx Packets Count:</string>
-    <string name="Test_Mode">Test Mode:</string>
     <string name="bTest_Mode">Test Mode</string>
-    <string name="Payload_Type">PayloadType:</string>
     <string name="Payload_Bits">Payload Bits:</string>
-    <string name="Packet_Header">Packet Header:</string>
     <string name="Tx_Current">Tx Current:</string>
     <string name="Hit_Target">Hit Target:</string>
     <string name="Reg_RW">Reg_RW</string>
@@ -36,6 +43,9 @@
 
     <!-- hint string list  -->
     <string name="hint_Dev_Node">/dev/ttyS0</string>
+    <string name="hint_Pkt_Count">xxxx</string>
+    <string name="hint_Tx_Gain_Value">xx</string>
+    <string name="hint_Whitening_Value">xx</string>
 
     <!-- button bar menu -->
     <string name="NonLinkMode_menu">Non Link Mode</string>
