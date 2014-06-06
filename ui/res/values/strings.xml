@@ -20,32 +20,64 @@
     <string name="Tx_Dac">Tx Dac</string>
     <string name="Pkt_Header">Packet Header</string>
     <string name="Multi_Rx_Enable">Mulit Rx Enable</string>
+    <!-- param3 -->
+    <string name="Hopping_Fix_Channel">Hopping Fix Channel</string>
+    <!-- hit target -->
+    <string name="Hit_Target">Hit Target</string>
+    <!-- tx gain table-->
+    <string name="Tx_Gain_Table">Tx Gain Table</string>
+    <!-- tx dac table -->
+    <string name="Tx_Dac_Table">Tx Dac Table</string>
+    <!-- rtl8761 xtal -->
+    <string name="RTL8761_Xtal">RTL8761 Xtal</string>
+    <!-- register ID -->
+    <string name="Register_ID">Register ID</string>
+    <string name="Reg_Addr">Address</string>
+    <string name="Msb">Msb</string>
+    <string name="Lsb">Lsb</string>
+    <string name="Data">Data</string>
+    <!-- get thermal -->
+    <string name="Get_Thermal">Get Thermal</string>
+    <!-- get stage -->
+    <string name="Get_Stage">Get Stage</string>
+    <!-- rx report-->
+    <string name="Rx_Rssi">Rx Rssi</string>
+    <string name="Rx_Bits">Rx Bits</string>
+    <string name="Rx_Err_Bits">Rx Err Bits</string>
+    <string name="Rx_Pkt_Counts">Rx Pkt Counts</string>
+    <!-- rx report-->
+    <string name="Tx_Bits">Tx Bits</string>
+    <string name="Tx_Pkt_Counts">Tx Pkt Counts</string>
 
-    <string name="Rx_Packets">Rx Packets:</string>
     <string name="Start">Start</string>
     <string name="Stop">Stop</string>
     <string name="Send">Send</string>
-    <string name="Error_Bits">Error Bits:</string>
-    <string name="BER">BER%:</string>
+    <string name="BER">BER</string>
     <string name="LE_Connect">LE Connect</string>
-    <string name="Upload_Thermal">Upload Thermal</string>
     <string name="Clear">Clear</string>
     <string name="Pause">Pause</string>
-    <string name="Data_Rate"> Data Rate:</string>
-    <string name="bTest_Mode">Test Mode</string>
-    <string name="Payload_Bits">Payload Bits:</string>
-    <string name="Tx_Current">Tx Current:</string>
-    <string name="Hit_Target">Hit Target:</string>
-    <string name="Reg_RW">Reg_RW</string>
-    <string name="Clear_Log">Clear_Log</string>
-    <string name="Host_ReInit"> Host_ReInit</string>
-    <string name="HCI_Reset">HCI_Reset</string>
+    <string name="Clear_Log">Clear Log</string>
+    <string name="HCI_Reset">HCI Reset</string>
 
     <!-- hint string list  -->
     <string name="hint_Dev_Node">/dev/ttyS0</string>
     <string name="hint_Pkt_Count">xxxx</string>
     <string name="hint_Tx_Gain_Value">xx</string>
     <string name="hint_Whitening_Value">xx</string>
+    <string name="hint_Tx_Dac">xx</string>
+    <string name="hint_Pkt_Header">xxxx</string>
+    <string name="hint_Multi_Rx_Enable">xx</string>
+    <string name="hint_Hopping_Fix_Channel">xx</string>
+    <string name="hint_Hit_Target">xxxxxxxx</string>
+    <string name="hint_Tx_Gain_Table">xxxxxxxxxxxxxx</string>
+    <string name="hint_Tx_Dac_Table">xxxxxxxxxx</string>
+    <string name="hint_RTL8761_Xtal">xxxxxxxx</string>
+    <string name="hint_Reg_Addr">xx</string>
+    <string name="hint_Msb">xx</string>
+    <string name="hint_Lsb">xx</string>
+    <string name="hint_Data">xxxxxx</string>
+    <string name="hint_Get_Thermal">xx</string>
+    <string name="hint_Get_Stage">xx</string>
 
     <!-- button bar menu -->
     <string name="NonLinkMode_menu">Non Link Mode</string>

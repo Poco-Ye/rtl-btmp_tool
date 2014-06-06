@@ -95,12 +95,12 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="0px"
-    android:layout_weight="6" >
+    android:layout_weight="10" >
     <!-- part2-L1 params button bar -->
     <include layout="@layout/buttonbar" />
     <!-- part2-L2 add contents -->
     <!-- FIXME currently we list all the items here, no fragments -->
-    <!-- param1 -->
+    <!-- param1, param2 and param3 -->
     <LinearLayout
       android:orientation="horizontal"
       android:layout_width="match_parent"
@@ -187,14 +187,8 @@
         android:layout_width="0px"
         android:layout_weight="1"
         android:hint="@string/hint_Whitening_Value" />
-        <!-- param1 setting-->
-    </LinearLayout>
-    <!-- param2 -->
-    <LinearLayout
-      android:orientation="horizontal"
-      android:layout_width="match_parent"
-      android:layout_height="0px"
-      android:layout_weight="1" >
+        <!-- end of param1 -->
+      <!-- start of param2 -->
       <TextView
         android:text="@string/Tx_Gain_Index"
         android:gravity="bottom|center"
@@ -219,6 +213,12 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
+    </LinearLayout>
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
       <TextView
         android:text="@string/Tx_Dac"
         android:gravity="bottom|center"
@@ -230,19 +230,193 @@
         android:gravity="bottom|center"
         android:layout_height="match_parent"
         android:layout_width="0px"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Dac" />
       <TextView
         android:text="@string/Pkt_Header"
         android:gravity="bottom|center"
-        android:layout_height="0px"
-        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
         android:layout_weight="1" />
       <EditText
         android:id="@+id/editText_Pkt_Header"
         android:gravity="bottom|center"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Pkt_Header" />
+      <TextView
+        android:text="@string/Multi_Rx_Enable"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
         android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Multi_Rx_Enable"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Multi_Rx_Enable" />
+        <!-- end of param2 -->
+      <!-- start of param3 -->
+      <!--share RF channel, pkt type & whitening value -->
+      <TextView
+        android:text="@string/Hopping_Fix_Channel"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Hopping_Fix_Channel"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Hopping_Fix_Channel" />
+      <!-- end of param3 -->
+    </LinearLayout>
+    <!-- hit target -->
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
+      <TextView
+        android:text="@string/Hit_Target"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Hit_Target"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Hit_Target" />
+    </LinearLayout>
+    <!-- tx gain table -->
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
+      <TextView
+        android:text="@string/Tx_Gain_Table"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Gain_Table"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Gain_Table" />
+    </LinearLayout>
+    <!-- tx dac table -->
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
+      <TextView
+        android:text="@string/Tx_Dac_Table"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Dac_Table"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Dac_Table" />
+    </LinearLayout>
+    <!-- set/get rtl8761 xtal -->
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
+      <TextView
+        android:text="@string/RTL8761_Xtal"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_RTL8761_Xtal"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_RTL8761_Xtal" />
+    </LinearLayout>
+    <!-- set modem, RF, sys & BB registers -->
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
+      <TextView
+        android:text="@string/Register_ID"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <Spinner
+        android:id="@+id/spinner_Register_ID"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <TextView
+        android:text="@string/Reg_Addr"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Reg_Addr"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Reg_Addr" />
+      <TextView
+        android:text="@string/Msb"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Msb"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Msb" />
+      <TextView
+        android:text="@string/Lsb"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Lsb"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Lsb" />
+      <TextView
+        android:text="@string/Data"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Data"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Data" />
     </LinearLayout>
     <LinearLayout
       android:orientation="horizontal"
@@ -250,74 +424,51 @@
       android:layout_height="0px"
       android:layout_weight="1" >
       <TextView
-        android:text="@string/Multi_Rx_Enable"
+        android:text="@string/Get_Thermal"
         android:gravity="bottom|center"
-        android:layout_height="0px"
-        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
         android:layout_weight="1" />
       <EditText
-        android:id="@+id/editText_Multi_Rx_Enable"
+        android:id="@+id/editText_Get_Thermal"
         android:gravity="bottom|center"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Get_Thermal" />
+      <TextView
+        android:text="@string/Get_Stage"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
         android:layout_weight="1" />
-        <!-- param2 setting-->
+      <EditText
+        android:id="@+id/editText_Get_Stage"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Get_Stage" />
     </LinearLayout>
   </LinearLayout>
 
-        <!-- part1-L3 -->
-<!--       <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="3">
+<!--
+      <CheckBox
+        android:id="@+id/checkbox_Get_Thermal"
+        android:gravity="center"
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:textSize ="@dimen/checkbox_txt_size"
+        android:text="@string/Get_Thermal" />
 -->
-            <!-- part1-L2-v1 -->
-<!--           <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0px"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-                <TextView
-                    android:text="@string/Rx_Packets"
-                    android:gravity="bottom|center"
-                    android:layout_height="0px"
-                    android:layout_width="match_parent"
-                    android:layout_weight="1"/>
-                <TextView
-                    android:text="@string/Error_Bits"
-                    android:gravity="bottom|center"
-                    android:layout_height="0px"
-                    android:layout_width="match_parent"
-                    android:layout_weight="1"/>
+<!--
                 <TextView
                     android:text="@string/BER"
                     android:gravity="bottom|center"
                     android:layout_height="0px"
                     android:layout_width="match_parent"
                     android:layout_weight="1"/>
-            </LinearLayout>
--->
-            <!-- part1-L2-v2 -->
-<!--            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0px"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-                <EditText
-                    android:id="@+id/editText_Rx_Packets"
-                    android:gravity="bottom|center"
-                    android:layout_width="match_parent"
-                    android:layout_height="0px"
-                    android:layout_weight="1"
-                    android:inputType="number"/>
-                <EditText
-                    android:id="@+id/editText_ErrorBits"
-                    android:gravity="bottom|center"
-                    android:layout_width="match_parent"
-                    android:layout_height="0px"
-                    android:layout_weight="1"
-                    android:inputType="number"/>
                 <EditText
                     android:id="@+id/editText_BER"
                     android:gravity="bottom|center"
@@ -325,274 +476,186 @@
                     android:layout_height="0px"
                     android:layout_weight="1"
                     android:inputType="number"/>
-            </LinearLayout>
 -->
-            <!-- part1-L2-v3 -->
-<!--            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0px"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-                <Button
-                    android:id="@+id/button_Start"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="match_parent"
-                    android:layout_height="0px"
-                    android:layout_weight="1"
-                    android:text="@string/Start"/>
-                 <Button
-                    android:id="@+id/button_Stop"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="match_parent"
-                    android:layout_height="0px"
-                    android:layout_weight="1"
-                    android:text="@string/Stop"/>
-                <Button
-                    android:id="@+id/button_Send"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="match_parent"
-                    android:layout_height="0px"
-                    android:layout_weight="1"
-                    android:text="@string/Send"/>
-            </LinearLayout>
+<!--
+     <Button
+         android:id="@+id/button_Send"
+         style="?android:attr/buttonStyleSmall"
+         android:layout_width="match_parent"
+         android:layout_height="0px"
+         android:layout_weight="1"
+         android:text="@string/Send"/>
 -->
-            <!-- part1-L2-v4 -->
-<!--            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0px"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-                <CheckBox
-                    android:id="@+id/checkbox_LE_Connect"
-                    android:gravity="center"
-                    android:layout_width="match_parent"
-                    android:layout_height="0px"
-                    android:layout_weight="1"
-                    android:textSize ="@dimen/checkbox_txt_size"
-                    android:text="@string/LE_Connect"/>
-                <Spinner
-                    android:id="@+id/spinner_LE_Connect"
-                    android:layout_width="match_parent"
-                    android:layout_height="0px"
-                    android:layout_weight="1"/>
-                <CheckBox
-                    android:id="@+id/checkbox_Whitening_Coeff"
-                    android:gravity="center"
-                    android:layout_width="match_parent"
-                    android:layout_height="0px"
-                    android:layout_weight="1"
-                    android:textSize ="@dimen/checkbox_txt_size"
-                    android:text="@string/Whitening_Coeff"/>
-            </LinearLayout>
-        </LinearLayout>
+<!--
+    <CheckBox
+        android:id="@+id/checkbox_LE_Connect"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:textSize ="@dimen/checkbox_txt_size"
+        android:text="@string/LE_Connect"/>
+    <Spinner
+        android:id="@+id/spinner_LE_Connect"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"/>
 -->
-        <!-- part1-L3 -->
-<!--        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="1">
+<!--
+    <Button
+        android:id="@+id/button_Clear"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="@string/Clear"/>
+    <Button
+        android:id="@+id/button_Pause"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="@string/Pause"/>
 -->
-            <!-- part1-L3-L1 -->
-<!--            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="0px"
-                android:layout_weight="1">
-                <CheckBox
-                    android:id="@+id/checkbox_upload_thermal"
-                    android:gravity="center"
-                    android:layout_width="0px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:textSize ="@dimen/checkbox_txt_size"
-                    android:text="@string/Upload_Thermal"/>
-                <Button
-                    android:id="@+id/button_Clear"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="0px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/Clear"/>
-                <Button
-                    android:id="@+id/button_Pause"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="0px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/Pause"/>
-                <EditText
-                    android:id="@+id/editText_Whitening_Coeff"
-                    android:gravity="bottom|center"
-                    android:layout_width="0px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-        </LinearLayout>
--->
-<!--    </LinearLayout> -->
 
   <!-- part3 -->
   <LinearLayout
-    android:orientation="horizontal"
+    android:orientation="vertical"
+    android:background="#ffffff"
     android:layout_width="match_parent"
     android:layout_height="0px"
-    android:background="#ffffff"
-    android:layout_weight="7">
-    <!-- part2-v1 -->
+    android:layout_weight="2" >
+    <!-- Rx, Tx report -->
     <LinearLayout
-      android:orientation="vertical"
-      android:layout_width="0px"
-      android:layout_height="match_parent"
-      android:layout_weight="1">
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
       <TextView
-        android:text="@string/Data_Rate"
+        android:text="@string/Rx_Rssi"
         android:gravity="bottom|center"
-        android:layout_height="0px"
-        android:layout_width="match_parent"
-        android:layout_weight="1"/>
-      <TextView
-        android:text="@string/RF_Channel"
-        android:gravity="bottom|center"
-        android:layout_height="0px"
-        android:layout_width="match_parent"
-        android:layout_weight="1"/>
-      <Button
-        android:id="@+id/button_HCI_Reset"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"
-        android:text="@string/HCI_Reset"/>
-    </LinearLayout>
-
-    <!-- part2-v2 -->
-    <LinearLayout
-      android:orientation="vertical"
-      android:layout_width="0px"
-      android:layout_height="match_parent"
-      android:layout_weight="1">
-      <Spinner
-        android:id="@+id/spinner_Data_Rate"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"/>
-      <Spinner
-        android:id="@+id/spinner_RF_Channel"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"/>
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
       <EditText
-        android:id="@+id/editText_Tx_Packets_Count"
+        android:id="@+id/editText_Rx_Rssi"
         android:gravity="bottom|center"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:inputType="number"/>
+      <TextView
+        android:text="@string/Rx_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Rx_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:inputType="number"/>
+      <TextView
+        android:text="@string/Rx_Err_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Rx_Err_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:inputType="number"/>
+      <TextView
+        android:text="@string/Rx_Pkt_Counts"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Rx_Pkt_Counts"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
         android:layout_weight="1"
         android:inputType="number"/>
     </LinearLayout>
-
-    <!-- part2-v3 -->
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="0px"
-        android:layout_height="match_parent"
-        android:layout_weight="1">
-        <TextView
-          android:text="@string/Payload_Type"
-          android:gravity="bottom|center"
-          android:layout_height="0px"
-          android:layout_width="match_parent"
-          android:layout_weight="1"/>
-        <TextView
-          android:text="@string/Payload_Bits"
-          android:gravity="bottom|center"
-          android:layout_height="0px"
-          android:layout_width="match_parent"
-          android:layout_weight="1"/>
-        <TextView
-          android:text="@string/Tx_Current"
-          android:gravity="bottom|center"
-          android:layout_height="0px"
-          android:layout_width="match_parent"
-          android:layout_weight="1"/>
-        <TextView
-          android:text="@string/Hit_Target"
-          android:gravity="bottom|center"
-          android:layout_height="0px"
-          android:layout_width="match_parent"
-          android:layout_weight="1"/>
-        <Button
-          android:id="@+id/button_Reg_RW"
-          style="?android:attr/buttonStyleSmall"
-          android:layout_width="match_parent"
-          android:layout_height="0px"
-          android:layout_weight="1"
-          android:text="@string/Reg_RW"/>
-    </LinearLayout>
-
-    <!-- part2-v4 -->
-    <LinearLayout
-    android:orientation="vertical"
-    android:layout_width="0px"
-    android:layout_height="match_parent"
-    android:layout_weight="1">
-      <EditText
-        android:id="@+id/editText_Payload_Bits"
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
+      <TextView
+        android:text="@string/Tx_Bits"
         android:gravity="bottom|center"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"/>
-      <Spinner
-        android:id="@+id/spinner_Tx_DAC_current"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"/>
-      <Spinner
-        android:id="@+id/spinner_Hit_Target"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"/>
-      <Button
-        android:id="@+id/button_Host_ReInit"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
         android:layout_weight="1"
-        android:text="@string/Host_ReInit"/>
+        android:inputType="number"/>
+      <TextView
+        android:text="@string/Tx_Pkt_Counts"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Pkt_Counts"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:inputType="number"/>
     </LinearLayout>
   </LinearLayout>
 
   <!-- part4 -->
   <LinearLayout
-  android:layout_width="match_parent"
-  android:layout_height="0px"
-  android:layout_weight="5"
-  android:orientation="horizontal">
+    android:layout_width="match_parent"
+    android:layout_height="0px"
+    android:layout_weight="8"
+    android:orientation="horizontal">
     <TextView
       android:id="@+id/textView_Log"
       android:layout_width="0px"
       android:layout_height="match_parent"
-      android:layout_weight="3"
+      android:layout_weight="5"
       android:textSize = "@dimen/textview_size"
       android:scrollbars="vertical"
-      android:textAppearance="?android:attr/textAppearanceLarge"/>
+      android:textAppearance="?android:attr/textAppearanceLarge" />
     <LinearLayout
       android:layout_width="0px"
       android:layout_height="match_parent"
       android:layout_weight="1"
       android:orientation="vertical">
+      <Button
+        android:text="@string/HCI_Reset"
+        android:id="@+id/button_HCI_Reset"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1" />
       <TextView
         android:gravity="center"
         android:layout_height="0px"
         android:layout_width="match_parent"
-        android:layout_weight="4"/>
+        android:layout_weight="6"/>
       <Button
+        android:text="@string/Clear_Log"
         android:id="@+id/button_Clear_Log"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="match_parent"
         android:layout_height="0px"
-        android:layout_weight="1"
-        android:text="@string/Clear_Log"/>
+        android:layout_weight="1" />
     </LinearLayout>
   </LinearLayout>
 
