@@ -145,9 +145,9 @@ static void callback_thread_event(bt_cb_thread_evt event) {
 
 bt_callbacks_t sBluetoothCallbacks = {
     sizeof(sBluetoothCallbacks),
-    adapter_state_change_callback,
+    adapter_state_change_callback, /* adapter_state_changed_cb */
     callback_thread_event, /* thread_evt_cb */
-    dut_mode_recv, /*dut_mode_recv_cb */
+    dut_mode_recv, /* dut_mode_recv_cb */
 };
 
 static void classInitNative(JNIEnv* env, jclass clazz) {

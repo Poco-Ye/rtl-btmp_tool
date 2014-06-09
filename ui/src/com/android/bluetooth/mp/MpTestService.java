@@ -113,7 +113,7 @@ public class MpTestService extends Service {
         Log.d(TAG, "stateChangeCallback, status " + status);
         //send the start result to MainActivity
         Message msg = new Message();
-        msg.what = MainActivity.MSG_START_RESULT;
+        msg.what = MainActivity.MSG_MP_STACK_STATUS;
         msg.arg1 = status;
         mHandler.sendMessage(msg);
     }
@@ -150,9 +150,9 @@ public class MpTestService extends Service {
         return ret;
     }
 
-    public int hciSend(int opcode, String data) {
-        Log.d(TAG,"service send hci command");
-        return hciSendNative(opcode, data);
+    public int hciSend(int opCode, String data) {
+        Log.d(TAG,"Send hci command: opCode " + opCode + ": " + data);
+        return hciSendNative(opCode, data);
     }
 
     native void classInitNative();

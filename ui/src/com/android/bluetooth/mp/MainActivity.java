@@ -51,15 +51,15 @@ public class MainActivity extends Activity {
 
     // Switch
     Switch mSwitchOnOff = null;
+
     // Button
     Button mbuttonStart = null;
     Button mbuttonStop = null;
-    //Button mbuttonSend = null;
     //Button mbuttonPause = null;
     //Button mbuttonClear = null;
     Button mbuttonClearLog = null;
     Button mbuttonHCIReset = null;
-    //Button mbuttonTestMode= null;
+
     // Spineer
     Spinner mspHCIInterface = null;
     Spinner mspActionItem = null;
@@ -116,10 +116,11 @@ public class MainActivity extends Activity {
     String mHciInterface = null;
     String mDevNode = null;
 
-    //Message
-    public static final int MSG_START_RESULT = 0;
-    public static final int MSG_HCI_SEND = 1;
-    public static final int MSG_HCI_EVENT_BACK = 2;
+    // Internal Messages
+    public static final int MSG_MP_STACK_STATUS = 0;
+    public static final int MSG_MP_ACTION_START_RESULT = 1;
+    public static final int MSG_HCI_SEND = 2;
+    public static final int MSG_HCI_EVENT_BACK = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,23 +138,19 @@ public class MainActivity extends Activity {
         //Button
         mbuttonStart = (Button) findViewById(R.id.button_Start);
         mbuttonStop = (Button) findViewById(R.id.button_Stop);
-        //mbuttonSend = (Button) findViewById(R.id.button_Send);
         //mbuttonPause = (Button) findViewById(R.id.button_Pause);
         //mbuttonClear = (Button) findViewById(R.id.button_Clear);
         mbuttonClearLog = (Button) findViewById(R.id.button_Clear_Log);
         mbuttonHCIReset = (Button) findViewById(R.id.button_HCI_Reset);
-        //mbuttonTestMode = (Button) findViewById(R.id.button_Test_Mode);
         //Button Listener
         mbuttonStart.setOnClickListener(new ButtonClick());
         mbuttonStop.setOnClickListener(new ButtonClick());
-        //mbuttonSend.setOnClickListener(new ButtonClick());
         //mbuttonPause.setOnClickListener(new ButtonClick());
         //mbuttonClear.setOnClickListener(new ButtonClick());
         mbuttonClearLog.setOnClickListener(new ButtonClick());
         mbuttonHCIReset.setOnClickListener(new ButtonClick());
-        //mbuttonTestMode.setOnClickListener(new ButtonClick());
-        //Button Enable
-        SetButtonStateBeforStart();
+
+        ButtonStateInit();
 
         //Spinner
         mspHCIInterface = (Spinner) findViewById(R.id.spinner_hci_interface);
@@ -225,26 +222,40 @@ public class MainActivity extends Activity {
         //cbLEConnect.setOnCheckedChangeListener(new CheckBoxListener());
     }
 
-    //Update UI here
+    // Update UI here
     Handler updateUIHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                //start result is sent here
-                case MSG_START_RESULT:
-                    Log.v(TAG,"Start result has been received!");
-                    metxLog.append("Start result: " + String.valueOf(msg.arg1) + "\n");
-                    //start successfully
+                case MSG_MP_STACK_STATUS:
+                    Log.v(TAG, "MP stack status received: " + msg.arg1);
+                    metxLog.append("MP stack status: " + String.valueOf(msg.arg1) + "\n");
+                    // MP stack enabled
                     if (msg.arg1 == 1) {
-                        SetButtonStateAfterStart();
+                        mbuttonStart.setEnabled(true);
                     } else {
+                        mbuttonStart.setEnabled(false);
                         new AlertDialog.Builder(MainActivity.this).
-                            setMessage("Strat failed!").
+                            setMessage("MP stack disabled!").
                             create().
                             show();
                     }
                     break;
-                    //HCI command send
+
+                case MSG_MP_ACTION_START_RESULT:
+                    Log.v(TAG, "MP action start result received: " + msg.arg1);
+                    metxLog.append("Start result: " + String.valueOf(msg.arg1) + "\n");
+                    // start successfully
+                    if (msg.arg1 == 1) {
+                        setButtonStateStarted();
+                    } else {
+                        new AlertDialog.Builder(MainActivity.this).
+                            setMessage("MP action start failed!").
+                            create().
+                            show();
+                    }
+                    break;
+
                 case MSG_HCI_SEND:
                     Log.v(TAG,"HCI Command has sent");
                     String msgBuffer = msg.getData().getString("MP_SEND_BUF");
@@ -254,10 +265,9 @@ public class MainActivity extends Activity {
                         metxLog.append("\n");
                     }
                     break;
-                    //HCI event received
+
                 case MSG_HCI_EVENT_BACK:
                     Log.v(TAG,"HCI Event has received");
-
                     String RxBuffer = (String)msg.obj;
                     metxLog.append("RX:");
                     metxLog.append(RxBuffer);
@@ -269,41 +279,31 @@ public class MainActivity extends Activity {
         }
     };
 
-    //before start,only start button is available
-    //called in function onCreate()
-    private void SetButtonStateBeforStart() {
-        mbuttonStart.setEnabled(true);
+    // Before Switch is ON, All buttons are unavailable,
+    // except the log clear button always enabled.
+    private void ButtonStateInit() {
+        mbuttonStart.setEnabled(false);
         mbuttonStop.setEnabled(false);
-        //mbuttonSend.setEnabled(false);
-        //mbuttonPause.setEnabled(false);
-        //mbuttonClear.setEnabled(false);
-        mbuttonClearLog.setEnabled(true);
         mbuttonHCIReset.setEnabled(false);
-        //mbuttonTestMode.setEnabled(false);
+        mbuttonClearLog.setEnabled(true);
     }
 
-    //after start,some buttons is available
-    //called in start button response
-    private void SetButtonStateAfterStart() {
+    // This method should be called when start operation
+    // is completed in start button response.
+    private void setButtonStateStarted() {
+        mbuttonStart.setEnabled(false);
         mbuttonStop.setEnabled(true);
-        //mbuttonSend.setEnabled(true);
-        //mbuttonPause.setEnabled(true);
-        //mbuttonClear.setEnabled(true);
-        mbuttonClearLog.setEnabled(true);
-        mbuttonHCIReset.setEnabled(true);
-        //mbuttonTestMode.setEnabled(true);
+        // Make sure Reset is disable, or mess up
+        mbuttonHCIReset.setEnabled(false);
     }
 
-    //call in stop response
-    private void SetButtonStateStoped() {
+    // This method should be called when stop operation
+    // is completed in stop button response.
+    private void SetButtonStateStopped() {
         mbuttonStart.setEnabled(true);
         mbuttonStop.setEnabled(false);
-        //mbuttonSend.setEnabled(false);
-        //mbuttonPause.setEnabled(false);
-        //mbuttonClear.setEnabled(false);
-        mbuttonClearLog.setEnabled(false);
-        mbuttonHCIReset.setEnabled(false);
-        //mbuttonTestMode.setEnabled(false);
+        //mbuttonClearLog.setEnabled(false);
+        mbuttonHCIReset.setEnabled(true);
         metxLog.clearAnimation();
     }
 
@@ -312,7 +312,7 @@ public class MainActivity extends Activity {
         ArrayList<String> items;
         String[] str;
 
-        // hci interfaces
+        // HCI interfaces
         items = new ArrayList<String>();
         str = new String[] {"UART", "USB"};
         for (int i = 0; i < str.length; i++) {
@@ -322,24 +322,24 @@ public class MainActivity extends Activity {
         adpHCIInterface.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspHCIInterface.setAdapter(adpHCIInterface);
 
-        // action items
+        // Action items
         items = new ArrayList<String>();
         str = new String[] {"Packet Tx", "Packet Rx",
                             "Continue Tx", "Continue LE Tx"};
         for (int i = 0; i < str.length; i++) {
             items.add(str[i]);
         }
-        adpActionItem = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, items);
+        adpActionItem = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
         adpActionItem.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspActionItem.setAdapter(adpActionItem);
 
-        // Rf channel
+        // RF channel
         int RF_CHANNEL_MAX = 79;
         items = new ArrayList<String>();
         for (int i = 0; i < RF_CHANNEL_MAX; i++) {
             items.add(String.valueOf(i));
         }
-        adpRFChannel = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, items);
+        adpRFChannel = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
         adpRFChannel.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspRFChannel.setAdapter(adpRFChannel);
 
@@ -350,7 +350,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < str.length; i++) {
             items.add(str[i]);
         }
-        adpPktType = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, items);
+        adpPktType = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
         adpPktType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspPktType.setAdapter(adpPktType);
 
@@ -360,7 +360,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < str.length; i++) {
             items.add(str[i]);
         }
-        adpPayloadType = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, items);
+        adpPayloadType = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
         adpPayloadType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspPayloadType.setAdapter(adpPayloadType);
 
@@ -427,6 +427,10 @@ public class MainActivity extends Activity {
                     Toast.LENGTH_SHORT).show();
 
             mDevNode = metxDevNode.getText().toString();
+            if (mDevNode == null || mDevNode.equals("")) {
+                // FIXME use R.string.hint_Dev_Node
+                mDevNode = new String("/dev/ttyS0");
+            }
 
             Log.d(TAG, "HCI Interface: " + mHciInterface + "; Device Node: " + mDevNode);
 
@@ -443,17 +447,21 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.button_Start:
-                    Log.v(TAG,"button_Start clicked");
-                    //mService.enableMpTestMode();
-                    //mbuttonStart.setEnabled(false);
+                    Log.v(TAG, "button_Start clicked");
+                    // Send action to stack
+
+                    // buttons state update in handler
+                    Message msg = new Message();
+                    msg.what = MSG_MP_ACTION_START_RESULT;
+                    msg.arg1 = 1;
+                    updateUIHandler.sendMessage(msg);
 
                     break;
 
                 case R.id.button_Stop:
-                    SetButtonStateStoped();
-                    mService.disableMpTestMode();
-                    metxLog.setText("");
                     Log.v(TAG,"button_Stop clicked");
+                    SetButtonStateStopped();
+                    metxLog.setText("");
                     break;
 
                 //case R.id.button_Send:
@@ -536,7 +544,7 @@ public class MainActivity extends Activity {
                 //    break;
 
                 case R.id.button_Clear_Log:
-                    //do clear log here
+                    // do clear log here
                     Log.v(TAG,"button_Clear_Log clicked");
                     break;
 
@@ -544,11 +552,6 @@ public class MainActivity extends Activity {
                     //do hci resrt here
                     Log.v(TAG,"button_HCI_Reset clicked");
                     break;
-
-                //case R.id.button_Test_Mode:
-                //    //test mode
-                //    Log.v(TAG,"button_Test_Mode clicked");
-                //    break;
 
                 default:
                     break;
@@ -696,7 +699,6 @@ public class MainActivity extends Activity {
             //
             //mbuttonStart.setEnabled(true);
             //mbuttonStop.setEnabled(true);
-            //mbuttonSend.setEnabled(true);
         }
 
         @Override
@@ -706,7 +708,6 @@ public class MainActivity extends Activity {
             mBound = false;
             //mbuttonStart.setEnabled(false);
             //mbuttonStop.setEnabled(false);
-            //mbuttonSend.setEnabled(false);
         }
     };
 }
