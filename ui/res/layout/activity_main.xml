@@ -307,8 +307,86 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
+      <TextView
+        android:text="@string/Tx_Gain_Table0"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
       <EditText
-        android:id="@+id/editText_Tx_Gain_Table"
+        android:id="@+id/editText_Tx_Gain_Table0"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Gain_Table" />
+      <TextView
+        android:text="@string/Tx_Gain_Table1"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Gain_Table1"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Gain_Table" />
+      <TextView
+        android:text="@string/Tx_Gain_Table2"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Gain_Table2"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Gain_Table" />
+      <TextView
+        android:text="@string/Tx_Gain_Table3"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Gain_Table3"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Gain_Table" />
+      <TextView
+        android:text="@string/Tx_Gain_Table4"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Gain_Table4"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Gain_Table" />
+      <TextView
+        android:text="@string/Tx_Gain_Table5"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Gain_Table5"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Gain_Table" />
+      <TextView
+        android:text="@string/Tx_Gain_Table6"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Gain_Table6"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
@@ -326,8 +404,62 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
+      <TextView
+        android:text="@string/Tx_Dac_Table0"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
       <EditText
-        android:id="@+id/editText_Tx_Dac_Table"
+        android:id="@+id/editText_Tx_Dac_Table0"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Dac_Table" />
+      <TextView
+        android:text="@string/Tx_Dac_Table1"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Dac_Table1"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Dac_Table" />
+      <TextView
+        android:text="@string/Tx_Dac_Table2"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Dac_Table2"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Dac_Table" />
+      <TextView
+        android:text="@string/Tx_Dac_Table3"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Dac_Table3"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Dac_Table" />
+      <TextView
+        android:text="@string/Tx_Dac_Table4"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Dac_Table4"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
@@ -370,6 +502,17 @@
         android:layout_width="0px"
         android:layout_weight="1" />
       <TextView
+        android:text="@string/Reg_RW"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <Spinner
+        android:id="@+id/spinner_Reg_RW"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <TextView
         android:text="@string/Reg_Addr"
         android:gravity="bottom|center"
         android:layout_height="match_parent"
@@ -382,41 +525,41 @@
         android:layout_weight="1"
         android:hint="@string/hint_Reg_Addr" />
       <TextView
-        android:text="@string/Msb"
+        android:text="@string/Reg_Msb"
         android:gravity="bottom|center"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
       <EditText
-        android:id="@+id/editText_Msb"
+        android:id="@+id/editText_Reg_Msb"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
-        android:hint="@string/hint_Msb" />
+        android:hint="@string/hint_Reg_Msb" />
       <TextView
-        android:text="@string/Lsb"
+        android:text="@string/Reg_Lsb"
         android:gravity="bottom|center"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
       <EditText
-        android:id="@+id/editText_Lsb"
+        android:id="@+id/editText_Reg_Lsb"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
-        android:hint="@string/hint_Lsb" />
+        android:hint="@string/hint_Reg_Lsb" />
       <TextView
-        android:text="@string/Data"
+        android:text="@string/Reg_Data"
         android:gravity="bottom|center"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
       <EditText
-        android:id="@+id/editText_Data"
+        android:id="@+id/editText_Reg_Data"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
-        android:hint="@string/hint_Data" />
+        android:hint="@string/hint_Reg_Data" />
     </LinearLayout>
     <LinearLayout
       android:orientation="horizontal"
@@ -543,6 +686,7 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
+        android:hint="@string/hint_Rx_Rssi"
         android:inputType="number"/>
       <TextView
         android:text="@string/Rx_Bits"
@@ -556,6 +700,7 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
+        android:hint="@string/hint_Rx_Bits"
         android:inputType="number"/>
       <TextView
         android:text="@string/Rx_Err_Bits"
@@ -569,6 +714,7 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
+        android:hint="@string/hint_Rx_Err_Bits"
         android:inputType="number"/>
       <TextView
         android:text="@string/Rx_Pkt_Counts"
@@ -582,6 +728,7 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
+        android:hint="@string/hint_Rx_Pkt_Counts"
         android:inputType="number"/>
     </LinearLayout>
     <LinearLayout
@@ -601,6 +748,7 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
+        android:hint="@string/hint_Tx_Bits"
         android:inputType="number"/>
       <TextView
         android:text="@string/Tx_Pkt_Counts"
@@ -614,6 +762,7 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
+        android:hint="@string/hint_Tx_Pkt_Counts"
         android:inputType="number"/>
     </LinearLayout>
   </LinearLayout>

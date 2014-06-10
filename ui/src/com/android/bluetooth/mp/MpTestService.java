@@ -108,22 +108,23 @@ public class MpTestService extends Service {
         cleanupNative();
     }
 
-    //1--start sucessfully 0--start failed
+    // 1: stack enable; 0: stack disable
     void stateChangeCallback(int status) {
         Log.d(TAG, "stateChangeCallback, status " + status);
-        //send the start result to MainActivity
+        // Send the status to MainActivity
         Message msg = new Message();
         msg.what = MainActivity.MSG_MP_STACK_STATUS;
         msg.arg1 = status;
         mHandler.sendMessage(msg);
     }
 
-    //HCI event call back
-    void dut_mode_recv(byte opcode, String data) {
-        Log.d(TAG, "dut_mode_recv, opcode:" + opcode + "data:");
+    // HCI event callback
+    void dut_mode_recv(int opcode, String data) {
+        Log.d(TAG, "dut_mode_recv, opcode " + opcode + ", data: " + data);
 
         Message msg = new Message();
-        msg.what = MainActivity.MSG_HCI_EVENT_BACK;
+        msg.what = MainActivity.MSG_MP_HCI_EVENT;
+        msg.arg1 = opcode;
         msg.obj = data;
         mHandler.sendMessage(msg);
     }
@@ -151,8 +152,19 @@ public class MpTestService extends Service {
     }
 
     public int hciSend(int opCode, String data) {
-        Log.d(TAG,"Send hci command: opCode " + opCode + ": " + data);
-        return hciSendNative(opCode, data);
+        int ret = 0;
+
+        Log.d(TAG,"Send hci command: opCode " + opCode + ", buf: " + data);
+
+        ret = hciSendNative(opCode, data);
+
+        // Send the status to MainActivity
+        Message msg = new Message();
+        msg.what = MainActivity.MSG_MP_ACTION_START_RESULT;
+        msg.arg1 = ret;
+        mHandler.sendMessage(msg);
+
+        return ret;
     }
 
     native void classInitNative();
@@ -163,4 +175,3 @@ public class MpTestService extends Service {
     native int hciSendNative(int opcode, String data);
     native boolean dutModeConfigureNative(int configure);
 }
-

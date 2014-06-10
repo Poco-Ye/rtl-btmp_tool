@@ -94,7 +94,9 @@ static void dut_mode_recv(uint8_t evtcode, char *buf)
     jbyteArray byteBuffer = NULL;
     jstring encode = NULL;
     int strLen = 0;
-    ALOGI("dut_mode_recv1: %s", buf);
+
+    ALOGI("%s: opCode 0x%02x, buf[%s]", __FUNCTION__, evtcode, buf);
+
     if (!checkCallbackThread()) {
         ALOGE("Callback: '%s' is not called on the correct thread", __FUNCTION__);
         return;
@@ -117,11 +119,10 @@ static void dut_mode_recv(uint8_t evtcode, char *buf)
 
     checkAndClearExceptionFromCallback(callbackEnv, __FUNCTION__);
 
-    Fail:
+Fail:
     if (byteBuffer) callbackEnv->DeleteLocalRef(byteBuffer);
     if (dataBuffer) callbackEnv->DeleteLocalRef(dataBuffer);
 }
-
 
 static void callback_thread_event(bt_cb_thread_evt event) {
     JavaVM* vm = AndroidRuntime::getJavaVM();
@@ -159,7 +160,7 @@ static void classInitNative(JNIEnv* env, jclass clazz) {
         env->FindClass("com/android/bluetooth/mp/MpTestService");
 
     method_stateChangeCallback = env->GetMethodID(jniCallbackClass, "stateChangeCallback", "(I)V");
-    method_dut_mode_recv = env->GetMethodID(jniCallbackClass, "dut_mode_recv", "(BLjava/lang/String;)V");
+    method_dut_mode_recv = env->GetMethodID(jniCallbackClass, "dut_mode_recv", "(ILjava/lang/String;)V");
 
     err = hw_get_module(BT_STACK_MODULE_ID, (hw_module_t const**)&module);
 
@@ -257,22 +258,21 @@ static jboolean disableNative(JNIEnv* env, jobject obj) {
 
 static jint hciSendNative(JNIEnv* env, jobject obj, jint opcode, jstring data)
 {
-    ALOGI("%s", __FUNCTION__);
-
     jint bytesSend = 0;
-    if (!sBluetoothInterface) return bytesSend;
-
     const char *input_data = NULL;
 
-    if (data != NULL)
-    {
+    if (!sBluetoothInterface) return bytesSend;
+
+
+    if (data != NULL) {
         input_data = env->GetStringUTFChars(data, NULL);
     }
 
+    ALOGI("%s: opCode 0x%02x, buf[%s]", __FUNCTION__, opcode, input_data);
+
     bytesSend = sBluetoothInterface->hal_mp_op_send(opcode, (char*)input_data);
 
-    if (input_data != NULL)
-    {
+    if (input_data != NULL) {
         env->ReleaseStringUTFChars(data, input_data);
     }
 

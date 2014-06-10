@@ -26,16 +26,29 @@
     <string name="Hit_Target">Hit Target</string>
     <!-- tx gain table-->
     <string name="Tx_Gain_Table">Tx Gain Table</string>
+    <string name="Tx_Gain_Table0">T0</string>
+    <string name="Tx_Gain_Table1">T1</string>
+    <string name="Tx_Gain_Table2">T2</string>
+    <string name="Tx_Gain_Table3">T3</string>
+    <string name="Tx_Gain_Table4">T4</string>
+    <string name="Tx_Gain_Table5">T5</string>
+    <string name="Tx_Gain_Table6">T6</string>
     <!-- tx dac table -->
     <string name="Tx_Dac_Table">Tx Dac Table</string>
+    <string name="Tx_Dac_Table0">T0</string>
+    <string name="Tx_Dac_Table1">T1</string>
+    <string name="Tx_Dac_Table2">T2</string>
+    <string name="Tx_Dac_Table3">T3</string>
+    <string name="Tx_Dac_Table4">T4</string>
     <!-- rtl8761 xtal -->
     <string name="RTL8761_Xtal">RTL8761 Xtal</string>
     <!-- register ID -->
     <string name="Register_ID">Register ID</string>
+    <string name="Reg_RW">R/W</string>
     <string name="Reg_Addr">Address</string>
-    <string name="Msb">Msb</string>
-    <string name="Lsb">Lsb</string>
-    <string name="Data">Data</string>
+    <string name="Reg_Msb">Msb</string>
+    <string name="Reg_Lsb">Lsb</string>
+    <string name="Reg_Data">Data</string>
     <!-- get thermal -->
     <string name="Get_Thermal">Get Thermal</string>
     <!-- get stage -->
@@ -68,16 +81,22 @@
     <string name="hint_Pkt_Header">xxxx</string>
     <string name="hint_Multi_Rx_Enable">xx</string>
     <string name="hint_Hopping_Fix_Channel">xx</string>
-    <string name="hint_Hit_Target">xxxxxxxx</string>
-    <string name="hint_Tx_Gain_Table">xxxxxxxxxxxxxx</string>
-    <string name="hint_Tx_Dac_Table">xxxxxxxxxx</string>
+    <string name="hint_Hit_Target">xxxxxx</string>
+    <string name="hint_Tx_Gain_Table">xx</string>
+    <string name="hint_Tx_Dac_Table">xx</string>
     <string name="hint_RTL8761_Xtal">xxxxxxxx</string>
     <string name="hint_Reg_Addr">xx</string>
-    <string name="hint_Msb">xx</string>
-    <string name="hint_Lsb">xx</string>
-    <string name="hint_Data">xxxxxx</string>
+    <string name="hint_Reg_Msb">xx</string>
+    <string name="hint_Reg_Lsb">xx</string>
+    <string name="hint_Reg_Data">xxxxxx</string>
     <string name="hint_Get_Thermal">xx</string>
     <string name="hint_Get_Stage">xx</string>
+    <string name="hint_Rx_Rssi">xx</string>
+    <string name="hint_Rx_Bits">xxxx</string>
+    <string name="hint_Rx_Err_Bits">xxxx</string>
+    <string name="hint_Rx_Pkt_Counts">xxxx</string>
+    <string name="hint_Tx_Bits">xxxx</string>
+    <string name="hint_Tx_Pkt_Counts">xxxx</string>
 
     <!-- button bar menu -->
     <string name="NonLinkMode_menu">Non Link Mode</string>
