@@ -151,7 +151,7 @@ public class MpTestService extends Service {
         return ret;
     }
 
-    public int hciSend(int opCode, String data) {
+    public int hciSend(int opCode, String data, boolean start) {
         int ret = 0;
 
         Log.d(TAG,"Send hci command: opCode " + opCode + ", buf: " + data);
@@ -160,7 +160,11 @@ public class MpTestService extends Service {
 
         // Send the status to MainActivity
         Message msg = new Message();
-        msg.what = MainActivity.MSG_MP_ACTION_START_RESULT;
+        if (start == true) {
+            msg.what = MainActivity.MSG_MP_ACTION_START_RESULT;
+        } else {
+            msg.what = MainActivity.MSG_MP_ACTION_STOP_RESULT;
+        }
         msg.arg1 = ret;
         mHandler.sendMessage(msg);
 

@@ -133,13 +133,16 @@ public class MainActivity extends Activity {
     String mDevNode = null;
     String mActionItem = null;
     int mActionCode = -1;
+    int mSubActionCode = -1;
+    int mStopSubActionCode = -1;
     String mActionParam = null;
 
     // Internal Messages
     public static final int MSG_MP_STACK_STATUS = 0;
     public static final int MSG_MP_ACTION_START_RESULT = 1;
-    public static final int MSG_HCI_SEND = 2;
-    public static final int MSG_MP_HCI_EVENT = 3;
+    public static final int MSG_MP_ACTION_STOP_RESULT = 2;
+    public static final int MSG_HCI_SEND = 3;
+    public static final int MSG_MP_HCI_EVENT = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -286,6 +289,23 @@ public class MainActivity extends Activity {
                     } else {
                         new AlertDialog.Builder(MainActivity.this).
                             setMessage("MP action start failed!").
+                            create().
+                            show();
+                        // Give the chance to select action spinner again
+                        mspActionItem.setEnabled(true);
+                    }
+                    break;
+
+                case MSG_MP_ACTION_STOP_RESULT:
+                    Log.v(TAG, "MP action stop result received: " + msg.arg1);
+                    metxLog.append("Stop result: " + String.valueOf(msg.arg1) + "\n");
+                    // stop successfully
+                    if (msg.arg1 == 0) {
+                        setButtonStateStopped();
+                        mspActionItem.setEnabled(true);
+                    } else {
+                        new AlertDialog.Builder(MainActivity.this).
+                            setMessage("MP action stop failed!").
                             create().
                             show();
                     }
@@ -444,7 +464,7 @@ public class MainActivity extends Activity {
 
     // This method should be called when stop operation
     // is completed in stop button response.
-    private void SetButtonStateStopped() {
+    private void setButtonStateStopped() {
         mbuttonStart.setEnabled(true);
         mbuttonStop.setEnabled(false);
         //mbuttonClearLog.setEnabled(false);
@@ -476,7 +496,10 @@ public class MainActivity extends Activity {
                             MpOpCode.BT_MP_OP_STR_SetHitTarget, MpOpCode.BT_MP_OP_STR_SetGainTable,
                             MpOpCode.BT_MP_OP_STR_SetDacTable, MpOpCode.BT_MP_OP_STR_Exec,
                             MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportRx,
-                            MpOpCode.BT_MP_OP_STR_RegMD, MpOpCode.BT_MP_OP_STR_RegRF};
+                            MpOpCode.BT_MP_OP_STR_RegMD, MpOpCode.BT_MP_OP_STR_RegRF,
+                            MpOpCode.BT_MP_OP_STR_PktTxStart, MpOpCode.BT_MP_OP_STR_PktTxUpdate,
+                            MpOpCode.BT_MP_OP_STR_PktRxStart, MpOpCode.BT_MP_OP_STR_PktRxUpdate,
+                            MpOpCode.BT_MP_OP_STR_PktContTxStart, MpOpCode.BT_MP_OP_STR_PktContTxUpdate};
         for (int i = 0; i < str.length; i++) {
             items.add(str[i]);
         }
@@ -598,6 +621,7 @@ public class MainActivity extends Activity {
             switch (v.getId()) {
                 case R.id.button_Start:
                     Log.v(TAG, "button_Start clicked, action: 0x" + Integer.toHexString(mActionCode));
+                    boolean actSpinnerEnable = false;
                     switch (mActionCode) {
                         case MpOpCode.BT_MP_OP_CODE_GetPara:
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_GetPara);
@@ -712,8 +736,44 @@ public class MainActivity extends Activity {
                             Log.v(TAG, "+table4> " + mActionParam);
                             break;
                         case MpOpCode.BT_MP_OP_CODE_Exec:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_Exec);
                             mActionParam = null;
+                            switch (mSubActionCode) {
+                                case MpOpCode.BT_MP_OP_CODE_PktTxStart:
+                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktTxStart);
+                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
+                                    Log.v(TAG, "action index> " + mActionParam);
+                                    mStopSubActionCode = MpOpCode.BT_MP_OP_CODE_PktTxStop;
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_PktTxUpdate:
+                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktTxUpdate);
+                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
+                                    Log.v(TAG, "action index> " + mActionParam);
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_PktRxStart:
+                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktRxStart);
+                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
+                                    Log.v(TAG, "action index> " + mActionParam);
+                                    mStopSubActionCode = MpOpCode.BT_MP_OP_CODE_PktRxStop;
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_PktRxUpdate:
+                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktRxUpdate);
+                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
+                                    Log.v(TAG, "action index> " + mActionParam);
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_PktContTxStart:
+                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktContTxStart);
+                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
+                                    Log.v(TAG, "action index> " + mActionParam);
+                                    mStopSubActionCode = MpOpCode.BT_MP_OP_CODE_PktContTxStop;
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_PktContTxUpdate:
+                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktContTxUpdate);
+                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
+                                    Log.v(TAG, "action index> " + mActionParam);
+                                    break;
+                                default:
+                                    break;
+                            }
                             break;
                         case MpOpCode.BT_MP_OP_CODE_ReportTx:
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_ReportTx);
@@ -768,93 +828,32 @@ public class MainActivity extends Activity {
                         default:
                             Log.v(TAG, "Undefined start action: opcode 0x" +
                                     Integer.toHexString(mActionCode));
+                            actSpinnerEnable = true;
                             break;
                     }
-                    // Send action to stack
-                    mService.hciSend(mActionCode, mActionParam);
+
+                    mspActionItem.setEnabled(actSpinnerEnable);
+                    // Send action to stack; subaction code set in mActionParam
+                    mService.hciSend(mActionCode & 0xFF, mActionParam, true);
 
                     break;
 
                 case R.id.button_Stop:
                     Log.v(TAG,"button_Stop clicked");
                     // Just make start button available again,
-                    // not action sent to stack
-                    SetButtonStateStopped();
+                    // send stop action to stack when neccessary.
+                    if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktTxStart) ||
+                        mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktRxStart) ||
+                        mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktContTxStart)) {
+                        mActionParam = Integer.toString((mStopSubActionCode >> 8) & 0xFF);
+                        Log.v(TAG, "stop action index> " + mActionParam);
+                        mService.hciSend(mActionCode & 0xFF, mActionParam, false);
+                    } else {
+                        setButtonStateStopped();
+                        // Action spinner is available after stop clicked.
+                        mspActionItem.setEnabled(true);
+                    }
                     break;
-
-                //case R.id.button_Send:
-                //    Log.v(TAG,"button_Send clicked");
-
-                //    String mpBuffer = null;
-                //    String opcodeBuffer = null;
-                //    String opParaBuffer = null;
-                //    int opcode = 0;
-                //    Message msg;
-                //    Bundle boudle;
-
-                //    //BT_MP_OP_USER_DEF_GetPara
-                //    opcode = MpOpCode.BT_MP_OP_USER_DEF_GetPara;
-                //    opcodeBuffer = String.format("%x ", opcode);
-                //    opParaBuffer = null;
-
-                //    mService.hciSend(opcode, opParaBuffer);
-                //    //Update UI
-                //    msg = new Message();
-                //    msg.what = MSG_HCI_SEND;
-                //    boudle = new Bundle();
-                //    mpBuffer = opcodeBuffer + opParaBuffer;
-                //    boudle.putString("MP_SEND_BUF", mpBuffer);
-                //    msg.setData(boudle);
-
-                //    updateUIHandler.sendMessage(msg);
-                //    /*
-                //       public static final  int BT_MP_OP_USER_DEF_SetPara2 = 	0x82;
-                //       public static final  int BT_MP_OP_USER_DEF_SetHit = 		0x83;
-                //       public static final  int BT_MP_OP_USER_DEF_SetDacTable = 	0x84;
-                //       public static final  int BT_MP_OP_USER_DEF_SetGainTable = 	0x85;
-                //       public static final  int BT_MP_OP_USER_DEF_Exec = 		0x86;
-                //       public static final  int BT_MP_OP_USER_DEF_ReportTx = 	0x87;
-                //       public static final  int BT_MP_OP_USER_DEF_ReportRx = 	0x88;
-                //     */
-                //    //BT_MP_OP_USER_DEF_SetPara1
-                //    opcode = MpOpCode.BT_MP_OP_USER_DEF_SetPara1;
-                //    opcodeBuffer = String.format("%x ", opcode);
-                //    opParaBuffer = "1,8,1,FF,A9,0";
-
-                //    mService.hciSend(opcode, opParaBuffer);
-                //    //Update UI
-                //    msg = new Message();
-                //    msg.what = MSG_HCI_SEND;
-                //    boudle = new Bundle();
-                //    mpBuffer = opcodeBuffer + opParaBuffer;
-                //    boudle.putString("MP_SEND_BUF", mpBuffer);
-                //    msg.setData(boudle);
-
-                //    updateUIHandler.sendMessage(msg);
-
-                //    break;
-
-                //case R.id.button_Pause:
-                //    //do pause here
-                //    Log.v(TAG,"button_Pause clicked");
-
-                //    //BT_MP_OP_USER_DEF_ReportTx
-                //    opcode = MpOpCode.BT_MP_OP_USER_DEF_ReportTx;
-                //    opcodeBuffer = String.format("%x ", opcode);
-                //    opParaBuffer = null;
-
-                //    mService.hciSend(opcode, opParaBuffer);
-                //    //Update UI
-                //    msg = new Message();
-                //    msg.what = MSG_HCI_SEND;
-                //    boudle = new Bundle();
-                //    mpBuffer = opcodeBuffer + opParaBuffer;
-                //    boudle.putString("MP_SEND_BUF", mpBuffer);
-                //    msg.setData(boudle);
-
-                //    updateUIHandler.sendMessage(msg);
-
-                //    break;
 
                 case R.id.button_Clear_Log:
                     Log.v(TAG, "button_Clear_Log clicked");
@@ -915,6 +914,24 @@ public class MainActivity extends Activity {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_RegMD;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_RegRF)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_RegRF;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktTxStart)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktTxStart;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktTxUpdate)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktTxUpdate;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktRxStart)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktRxStart;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktRxUpdate)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktRxUpdate;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktContTxStart)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktContTxStart;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktContTxUpdate)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktContTxUpdate;
                     }
                     break;
 
