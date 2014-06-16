@@ -689,14 +689,14 @@ int BT_ReportTx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
         ALOGI("%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RX_RESULT_DELIM, rtn);
         goto exit;
     } else {
-        ALOGI("%s%s%lx%s%lx",
+        ALOGI("%s%s%x%s%x",
                 STR_BT_MP_REPORTTX,
                 STR_BT_MP_RX_RESULT_DELIM,
                 BtDeviceReport.TotalTXBits,
                 STR_BT_MP_RX_RESULT_DELIM,
                 BtDeviceReport.TotalTxCounts);
 
-        sprintf(pNotifyBuffer, "%s%s%lx%s%lx",
+        sprintf(pNotifyBuffer, "%s%s%x%s%x",
                                 STR_BT_MP_REPORTTX,
                                 STR_BT_MP_RX_RESULT_DELIM,
                                 BtDeviceReport.TotalTXBits,
@@ -723,7 +723,7 @@ int BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_PKTRXSTART, STR_BT_MP_RX_RESULT_DELIM, rtn);
         goto exit;
     } else {
-        ALOGI("%s%s%x%s%lx%s%lx%s%lx",
+        ALOGI("%s%s%x%s%x%s%x%s%x",
                 STR_BT_MP_REPORTRX,
                 STR_BT_MP_RX_RESULT_DELIM,
                 BtDeviceReport.IsRxRssi,
@@ -735,7 +735,7 @@ int BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
                 BtDeviceReport.TotalRxErrorBits
              );
 
-        sprintf(pNotifyBuffer, "%s%s%x%s%lx%s%lx%s%lx",
+        sprintf(pNotifyBuffer, "%s%s%x%s%x%s%x%s%x",
                 STR_BT_MP_REPORTRX,
                 STR_BT_MP_RX_RESULT_DELIM,
                 BtDeviceReport.IsRxRssi,

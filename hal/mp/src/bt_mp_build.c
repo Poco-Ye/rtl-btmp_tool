@@ -7,12 +7,12 @@
 
 int
 BuildBluetoothDevice(
-        BASE_INTERFACE_MODULE    *pBaseInterface,
-        BT_DEVICE                **ppBtDeviceBase,
-        BT_DEVICE                *pDeviceBasememory,
-        void                     *pExtra,
-        unsigned char            *pTxGainTable,
-        unsigned char            *pTxDACTable
+        BASE_INTERFACE_MODULE   *pBaseInterface,
+        BT_DEVICE               **ppBtDeviceBase,
+        BT_DEVICE               *pDeviceBasememory,
+        void                    *pExtra,
+        uint8_t                 *pTxGainTable,
+        uint8_t                 *pTxDACTable
         )
 {
     BT_DEVICE *pBtDevice = pDeviceBasememory;
@@ -73,15 +73,12 @@ BuildBluetoothDevice(
     pBtDevice->GetBBRegMaskBits = BT_GetBBRegMaskBits;
 
     //-->Vendor HCI Command Control
-    pBtDevice->SetFWPowerTrackEnable=       BTDevice_SetFWPowerTrackEnable;
-    pBtDevice->SetHoppingMode       =       BTDevice_SetHoppingMode;
-    pBtDevice->SetHciReset          =       BTDevice_SetHciReset;
-    pBtDevice->GetBTClockTime       =       BTDevice_GetBTClockTime;
+    pBtDevice->SetFWPowerTrackEnable =      BTDevice_SetFWPowerTrackEnable;
+    pBtDevice->SetHoppingMode        =      BTDevice_SetHoppingMode;
+    pBtDevice->SetHciReset           =      BTDevice_SetHciReset;
+    pBtDevice->GetBTClockTime        =      BTDevice_GetBTClockTime;
 
-    //--->Control Flow
-    pBtDevice->TRXSTATE = 0;
-    pBtDevice->OldModemReg4Value=0;
-    pBtDevice->TxTriggerPktCnt=0;
+    pBtDevice->TxTriggerPktCnt = 0;
 
     pBtDevice->SetContinueTxBegin   =       BTDevice_SetContinueTxBegin;
     pBtDevice->SetContinueTxStop    =       BTDevice_SetContinueTxStop;
@@ -89,32 +86,32 @@ BuildBluetoothDevice(
 
     //PKT-TX
     pBtDevice->SetPktTxBegin        =       BTDevice_SetPktTxBegin;
-    pBtDevice->SetPktTxBeginChannelPacketType =       BTDevice_SetPktTxBegin_Channel_PacketType;
+    pBtDevice->SetPktTxBeginChannelPacketType = NULL;
 
     pBtDevice->SetPktTxStop         =       BTDevice_SetPktTxStop;
     pBtDevice->SetPktTxUpdate       =       BTDevice_SetPktTxUpdate;
-    pBtDevice->SetPktTxSendOne       =       BTDevice_SetPktTxSendOne;
+    pBtDevice->SetPktTxSendOne      =       NULL;
 
     //PKT-RX
-    pBtDevice->SetPktRxBegin=BTDevice_SetPktRxBegin;
-    pBtDevice->SetPktRxBeginChannelPacketType=BTDevice_SetPktRxBegin_Channel_PacketType;
+    pBtDevice->SetPktRxBegin = BTDevice_SetPktRxBegin;
+    pBtDevice->SetPktRxBeginChannelPacketType = NULL;
 
-    pBtDevice->SetPktRxStop=BTDevice_SetPktRxStop;
-    pBtDevice->SetPktRxUpdate=BTDevice_SetPktRxUpdate;
+    pBtDevice->SetPktRxStop = BTDevice_SetPktRxStop;
+    pBtDevice->SetPktRxUpdate = BTDevice_SetPktRxUpdate;
 
     //Base Function
-    pBtDevice->GetPayLoadTypeValidFlag=BTBASE_GetPayLoadTypeValidFlag;
-    pBtDevice->HitTargetAccessCodeGen =BTBASE_HitTargetAccessCodeGen;
+    pBtDevice->GetPayLoadTypeValidFlag = BTBASE_GetPayLoadTypeValidFlag;
+    pBtDevice->HitTargetAccessCodeGen = BTBASE_HitTargetAccessCodeGen;
 
     //Table
     pBtDevice->SetTxGainTable(pBtDevice,pTxGainTable);
     pBtDevice->SetTxDACTable(pBtDevice,pTxDACTable);
 
-    pBtDevice->GetChipId=bt_default_GetChipId;
-    pBtDevice->GetECOVersion=bt_default_GetECOVersion;
-    pBtDevice->GetChipVersionInfo=bt_default_GetBTChipVersionInfo;
-    pBtDevice->BTDlFW=bt_default_BTDlFW;
-    pBtDevice->BTDlMERGERFW=bt_default_BTDlMergerFW;
+    pBtDevice->GetChipId = bt_default_GetChipId;
+    pBtDevice->GetECOVersion = bt_default_GetECOVersion;
+    pBtDevice->GetChipVersionInfo = bt_default_GetBTChipVersionInfo;
+    pBtDevice->BTDlFW = bt_default_BTDlFW;
+    pBtDevice->BTDlMERGERFW = bt_default_BTDlMergerFW;
 
     return 0;
 }
@@ -122,11 +119,11 @@ BuildBluetoothDevice(
 // Base Module interface builder
 int
 BuildBluetoothModule(
-    BASE_INTERFACE_MODULE    *pBaseInterfaceModule,
-    BT_MODULE                *pBtModule,
-    void                     *pExtra,
-    unsigned char            *pTxGainTable,
-    unsigned char            *pTxDACTable
+    BASE_INTERFACE_MODULE   *pBaseInterfaceModule,
+    BT_MODULE               *pBtModule,
+    void                    *pExtra,
+    uint8_t                 *pTxGainTable,
+    uint8_t                 *pTxDACTable
     )
 {
     int rtn = BT_FUNCTION_SUCCESS;

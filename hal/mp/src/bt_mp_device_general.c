@@ -13,7 +13,7 @@
 
 int BTDevice_SetPowerGainIndex(BT_DEVICE *pBtDevice, int Index)
 {
-    unsigned char PowerGainValue =0;
+    uint8_t PowerGainValue =0;
     int rtn=BT_FUNCTION_SUCCESS;
     if (Index > MAX_TXGAIN_TABLE_SIZE)
     {
@@ -77,7 +77,7 @@ exit:
     return rtn;
 }
 
-int BTDevice_SetLETxChannel(BT_DEVICE *pBtDevice,unsigned char ChannelNumber)
+int BTDevice_SetLETxChannel(BT_DEVICE *pBtDevice, uint8_t ChannelNumber)
 {
     int rtn=BT_FUNCTION_SUCCESS;
     /* set rf standby mode */
@@ -96,7 +96,7 @@ exit:
     return rtn;
 }
 
-int BTDevice_SetTxChannel(BT_DEVICE *pBtDevice,unsigned char ChannelNumber)
+int BTDevice_SetTxChannel(BT_DEVICE *pBtDevice, uint8_t ChannelNumber)
 {
     int rtn=BT_FUNCTION_SUCCESS;
     /* set rf standby mode */
@@ -114,7 +114,7 @@ exit:
     return rtn;
 }
 
-int BTDevice_SetRxChannel(BT_DEVICE *pBtDevice,unsigned char ChannelNumber)
+int BTDevice_SetRxChannel(BT_DEVICE *pBtDevice, uint8_t ChannelNumber)
 {
     int rtn=BT_FUNCTION_SUCCESS;
     if (ChannelNumber >=79)
@@ -132,7 +132,7 @@ exit:
     return rtn;
 }
 
-int BTDevice_SetPowerGain(BT_DEVICE *pBtDevice,unsigned char PowerGainValue)
+int BTDevice_SetPowerGain(BT_DEVICE *pBtDevice, uint8_t PowerGainValue)
 {
     int rtn=BT_FUNCTION_SUCCESS;
     /* set rf standby mode */
@@ -147,11 +147,11 @@ exit:
     return rtn;
 }
 
-int BTDevice_SetPowerDac(BT_DEVICE *pBtDevice,unsigned char DacValue)
+int BTDevice_SetPowerDac(BT_DEVICE *pBtDevice, uint8_t DacValue)
 {
     int rtn=BT_FUNCTION_SUCCESS;
 
-    rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x38,6,3,DacValue);
+    rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x38,7,3,DacValue);
 
     return rtn;
 }

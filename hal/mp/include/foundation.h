@@ -73,10 +73,24 @@
 #define BT_VENDOR_BZDMA_ADDR    0xb000a000
 #define BT_BLUEWIZ9_15_ADDR     0xb6000000
 
+#ifndef INTERFACE_TYPE
+#define INTERFACE_TYPE
 enum INTERFACE_TYPE {
     TYPE_USB = 0,
     TYPE_UART,
+    TYPE_FILTER_UART,
+    TYPE_ADB_UART,
+    TYPE_ADB_USB
 };
+#endif
+
+#ifndef ADB_TYPE
+#define ADB_TYPE
+enum ADB_TYPE_TAG{
+    ADB=0,
+    ADB_SHELL
+};
+#endif
 
 enum {
     REG_BB = 0,
@@ -129,10 +143,19 @@ typedef void
         int *pUserDefinedData
         );
 
+// for adb
+typedef int
+(*BASE_FP_ADB_SEND_WITH_RSP_BY_STRING)(
+        BASE_INTERFACE_MODULE *pBaseInterface,
+        int TYPE,
+        uint8_t *pSendBuf,
+        uint8_t *pRspBuf,
+        int RspTimeOut
+        );
+
 #define MP_TRANSPORT_EVENT_RX_HCIEVT              0x0001
 #define MP_TRANSPORT_EVENT_RX_ACL                    0x0002
 #define MP_TRANSPORT_EVENT_RX_EXIT                  0x8000
-
 
 /// Base interface module structure
 struct BASE_INTERFACE_MODULE_TAG
@@ -143,25 +166,29 @@ struct BASE_INTERFACE_MODULE_TAG
     BASE_FP_CLOSE Close;
     BASE_FP_WAIT_MS WaitMs;
 
-    BASE_FP_SET_USER_DEFINED_DATA_POINTER   SetUserDefinedDataPointer;
-    BASE_FP_GET_USER_DEFINED_DATA_POINTER   GetUserDefinedDataPointer;
+    BASE_FP_SET_USER_DEFINED_DATA_POINTER SetUserDefinedDataPointer;
+    BASE_FP_GET_USER_DEFINED_DATA_POINTER GetUserDefinedDataPointer;
 
-    unsigned char InterfaceType;
+    uint8_t InterfaceType;
 
     // User defined data
-    unsigned long UserDefinedData;
+    uint32_t UserDefinedData;
 
     //for usb , uart
-    unsigned char PortNo;
+    uint8_t PortNo;
 
     //for uart
-    unsigned long Baudrate;
+    uint32_t Baudrate;
 
-    unsigned short rx_ready_events;
+    //for adb
+    uint32_t Adb_TimeOut;
+    BASE_FP_ADB_SEND_WITH_RSP_BY_STRING ADBSendWithRspByString;
+
+    uint16_t rx_ready_events;
     pthread_mutex_t mutex;
     pthread_cond_t  cond;
-    unsigned char evtBuffer[255];
-    unsigned char evtLen;
+    uint8_t evtBuffer[255];
+    uint8_t evtLen;
 
 };
 

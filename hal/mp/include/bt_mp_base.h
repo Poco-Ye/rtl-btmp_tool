@@ -156,20 +156,28 @@ struct BT_PARAMETER_TAG
     uint32_t Rtl8761Xtal;
 };
 
-struct BT_DEVICE_REPORT_TAG {
-    unsigned long TotalTXBits;
-    unsigned long TXUpdateBits;
-    unsigned long TotalTxCounts;
-    unsigned long TXPktUpdateCnts;
+struct BT_CHIPINFO_TAG
+{
+    uint32_t HCI_Version;
+    uint32_t HCI_SubVersion;
+    uint32_t LMP_Version;
+    uint32_t LMP_SubVersion;
 
-    unsigned long TotalRXBits;
-    unsigned long RXUpdateBits;
-    unsigned long RXPktUpdateCnts;
-    unsigned long RXRecvPktCnts;
-    unsigned long TotalRxCounts;
-    unsigned long TotalRxErrorBits;
-    int           IsRxRssi;
-    float         ber;
+    uint32_t ChipType;
+    uint32_t Version;
+    int Is_After_PatchCode;
+};
+
+struct BT_DEVICE_REPORT_TAG {
+    uint32_t TotalTXBits;
+    uint32_t TotalTxCounts;
+
+    uint32_t RXRecvPktCnts;
+    uint32_t TotalRXBits;
+    uint32_t TotalRxCounts;
+    uint32_t TotalRxErrorBits;
+    int      IsRxRssi;
+    float    ber;
 
     uint8_t       CurrTXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t       CurrTXDACTable[MAX_TXDAC_TABLE_SIZE];
@@ -179,6 +187,7 @@ struct BT_DEVICE_REPORT_TAG {
     uint8_t       CurrStage;
 
     BT_CHIPINFO   *pBTInfo;
+    BT_CHIPINFO   BTInfoMemory;
 };
 
 enum RTK_BT_CHIP_ID_GROUP_{
@@ -189,18 +198,6 @@ enum RTK_BT_CHIP_ID_GROUP_{
     RTK_BT_CHIP_ID_RTL8761A=3,
 
     NumOfRTKCHID
-};
-
-struct BT_CHIPINFO_TAG
-{
-    unsigned int HCI_Version;
-    unsigned int HCI_SubVersion;
-    unsigned int LMP_Version;
-    unsigned int LMP_SubVersion;
-
-    unsigned int ChipType;
-    unsigned int Version;
-    int Is_After_PatchCode;
 };
 
 //-----------------------------------------------------------------------------------------------------------------
@@ -214,19 +211,19 @@ typedef struct BT_DEVICE_TAG   BT_DEVICE;
 typedef int
 (*BT_FP_SET_TXGAINTABLE)(
         BT_DEVICE *pBtDevice,
-        unsigned char *pTable
+        uint8_t *pTable
         );
 
 typedef int
 (*BT_FP_SET_TXDACTABLE)(
         BT_DEVICE *pBtDevice,
-        unsigned char *pTable
+        uint8_t *pTable
         );
 
 typedef int
 (*BT_FP_GET_PAYLOADLENTABLE)(
         BT_DEVICE *pBtDevice,
-        unsigned char *pTable,
+        uint8_t *pTable,
         int length
         );
 
@@ -246,7 +243,7 @@ typedef int
 typedef int
 (*BT_FP_RECV_ANYEVENT)(
         BT_DEVICE *pBtDevice,
-        unsigned char *pEvent
+        uint8_t *pEvent
         );
 
 typedef int
@@ -270,16 +267,16 @@ typedef int
 typedef int
 (*BT_FP_SET_HOPPINGMODE)(
     BT_DEVICE *pBtDevice,
-    unsigned char ChannelNumber,
+    uint8_t ChannelNumber,
     BT_PKT_TYPE pktType,
-    unsigned char HoppingFixChannel,
-    unsigned char WhiteningCoeffEnable
+    uint8_t HoppingFixChannel,
+    uint8_t WhiteningCoeffEnable
     );
 
 typedef int
 (*BT_FP_SET_FWPOWERTRACKENABLE)(
         BT_DEVICE *pBtDevice,
-        unsigned char FWPowerTrackEnable
+        uint8_t FWPowerTrackEnable
         );
 
 typedef int
@@ -316,30 +313,30 @@ typedef int
 (*BT_FP_READ_THERMAL)(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,
-        unsigned char *pThermalValue
+        uint8_t *pThermalValue
         );
 
 typedef int
 (*BT_FP_GET_STAGE)(
         BT_DEVICE *pBtDevice,
-        unsigned char *pStage
+        uint8_t *pStage
         );
 
 typedef int
 (*BT_FP_SET_SYS_REG_MASK_BITS)(
         BT_DEVICE *pBtDevice,
-        unsigned long Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t UserValue
         );
 
 typedef int
 (*BT_FP_GET_SYS_REG_MASK_BITS)(
         BT_DEVICE *pBtDevice,
-        unsigned long Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         );
 
@@ -347,9 +344,9 @@ typedef int
 (*BT_FP_SET_BB_REG_MASK_BITS)(
         BT_DEVICE *pBtDevice,
         int Page,
-        unsigned long Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t UserValue
         );
 
@@ -357,9 +354,9 @@ typedef int
 (*BT_FP_GET_BB_REG_MASK_BITS)(
         BT_DEVICE *pBtDevice,
         int Page,
-        unsigned long Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         );
 
@@ -413,7 +410,7 @@ typedef int
 typedef int
 (*BT_FP_SET_WHITENINGCOFFENABLE)(
         BT_DEVICE *pBtDevice,
-        unsigned char WhiteningCoeffEnable
+        uint8_t WhiteningCoeffEnable
         );
 
 typedef int
@@ -425,25 +422,25 @@ typedef int
 typedef int
 (*BT_FP_SET_TXCHANNEL)(
         BT_DEVICE *pBtDevice,
-        unsigned char ChannelNumber
+        uint8_t ChannelNumber
         );
 
 typedef int
 (*BT_FP_SET_RXCHANNEL)(
         BT_DEVICE *pBtDevice,
-        unsigned char ChannelNumber
+        uint8_t ChannelNumber
         );
 
 typedef int
 (*BT_FP_SET_POWERGAIN)(
         BT_DEVICE *pBtDevice,
-        unsigned char PowerGainValue
+        uint8_t PowerGainValue
         );
 
 typedef int
 (*BT_FP_SET_POWERDAC)(
         BT_DEVICE *pBtDevice,
-        unsigned char DacValue
+        uint8_t DacValue
         );
 
 //------------------------------------------------------------------------------------------------------------------
@@ -522,8 +519,8 @@ typedef int(*BT_FP_SET_PKTRX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,B
 typedef int(*BT_FP_GET_CHIPID)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_GET_ECOVERSION)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_GET_CHIPVERSIONINFO)(BT_DEVICE *pBtDevice);
-typedef int(*BT_FP_BT_DL_FW)(BT_DEVICE *pBtDevice,unsigned char *pPatchcode,int patchLength);
-typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice,unsigned char *pPatchcode,int patchLength);
+typedef int(*BT_FP_BT_DL_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
+typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 
 //------------------------------------------------------------------------------------------------------------------
 
@@ -546,8 +543,8 @@ struct BT_TRX_TIME_TAG {
 struct BT_DEVICE_TAG  // Chip
 {
     //-->Table is base function
-    unsigned char TXGainTable[MAX_TXGAIN_TABLE_SIZE];
-    unsigned char TXDACTable[MAX_TXDAC_TABLE_SIZE];
+    uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
+    uint8_t TXDACTable[MAX_TXDAC_TABLE_SIZE];
     BT_FP_SET_TXGAINTABLE       SetTxGainTable;
     BT_FP_SET_TXDACTABLE        SetTxDACTable;
     BT_FP_GET_PAYLOADLENTABLE   GetPayloadLenTable;
@@ -602,9 +599,6 @@ struct BT_DEVICE_TAG  // Chip
     BT_FP_SET_HCIRESET  SetHciReset;
     BT_FP_GET_BT_CLOCK_TIME GetBTClockTime;
 
-    //--->Control Flow
-    unsigned int TRXSTATE;
-    uint16_t OldModemReg4Value;
     unsigned long TxTriggerPktCnt;
 
     //0:TRX STOP  1 : is TX 2: IS rx
@@ -635,7 +629,7 @@ struct BT_DEVICE_TAG  // Chip
 
     //interface
     void *pExtra;
-    unsigned char InterfaceType;
+    uint8_t InterfaceType;
 
     BASE_INTERFACE_MODULE *pBaseInterface;
 
@@ -646,17 +640,6 @@ struct BT_DEVICE_TAG  // Chip
     BT_FP_GET_CHIPVERSIONINFO GetChipVersionInfo;
     BT_FP_BT_DL_FW BTDlFW;
     BT_FP_BT_DL_MERGER_FW BTDlMERGERFW;
-    //Inner
-    unsigned long Inner_TotalRXBits;
-    unsigned long Inner_TotalRxCounts;
-    unsigned long Inner_TotalRxErrorBits;
-
-    unsigned long Inner_TX_MD_0X2E;
-    unsigned long Inner_RX_MD_0X2E;
-
-    unsigned char Inner_RX_First;
-
-    unsigned long Inner_Last_RXPktUpdateCnts;
 };
 
 //-----------------------------------------------------------------------------------------------------------------
@@ -699,7 +682,7 @@ typedef int
 typedef int
 (*BT_MODULE_FP_ACTION_DLFW)(
         BT_MODULE *pBtModule,
-        unsigned char *pPatchcode,
+        uint8_t *pPatchcode,
         int patchLength,
         int Mode
         );
@@ -756,24 +739,24 @@ typedef int
 typedef int
 (*BT_MODULE_FP_RECV_ANYEVENT)(
         BT_MODULE *pBtModule,
-        unsigned char *pEvent
+        uint8_t *pEvent
         );
 
 typedef int
 (*BT_MODULE_FP_SET_SYS_REG_MASK_BITS)(
         BT_MODULE *pBtModule,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t UserValue
         );
 
 typedef int
 (*BT_MODULE_FP_GET_SYS_REG_MASK_BITS)(
         BT_MODULE *pBtModule,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         );
 
@@ -781,9 +764,9 @@ typedef int
 (*BT_MODULE_FP_SET_BB_REG_MASK_BITS)(
         BT_MODULE *pBtModule,
         uint8_t Page,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         const uint32_t UserValue
         );
 
@@ -791,9 +774,9 @@ typedef int
 (*BT_MODULE_FP_GET_BB_REG_MASK_BITS)(
         BT_MODULE *pBtModule,
         uint8_t Page,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         );
 
@@ -1025,18 +1008,18 @@ bt_Send(
 int
 BT_SetSysRegMaskBits(
         BT_DEVICE *pBtDevice,
-        unsigned long Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t UserValue
         );
 
 int
 BT_GetSysRegMaskBits(
         BT_DEVICE *pBtDevice,
-        unsigned long Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         );
 
@@ -1044,9 +1027,9 @@ int
 BT_SetBBRegMaskBits(
         BT_DEVICE *pBtDevice,
         int Page,
-        unsigned long Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t UserValue
         );
 
@@ -1054,9 +1037,9 @@ int
 BT_GetBBRegMaskBits(
         BT_DEVICE *pBtDevice,
         int Page,
-        unsigned long Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         );
 
@@ -1084,14 +1067,14 @@ bt_default_GetBTChipVersionInfo(
 int
 bt_default_BTDlFW(
         BT_DEVICE *pBtDevice,
-        unsigned char *pPatchcode,
+        uint8_t *pPatchcode,
         int patchLength
         );
 
 int
 bt_default_BTDlMergerFW(
         BT_DEVICE *pBtDevice,
-        unsigned char *pPatchcode,
+        uint8_t *pPatchcode,
         int patchLength
         );
 

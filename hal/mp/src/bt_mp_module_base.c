@@ -3,6 +3,7 @@
 #include <utils/Log.h>
 
 #include "bluetoothmp.h"
+#include "bt_mp_build.h"
 #include "bt_mp_module_base.h"
 //------------------------------------------------------------------------------------------------------------------
 
@@ -40,7 +41,18 @@ int BTModule_ActionReport(
         if (pModuleBtDevice->GetChipVersionInfo(pModuleBtDevice) != BT_FUNCTION_SUCCESS) {
             rtn = FUNCTION_ERROR;
         } else {
-            pReport->pBTInfo = pModuleBtDevice->pBTInfo;
+            if (pReport->pBTInfo == NULL)
+            {
+                pReport->pBTInfo = &(pReport->BTInfoMemory);
+            }
+
+            pReport->pBTInfo->ChipType = pModuleBtDevice->pBTInfo->ChipType;
+            pReport->pBTInfo->HCI_SubVersion = pModuleBtDevice->pBTInfo->HCI_SubVersion;
+            pReport->pBTInfo->HCI_Version = pModuleBtDevice->pBTInfo->HCI_Version;
+            pReport->pBTInfo->Is_After_PatchCode = pModuleBtDevice->pBTInfo->Is_After_PatchCode;
+            pReport->pBTInfo->LMP_SubVersion = pModuleBtDevice->pBTInfo->LMP_SubVersion;
+            pReport->pBTInfo->LMP_Version = pModuleBtDevice->pBTInfo->LMP_Version;
+            pReport->pBTInfo->Version = pModuleBtDevice->pBTInfo->Version;
         }
         break;
 
@@ -203,13 +215,9 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
     case HCI_RESET:
         rtn=pModuleBtDevice->SetHciReset(pModuleBtDevice,700);
         pModuleBtReport->TotalTXBits=0;
-        pModuleBtReport->TXUpdateBits=0;
         pModuleBtReport->TotalTxCounts=0;
-        pModuleBtReport->TXPktUpdateCnts=0;
 
         pModuleBtReport->TotalRXBits=0;
-        pModuleBtReport->RXUpdateBits=0;
-        pModuleBtReport->RXPktUpdateCnts=0;
         pModuleBtReport->TotalRxCounts=0;
         pModuleBtReport->TotalRxErrorBits=0;
         pModuleBtReport->IsRxRssi=-90;
@@ -223,7 +231,6 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case PACKET_TX_START_SET_CHANNEL_PKTTYPE:
-        rtn=pModuleBtDevice->SetPktTxBeginChannelPacketType(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case PACKET_TX_UPDATE:
@@ -231,7 +238,6 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case PACKET_TX_SEND_ONE:
-        rtn=pModuleBtDevice->SetPktTxSendOne(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case PACKET_TX_STOP:
@@ -243,7 +249,6 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case PACKET_RX_START_SET_CHANNEL_PKTTYPE:
-        rtn=pModuleBtDevice->SetPktRxBeginChannelPacketType(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case PACKET_RX_UPDATE:
@@ -290,13 +295,9 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
     /////////////////////////// REPORT /////////////////////////////////////////////////////////
     case REPORT_CLEAR:
         pModuleBtReport->TotalTXBits=0;
-        pModuleBtReport->TXUpdateBits=0;
         pModuleBtReport->TotalTxCounts=0;
-        pModuleBtReport->TXPktUpdateCnts=0;
 
         pModuleBtReport->TotalRXBits=0;
-        pModuleBtReport->RXUpdateBits=0;
-        pModuleBtReport->RXPktUpdateCnts=0;
         pModuleBtReport->TotalRxCounts=0;
         pModuleBtReport->TotalRxErrorBits=0;
         pModuleBtReport->IsRxRssi=-90;
@@ -323,14 +324,15 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
     return rtn;
 }
 
-int BTModule_DownloadPatchCode(
+int
+BTModule_DownloadPatchCode(
         BT_MODULE *pBtModule,
-        unsigned char *pPatchcode,
+        uint8_t *pPatchcode,
         int patchLength,
         int Mode
         )
 {
-    int rtn=BT_FUNCTION_SUCCESS;
+    int rtn = BT_FUNCTION_SUCCESS;
 
     BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
 
@@ -338,15 +340,15 @@ int BTModule_DownloadPatchCode(
     {
         if (pModuleBtDevice->GetChipVersionInfo(pModuleBtDevice) != BT_FUNCTION_SUCCESS)
         {
-            rtn=FUNCTION_ERROR;
+            rtn = FUNCTION_ERROR;
             goto exit;
         }
 
-        rtn=pModuleBtDevice->BTDlMERGERFW(pModuleBtDevice,pPatchcode,patchLength);
+        rtn=pModuleBtDevice->BTDlMERGERFW(pModuleBtDevice, pPatchcode, patchLength);
     }
     else
     {
-        rtn=pModuleBtDevice->BTDlFW(pModuleBtDevice,pPatchcode,patchLength);
+        rtn=pModuleBtDevice->BTDlFW(pModuleBtDevice, pPatchcode, patchLength);
     }
 
 exit:
@@ -356,12 +358,12 @@ exit:
 int
 BTModule_RecvAnyHciEvent(
         BT_MODULE *pBtModule,
-        unsigned char *pEvent
+        uint8_t *pEvent
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
 
-    return pBtDevice->RecvAnyHciEvent(pBtDevice,pEvent);
+    return pBtDevice->RecvAnyHciEvent(pBtDevice, pEvent);
 }
 
 int
@@ -436,9 +438,9 @@ BTModule_SetRFRegMaskBits(
 int
 BTModule_GetSysRegMaskBits(
         BT_MODULE *pBtModule,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         )
 {
@@ -449,9 +451,9 @@ BTModule_GetSysRegMaskBits(
 int
 BTModule_SetSysRegMaskBits(
         BT_MODULE *pBtModule,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         const uint32_t UserValue
         )
 {
@@ -464,9 +466,9 @@ int
 BTModule_GetBBRegMaskBits(
         BT_MODULE *pBtModule,
         uint8_t Page,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         )
 {
@@ -478,7 +480,7 @@ int
 BTModule_SetBBRegMaskBits(
         BT_MODULE *pBtModule,
         uint8_t Page,
-        uint8_t Addr,
+        uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
         uint32_t UserValue

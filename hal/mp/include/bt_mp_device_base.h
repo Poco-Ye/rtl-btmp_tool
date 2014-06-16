@@ -58,25 +58,25 @@ BTDevice_SetMutiRxEnable(
 int
 BTDevice_SetTxGainTable(
         BT_DEVICE *pBtDevice,
-        unsigned char *pTable
+        uint8_t *pTable
         );
 
 int
 BTDevice_SetTxDACTable(
         BT_DEVICE *pBtDevice,
-        unsigned char *pTable
+        uint8_t *pTable
         );
 
 int
 BTDevice_SetWhiteningCoeffEnable(
         BT_DEVICE *pBtDevice,
-        unsigned char WhiteningCoeffEnable
+        uint8_t WhiteningCoeffEnable
         );
 
 int
 BTDevice_SetTxChannel(
         BT_DEVICE *pBtDevice,
-        unsigned char ChannelNumber
+        uint8_t ChannelNumber
         );
 
 int
@@ -88,7 +88,7 @@ BTDevice_SetPacketType(
 int
 BTDevice_SetFWPowerTrackEnable(
         BT_DEVICE *pBtDevice,
-        unsigned char FWPowerTrackEnable
+        uint8_t FWPowerTrackEnable
         );
 
 int
@@ -111,10 +111,10 @@ BTDevice_GetBTClockTime(
 
 int BTDevice_SetHoppingMode(
         BT_DEVICE *pBtDevice,
-        unsigned char ChannelNumber,
-        BT_PKT_TYPE   pktType,
-        unsigned char HoppingFixChannel,
-        unsigned char WhiteningCoeffEnable);
+        uint8_t ChannelNumber,
+        BT_PKT_TYPE pktType,
+        uint8_t HoppingFixChannel,
+        uint8_t WhiteningCoeffEnable);
 
 int
 BTDevice_SetResetMDCount(
@@ -124,7 +124,7 @@ BTDevice_SetResetMDCount(
 int
 BTDevice_SetLETxChannel(
         BT_DEVICE *pBtDevice,
-        unsigned char ChannelNumber
+        uint8_t ChannelNumber
         );
 
 int
@@ -145,31 +145,31 @@ BTDevice_CalculatedTxBits(
         BT_PARAMETER *pParam,
         BT_DEVICE_REPORT *pBtReport,
         int pktTx_conTx,
-        unsigned long *txbits,
-        unsigned long *txpkt_cnt
+        uint32_t *txbits,
+        uint32_t *txpkt_cnt
         );
 
 int
 BTDevice_RecvAnyHciEvent(
         BT_DEVICE *pBtDevice,
-        unsigned char *pEvent
+        uint8_t *pEvent
         );
 
 int
 BTDevice_SendHciCommandWithEvent(
         BT_DEVICE *pBtDevice,
         uint16_t OpCode,
-        unsigned char PayLoadLength,
-        unsigned char *pPayLoad,
-        unsigned char EventType,
-        unsigned char *pEvent,
+        uint8_t PayLoadLength,
+        uint8_t *pPayLoad,
+        uint8_t EventType,
+        uint8_t *pEvent,
         uint32_t *pEventLen
         );
 
 int
 BTDevice_GetPayloadLenTable(
         BT_DEVICE *pBtDevice,
-        unsigned char *pTable,
+        uint8_t *pTable,
         int length
         );
 

@@ -25,7 +25,7 @@ BTModule_UpDataParameter(
 int
 BTModule_DownloadPatchCode(
         BT_MODULE *pBtModule,
-        unsigned char *pPatchcode,
+        uint8_t *pPatchcode,
         int patchLength,
         int Mode
         );
@@ -44,7 +44,7 @@ BTModule_SendHciCommandWithEvent(
 int
 BTModule_RecvAnyHciEvent(
         BT_MODULE *pBtModule,
-        unsigned char *pEvent
+        uint8_t *pEvent
         );
 
 int
@@ -86,18 +86,18 @@ BTModule_SetRFRegMaskBits(
 int
 BTModule_GetSysRegMaskBits(
         BT_MODULE *pBtModule,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         );
 
 int
 BTModule_SetSysRegMaskBits(
         BT_MODULE *pBtModule,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         const uint32_t UserValue
         );
 
@@ -105,9 +105,9 @@ int
 BTModule_GetBBRegMaskBits(
         BT_MODULE *pBtModule,
         uint8_t Page,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         uint32_t *pUserValue
         );
 
@@ -115,9 +115,9 @@ int
 BTModule_SetBBRegMaskBits(
         BT_MODULE *pBtModule,
         uint8_t Page,
-        unsigned char Addr,
-        unsigned char Msb,
-        unsigned char Lsb,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
         const uint32_t UserValue
         );
 
