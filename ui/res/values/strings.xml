@@ -44,8 +44,9 @@
     <string name="RTL8761_Xtal">RTL8761 Xtal</string>
     <!-- register ID -->
     <string name="Register_ID">Register ID</string>
-    <string name="Reg_RW">R/W</string>
-    <string name="Reg_Addr">Address</string>
+    <string name="Reg_RW">Reg R/W</string>
+    <string name="Reg_Page">Page</string>
+    <string name="Reg_Addr">Addr</string>
     <string name="Reg_Msb">Msb</string>
     <string name="Reg_Lsb">Lsb</string>
     <string name="Reg_Data">Data</string>
@@ -85,10 +86,11 @@
     <string name="hint_Tx_Gain_Table">xx</string>
     <string name="hint_Tx_Dac_Table">xx</string>
     <string name="hint_RTL8761_Xtal">xxxxxxxx</string>
+    <string name="hint_Reg_Page">xx</string>
     <string name="hint_Reg_Addr">xx</string>
     <string name="hint_Reg_Msb">xx</string>
     <string name="hint_Reg_Lsb">xx</string>
-    <string name="hint_Reg_Data">xxxxxx</string>
+    <string name="hint_Reg_Data">xxxxxxxx</string>
     <string name="hint_Get_Thermal">xx</string>
     <string name="hint_Get_Stage">xx</string>
     <string name="hint_Rx_Rssi">xx</string>

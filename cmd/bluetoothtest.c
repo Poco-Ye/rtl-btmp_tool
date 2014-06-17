@@ -684,6 +684,32 @@ void bdt_reg_rf(char *p)
     check_return_status(STR_BT_MP_REG_RF, status);
 }
 
+void bdt_reg_sys(char *p)
+{
+    if (!bt_enabled) {
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REG_SYS);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REG_SYS, STR_BT_NOT_ENABLED);
+        return;
+    }
+
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_REG_SYS, p);
+
+    check_return_status(STR_BT_MP_REG_SYS, status);
+}
+
+void bdt_reg_bb(char *p)
+{
+    if (!bt_enabled) {
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REG_BB);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REG_BB, STR_BT_NOT_ENABLED);
+        return;
+    }
+
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_REG_BB, p);
+
+    check_return_status(STR_BT_MP_REG_BB, status);
+}
+
 void bdt_hci(char *p)
 {
     if (!bt_enabled) {
@@ -828,6 +854,16 @@ void do_RegRf(char *p)
     bdt_reg_rf(p);
 }
 
+void do_RegSys(char *p)
+{
+    bdt_reg_sys(p);
+}
+
+void do_RegBb(char *p)
+{
+    bdt_reg_bb(p);
+}
+
 void do_hci(char *p)
 {
     bdt_hci(p);
@@ -873,6 +909,8 @@ const t_cmd console_cmd_list[] =
 
     { STR_BT_MP_REG_MD, do_RegMd, ":: do_RegMd", 0 },
     { STR_BT_MP_REG_RF, do_RegRf, ":: do_RegRf", 0 },
+    { STR_BT_MP_REG_SYS, do_RegSys, ":: do_RegSys", 0 },
+    { STR_BT_MP_REG_BB, do_RegBb, ":: do_RegBb", 0 },
 
     { STR_BT_MP_HCI_CMD, do_hci, ":: send hci command", 0 },
 

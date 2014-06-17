@@ -212,12 +212,20 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         ret = BT_ReportRx(&BtModuleMemory, pNotifyBuffer);
         break;
 
+    case BT_MP_OP_USER_DEF_REG_MD:
+        ret = BT_RegMd(&BtModuleMemory, buf, pNotifyBuffer);
+        break;
+
     case BT_MP_OP_USER_DEF_REG_RF:
         ret = BT_RegRf(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-    case BT_MP_OP_USER_DEF_REG_MD:
-        ret = BT_RegMd(&BtModuleMemory, buf, pNotifyBuffer);
+    case BT_MP_OP_USER_DEF_REG_SYS:
+        ret = BT_RegSys(&BtModuleMemory, buf, pNotifyBuffer);
+        break;
+
+    case BT_MP_OP_USER_DEF_REG_BB:
+        ret = BT_RegBb(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
     case BT_MP_OP_USER_DEF_SET_HOPPING_MODE:
@@ -225,6 +233,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         break;
 
     default:
+        ALOGW("hal_mp_op_send: undefined opcode[0x%02x]", opcode);
         break;
     }
 

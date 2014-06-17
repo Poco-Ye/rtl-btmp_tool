@@ -40,17 +40,19 @@ enum _BT_MP_OPCODE{
     BT_MP_OP_DUT_MODE_CONFIGURE = 0x01,
 
     BT_MP_OP_USER_DEF_GetPara = 0x80,
-    BT_MP_OP_USER_DEF_SetPara1,
-    BT_MP_OP_USER_DEF_SetPara2,
-    BT_MP_OP_USER_DEF_SET_HOPPING_MODE,
-    BT_MP_OP_USER_DEF_SetHit,
-    BT_MP_OP_USER_DEF_SetGainTable,
-    BT_MP_OP_USER_DEF_SetDacTable,
-    BT_MP_OP_USER_DEF_Exec,
-    BT_MP_OP_USER_DEF_ReportTx,
-    BT_MP_OP_USER_DEF_ReportRx,
-    BT_MP_OP_USER_DEF_REG_MD,
-    BT_MP_OP_USER_DEF_REG_RF
+    BT_MP_OP_USER_DEF_SetPara1 = 0x81,
+    BT_MP_OP_USER_DEF_SetPara2 = 0x82,
+    BT_MP_OP_USER_DEF_SET_HOPPING_MODE = 0x83,
+    BT_MP_OP_USER_DEF_SetHit = 0x84,
+    BT_MP_OP_USER_DEF_SetGainTable = 0x85,
+    BT_MP_OP_USER_DEF_SetDacTable = 0x86,
+    BT_MP_OP_USER_DEF_Exec = 0x87,
+    BT_MP_OP_USER_DEF_ReportTx = 0x88,
+    BT_MP_OP_USER_DEF_ReportRx = 0x89,
+    BT_MP_OP_USER_DEF_REG_MD = 0x8a,
+    BT_MP_OP_USER_DEF_REG_RF = 0x8b,
+    BT_MP_OP_USER_DEF_REG_SYS = 0x8c,
+    BT_MP_OP_USER_DEF_REG_BB = 0x8d
 
 };
 
@@ -71,6 +73,8 @@ enum _BT_MP_OPCODE{
 #define STR_BT_MP_REPORTRX      "bt_mp_ReportRx"
 #define STR_BT_MP_REG_MD        "bt_mp_RegMd"
 #define STR_BT_MP_REG_RF        "bt_mp_RegRf"
+#define STR_BT_MP_REG_SYS       "bt_mp_RegSys"
+#define STR_BT_MP_REG_BB        "bt_mp_RegBb"
 #define STR_BT_MP_HCI_CMD       "hci_cmd"
 
 #define STR_BT_MP_HCI_RESET     "bt_mp_HciReset"

@@ -490,6 +490,7 @@
       android:layout_width="match_parent"
       android:layout_height="0px"
       android:layout_weight="1" >
+<!--
       <TextView
         android:text="@string/Register_ID"
         android:gravity="bottom|center"
@@ -501,17 +502,30 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
+-->
       <TextView
         android:text="@string/Reg_RW"
         android:gravity="bottom|center"
         android:layout_height="match_parent"
         android:layout_width="0px"
-        android:layout_weight="1" />
+        android:layout_weight="2" />
       <Spinner
         android:id="@+id/spinner_Reg_RW"
         android:layout_height="match_parent"
         android:layout_width="0px"
+        android:layout_weight="2" />
+      <TextView
+        android:text="@string/Reg_Page"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
         android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Reg_Page"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Reg_Page" />
       <TextView
         android:text="@string/Reg_Addr"
         android:gravity="bottom|center"
@@ -522,7 +536,7 @@
         android:id="@+id/editText_Reg_Addr"
         android:layout_height="match_parent"
         android:layout_width="0px"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:hint="@string/hint_Reg_Addr" />
       <TextView
         android:text="@string/Reg_Msb"
@@ -558,7 +572,7 @@
         android:id="@+id/editText_Reg_Data"
         android:layout_height="match_parent"
         android:layout_width="0px"
-        android:layout_weight="1"
+        android:layout_weight="3"
         android:hint="@string/hint_Reg_Data" />
     </LinearLayout>
     <LinearLayout

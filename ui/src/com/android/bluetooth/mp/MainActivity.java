@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
     Spinner mspPayloadType = null;
     Spinner mspTxGainIndex = null;
     Spinner mspTestMode = null;
-    Spinner mspRegID = null;
+    //Spinner mspRegID = null;
     Spinner mspRegRW = null;
     //Spinner mspHitTarget = null;
     //Spinner mspLEConnect = null;
@@ -98,6 +98,7 @@ public class MainActivity extends Activity {
     EditText metxTxDacTable3 = null;
     EditText metxTxDacTable4 = null;
     EditText metxRTL8761Xtal = null;
+    EditText metxRegPage = null; // only for Reg BB
     EditText metxRegAddr = null;
     EditText metxRegMsb = null;
     EditText metxRegLsb = null;
@@ -125,7 +126,7 @@ public class MainActivity extends Activity {
     ArrayAdapter<String> adpTxGainIndex = null;
     ArrayAdapter<String> adpPayloadType = null;
     ArrayAdapter<String> adpTestMode = null;
-    ArrayAdapter<String> adpRegID = null;
+    //ArrayAdapter<String> adpRegID = null;
     ArrayAdapter<String> adpRegRW = null;
 
     // All variables we need to cache
@@ -182,7 +183,7 @@ public class MainActivity extends Activity {
         mspPayloadType = (Spinner) findViewById(R.id.spinner_Payload_Type);
         mspTxGainIndex = (Spinner) findViewById(R.id.spinner_Tx_Gain_Index);
         mspTestMode = (Spinner) findViewById(R.id.spinner_Test_Mode);
-        mspRegID = (Spinner) findViewById(R.id.spinner_Register_ID);
+        //mspRegID = (Spinner) findViewById(R.id.spinner_Register_ID);
         mspRegRW = (Spinner) findViewById(R.id.spinner_Reg_RW);
         //mspHitTarget = (Spinner) findViewById(R.id.spinner_Hit_Target);
         //mspLEConnect=  (Spinner) findViewById(R.id.spinner_LE_Connect);
@@ -215,6 +216,7 @@ public class MainActivity extends Activity {
         metxTxDacTable3 = (EditText) findViewById(R.id.editText_Tx_Dac_Table3);
         metxTxDacTable4 = (EditText) findViewById(R.id.editText_Tx_Dac_Table4);
         metxRTL8761Xtal = (EditText) findViewById(R.id.editText_RTL8761_Xtal);
+        metxRegPage = (EditText) findViewById(R.id.editText_Reg_Page);
         metxRegAddr = (EditText) findViewById(R.id.editText_Reg_Addr);
         metxRegMsb = (EditText) findViewById(R.id.editText_Reg_Msb);
         metxRegLsb = (EditText) findViewById(R.id.editText_Reg_Lsb);
@@ -374,6 +376,7 @@ public class MainActivity extends Activity {
                             Log.v(TAG, "hit target> " + bufArray[11]);
                             metxHitTarget.setText("0x" + bufArray[11]);
                             break;
+
                         case MpOpCode.BT_MP_OP_CODE_ReportTx:
                             if (bufArray.length != 3 ||
                                 !bufArray[0].equals(MpOpCode.STR_BT_MP_REPORTTX)) {
@@ -387,6 +390,7 @@ public class MainActivity extends Activity {
                             Log.v(TAG, "total tx counts> " + bufArray[2]);
                             metxTxPktCounts.setText("0x" + bufArray[2]);
                             break;
+
                         case MpOpCode.BT_MP_OP_CODE_ReportRx:
                             if (bufArray.length != 5 ||
                                 !bufArray[0].equals(MpOpCode.STR_BT_MP_REPORTRX)) {
@@ -406,24 +410,21 @@ public class MainActivity extends Activity {
                             Log.v(TAG, "total rx error bits> " + bufArray[4]);
                             metxRxErrBits.setText("0x" + bufArray[4]);
                             break;
+
                         case MpOpCode.BT_MP_OP_CODE_RegMD:
-                            if ((bufArray.length != 2 && bufArray.length != 3) ||
-                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REG_MD)) {
-                                Log.e(TAG, "MP HCI Event Params error");
-                                break;
-                            }
-
-                            if ((bufArray.length == 3) &&
-                                (mspRegRW.getSelectedItemPosition() == 0)) {
-                                // It's read operation, update the value
-                                Log.v(TAG, "reg data> " + bufArray[2]);
-                                metxRegData.setText("0x" + bufArray[2]);
-                            }
-                            break;
                         case MpOpCode.BT_MP_OP_CODE_RegRF:
-                            if ((bufArray.length != 2 && bufArray.length != 3) ||
-                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REG_RF)) {
-                                Log.e(TAG, "MP HCI Event Params error");
+                        case MpOpCode.BT_MP_OP_CODE_RegSYS:
+                        case MpOpCode.BT_MP_OP_CODE_RegBB:
+                            if (bufArray.length != 2 && bufArray.length != 3){
+                                Log.e(TAG, "MP HCI Event Params count error");
+                                break;
+                            }
+
+                            if (!bufArray[0].equals(MpOpCode.STR_BT_MP_REG_MD) &&
+                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REG_RF) &&
+                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REG_SYS) &&
+                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REG_BB)) {
+                                Log.e(TAG, "MP HCI Event Opcode error");
                                 break;
                             }
 
@@ -434,6 +435,7 @@ public class MainActivity extends Activity {
                                 metxRegData.setText("0x" + bufArray[2]);
                             }
                             break;
+
                         default:
                             break;
                     }
@@ -497,6 +499,7 @@ public class MainActivity extends Activity {
                             MpOpCode.BT_MP_OP_STR_SetDacTable, MpOpCode.BT_MP_OP_STR_Exec,
                             MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportRx,
                             MpOpCode.BT_MP_OP_STR_RegMD, MpOpCode.BT_MP_OP_STR_RegRF,
+                            MpOpCode.BT_MP_OP_STR_RegSYS, MpOpCode.BT_MP_OP_STR_RegBB,
                             MpOpCode.BT_MP_OP_STR_PktTxStart, MpOpCode.BT_MP_OP_STR_PktTxUpdate,
                             MpOpCode.BT_MP_OP_STR_PktRxStart, MpOpCode.BT_MP_OP_STR_PktRxUpdate,
                             MpOpCode.BT_MP_OP_STR_PktContTxStart, MpOpCode.BT_MP_OP_STR_PktContTxUpdate};
@@ -559,14 +562,14 @@ public class MainActivity extends Activity {
         mspTestMode.setAdapter(adpTestMode);
 
         // Reg ID: modem, RF, Sys, BB
-        str = new String[]{"Modem", "RF", "Sys", "BB"};
-        items = new ArrayList<String>();
-        for (int i = 0; i < str.length; i++) {
-            items.add(str[i]);
-        }
-        adpRegID = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
-        adpRegID.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mspRegID.setAdapter(adpRegID);
+        //str = new String[]{"Modem", "RF", "Sys", "BB"};
+        //items = new ArrayList<String>();
+        //for (int i = 0; i < str.length; i++) {
+        //    items.add(str[i]);
+        //}
+        //adpRegID = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+        //adpRegID.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //mspRegID.setAdapter(adpRegID);
 
         // Reg read/write
         str = new String[] {"Read", "Write"};
@@ -790,13 +793,13 @@ public class MainActivity extends Activity {
                             mActionParam = mspRegRW.getSelectedItemPosition() + ",";
                             Log.v(TAG, "RW> " + mActionParam);
                             // Address
-                            mActionParam = mActionParam.concat(metxRegAddr.getText().toString() + ",");;
+                            mActionParam = mActionParam.concat(metxRegAddr.getText().toString() + ",");
                             Log.v(TAG, "+addr> " + mActionParam);
                             // Msb
-                            mActionParam = mActionParam.concat(metxRegMsb.getText().toString() + ",");;
+                            mActionParam = mActionParam.concat(metxRegMsb.getText().toString() + ",");
                             Log.v(TAG, "+msb> " + mActionParam);
                             // Lsb
-                            mActionParam = mActionParam.concat(metxRegLsb.getText().toString() + ",");;
+                            mActionParam = mActionParam.concat(metxRegLsb.getText().toString() + ",");
                             Log.v(TAG, "+lsb> " + mActionParam);
                             // data sent to stack if Write
                             if (mspRegRW.getSelectedItemPosition() == 1) {
@@ -811,13 +814,58 @@ public class MainActivity extends Activity {
                             mActionParam = mspRegRW.getSelectedItemPosition() + ",";
                             Log.v(TAG, "RW> " + mActionParam);
                             // Address
-                            mActionParam = mActionParam.concat(metxRegAddr.getText().toString() + ",");;
+                            mActionParam = mActionParam.concat(metxRegAddr.getText().toString() + ",");
                             Log.v(TAG, "+addr> " + mActionParam);
                             // Msb
-                            mActionParam = mActionParam.concat(metxRegMsb.getText().toString() + ",");;
+                            mActionParam = mActionParam.concat(metxRegMsb.getText().toString() + ",");
                             Log.v(TAG, "+msb> " + mActionParam);
                             // Lsb
-                            mActionParam = mActionParam.concat(metxRegLsb.getText().toString() + ",");;
+                            mActionParam = mActionParam.concat(metxRegLsb.getText().toString() + ",");
+                            Log.v(TAG, "+lsb> " + mActionParam);
+                            // data sent to stack if Write
+                            if (mspRegRW.getSelectedItemPosition() == 1) {
+                                mActionParam = mActionParam.concat(metxRegData.getText().toString() + ",");
+                                Log.v(TAG, "+data> " + mActionParam);
+                            }
+                            break;
+                        case MpOpCode.BT_MP_OP_CODE_RegSYS:
+                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_RegSYS);
+                            mActionParam = null;
+                            // RW
+                            mActionParam = mspRegRW.getSelectedItemPosition() + ",";
+                            Log.v(TAG, "RW> " + mActionParam);
+                            // Address
+                            mActionParam = mActionParam.concat(metxRegAddr.getText().toString() + ",");
+                            Log.v(TAG, "+addr> " + mActionParam);
+                            // Msb
+                            mActionParam = mActionParam.concat(metxRegMsb.getText().toString() + ",");
+                            Log.v(TAG, "+msb> " + mActionParam);
+                            // Lsb
+                            mActionParam = mActionParam.concat(metxRegLsb.getText().toString() + ",");
+                            Log.v(TAG, "+lsb> " + mActionParam);
+                            // data sent to stack if Write
+                            if (mspRegRW.getSelectedItemPosition() == 1) {
+                                mActionParam = mActionParam.concat(metxRegData.getText().toString() + ",");
+                                Log.v(TAG, "+data> " + mActionParam);
+                            }
+                            break;
+                        case MpOpCode.BT_MP_OP_CODE_RegBB:
+                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_RegBB);
+                            mActionParam = null;
+                            // RW
+                            mActionParam = mspRegRW.getSelectedItemPosition() + ",";
+                            Log.v(TAG, "RW> " + mActionParam);
+                            // Page
+                            mActionParam = mActionParam.concat(metxRegPage.getText().toString() + ",");
+                            Log.v(TAG, "+page> " + mActionParam);
+                            // Address
+                            mActionParam = mActionParam.concat(metxRegAddr.getText().toString() + ",");
+                            Log.v(TAG, "+addr> " + mActionParam);
+                            // Msb
+                            mActionParam = mActionParam.concat(metxRegMsb.getText().toString() + ",");
+                            Log.v(TAG, "+msb> " + mActionParam);
+                            // Lsb
+                            mActionParam = mActionParam.concat(metxRegLsb.getText().toString() + ",");
                             Log.v(TAG, "+lsb> " + mActionParam);
                             // data sent to stack if Write
                             if (mspRegRW.getSelectedItemPosition() == 1) {
@@ -870,7 +918,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    //Spinner listener implementation here
+    // Spinner listener implementation here
     class SpinnerListener implements OnItemSelectedListener {
         @Override
         public void onItemSelected(AdapterView<?> arg0, View v, int arg2,long arg3) {
@@ -914,6 +962,10 @@ public class MainActivity extends Activity {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_RegMD;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_RegRF)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_RegRF;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_RegSYS)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_RegSYS;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_RegBB)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_RegBB;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktTxStart)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
                         mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktTxStart;
@@ -955,9 +1007,9 @@ public class MainActivity extends Activity {
                     Log.v(TAG, "Spinner Test Mode selected: " + mspTestMode.getSelectedItem().toString());
                     break;
 
-                case R.id.spinner_Register_ID:
-                    Log.v(TAG, "Register ID selected: " + mspRegID.getSelectedItem().toString());
-                    break;
+                //case R.id.spinner_Register_ID:
+                //    Log.v(TAG, "Register ID selected: " + mspRegID.getSelectedItem().toString());
+                //    break;
 
                 //case R.id.spinner_LE_Connect:
                 //    Log.v(TAG, "Spinner LE Connect selected: " + mspLEConnect.getSelectedItem().toString());

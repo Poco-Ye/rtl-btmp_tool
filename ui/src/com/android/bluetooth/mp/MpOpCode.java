@@ -16,6 +16,8 @@ public final class MpOpCode {
     public static final int BT_MP_OP_CODE_ReportRx       =   0x0089;
     public static final int BT_MP_OP_CODE_RegMD          =   0x008a;
     public static final int BT_MP_OP_CODE_RegRF          =   0x008b;
+    public static final int BT_MP_OP_CODE_RegSYS         =   0x008c;
+    public static final int BT_MP_OP_CODE_RegBB          =   0x008d;
 
     // All Exec subcodes
     public static final int BT_MP_OP_CODE_PktTxStart      =   0x1187; // subcode 17
@@ -40,6 +42,8 @@ public final class MpOpCode {
     public static final String BT_MP_OP_STR_ReportRx        = "Report Rx";
     public static final String BT_MP_OP_STR_RegMD           = "Reg Modem";
     public static final String BT_MP_OP_STR_RegRF           = "Reg RF";
+    public static final String BT_MP_OP_STR_RegSYS          = "Reg SYS";
+    public static final String BT_MP_OP_STR_RegBB           = "Reg BB";
 
     public static final String BT_MP_OP_STR_PktTxStart      = "Pkt Tx Start";
     public static final String BT_MP_OP_STR_PktTxUpdate     = "Pkt Tx Update";
@@ -68,6 +72,8 @@ public final class MpOpCode {
     public static final String STR_BT_MP_REPORTRX         =   "bt_mp_ReportRx";
     public static final String STR_BT_MP_REG_MD           =   "bt_mp_RegMd";
     public static final String STR_BT_MP_REG_RF           =   "bt_mp_RegRf";
+    public static final String STR_BT_MP_REG_SYS          =   "bt_mp_RegSys";
+    public static final String STR_BT_MP_REG_BB           =   "bt_mp_RegBb";
     public static final String STR_BT_MP_HCI_CMD          =   "hci_cmd";
 
     public static final String STR_BT_MP_HCI_RESET        =   "bt_mp_HciReset";

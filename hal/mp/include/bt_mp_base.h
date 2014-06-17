@@ -79,7 +79,7 @@ typedef enum {
     CONTINUE_TX_LE_UPDATE,              //30
     CONTINUE_TX_LE_STOP,                //31
     HOPPING_DWELL_TIME,                 //32
-    //Roport
+    //Report
     REPORT_CLEAR,                       //33
 
     TEST_MODE_ENABLE,                   //34
@@ -803,15 +803,15 @@ struct BT_MODULE_TAG {
     BT_MODULE_FP_SET_RF_REG_MASK_BITS       SetRfRegMaskBits;
     BT_MODULE_FP_GET_RF_REG_MASK_BITS       GetRfRegMaskBits;
 
+    BT_MODULE_FP_SET_SYS_REG_MASK_BITS      SetSysRegMaskBits;
+    BT_MODULE_FP_GET_SYS_REG_MASK_BITS      GetSysRegMaskBits;
+
+    BT_MODULE_FP_SET_BB_REG_MASK_BITS       SetBBRegMaskBits;
+    BT_MODULE_FP_GET_BB_REG_MASK_BITS       GetBBRegMaskBits;
+
     //-->HCI Command & Event
     BT_MODULE_FP_SEND_HCICOMMANDWITHEVENT   SendHciCommandWithEvent;
     BT_MODULE_FP_RECV_ANYEVENT              RecvAnyHciEvent;
-
-    BT_MODULE_FP_SET_SYS_REG_MASK_BITS        SetSysRegMaskBits;
-    BT_MODULE_FP_GET_SYS_REG_MASK_BITS        GetSysRegMaskBits;
-
-    BT_MODULE_FP_SET_BB_REG_MASK_BITS        SetBBRegMaskBits;
-    BT_MODULE_FP_GET_BB_REG_MASK_BITS        GetBBRegMaskBits;
 };
 
 //-----------------------------------------------------------------------------------------------------
