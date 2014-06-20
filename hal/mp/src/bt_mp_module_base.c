@@ -33,7 +33,7 @@ int BTModule_ActionReport(
         pReport->TotalRxCounts = pModuleBtReport->TotalRxCounts;
         pReport->TotalRxErrorBits = pModuleBtReport->TotalRxErrorBits;
         pReport->ber = pModuleBtReport->ber;
-        pReport->IsRxRssi = pModuleBtReport->IsRxRssi;
+        pReport->RxRssi = pModuleBtReport->RxRssi;
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
         break;
 
@@ -64,7 +64,7 @@ int BTModule_ActionReport(
         pReport->TotalRxCounts = pModuleBtReport->TotalRxCounts;
         pReport->TotalRxErrorBits = pModuleBtReport->TotalRxErrorBits;
         pReport->ber = pModuleBtReport->ber;
-        pReport->IsRxRssi = pModuleBtReport->IsRxRssi;
+        pReport->RxRssi = pModuleBtReport->RxRssi;
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
         for( i = 0 ; i <MAX_TXGAIN_TABLE_SIZE; i++)
         {
@@ -115,10 +115,8 @@ int BTModule_UpDataParameter(
     int rtn=BT_FUNCTION_SUCCESS;
     BT_PARAMETER *pBtModuleParam = pBtModule->pBtParam;
     int n=0;
-//	memcpy(pBtModuleParam,pParam,sizeof(BT_PARAMETER));
 
     pBtModuleParam->ParameterIndex          = pParam->ParameterIndex;
-    pBtModuleParam->mTestMode               = pParam->mTestMode;
     pBtModuleParam->mChannelNumber          = pParam->mChannelNumber;
     pBtModuleParam->mPacketType             = pParam->mPacketType;
     pBtModuleParam->mTxGainIndex            = pParam->mTxGainIndex;
@@ -126,10 +124,9 @@ int BTModule_UpDataParameter(
     pBtModuleParam->mTxPacketCount          = pParam->mTxPacketCount;
     pBtModuleParam->mPayloadType            = pParam->mPayloadType;
     pBtModuleParam->mPacketHeader           = pParam->mPacketHeader;
-    pBtModuleParam->mWhiteningCoeffEnable   = pParam->mWhiteningCoeffEnable;
+    pBtModuleParam->mWhiteningCoeffValue   = pParam->mWhiteningCoeffValue;
     pBtModuleParam->mTxDAC                  = pParam->mTxDAC;
     pBtModuleParam->mHitTarget              = pParam->mHitTarget;
-    pBtModuleParam->mMutiRxEnable           = pParam->mMutiRxEnable;
     pBtModuleParam->mHoppingFixChannel      = pParam->mHoppingFixChannel;
 
     for (n=0;n<MAX_TXGAIN_TABLE_SIZE;n++)
@@ -192,8 +189,8 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         rtn=pModuleBtDevice->SetPayloadType(pModuleBtDevice,pModuleBtParam->mPayloadType);
         break;
 
-    case SET_WHITENINGCOFFENABLE:
-        rtn=pModuleBtDevice->SetWhiteningCoeffEnable(pModuleBtDevice,pModuleBtParam->mWhiteningCoeffEnable);
+    case SET_WHITENINGCOFF:
+        rtn=pModuleBtDevice->SetWhiteningCoeff(pModuleBtDevice,pModuleBtParam->mWhiteningCoeffValue);
         break;
 
     case SET_PACKETTYPE:
@@ -205,11 +202,9 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case SET_TESTMODE:
-        rtn=pModuleBtDevice->SetTestMode(pModuleBtDevice,pModuleBtParam->mTestMode);
         break;
 
     case SET_MUTIRXENABLE:
-        rtn=pModuleBtDevice->SetMutiRxEnable(pModuleBtDevice,pModuleBtParam->mMutiRxEnable);
         break;
 
     case HCI_RESET:
@@ -220,7 +215,7 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         pModuleBtReport->TotalRXBits=0;
         pModuleBtReport->TotalRxCounts=0;
         pModuleBtReport->TotalRxErrorBits=0;
-        pModuleBtReport->IsRxRssi=-90;
+        pModuleBtReport->RxRssi=-90;
         pModuleBtReport->RXRecvPktCnts=0;
         rtn=pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
         break;
@@ -280,7 +275,7 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
                 pModuleBtParam->mChannelNumber,
                 pModuleBtParam->mPacketType,
                 pModuleBtParam->mHoppingFixChannel,
-                pModuleBtParam->mWhiteningCoeffEnable
+                pModuleBtParam->mWhiteningCoeffValue
                 );
         break;
 
@@ -300,7 +295,7 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         pModuleBtReport->TotalRXBits=0;
         pModuleBtReport->TotalRxCounts=0;
         pModuleBtReport->TotalRxErrorBits=0;
-        pModuleBtReport->IsRxRssi=-90;
+        pModuleBtReport->RxRssi=-90;
         pModuleBtReport->RXRecvPktCnts=0;
         rtn=pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
         break;

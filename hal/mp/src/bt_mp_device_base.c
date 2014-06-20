@@ -354,8 +354,8 @@ int BTDevice_SetPesudoOuterSetup(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
     }
 
     /* set whitenning setting */
-    // set WhiteningCoeffEnable
-    rtn=pBtDevice->SetWhiteningCoeffEnable(pBtDevice,pParam->mWhiteningCoeffEnable);
+    // set WhiteningCoeffValue
+    rtn=pBtDevice->SetWhiteningCoeff(pBtDevice,pParam->mWhiteningCoeffValue);
     if (rtn != BT_FUNCTION_SUCCESS)
     {
         goto exit;
@@ -439,14 +439,14 @@ int BTDevice_GetPayloadLenTable(BT_DEVICE *pBtDevice, uint8_t *pTable, int lengt
 
 int BTDevice_SetPktRxStop(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport)
 {
-    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    //uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    //uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint32_t EventLen = 0;
     uint16_t OpCode=0x0000;
     int pktType=pParam->mPacketType;
 
     ALOGI("+BTDevice_SetPktRxStop");
-
+#if 0
     if (pParam->mTestMode == BT_DUT_MODE)
     {
         if (pktType == BT_PKT_LE)
@@ -471,6 +471,7 @@ int BTDevice_SetPktRxStop(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_
         }
     }
     else
+#endif
     {
         //Back to Shut Down mode
         if (pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x0000) != BT_FUNCTION_SUCCESS)
@@ -510,12 +511,12 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
 {
     int rtn=BT_FUNCTION_SUCCESS;
     unsigned long btClockTime=0;
-    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    //uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    //uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint32_t EventLen = 0;
     uint16_t OpCode=0x0000;
     int pktType=pParam->mPacketType;
-    unsigned char pPayload_Len=0;
+    uint8_t pPayload_Len=0;
     uint16_t tmp = 0;
 
     if (pParam->mPacketType == BT_PKT_LE)
@@ -535,7 +536,7 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         pBtReport->TotalRXBits=0;
         pBtReport->TotalRxCounts=0;
         pBtReport->TotalRxErrorBits=0;
-        pBtReport->IsRxRssi=-90;
+        pBtReport->RxRssi=-90;
         pBtReport->RXRecvPktCnts=0;
     }
     //disable modem fix tx
@@ -565,13 +566,13 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     {
         goto exit;
     }
-    // set WhiteningCoeffEnable
-    if (pBtDevice->SetWhiteningCoeffEnable(pBtDevice,pParam->mWhiteningCoeffEnable) != BT_FUNCTION_SUCCESS)
+    // set WhiteningCoeffValue
+    if (pBtDevice->SetWhiteningCoeff(pBtDevice,pParam->mWhiteningCoeffValue) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
     //set test mode
-    if (pBtDevice->SetTestMode(pBtDevice,pParam->mTestMode) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
@@ -581,11 +582,11 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         goto exit;
     }
     //multi-packet Rx
-    if (pBtDevice->SetMutiRxEnable(pBtDevice,pParam->mMutiRxEnable) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetMutiRxEnable(pBtDevice, 1) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
-
+#if 0
     if (pParam->mTestMode == BT_DUT_MODE)
     {
         if (pktType == BT_PKT_LE)
@@ -612,7 +613,7 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         }
         return rtn;
     }
-
+#endif
     if (pBtDevice->SetRestMDCount(pBtDevice) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
@@ -654,9 +655,9 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
         goto exit;
     }
 
-    pBtReport->IsRxRssi = (int)(rxPin);
-    pBtReport->IsRxRssi = ((pBtReport->IsRxRssi >> 2) *2) -90;
-    if (pBtReport->IsRxRssi > -89)
+    pBtReport->RxRssi = (int)(rxPin);
+    pBtReport->RxRssi = ((pBtReport->RxRssi >> 2) *2) -90;
+    if (pBtReport->RxRssi > -89)
     {
         //rx Count
         if (pBtDevice->GetMdRegMaskBits(pBtDevice, 0x72, 15, 0, &rxCount) != BT_FUNCTION_SUCCESS)
@@ -702,7 +703,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
         }
     }
 
-    ALOGI("-BTDevice_Set Pkt Rx Update : IsRxRssi= %d, rxCount = %d, ber=%f", pBtReport->IsRxRssi, rxCount, pBtReport->ber);
+    ALOGI("-BTDevice_Set Pkt Rx Update : RxRssi= %d, rxCount = %d, ber=%f", pBtReport->RxRssi, rxCount, pBtReport->ber);
     return BT_FUNCTION_SUCCESS;
 
 exit:
@@ -712,14 +713,14 @@ exit:
 
 int BTDevice_SetPktTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
-    unsigned char pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    //uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
+    //uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint16_t OpCode=0x0000;
     uint32_t EventLen = 0;
-    int pktType=pParam->mPacketType;
+    int pktType = pParam->mPacketType;
 
     ALOGI("+BTDevice_SetPktTxStop");
-
+#if 0
     if (pParam->mTestMode == BT_DUT_MODE)
     {
         if (pktType == BT_PKT_LE)
@@ -736,6 +737,7 @@ int BTDevice_SetPktTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_RE
         }
     }
     else
+#endif
     {
         //disable multi-packet Tx
         if (pBtDevice->SetMutiRxEnable(pBtDevice,0x00) != BT_FUNCTION_SUCCESS)
@@ -884,12 +886,12 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
 
     ALOGI("BTDevice_SetPktTxBegin: mChannelNumber 0x%02x, mPacketType 0x%02x, "
           "mPayloadType 0x%02x, mTxPacketCount 0x%04x, mTxGainValue 0x%02x, "
-          "mWhiteningCoeffEnable 0x%02x, mTxGainIndex 0x%02x, mTestMode 0x%02x, "
-          "mTxDAC 0x%02x, mPacketHeader 0x%04x, mMutiRxEnable 0x%02x",
+          "mWhiteningCoeffValue 0x%02x, mTxGainIndex 0x%02x, "
+          "mTxDAC 0x%02x, mPacketHeader 0x%04x",
           pParam->mChannelNumber, pParam->mPacketType,
           pParam->mPayloadType, pParam->mTxPacketCount, pParam->mTxGainValue,
-          pParam->mWhiteningCoeffEnable, pParam->mTxGainIndex, pParam->mTestMode,
-          pParam->mTxDAC, pParam->mPacketHeader, pParam->mMutiRxEnable);
+          pParam->mWhiteningCoeffValue, pParam->mTxGainIndex,
+          pParam->mTxDAC, pParam->mPacketHeader);
 
     if (pParam->mPacketType == BT_PKT_LE) {
         if (pParam->mChannelNumber > 39) {
@@ -937,13 +939,13 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         goto exit;
     }
 
-    // set WhiteningCoeffEnable
-    if (pBtDevice->SetWhiteningCoeffEnable(pBtDevice,pParam->mWhiteningCoeffEnable) != BT_FUNCTION_SUCCESS) {
+    // set WhiteningCoeffValue
+    if (pBtDevice->SetWhiteningCoeff(pBtDevice,pParam->mWhiteningCoeffValue) != BT_FUNCTION_SUCCESS) {
         goto exit;
     }
 
     //set test mode
-    if (pBtDevice->SetTestMode(pBtDevice,pParam->mTestMode) != BT_FUNCTION_SUCCESS) {
+    if (pBtDevice->SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS) {
         goto exit;
     }
 
@@ -963,10 +965,10 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         goto exit;
     }
 
-    if (pBtDevice->SetMutiRxEnable(pBtDevice,pParam->mMutiRxEnable) != BT_FUNCTION_SUCCESS) {
+    if (pBtDevice->SetMutiRxEnable(pBtDevice, 1) != BT_FUNCTION_SUCCESS) {
         goto exit;
     }
-
+#if 0
     //begin con-tx setting
     if (pParam->mTestMode == BT_DUT_MODE)
     {
@@ -983,6 +985,7 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         }
     }
     else
+#endif
     {
         if (pParam->mPacketType <= BT_PKT_LE)
         {
@@ -1079,24 +1082,24 @@ exit:
 
 int BTDevice_SetHoppingMode(
         BT_DEVICE *pBtDevice,
-        unsigned char ChannelNumber,
+        uint8_t ChannelNumber,
         BT_PKT_TYPE pktType,
-        unsigned char HoppingFixChannel,
-        unsigned char WhiteningCoeffEnable
+        uint8_t HoppingFixChannel,
+        uint8_t WhiteningCoeffValue
         )
 {
     int rtn = BT_FUNCTION_SUCCESS;
-    unsigned char pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint32_t EventLen = 0;
 
-    unsigned char pPayLoad[LEN_7_BYTE];
-    unsigned char *ptt  =Arrary_Hopping_ptt;
-    unsigned char *pkt_type =Arrary_Hopping_pkt_type;
-    unsigned int  *pkt_len  =Arrary_Hopping_pkt_len;
+    uint8_t pPayLoad[LEN_7_BYTE];
+    uint8_t *ptt = Arrary_Hopping_ptt;
+    uint8_t *pkt_type = Arrary_Hopping_pkt_type;
+    unsigned int *pkt_len = Arrary_Hopping_pkt_len;
     int Index = 0;
 
     ALOGI("BTDevice_SetHoppingMode: ChannelNumber %d, pktType %d, HoppingFixChannel %d, "
-          "WhiteningCoeffEnable %d", ChannelNumber, pktType, HoppingFixChannel, WhiteningCoeffEnable);
+          "WhiteningCoeffValue %d", ChannelNumber, pktType, HoppingFixChannel, WhiteningCoeffValue);
 
     switch (pktType) {
     case BT_PKT_1DH1:
@@ -1141,7 +1144,7 @@ int BTDevice_SetHoppingMode(
             pPayLoad[5] = ChannelNumber;
         }
 
-        pPayLoad[6] = WhiteningCoeffEnable;
+        pPayLoad[6] = WhiteningCoeffValue;
 
         if (pBtDevice->SendHciCommandWithEvent(pBtDevice, 0xfc75, LEN_7_BYTE, pPayLoad, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
         {
@@ -1269,13 +1272,13 @@ int BTDevice_SetContinueTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEV
     {
         goto error;
     }
-    // set WhiteningCoeffEnable
-    if (pBtDevice->SetWhiteningCoeffEnable(pBtDevice,pParam->mWhiteningCoeffEnable) != BT_FUNCTION_SUCCESS)
+    // set WhiteningCoeffValue
+    if (pBtDevice->SetWhiteningCoeff(pBtDevice, pParam->mWhiteningCoeffValue) != BT_FUNCTION_SUCCESS)
     {
         goto error;
     }
     //set test mode
-    if (pBtDevice->SetTestMode(pBtDevice,pParam->mTestMode) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS)
     {
         goto error;
     }
@@ -1298,7 +1301,7 @@ int BTDevice_SetContinueTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEV
     {
         goto error;
     }
-
+#if 0
     //begin con-tx setting
     if (pParam->mTestMode == BT_DUT_MODE)
     {
@@ -1316,6 +1319,7 @@ int BTDevice_SetContinueTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEV
         }
     }
     else
+#endif
     {
         if (pParam->mPacketType <= BT_PKT_LE)
         {
@@ -1468,7 +1472,7 @@ exit:
 int BTDevice_SetContinueTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
     ALOGI("+BTDevice_SetContinueTxStop");
-
+#if 0
     if (pParam->mTestMode == BT_DUT_MODE)
     {
         if (pParam->mPacketType <= BT_PKT_LE)//1DH1~3DH5,LE
@@ -1484,6 +1488,7 @@ int BTDevice_SetContinueTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVI
         }
     }
     else
+#endif
     {
         if (pParam->mPacketType <= BT_PKT_LE)//1DH1~3DH5,LE
         {
@@ -1657,24 +1662,23 @@ error:
     return FUNCTION_ERROR;
 }
 
-int BTDevice_SetWhiteningCoeffEnable(BT_DEVICE *pBtDevice,unsigned char WhiteningCoeffEnable)
+int BTDevice_SetWhiteningCoeff(BT_DEVICE *pBtDevice, uint8_t WhiteningCoeffValue)
 {
-    int rtn=BT_FUNCTION_SUCCESS;
+    int rtn = BT_FUNCTION_SUCCESS;
 
-    if (WhiteningCoeffEnable ==0)
+    if (WhiteningCoeffValue > 0x7f)
     {
-        rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,7,7,0);
+        rtn = pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,7,7,0);
     }
     else
     {
-        rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,7,7,1);
+        rtn = pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,7,7,1);
         if (rtn != BT_FUNCTION_SUCCESS)
-            goto exit;
+            return rtn;
 
-        rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x32,8,2,WhiteningCoeffEnable);
+        rtn = pBtDevice->SetMdRegMaskBits(pBtDevice,0x32,8,2,WhiteningCoeffValue);
     }
 
-exit:
     return rtn;
 }
 

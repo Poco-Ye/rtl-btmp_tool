@@ -88,13 +88,6 @@ static void adapter_state_change_callback(bt_state_t status) {
 
 static void dut_mode_recv(uint8_t evtcode, char *buf)
 {
-    jstring dataBuffer = NULL;
-    jclass strClass = NULL;
-    jmethodID ctorID = NULL;
-    jbyteArray byteBuffer = NULL;
-    jstring encode = NULL;
-    int strLen = 0;
-
     ALOGI("%s: opCode 0x%02x, buf[%s]", __FUNCTION__, evtcode, buf);
 
     if (!checkCallbackThread()) {
@@ -102,26 +95,13 @@ static void dut_mode_recv(uint8_t evtcode, char *buf)
         return;
     }
 
-    strClass = callbackEnv->FindClass("java/lang/String");
-    ctorID = callbackEnv->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
-    encode =callbackEnv->NewStringUTF("utf-8");
-    if (encode == NULL) goto Fail;
-
-    strLen = strlen(buf);
-
-    byteBuffer = callbackEnv->NewByteArray(strLen);
-    if (byteBuffer == NULL) goto Fail;
-
-    callbackEnv->SetByteArrayRegion(byteBuffer, 0, strLen, (jbyte*)buf);
-    dataBuffer = (jstring)callbackEnv->NewObject(strClass, ctorID, byteBuffer, encode);
+    jstring dataBuffer = callbackEnv->NewStringUTF(buf);
 
     callbackEnv->CallVoidMethod(sJniCallbacksObj, method_dut_mode_recv, (jint)evtcode, dataBuffer);
 
-    checkAndClearExceptionFromCallback(callbackEnv, __FUNCTION__);
+    callbackEnv->DeleteLocalRef(dataBuffer);
 
-Fail:
-    if (byteBuffer) callbackEnv->DeleteLocalRef(byteBuffer);
-    if (dataBuffer) callbackEnv->DeleteLocalRef(dataBuffer);
+    checkAndClearExceptionFromCallback(callbackEnv, __FUNCTION__);
 }
 
 static void callback_thread_event(bt_cb_thread_evt event) {

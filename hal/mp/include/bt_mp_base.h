@@ -54,7 +54,7 @@ typedef enum {
     SET_POWERGAIN,                      //9
     SET_POWERDAC,                       //10
     SET_PAYLOADTYPE,                    //11
-    SET_WHITENINGCOFFENABLE,            //12
+    SET_WHITENINGCOFF,                  //12
     SET_PACKETTYPE,                     //13
     SET_HITTARGET,                      //14
     SET_TESTMODE,                       //15
@@ -138,7 +138,6 @@ struct BT_PARAMETER_TAG
 {
     int ParameterIndex;
 
-    BT_TEST_MODE mTestMode;
     uint8_t mChannelNumber;
     BT_PKT_TYPE mPacketType;
     uint8_t mTxGainIndex;
@@ -146,11 +145,10 @@ struct BT_PARAMETER_TAG
     uint16_t mTxPacketCount;
     BT_PAYLOAD_TYPE mPayloadType;
     uint16_t mPacketHeader;
-    uint8_t mWhiteningCoeffEnable;
+    uint8_t mWhiteningCoeffValue;
     uint8_t mTxDAC;
     uint8_t mHoppingFixChannel;
     uint64_t mHitTarget;
-    uint8_t mMutiRxEnable;
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t TXDACTable[MAX_TXDAC_TABLE_SIZE];
     uint32_t Rtl8761Xtal;
@@ -176,7 +174,7 @@ struct BT_DEVICE_REPORT_TAG {
     uint32_t TotalRXBits;
     uint32_t TotalRxCounts;
     uint32_t TotalRxErrorBits;
-    int      IsRxRssi;
+    int      RxRssi;
     float    ber;
 
     uint8_t       CurrTXGainTable[MAX_TXGAIN_TABLE_SIZE];
@@ -262,16 +260,16 @@ typedef int
         uint32_t *pLen
         );
 
-//------------------------------------------------------------------------------------------------------------------	
+//------------------------------------------------------------------------------------------------------------------
 //-->Vendor HCI Command Control
 typedef int
 (*BT_FP_SET_HOPPINGMODE)(
-    BT_DEVICE *pBtDevice,
-    uint8_t ChannelNumber,
-    BT_PKT_TYPE pktType,
-    uint8_t HoppingFixChannel,
-    uint8_t WhiteningCoeffEnable
-    );
+        BT_DEVICE *pBtDevice,
+        uint8_t ChannelNumber,
+        BT_PKT_TYPE pktType,
+        uint8_t HoppingFixChannel,
+        uint8_t WhiteningCoeffValue
+        );
 
 typedef int
 (*BT_FP_SET_FWPOWERTRACKENABLE)(
@@ -408,9 +406,9 @@ typedef int
         );
 
 typedef int
-(*BT_FP_SET_WHITENINGCOFFENABLE)(
+(*BT_FP_SET_WHITENINGCOFF)(
         BT_DEVICE *pBtDevice,
-        uint8_t WhiteningCoeffEnable
+        uint8_t WhiteningCoeffValue
         );
 
 typedef int
@@ -573,7 +571,7 @@ struct BT_DEVICE_TAG  // Chip
     BT_FP_SET_POWERGAIN         SetPowerGain;
     BT_FP_SET_POWERDAC          SetPowerDac;
     BT_FP_SET_PAYLOADTYPE       SetPayloadType;
-    BT_FP_SET_WHITENINGCOFFENABLE   SetWhiteningCoeffEnable;
+    BT_FP_SET_WHITENINGCOFF     SetWhiteningCoeff;
     BT_FP_SET_PACKETTYPE        SetPacketType;
     BT_FP_SET_HITTARGET         SetHitTarget;
     BT_FP_SET_TESTMODE          SetTestMode;

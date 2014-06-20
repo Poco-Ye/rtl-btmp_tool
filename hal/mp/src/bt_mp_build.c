@@ -45,21 +45,21 @@ BuildBluetoothDevice(
 
     //Device member
     //-->Register Control
-    pBtDevice->SetTxChannel=BTDevice_SetTxChannel;
-    pBtDevice->SetLETxChannel=BTDevice_SetLETxChannel;
-    pBtDevice->SetRxChannel=BTDevice_SetRxChannel;
-    pBtDevice->SetPowerGainIndex=BTDevice_SetPowerGainIndex;
-    pBtDevice->SetPowerGain=BTDevice_SetPowerGain;
-    pBtDevice->SetPowerDac=BTDevice_SetPowerDac;
-    pBtDevice->SetPayloadType=BTDevice_SetPayloadType;
-    pBtDevice->SetWhiteningCoeffEnable=BTDevice_SetWhiteningCoeffEnable;
-    pBtDevice->SetPacketType=BTDevice_SetPacketType;
-    pBtDevice->SetHitTarget=BTDevice_SetHitTarget;
-    pBtDevice->SetTestMode=BTDevice_SetTestMode;
-    pBtDevice->SetMutiRxEnable=BTDevice_SetMutiRxEnable;
-    pBtDevice->SetRestMDCount=BTDevice_SetResetMDCount;
-    pBtDevice->SetPackHeader=BTDevice_SetPackHeader;
-    pBtDevice->SetPesudoOuterSetup= BTDevice_SetPesudoOuterSetup;
+    pBtDevice->SetTxChannel = BTDevice_SetTxChannel;
+    pBtDevice->SetLETxChannel = BTDevice_SetLETxChannel;
+    pBtDevice->SetRxChannel = BTDevice_SetRxChannel;
+    pBtDevice->SetPowerGainIndex = BTDevice_SetPowerGainIndex;
+    pBtDevice->SetPowerGain = BTDevice_SetPowerGain;
+    pBtDevice->SetPowerDac = BTDevice_SetPowerDac;
+    pBtDevice->SetPayloadType = BTDevice_SetPayloadType;
+    pBtDevice->SetWhiteningCoeff = BTDevice_SetWhiteningCoeff;
+    pBtDevice->SetPacketType = BTDevice_SetPacketType;
+    pBtDevice->SetHitTarget = BTDevice_SetHitTarget;
+    pBtDevice->SetTestMode = BTDevice_SetTestMode;
+    pBtDevice->SetMutiRxEnable = BTDevice_SetMutiRxEnable;
+    pBtDevice->SetRestMDCount = BTDevice_SetResetMDCount;
+    pBtDevice->SetPackHeader = BTDevice_SetPackHeader;
+    pBtDevice->SetPesudoOuterSetup = BTDevice_SetPesudoOuterSetup;
 
     pBtDevice->TestModeEnable = BTDevice_TestModeEnable;
     pBtDevice->SetRtl8761Xtal = BTDevice_SetRTL8761Xtal;

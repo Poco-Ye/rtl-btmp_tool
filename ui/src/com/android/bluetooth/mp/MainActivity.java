@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
     Spinner mspPktType = null;
     Spinner mspPayloadType = null;
     Spinner mspTxGainIndex = null;
-    Spinner mspTestMode = null;
+    //Spinner mspTestMode = null;
     //Spinner mspRegID = null;
     Spinner mspRegRW = null;
     //Spinner mspHitTarget = null;
@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
     EditText metxWhiteningValue = null;
     EditText metxTxDac = null;
     EditText metxPacketHeader = null;
-    EditText metxMultiRxEnable = null;
+    //EditText metxMultiRxEnable = null;
     EditText metxHoppingFixChannel = null;
     EditText metxHitTarget = null;
     EditText metxTxGainTable0 = null;
@@ -182,7 +182,7 @@ public class MainActivity extends Activity {
         mspPktType = (Spinner) findViewById(R.id.spinner_Pkt_Type);
         mspPayloadType = (Spinner) findViewById(R.id.spinner_Payload_Type);
         mspTxGainIndex = (Spinner) findViewById(R.id.spinner_Tx_Gain_Index);
-        mspTestMode = (Spinner) findViewById(R.id.spinner_Test_Mode);
+        //mspTestMode = (Spinner) findViewById(R.id.spinner_Test_Mode);
         //mspRegID = (Spinner) findViewById(R.id.spinner_Register_ID);
         mspRegRW = (Spinner) findViewById(R.id.spinner_Reg_RW);
         //mspHitTarget = (Spinner) findViewById(R.id.spinner_Hit_Target);
@@ -200,7 +200,7 @@ public class MainActivity extends Activity {
         //metxErrorBits = (EditText) findViewById(R.id.editText_ErrorBits);
         //metxBER = (EditText) findViewById(R.id.editText_BER);
         metxPacketHeader = (EditText) findViewById(R.id.editText_Pkt_Header);
-        metxMultiRxEnable = (EditText) findViewById(R.id.editText_Multi_Rx_Enable);
+        //metxMultiRxEnable = (EditText) findViewById(R.id.editText_Multi_Rx_Enable);
         metxHoppingFixChannel = (EditText) findViewById(R.id.editText_Hopping_Fix_Channel);
         metxHitTarget = (EditText) findViewById(R.id.editText_Hit_Target);
         metxTxGainTable0 = (EditText) findViewById(R.id.editText_Tx_Gain_Table0);
@@ -338,25 +338,25 @@ public class MainActivity extends Activity {
                                 break;
                             }
                             // RF channel
+                            Log.v(TAG, "rf channel> 0x" + bufArray[1]);
                             mspRFChannel.setSelection(Integer.parseInt(bufArray[1], 16), true);
                             // Packet type
-                            Log.v(TAG, "pkt type> " + bufArray[2]);
-                            //mspPktType.setSelection(adpPktType.getPosition(bufArray[1]), true);
+                            Log.v(TAG, "pkt type> 0x" + bufArray[2]);
                             mspPktType.setSelection(Integer.parseInt(bufArray[2], 16), true);
                             // Payload type
-                            Log.v(TAG, "payload type> " + bufArray[3]);
+                            Log.v(TAG, "payload type> 0x" + bufArray[3]);
                             mspPayloadType.setSelection(Integer.parseInt(bufArray[3], 16), true);
                             // TxPkt count
-                            Log.v(TAG, "tx pkt count> " + bufArray[4]);
+                            Log.v(TAG, "tx pkt count> 0x" + bufArray[4]);
                             metxPacketCount.setText("0x" + bufArray[4]);
                             // Tx Gain value
-                            Log.v(TAG, "tx gain value> " + bufArray[5]);
+                            Log.v(TAG, "tx gain value> 0x" + bufArray[5]);
                             metxTxGainValue.setText("0x" + bufArray[5]);
                             // Whitening value
-                            Log.v(TAG, "whitening value> " + bufArray[6]);
+                            Log.v(TAG, "whitening value> 0x" + bufArray[6]);
                             metxWhiteningValue.setText("0x" + bufArray[6]);
                             // Tx Gain index
-                            Log.v(TAG, "tx gain index> " + bufArray[7]);
+                            Log.v(TAG, "tx gain index> 0x" + bufArray[7]);
                             int tx_gain_index = Integer.parseInt(bufArray[7], 16);
                             if (tx_gain_index < 1 || tx_gain_index > 7) {
                                 Log.i(TAG, "Tx Gain index disabled, set to 0");
@@ -364,16 +364,19 @@ public class MainActivity extends Activity {
                             }
                             mspTxGainIndex.setSelection(tx_gain_index, true);
                             // Test mode
-                            Log.v(TAG, "tx gain index> " + bufArray[8]);
-                            mspTestMode.setSelection(Integer.parseInt(bufArray[8], 16), true);
+                            //Log.v(TAG, "tx gain index> " + bufArray[8]);
+                            //mspTestMode.setSelection(Integer.parseInt(bufArray[8], 16), true);
                             // Tx Dac
-                            Log.v(TAG, "tx dac> " + bufArray[9]);
-                            metxTxDac.setText("0x" + bufArray[9]);
+                            Log.v(TAG, "tx dac> 0x" + bufArray[8]);
+                            metxTxDac.setText("0x" + bufArray[8]);
                             // Pkt header
-                            Log.v(TAG, "pkt hdr> " + bufArray[10]);
-                            metxPacketHeader.setText("0x"+bufArray[10]);
+                            Log.v(TAG, "pkt hdr> 0x" + bufArray[9]);
+                            metxPacketHeader.setText("0x"+bufArray[9]);
+                            // Hopping fix channel
+                            Log.v(TAG, "hopping fix channel> 0x" + bufArray[10]);
+                            metxHoppingFixChannel.setText(Integer.parseInt(bufArray[10], 10) + "");
                             // Hit target
-                            Log.v(TAG, "hit target> " + bufArray[11]);
+                            Log.v(TAG, "hit target> 0x" + bufArray[11]);
                             metxHitTarget.setText("0x" + bufArray[11]);
                             break;
 
@@ -552,14 +555,14 @@ public class MainActivity extends Activity {
         mspTxGainIndex.setAdapter(adpTxGainIndex);
 
         // TestMode
-        str = new String[]{"DUT Mode", "PSEUDO Mode"};
-        items = new ArrayList<String>();
-        for (int i = 0; i < str.length; i++) {
-            items.add(str[i]);
-        }
-        adpTestMode = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
-        adpTestMode.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mspTestMode.setAdapter(adpTestMode);
+        //str = new String[]{"DUT Mode", "PSEUDO Mode"};
+        //items = new ArrayList<String>();
+        //for (int i = 0; i < str.length; i++) {
+        //    items.add(str[i]);
+        //}
+        //adpTestMode = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+        //adpTestMode.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //mspTestMode.setAdapter(adpTestMode);
 
         // Reg ID: modem, RF, Sys, BB
         //str = new String[]{"Modem", "RF", "Sys", "BB"};
@@ -589,7 +592,7 @@ public class MainActivity extends Activity {
         mspPktType.setOnItemSelectedListener(new SpinnerListener());
         mspTxGainIndex.setOnItemSelectedListener(new SpinnerListener());
         mspPayloadType.setOnItemSelectedListener(new SpinnerListener());
-        mspTestMode.setOnItemSelectedListener(new SpinnerListener());
+        //mspTestMode.setOnItemSelectedListener(new SpinnerListener());
         //mspLEConnect.setOnItemSelectedListener(new SpinnerListener());
         //mspHitTarget.setOnItemSelectedListener(new SpinnerListener());
     }
@@ -659,8 +662,8 @@ public class MainActivity extends Activity {
                             mActionParam = mspTxGainIndex.getSelectedItem().toString() + ",";
                             Log.v(TAG, "tx gain index> " + mActionParam);
                             // Test mode
-                            mActionParam = mActionParam.concat(mspTestMode.getSelectedItemPosition() + ",");
-                            Log.v(TAG, "+test mode> " + mActionParam);
+                            //mActionParam = mActionParam.concat(mspTestMode.getSelectedItemPosition() + ",");
+                            //Log.v(TAG, "+test mode> " + mActionParam);
                             // Tx dac
                             mActionParam = mActionParam.concat(metxPacketCount.getText().toString() + ",");
                             Log.v(TAG, "+tx dac> " + mActionParam);
@@ -668,8 +671,8 @@ public class MainActivity extends Activity {
                             mActionParam = mActionParam.concat(mspPktType.getSelectedItemPosition() + ",");
                             Log.v(TAG, "+pkt header> " + mActionParam);
                             // Multi rx enable, 10/16 radix
-                            mActionParam = mActionParam.concat(metxMultiRxEnable.getText().toString() + ",");
-                            Log.v(TAG, "+multi rx enable> " + mActionParam);
+                            //mActionParam = mActionParam.concat(metxMultiRxEnable.getText().toString() + ",");
+                            //Log.v(TAG, "+multi rx enable> " + mActionParam);
                             break;
                         case MpOpCode.BT_MP_OP_CODE_SetHoppingMode:
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetHoppingMode);
@@ -1003,9 +1006,9 @@ public class MainActivity extends Activity {
                     Log.v(TAG, "Spinner Tx Gain Index selected: " + mspTxGainIndex.getSelectedItem().toString());
                     break;
 
-                case R.id.spinner_Test_Mode:
-                    Log.v(TAG, "Spinner Test Mode selected: " + mspTestMode.getSelectedItem().toString());
-                    break;
+                //case R.id.spinner_Test_Mode:
+                //    Log.v(TAG, "Spinner Test Mode selected: " + mspTestMode.getSelectedItem().toString());
+                //    break;
 
                 //case R.id.spinner_Register_ID:
                 //    Log.v(TAG, "Register ID selected: " + mspRegID.getSelectedItem().toString());

@@ -201,6 +201,7 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
+<!--
       <TextView
         android:text="@string/Test_Mode"
         android:gravity="bottom|center"
@@ -213,12 +214,7 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
-    </LinearLayout>
-    <LinearLayout
-      android:orientation="horizontal"
-      android:layout_width="match_parent"
-      android:layout_height="0px"
-      android:layout_weight="1" >
+-->
       <TextView
         android:text="@string/Tx_Dac"
         android:gravity="bottom|center"
@@ -232,6 +228,12 @@
         android:layout_width="0px"
         android:layout_weight="1"
         android:hint="@string/hint_Tx_Dac" />
+    </LinearLayout>
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
       <TextView
         android:text="@string/Pkt_Header"
         android:gravity="bottom|center"
@@ -245,6 +247,7 @@
         android:layout_width="0px"
         android:layout_weight="1"
         android:hint="@string/hint_Pkt_Header" />
+<!--
       <TextView
         android:text="@string/Multi_Rx_Enable"
         android:gravity="bottom|center"
@@ -258,6 +261,7 @@
         android:layout_width="0px"
         android:layout_weight="1"
         android:hint="@string/hint_Multi_Rx_Enable" />
+-->
         <!-- end of param2 -->
       <!-- start of param3 -->
       <!--share RF channel, pkt type & whitening value -->
@@ -275,13 +279,7 @@
         android:layout_weight="1"
         android:hint="@string/hint_Hopping_Fix_Channel" />
       <!-- end of param3 -->
-    </LinearLayout>
-    <!-- hit target -->
-    <LinearLayout
-      android:orientation="horizontal"
-      android:layout_width="match_parent"
-      android:layout_height="0px"
-      android:layout_weight="1" >
+      <!-- hit target -->
       <TextView
         android:text="@string/Hit_Target"
         android:gravity="bottom|center"
@@ -292,7 +290,7 @@
         android:id="@+id/editText_Hit_Target"
         android:layout_height="match_parent"
         android:layout_width="0px"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:hint="@string/hint_Hit_Target" />
     </LinearLayout>
     <!-- tx gain table -->

@@ -68,9 +68,9 @@ BTDevice_SetTxDACTable(
         );
 
 int
-BTDevice_SetWhiteningCoeffEnable(
+BTDevice_SetWhiteningCoeff(
         BT_DEVICE *pBtDevice,
-        uint8_t WhiteningCoeffEnable
+        uint8_t WhiteningCoeffValue
         );
 
 int
@@ -114,7 +114,8 @@ int BTDevice_SetHoppingMode(
         uint8_t ChannelNumber,
         BT_PKT_TYPE pktType,
         uint8_t HoppingFixChannel,
-        uint8_t WhiteningCoeffEnable);
+        uint8_t WhiteningCoeffValue
+        );
 
 int
 BTDevice_SetResetMDCount(
