@@ -359,12 +359,10 @@ struct tHCI_H5_CB
     uint8_t oof_flow_control;
     uint8_t dic_type;
 
-
     RTB_QUEUE_HEAD *unack;      // Unack'ed packets queue
     RTB_QUEUE_HEAD *rel;        // Reliable packets queue
 
     RTB_QUEUE_HEAD *unrel;      // Unreliable packets queue
-
 
     uint8_t rxseq_txack;        // rxseq == txack. // expected rx SeqNumber
     uint8_t	 rxack;             // Last packet sent by us that the peer ack'ed //
@@ -408,7 +406,7 @@ struct tHCI_H5_CB
 #ifdef BT_FW_CAL_ENABLE
     uint8_t  bHasUpdateCalInquiryState;
 #endif
-};
+} __attribute__((aligned(4),packed));
 
 static struct tHCI_H5_CB rtk_h5;
 static pthread_mutex_t h5_wakeup_mutex = PTHREAD_MUTEX_INITIALIZER;

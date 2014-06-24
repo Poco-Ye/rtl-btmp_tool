@@ -35,6 +35,9 @@ int BTModule_ActionReport(
         pReport->ber = pModuleBtReport->ber;
         pReport->RxRssi = pModuleBtReport->RxRssi;
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
+        ALOGI("BTModule_ActionReport[REPORT_RX]: RxRssi %d, TotalRXBits %u, TotalRxCounts %u, "
+              "TotalRxErrorBits %u, ber %f, RXRecvPktCnts %u", pReport->RxRssi, pReport->TotalRXBits,
+              pReport->TotalRxCounts, pReport->TotalRxErrorBits, pReport->ber, pReport->RXRecvPktCnts);
         break;
 
     case REPORT_CHIP:
