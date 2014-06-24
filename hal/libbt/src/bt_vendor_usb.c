@@ -103,7 +103,7 @@ static void usb_vendor_close(void)
 
 static int USB_bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr, const char *dev_node)
 {
-    ALOGI("init");
+    ALOGI("%s: dev_node %s", __FUNCTION__, dev_node);
 
     if (p_cb == NULL) {
         ALOGE("init failed with no user callbacks!");

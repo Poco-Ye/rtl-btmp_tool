@@ -159,38 +159,38 @@ static void classInitNative(JNIEnv* env, jclass clazz) {
 }
 
 static bool initNative(JNIEnv* env, jobject obj, jstring interface, jstring node) {
-    int ret;
-    bt_hci_if_t if_type = BT_HCI_IF_NONE;
-    const char *if_str = NULL;
-    const char *node_str = NULL;
-
     if (sJniCallbacksObj != NULL) {
          env->DeleteGlobalRef(sJniCallbacksObj);
          sJniCallbacksObj = NULL;
     }
     sJniCallbacksObj = env->NewGlobalRef(obj);
 
-    if_str = env->GetStringUTFChars(interface, NULL);
-    node_str = env->GetStringUTFChars(node, NULL);
-
-    ALOGI("%s: interface %s, node %s", __FUNCTION__, if_str, node_str);
-
-    if (!strcasecmp(if_str, "UART")) {
-        if_type = BT_HCI_IF_UART;
-    } else if (!strcasecmp(if_str, "USB")) {
-        if_type = BT_HCI_IF_USB;
-    }
-
     if (sBluetoothInterface) {
-        ret = sBluetoothInterface->init(&sBluetoothCallbacks, if_type, node_str);
+        const char *if_str = env->GetStringUTFChars(interface, NULL);
+        const char *node_str = env->GetStringUTFChars(node, NULL);
+
+        ALOGI("%s: interface %s, node %s", __FUNCTION__, if_str, node_str);
+
+        bt_hci_if_t if_type = BT_HCI_IF_NONE;
+        if (!strcasecmp(if_str, "UART")) {
+            if_type = BT_HCI_IF_UART;
+        } else if (!strcasecmp(if_str, "USB")) {
+            if_type = BT_HCI_IF_USB;
+        }
+
+        int ret = sBluetoothInterface->init(&sBluetoothCallbacks, if_type, node_str);
+
+        env->ReleaseStringUTFChars(interface, if_str);
+        env->ReleaseStringUTFChars(node, node_str);
+
         if (ret != BT_STATUS_SUCCESS) {
-            ALOGE("Error while setting the callbacks");
+            ALOGE("Error while setting BT JNI callbacks");
             sBluetoothInterface = NULL;
             return JNI_FALSE;
         }
-
         return JNI_TRUE;
     }
+
     return JNI_FALSE;
 }
 

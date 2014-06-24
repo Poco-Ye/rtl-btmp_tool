@@ -39,10 +39,11 @@
 #include "bt_mp_api.h"
 #include "gki.h"
 
+#define DEV_NODE_NAME_MAXLEN 256
 
 bt_callbacks_t *bt_hal_cbacks = NULL;
 bt_hci_if_t bt_hci_if = BT_HCI_IF_NONE;
-const char *bt_dev_node = NULL;
+char bt_dev_node[DEV_NODE_NAME_MAXLEN] = {0};
 
 
 /************************************************************************************
@@ -88,7 +89,7 @@ int hal_init(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node
 
     /* store bt hci if type and device driver node */
     bt_hci_if = hci_if;
-    bt_dev_node = dev_node;
+    snprintf(bt_dev_node, DEV_NODE_NAME_MAXLEN, "%s", dev_node);
 
     /* init mp module */
     bt_mp_module_init(&BaseInterfaceModuleMemory, &BtModuleMemory);
