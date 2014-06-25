@@ -3,9 +3,10 @@
 
 #include "bt_mp_base.h"
 
-int BT_GetPara(BT_MODULE *pBtModule, char *pNotifyBuffer);
-int BT_SetPara1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
-int BT_SetPara2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
+int BT_GetParam(BT_MODULE *pBtModule, char *pNotifyBuffer);
+int BT_SetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
+int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
+int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetHoppingMode(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetHit(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetGainTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);

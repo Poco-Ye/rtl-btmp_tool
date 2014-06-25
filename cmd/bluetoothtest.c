@@ -523,40 +523,53 @@ void bdt_dut_mode_configure(char *p)
 void bdt_get_params(char *p)
 {
     if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_GET_PARA);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_GET_PARA, STR_BT_NOT_ENABLED);
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_GET_PARAM);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_GET_PARAM, STR_BT_NOT_ENABLED);
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_GetPara, p);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_GetParam, p);
 
-    check_return_status(STR_BT_MP_GET_PARA, status);
+    check_return_status(STR_BT_MP_GET_PARAM, status);
+}
+
+void bdt_set_params(char *p)
+{
+    if (!bt_enabled) {
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARAM, STR_BT_NOT_ENABLED);
+        return;
+    }
+
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetParam, p);
+
+    check_return_status(STR_BT_MP_SET_PARAM, status);
 }
 
 void bdt_set_param1(char *p)
 {
     if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARA1);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARA1, STR_BT_NOT_ENABLED);
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM1);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARAM1, STR_BT_NOT_ENABLED);
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetPara1, p);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetParam1, p);
 
-    check_return_status(STR_BT_MP_SET_PARA1, status);
+    check_return_status(STR_BT_MP_SET_PARAM1, status);
 }
 
 void bdt_set_param2(char *p)
 {
     if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARA2);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARA2, STR_BT_NOT_ENABLED);
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM2);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARAM2, STR_BT_NOT_ENABLED);
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetPara2, p);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetParam2, p);
 
-    check_return_status(STR_BT_MP_SET_PARA2, status);
+    check_return_status(STR_BT_MP_SET_PARAM2, status);
 }
 
 void bdt_set_hopping_mode(char *p)
@@ -794,17 +807,22 @@ void do_dut_mode_configure(char *p)
     bdt_dut_mode_configure(p);
 }
 
-void do_GetPara(char *p)
+void do_GetParam(char *p)
 {
     bdt_get_params(p);
 }
 
-void do_SetPara1(char *p)
+void do_SetParam(char *p)
+{
+    bdt_set_params(p);
+}
+
+void do_SetParam1(char *p)
 {
     bdt_set_param1(p);
 }
 
-void do_SetPara2(char *p)
+void do_SetParam2(char *p)
 {
     bdt_set_param2(p);
 }
@@ -896,9 +914,10 @@ const t_cmd console_cmd_list[] =
     { STR_BT_MP_DISABLE, do_disable, ":: disables bluetooth", 0 },
     { STR_BT_MP_DUT_MODE, do_dut_mode_configure, ":: DUT mode - 1 to enter,0 to exit", 0 },
 
-    { STR_BT_MP_GET_PARA, do_GetPara, ":: do_GetPara", 0 },
-    { STR_BT_MP_SET_PARA1, do_SetPara1, ":: do_SetPara1", 0 },
-    { STR_BT_MP_SET_PARA2, do_SetPara2, ":: do_SetPara2", 0 },
+    { STR_BT_MP_GET_PARAM, do_GetParam, ":: do_GetParam", 0 },
+    { STR_BT_MP_SET_PARAM, do_SetParam, ":: do_SetParam", 0 },
+    { STR_BT_MP_SET_PARAM1, do_SetParam1, ":: do_SetParam1", 0 },
+    { STR_BT_MP_SET_PARAM2, do_SetParam2, ":: do_SetParam2", 0 },
     { STR_BT_MP_SET_HOPPING_MODE, do_SetHoppingMode, ":: Set Hopping Mode", 0 },
     { STR_BT_MP_SET_HIT, do_SetHit, ":: do_SetHit", 0 },
     { STR_BT_MP_SET_GAIN_TABLE, do_SetGainTable, ":: do_SetGainTable", 0 },

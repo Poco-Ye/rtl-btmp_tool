@@ -331,9 +331,9 @@ public class MainActivity extends Activity {
                     // TODO: update UI according to opcode
                     String[] bufArray = RxBuffer.split(",");
                     switch (msg.arg1) {
-                        case MpOpCode.BT_MP_OP_CODE_GetPara:
+                        case MpOpCode.BT_MP_OP_CODE_GetParam:
                             if (bufArray.length != 12 ||
-                                !bufArray[0].equals(MpOpCode.STR_BT_MP_GET_PARA)) {
+                                !bufArray[0].equals(MpOpCode.STR_BT_MP_GET_PARAM)) {
                                 Log.e(TAG, "MP HCI Event Params error");
                                 break;
                             }
@@ -496,8 +496,8 @@ public class MainActivity extends Activity {
         items = new ArrayList<String>();
         //str = new String[] {"Packet Tx", "Packet Rx",
         //                    "Continue Tx", "Continue LE Tx"};
-        str = new String[] {MpOpCode.BT_MP_OP_STR_GetPara, MpOpCode.BT_MP_OP_STR_SetPara1,
-                            MpOpCode.BT_MP_OP_STR_SetPara2, MpOpCode.BT_MP_OP_STR_SetHoppingMode,
+        str = new String[] {MpOpCode.BT_MP_OP_STR_GetParam, MpOpCode.BT_MP_OP_STR_SetParam1,
+                            MpOpCode.BT_MP_OP_STR_SetParam2, MpOpCode.BT_MP_OP_STR_SetHoppingMode,
                             MpOpCode.BT_MP_OP_STR_SetHitTarget, MpOpCode.BT_MP_OP_STR_SetGainTable,
                             MpOpCode.BT_MP_OP_STR_SetDacTable, MpOpCode.BT_MP_OP_STR_Exec,
                             MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportRx,
@@ -629,12 +629,12 @@ public class MainActivity extends Activity {
                     Log.v(TAG, "button_Start clicked, action: 0x" + Integer.toHexString(mActionCode));
                     boolean actSpinnerEnable = false;
                     switch (mActionCode) {
-                        case MpOpCode.BT_MP_OP_CODE_GetPara:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_GetPara);
+                        case MpOpCode.BT_MP_OP_CODE_GetParam:
+                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_GetParam);
                             mActionParam = null;
                             break;
-                        case MpOpCode.BT_MP_OP_CODE_SetPara1:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetPara1);
+                        case MpOpCode.BT_MP_OP_CODE_SetParam1:
+                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetParam1);
                             mActionParam = null;
                             // RF channel, 10 radix
                             mActionParam = mspRFChannel.getSelectedItem().toString() + ",";
@@ -655,8 +655,8 @@ public class MainActivity extends Activity {
                             mActionParam = mActionParam.concat(metxWhiteningValue.getText().toString() + ",");
                             Log.v(TAG, "+whitening value> " + mActionParam);
                             break;
-                        case MpOpCode.BT_MP_OP_CODE_SetPara2:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetPara2);
+                        case MpOpCode.BT_MP_OP_CODE_SetParam2:
+                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetParam2);
                             mActionParam = null;
                             // Tx gain index
                             mActionParam = mspTxGainIndex.getSelectedItem().toString() + ",";
@@ -941,12 +941,12 @@ public class MainActivity extends Activity {
                     }
 
                     // TODO: use hashMap
-                    if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_GetPara)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_GetPara;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetPara1)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetPara1;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetPara2)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetPara2;
+                    if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_GetParam)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_GetParam;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetParam1)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetParam1;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetParam2)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetParam2;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetHoppingMode)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_SetHoppingMode;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetHitTarget)) {

@@ -177,16 +177,20 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
     case BT_MP_OP_DUT_MODE_CONFIGURE:
         break;
 
-    case BT_MP_OP_USER_DEF_GetPara:
-        ret = BT_GetPara(&BtModuleMemory, pNotifyBuffer);
+    case BT_MP_OP_USER_DEF_GetParam:
+        ret = BT_GetParam(&BtModuleMemory, pNotifyBuffer);
         break;
 
-    case BT_MP_OP_USER_DEF_SetPara1:
-        ret = BT_SetPara1(&BtModuleMemory, buf, pNotifyBuffer);
+    case BT_MP_OP_USER_DEF_SetParam:
+        ret = BT_SetParam(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-    case BT_MP_OP_USER_DEF_SetPara2:
-        ret = BT_SetPara2(&BtModuleMemory, buf, pNotifyBuffer);
+    case BT_MP_OP_USER_DEF_SetParam1:
+        ret = BT_SetParam1(&BtModuleMemory, buf, pNotifyBuffer);
+        break;
+
+    case BT_MP_OP_USER_DEF_SetParam2:
+        ret = BT_SetParam2(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
     case BT_MP_OP_USER_DEF_SetHit:

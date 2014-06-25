@@ -4,35 +4,36 @@ public final class MpOpCode {
     public static final int BT_MP_OP_CODE_HCI_SEND_CMD       = 0x0000;
     public static final int BT_MP_OP_CODE_DUT_MODE_CONFIGURE = 0x0001;
 
-    public static final int BT_MP_OP_CODE_GetPara        =   0x0080;
-    public static final int BT_MP_OP_CODE_SetPara1       =   0x0081;
-    public static final int BT_MP_OP_CODE_SetPara2       =   0x0082;
-    public static final int BT_MP_OP_CODE_SetHoppingMode =   0x0083;
-    public static final int BT_MP_OP_CODE_SetHitTarget   =   0x0084;
-    public static final int BT_MP_OP_CODE_SetGainTable   =   0x0085;
-    public static final int BT_MP_OP_CODE_SetDacTable    =   0x0086;
-    public static final int BT_MP_OP_CODE_Exec           =   0x0087;
-    public static final int BT_MP_OP_CODE_ReportTx       =   0x0088;
-    public static final int BT_MP_OP_CODE_ReportRx       =   0x0089;
-    public static final int BT_MP_OP_CODE_RegMD          =   0x008a;
-    public static final int BT_MP_OP_CODE_RegRF          =   0x008b;
-    public static final int BT_MP_OP_CODE_RegSYS         =   0x008c;
-    public static final int BT_MP_OP_CODE_RegBB          =   0x008d;
+    public static final int BT_MP_OP_CODE_GetParam       =   0x0010;
+    public static final int BT_MP_OP_CODE_SetParam       =   0x0011;
+    public static final int BT_MP_OP_CODE_SetParam1      =   0x0012;
+    public static final int BT_MP_OP_CODE_SetParam2      =   0x0013;
+    public static final int BT_MP_OP_CODE_SetHoppingMode =   0x0014;
+    public static final int BT_MP_OP_CODE_SetHitTarget   =   0x0015;
+    public static final int BT_MP_OP_CODE_SetGainTable   =   0x0016;
+    public static final int BT_MP_OP_CODE_SetDacTable    =   0x0017;
+    public static final int BT_MP_OP_CODE_Exec           =   0x0018;
+    public static final int BT_MP_OP_CODE_ReportTx       =   0x0019;
+    public static final int BT_MP_OP_CODE_ReportRx       =   0x001a;
+    public static final int BT_MP_OP_CODE_RegMD          =   0x001b;
+    public static final int BT_MP_OP_CODE_RegRF          =   0x001c;
+    public static final int BT_MP_OP_CODE_RegSYS         =   0x001d;
+    public static final int BT_MP_OP_CODE_RegBB          =   0x001e;
 
     // All Exec subcodes
-    public static final int BT_MP_OP_CODE_PktTxStart      =   0x1187; // subcode 17
-    public static final int BT_MP_OP_CODE_PktTxUpdate     =   0x1387; // subcode 19
-    public static final int BT_MP_OP_CODE_PktTxStop       =   0x1587; // subcode 21
-    public static final int BT_MP_OP_CODE_PktRxStart      =   0x1687; // subcode 22
-    public static final int BT_MP_OP_CODE_PktRxUpdate     =   0x1887; // subcode 24
-    public static final int BT_MP_OP_CODE_PktRxStop       =   0x1987; // subcode 25
-    public static final int BT_MP_OP_CODE_PktContTxStart  =   0x1a87; // subcode 26
-    public static final int BT_MP_OP_CODE_PktContTxUpdate =   0x1b87; // subcode 27
-    public static final int BT_MP_OP_CODE_PktContTxStop   =   0x1c87; // subcode 28
+    public static final int BT_MP_OP_CODE_PktTxStart      =   0x1118; // subcode 17
+    public static final int BT_MP_OP_CODE_PktTxUpdate     =   0x1318; // subcode 19
+    public static final int BT_MP_OP_CODE_PktTxStop       =   0x1518; // subcode 21
+    public static final int BT_MP_OP_CODE_PktRxStart      =   0x1618; // subcode 22
+    public static final int BT_MP_OP_CODE_PktRxUpdate     =   0x1818; // subcode 24
+    public static final int BT_MP_OP_CODE_PktRxStop       =   0x1918; // subcode 25
+    public static final int BT_MP_OP_CODE_PktContTxStart  =   0x1a18; // subcode 26
+    public static final int BT_MP_OP_CODE_PktContTxUpdate =   0x1b18; // subcode 27
+    public static final int BT_MP_OP_CODE_PktContTxStop   =   0x1c18; // subcode 28
 
-    public static final String BT_MP_OP_STR_GetPara         = "Get Param";
-    public static final String BT_MP_OP_STR_SetPara1        = "Set Param1";
-    public static final String BT_MP_OP_STR_SetPara2        = "Set Param2";
+    public static final String BT_MP_OP_STR_GetParam        = "Get Param";
+    public static final String BT_MP_OP_STR_SetParam1       = "Set Param1";
+    public static final String BT_MP_OP_STR_SetParam2       = "Set Param2";
     public static final String BT_MP_OP_STR_SetHoppingMode  = "Set Hopping Mode";
     public static final String BT_MP_OP_STR_SetHitTarget    = "Set Hit Target";
     public static final String BT_MP_OP_STR_SetGainTable    = "Set Gain Table";
@@ -60,9 +61,10 @@ public final class MpOpCode {
     public static final String STR_BT_MP_DISABLE          =   "disable";
     public static final String STR_BT_MP_DUT_MODE         =   "dut_mode_configure";
 
-    public static final String STR_BT_MP_GET_PARA         =   "bt_mp_GetPara";
-    public static final String STR_BT_MP_SET_PARA1        =   "bt_mp_SetPara1";
-    public static final String STR_BT_MP_SET_PARA2        =   "bt_mp_SetPara2";
+    public static final String STR_BT_MP_GET_PARAM        =   "bt_mp_GetParam";
+    public static final String STR_BT_MP_SET_PARAM        =   "bt_mp_SetParam";
+    public static final String STR_BT_MP_SET_PARAM1       =   "bt_mp_SetParam1";
+    public static final String STR_BT_MP_SET_PARAM2       =   "bt_mp_SetParam2";
     public static final String STR_BT_MP_SET_HOPPING_MODE =   "bt_mp_SetHoppingMode";
     public static final String STR_BT_MP_SET_HIT          =   "bt_mp_SetHit";
     public static final String STR_BT_MP_SET_GAIN_TABLE   =   "bt_mp_SetGainTable";
@@ -84,6 +86,7 @@ public final class MpOpCode {
     public static final String STR_BT_MP_PKTRXSTART       =   "bt_mp_PktRxStart";
     public static final String STR_BT_MP_PKTRXSTOP        =   "bt_mp_PktRxStop";
 
-    public static final String STR_BT_MP_TX_PARA_DELIM    =   ",";
-    public static final String STR_BT_MP_RX_RESULT_DELIM  =   ",";
+    public static final String STR_BT_MP_PARAM_DELIM   =   ",";
+    public static final String STR_BT_MP_RESULT_DELIM  =   ",";
+    public static final String STR_BT_MP_PAIR_DELIM    =   ";";
 }

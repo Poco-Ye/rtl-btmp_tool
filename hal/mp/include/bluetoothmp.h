@@ -28,7 +28,6 @@ __BEGIN_DECLS
 /**
  * The Bluetooth Hardware Module ID
  */
-
 #define BT_HARDWARE_MODULE_ID "bluetoothmp"
 #define BT_STACK_MODULE_ID "bluetoothmp"
 #define BT_STACK_TEST_MODULE_ID "bluetoothmp_test"
@@ -39,20 +38,21 @@ enum _BT_MP_OPCODE{
     BT_MP_OP_HCI_SEND_CMD = 0x00,
     BT_MP_OP_DUT_MODE_CONFIGURE = 0x01,
 
-    BT_MP_OP_USER_DEF_GetPara = 0x80,
-    BT_MP_OP_USER_DEF_SetPara1 = 0x81,
-    BT_MP_OP_USER_DEF_SetPara2 = 0x82,
-    BT_MP_OP_USER_DEF_SET_HOPPING_MODE = 0x83,
-    BT_MP_OP_USER_DEF_SetHit = 0x84,
-    BT_MP_OP_USER_DEF_SetGainTable = 0x85,
-    BT_MP_OP_USER_DEF_SetDacTable = 0x86,
-    BT_MP_OP_USER_DEF_Exec = 0x87,
-    BT_MP_OP_USER_DEF_ReportTx = 0x88,
-    BT_MP_OP_USER_DEF_ReportRx = 0x89,
-    BT_MP_OP_USER_DEF_REG_MD = 0x8a,
-    BT_MP_OP_USER_DEF_REG_RF = 0x8b,
-    BT_MP_OP_USER_DEF_REG_SYS = 0x8c,
-    BT_MP_OP_USER_DEF_REG_BB = 0x8d
+    BT_MP_OP_USER_DEF_GetParam = 0x10,
+    BT_MP_OP_USER_DEF_SetParam = 0x11,
+    BT_MP_OP_USER_DEF_SetParam1 = 0x12,
+    BT_MP_OP_USER_DEF_SetParam2 = 0x13,
+    BT_MP_OP_USER_DEF_SET_HOPPING_MODE = 0x14,
+    BT_MP_OP_USER_DEF_SetHit = 0x15,
+    BT_MP_OP_USER_DEF_SetGainTable = 0x16,
+    BT_MP_OP_USER_DEF_SetDacTable = 0x17,
+    BT_MP_OP_USER_DEF_Exec = 0x18,
+    BT_MP_OP_USER_DEF_ReportTx = 0x19,
+    BT_MP_OP_USER_DEF_ReportRx = 0x1a,
+    BT_MP_OP_USER_DEF_REG_MD = 0x1b,
+    BT_MP_OP_USER_DEF_REG_RF = 0x1c,
+    BT_MP_OP_USER_DEF_REG_SYS = 0x1d,
+    BT_MP_OP_USER_DEF_REG_BB = 0x1e
 
 };
 
@@ -61,9 +61,10 @@ enum _BT_MP_OPCODE{
 #define STR_BT_MP_DISABLE       "disable"
 #define STR_BT_MP_DUT_MODE      "dut_mode_configure"
 
-#define STR_BT_MP_GET_PARA      "bt_mp_GetPara"
-#define STR_BT_MP_SET_PARA1     "bt_mp_SetPara1"
-#define STR_BT_MP_SET_PARA2     "bt_mp_SetPara2"
+#define STR_BT_MP_GET_PARAM      "bt_mp_GetParam"
+#define STR_BT_MP_SET_PARAM      "bt_mp_SetParam"
+#define STR_BT_MP_SET_PARAM1     "bt_mp_SetParam1"
+#define STR_BT_MP_SET_PARAM2     "bt_mp_SetParam2"
 #define STR_BT_MP_SET_HOPPING_MODE      "bt_mp_SetHoppingMode"
 #define STR_BT_MP_SET_HIT       "bt_mp_SetHit"
 #define STR_BT_MP_SET_GAIN_TABLE    "bt_mp_SetGainTable"
@@ -85,8 +86,9 @@ enum _BT_MP_OPCODE{
 #define STR_BT_MP_PKTRXSTART    "bt_mp_PktRxStart"
 #define STR_BT_MP_PKTRXSTOP     "bt_mp_PktRxStop"
 
-#define STR_BT_MP_TX_PARA_DELIM         ","
-#define STR_BT_MP_RX_RESULT_DELIM       ","
+#define STR_BT_MP_PARAM_DELIM        ","
+#define STR_BT_MP_RESULT_DELIM       ","
+#define STR_BT_MP_PAIR_DELIM         ";"
 
 #define STR_BT_SUCCESS "Success"
 #define STR_BT_FAILED "Failed"
