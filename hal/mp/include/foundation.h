@@ -17,6 +17,8 @@
 #define LEN_5_BYTE                  5
 #define LEN_6_BYTE                  6
 #define LEN_7_BYTE                  7
+#define LEN_8_BYTE                  8
+#define LEN_9_BYTE                  9
 #define LEN_11_BYTE                 11
 #define LEN_13_BYTE                 13
 #define LEN_14_BYTE                 14

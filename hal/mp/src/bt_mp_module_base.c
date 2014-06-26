@@ -16,6 +16,7 @@ int BTModule_ActionReport(
 {
     int rtn = BT_FUNCTION_SUCCESS;
     BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
+    BT_PARAMETER *pModuleBtParam = pBtModule->pBtParam;
     BT_DEVICE_REPORT *pModuleBtReport = pBtModule->pModuleBtReport;
     uint32_t i;
 
@@ -24,20 +25,24 @@ int BTModule_ActionReport(
         break;
 
     case REPORT_TX:
+        pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         pReport->TotalTXBits = pModuleBtReport->TotalTXBits;
         pReport->TotalTxCounts = pModuleBtReport->TotalTxCounts;
         break;
 
     case REPORT_RX:
+        pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         pReport->TotalRXBits = pModuleBtReport->TotalRXBits;
         pReport->TotalRxCounts = pModuleBtReport->TotalRxCounts;
         pReport->TotalRxErrorBits = pModuleBtReport->TotalRxErrorBits;
         pReport->ber = pModuleBtReport->ber;
         pReport->RxRssi = pModuleBtReport->RxRssi;
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
+        pReport->Cfo=pModuleBtReport->Cfo;
         ALOGI("BTModule_ActionReport[REPORT_RX]: RxRssi %d, TotalRXBits %u, TotalRxCounts %u, "
-              "TotalRxErrorBits %u, ber %f, RXRecvPktCnts %u", pReport->RxRssi, pReport->TotalRXBits,
-              pReport->TotalRxCounts, pReport->TotalRxErrorBits, pReport->ber, pReport->RXRecvPktCnts);
+              "TotalRxErrorBits %u, ber %f, RXRecvPktCnts %u, Cfo %f",
+              pReport->RxRssi, pReport->TotalRXBits, pReport->TotalRxCounts,
+              pReport->TotalRxErrorBits, pReport->ber, pReport->RXRecvPktCnts, pReport->Cfo);
         break;
 
     case REPORT_CHIP:
@@ -69,6 +74,7 @@ int BTModule_ActionReport(
         pReport->ber = pModuleBtReport->ber;
         pReport->RxRssi = pModuleBtReport->RxRssi;
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
+        pReport->Cfo=pModuleBtReport->Cfo;
         for( i = 0 ; i <MAX_TXGAIN_TABLE_SIZE; i++)
         {
             pReport->CurrTXGainTable[i] = pModuleBtDevice->TXGainTable[i];
@@ -487,4 +493,70 @@ BTModule_SetBBRegMaskBits(
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
 
     return pBtDevice->SetBBRegMaskBits(pBtDevice, Page, Addr, Msb, Lsb, UserValue);
+}
+
+int
+BTModule_GetRegMaskBits(
+        BT_MODULE *pBtModule,
+        uint8_t Type,
+        uint8_t Page,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint32_t *pUserValue
+        )
+{
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+
+    switch (Type) {
+    case MD_REG:
+        return pBtDevice->GetMdRegMaskBits(pBtDevice, Addr, Msb, Lsb, (uint16_t *)pUserValue);
+
+    case RF_REG:
+        return pBtDevice->GetRfRegMaskBits(pBtDevice, Addr, Msb, Lsb, (uint16_t *)pUserValue);
+
+    case SYS_REG:
+        return pBtDevice->GetSysRegMaskBits(pBtDevice, Addr, Msb, Lsb, pUserValue);
+
+    case BB_REG:
+        return pBtDevice->GetBBRegMaskBits(pBtDevice, Page, Addr, Msb, Lsb, pUserValue);
+
+    default:
+        return FUNCTION_PARAMETER_ERROR;
+    }
+
+    return BT_FUNCTION_SUCCESS;
+}
+
+int
+BTModule_SetRegMaskBits(
+        BT_MODULE *pBtModule,
+        uint8_t Type,
+        uint8_t Page,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint32_t UserValue
+        )
+{
+    BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
+
+    switch (Type) {
+    case MD_REG:
+        return pBtDevice->SetMdRegMaskBits(pBtDevice, Addr, Msb, Lsb, UserValue);
+
+    case RF_REG:
+        return pBtDevice->SetRfRegMaskBits(pBtDevice, Addr, Msb, Lsb, UserValue);
+
+    case SYS_REG:
+        return pBtDevice->SetSysRegMaskBits(pBtDevice, Addr, Msb, Lsb, UserValue);
+
+    case BB_REG:
+        return pBtDevice->SetBBRegMaskBits(pBtDevice, Page, Addr, Msb, Lsb, UserValue);
+
+    default:
+        return FUNCTION_PARAMETER_ERROR;
+    }
+
+    return BT_FUNCTION_SUCCESS;
 }

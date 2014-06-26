@@ -13,10 +13,7 @@ public final class MpOpCode {
     public static final int BT_MP_OP_CODE_Exec           =   0x0016;
     public static final int BT_MP_OP_CODE_ReportTx       =   0x0017;
     public static final int BT_MP_OP_CODE_ReportRx       =   0x0018;
-    public static final int BT_MP_OP_CODE_RegMD          =   0x0019;
-    public static final int BT_MP_OP_CODE_RegRF          =   0x001a;
-    public static final int BT_MP_OP_CODE_RegSYS         =   0x001b;
-    public static final int BT_MP_OP_CODE_RegBB          =   0x001c;
+    public static final int BT_MP_OP_CODE_RegRW          =   0x0019;
 
     // All Exec subcodes
     public static final int BT_MP_OP_CODE_PktTxStart      =   0x1116; // subcode 17
@@ -38,10 +35,7 @@ public final class MpOpCode {
     public static final String BT_MP_OP_STR_Exec            = "Exec";
     public static final String BT_MP_OP_STR_ReportTx        = "Report Tx";
     public static final String BT_MP_OP_STR_ReportRx        = "Report Rx";
-    public static final String BT_MP_OP_STR_RegMD           = "Reg Modem";
-    public static final String BT_MP_OP_STR_RegRF           = "Reg RF";
-    public static final String BT_MP_OP_STR_RegSYS          = "Reg SYS";
-    public static final String BT_MP_OP_STR_RegBB           = "Reg BB";
+    public static final String BT_MP_OP_STR_RegRW           = "Reg R/W";
 
     public static final String BT_MP_OP_STR_PktTxStart      = "Pkt Tx Start";
     public static final String BT_MP_OP_STR_PktTxUpdate     = "Pkt Tx Update";
@@ -67,10 +61,7 @@ public final class MpOpCode {
     public static final String STR_BT_MP_EXEC             =   "bt_mp_Exec";
     public static final String STR_BT_MP_REPORTTX         =   "bt_mp_ReportTx";
     public static final String STR_BT_MP_REPORTRX         =   "bt_mp_ReportRx";
-    public static final String STR_BT_MP_REG_MD           =   "bt_mp_RegMd";
-    public static final String STR_BT_MP_REG_RF           =   "bt_mp_RegRf";
-    public static final String STR_BT_MP_REG_SYS          =   "bt_mp_RegSys";
-    public static final String STR_BT_MP_REG_BB           =   "bt_mp_RegBb";
+    public static final String STR_BT_MP_REG_RW           =   "bt_mp_RegRW";
     public static final String STR_BT_MP_HCI_CMD          =   "hci_cmd";
 
     public static final String STR_BT_MP_HCI_RESET        =   "bt_mp_HciReset";

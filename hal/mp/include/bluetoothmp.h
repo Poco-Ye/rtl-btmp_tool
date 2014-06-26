@@ -33,7 +33,7 @@ __BEGIN_DECLS
 #define BT_STACK_TEST_MODULE_ID "bluetoothmp_test"
 
 /** MP opcode */
-enum _BT_MP_OPCODE{
+enum BT_MP_OPCODE {
 
     BT_MP_OP_HCI_SEND_CMD = 0x00,
     BT_MP_OP_DUT_MODE_CONFIGURE = 0x01,
@@ -47,10 +47,7 @@ enum _BT_MP_OPCODE{
     BT_MP_OP_USER_DEF_Exec = 0x16,
     BT_MP_OP_USER_DEF_ReportTx = 0x17,
     BT_MP_OP_USER_DEF_ReportRx = 0x18,
-    BT_MP_OP_USER_DEF_REG_MD = 0x19,
-    BT_MP_OP_USER_DEF_REG_RF = 0x1a,
-    BT_MP_OP_USER_DEF_REG_SYS = 0x1b,
-    BT_MP_OP_USER_DEF_REG_BB = 0x1c
+    BT_MP_OP_USER_DEF_RegRW = 0x19,
 
 };
 
@@ -68,10 +65,7 @@ enum _BT_MP_OPCODE{
 #define STR_BT_MP_EXEC          "bt_mp_Exec"
 #define STR_BT_MP_REPORTTX      "bt_mp_ReportTx"
 #define STR_BT_MP_REPORTRX      "bt_mp_ReportRx"
-#define STR_BT_MP_REG_MD        "bt_mp_RegMd"
-#define STR_BT_MP_REG_RF        "bt_mp_RegRf"
-#define STR_BT_MP_REG_SYS       "bt_mp_RegSys"
-#define STR_BT_MP_REG_BB        "bt_mp_RegBb"
+#define STR_BT_MP_REG_RW        "bt_mp_RegRW"
 #define STR_BT_MP_HCI_CMD       "hci_cmd"
 
 #define STR_BT_MP_HCI_RESET     "bt_mp_HciReset"

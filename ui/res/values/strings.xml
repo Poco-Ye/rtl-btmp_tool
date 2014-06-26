@@ -43,8 +43,8 @@
     <!-- rtl8761 xtal -->
     <string name="RTL8761_Xtal">RTL8761 Xtal</string>
     <!-- register ID -->
-    <string name="Register_ID">Register ID</string>
-    <string name="Reg_RW">Reg R/W</string>
+    <string name="Register_ID">Reg ID</string>
+    <string name="Reg_RW">R/W</string>
     <string name="Reg_Page">Page</string>
     <string name="Reg_Addr">Addr</string>
     <string name="Reg_Msb">Msb</string>

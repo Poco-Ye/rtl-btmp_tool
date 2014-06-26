@@ -149,6 +149,8 @@ BuildBluetoothModule(
     pBtModule->GetSysRegMaskBits    =       BTModule_GetSysRegMaskBits;
     pBtModule->SetBBRegMaskBits     =       BTModule_SetBBRegMaskBits;
     pBtModule->GetBBRegMaskBits     =       BTModule_GetBBRegMaskBits;
+    pBtModule->SetRegMaskBits       =       BTModule_SetRegMaskBits;
+    pBtModule->GetRegMaskBits       =       BTModule_GetRegMaskBits;
 
     BuildBluetoothDevice(pBaseInterfaceModule,
             &pBtModule->pBtDevice,

@@ -12,10 +12,7 @@ int BT_SetDacTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_Exec(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_ReportTx(BT_MODULE *pBtModule, char *pNotifyBuffer);
 int BT_ReportRx(BT_MODULE *pBtModule, char *pNotifyBuffer);
-int BT_RegMd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
-int BT_RegRf(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
-int BT_RegSys(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
-int BT_RegBb(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
+int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 
 int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 

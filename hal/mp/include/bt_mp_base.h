@@ -37,6 +37,12 @@ enum _bool{ false, true }bool;
 #define MAX_TXDAC_TABLE_SIZE    5
 #define SEC_CLOCK_NUMBER        3200  // 1 clock =312.5u sec  1sec = 3200 
 
+typedef enum {
+    MD_REG = 0,
+    RF_REG,
+    SYS_REG,
+    BB_REG,
+} BT_REG_TYPE;
 
 typedef enum {
     NOTTHING = 0,                       //0
@@ -176,6 +182,7 @@ struct BT_DEVICE_REPORT_TAG {
     uint32_t TotalRxErrorBits;
     int      RxRssi;
     float    ber;
+    float    Cfo;
 
     uint8_t       CurrTXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t       CurrTXDACTable[MAX_TXDAC_TABLE_SIZE];
@@ -778,6 +785,29 @@ typedef int
         uint32_t *pUserValue
         );
 
+typedef int
+(*BT_MODULE_FP_SET_REG_MASK_BITS)(
+        BT_MODULE *pBtModule,
+        uint8_t Type,
+        uint8_t Page,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint32_t UserValue
+        );
+
+typedef int
+(*BT_MODULE_FP_GET_REG_MASK_BITS)(
+        BT_MODULE *pBtModule,
+        uint8_t Type,
+        uint8_t Page,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint32_t *pUserValue
+        );
+
+
 struct BT_MODULE_TAG {
     BT_PARAMETER        *pBtParam;
     BT_DEVICE           *pBtDevice;
@@ -806,6 +836,9 @@ struct BT_MODULE_TAG {
 
     BT_MODULE_FP_SET_BB_REG_MASK_BITS       SetBBRegMaskBits;
     BT_MODULE_FP_GET_BB_REG_MASK_BITS       GetBBRegMaskBits;
+
+    BT_MODULE_FP_SET_REG_MASK_BITS          SetRegMaskBits;
+    BT_MODULE_FP_GET_REG_MASK_BITS          GetRegMaskBits;
 
     //-->HCI Command & Event
     BT_MODULE_FP_SEND_HCICOMMANDWITHEVENT   SendHciCommandWithEvent;

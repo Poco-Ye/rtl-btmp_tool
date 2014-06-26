@@ -636,8 +636,12 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
     uint32_t rxBits=0;
     uint16_t rxErrbits=0;
     uint16_t rxPin=0;
+    uint16_t data;
+    int32_t value;
 
-    int pktType=pParam->mPacketType;
+    int pktType = pParam->mPacketType;
+
+    pBtReport->Cfo = 999;
 
     if (pBtReport == NULL)
     {
@@ -649,6 +653,13 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
         goto exit;
     }
 
+    //Cfo
+    if (bt_default_GetMDRegMaskBits(pBtDevice, 0x6c, 8, 0, &data))
+        goto exit;
+
+    value = BinToSignedInt(data, LEN_9_BYTE);
+    pBtReport->Cfo= ((float)value /(float)4096)*10000;
+
     //rx Pin
     if (pBtDevice->GetMdRegMaskBits(pBtDevice,0x70,15,10,&rxPin) != BT_FUNCTION_SUCCESS)
     {
@@ -657,6 +668,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
 
     pBtReport->RxRssi = (int)(rxPin);
     pBtReport->RxRssi = ((pBtReport->RxRssi >> 2) *2) -90;
+
     if (pBtReport->RxRssi > -89)
     {
         //rx Count

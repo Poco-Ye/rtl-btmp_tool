@@ -121,4 +121,25 @@ BTModule_SetBBRegMaskBits(
         const uint32_t UserValue
         );
 
+int
+BTModule_GetRegMaskBits(
+        BT_MODULE *pBtModule,
+        uint8_t Type,
+        uint8_t Page,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint32_t *pUserValue
+        );
+
+int
+BTModule_SetRegMaskBits(
+        BT_MODULE *pBtModule,
+        uint8_t Type,
+        uint8_t Page,
+        uint16_t RegStartAddr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        const uint32_t UserValue
+        );
 #endif
