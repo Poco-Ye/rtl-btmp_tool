@@ -193,10 +193,6 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         ret = BT_SetParam2(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-    case BT_MP_OP_USER_DEF_SetHit:
-        ret = BT_SetHit(&BtModuleMemory, buf, pNotifyBuffer);
-        break;
-
     case BT_MP_OP_USER_DEF_SetDacTable:
         ret = BT_SetDacTable(&BtModuleMemory, buf, pNotifyBuffer);
         break;
@@ -231,10 +227,6 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
 
     case BT_MP_OP_USER_DEF_REG_BB:
         ret = BT_RegBb(&BtModuleMemory, buf, pNotifyBuffer);
-        break;
-
-    case BT_MP_OP_USER_DEF_SET_HOPPING_MODE:
-        ret = BT_SetHoppingMode(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
     default:

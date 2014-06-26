@@ -496,16 +496,16 @@ public class MainActivity extends Activity {
         items = new ArrayList<String>();
         //str = new String[] {"Packet Tx", "Packet Rx",
         //                    "Continue Tx", "Continue LE Tx"};
-        str = new String[] {MpOpCode.BT_MP_OP_STR_GetParam, MpOpCode.BT_MP_OP_STR_SetParam1,
-                            MpOpCode.BT_MP_OP_STR_SetParam2, MpOpCode.BT_MP_OP_STR_SetHoppingMode,
-                            MpOpCode.BT_MP_OP_STR_SetHitTarget, MpOpCode.BT_MP_OP_STR_SetGainTable,
-                            MpOpCode.BT_MP_OP_STR_SetDacTable, MpOpCode.BT_MP_OP_STR_Exec,
-                            MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportRx,
-                            MpOpCode.BT_MP_OP_STR_RegMD, MpOpCode.BT_MP_OP_STR_RegRF,
-                            MpOpCode.BT_MP_OP_STR_RegSYS, MpOpCode.BT_MP_OP_STR_RegBB,
-                            MpOpCode.BT_MP_OP_STR_PktTxStart, MpOpCode.BT_MP_OP_STR_PktTxUpdate,
-                            MpOpCode.BT_MP_OP_STR_PktRxStart, MpOpCode.BT_MP_OP_STR_PktRxUpdate,
-                            MpOpCode.BT_MP_OP_STR_PktContTxStart, MpOpCode.BT_MP_OP_STR_PktContTxUpdate};
+        str = new String[] { MpOpCode.BT_MP_OP_STR_GetParam, MpOpCode.BT_MP_OP_STR_SetParam,
+                             MpOpCode.BT_MP_OP_STR_SetParam1, MpOpCode.BT_MP_OP_STR_SetParam2,
+                             MpOpCode.BT_MP_OP_STR_SetGainTable, MpOpCode.BT_MP_OP_STR_SetDacTable,
+                             MpOpCode.BT_MP_OP_STR_Exec,
+                             MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportRx,
+                             MpOpCode.BT_MP_OP_STR_RegMD, MpOpCode.BT_MP_OP_STR_RegRF,
+                             MpOpCode.BT_MP_OP_STR_RegSYS, MpOpCode.BT_MP_OP_STR_RegBB,
+                             MpOpCode.BT_MP_OP_STR_PktTxStart, MpOpCode.BT_MP_OP_STR_PktTxUpdate,
+                             MpOpCode.BT_MP_OP_STR_PktRxStart, MpOpCode.BT_MP_OP_STR_PktRxUpdate,
+                             MpOpCode.BT_MP_OP_STR_PktContTxStart, MpOpCode.BT_MP_OP_STR_PktContTxUpdate };
         for (int i = 0; i < str.length; i++) {
             items.add(str[i]);
         }
@@ -633,6 +633,11 @@ public class MainActivity extends Activity {
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_GetParam);
                             mActionParam = null;
                             break;
+                        case MpOpCode.BT_MP_OP_CODE_SetParam:
+                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetParam);
+                            mActionParam = null;
+                            // TODO
+                            break;
                         case MpOpCode.BT_MP_OP_CODE_SetParam1:
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetParam1);
                             mActionParam = null;
@@ -673,29 +678,12 @@ public class MainActivity extends Activity {
                             // Multi rx enable, 10/16 radix
                             //mActionParam = mActionParam.concat(metxMultiRxEnable.getText().toString() + ",");
                             //Log.v(TAG, "+multi rx enable> " + mActionParam);
-                            break;
-                        case MpOpCode.BT_MP_OP_CODE_SetHoppingMode:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetHoppingMode);
-                            mActionParam = null;
-                            // RF channel, 10 radix
-                            mActionParam = mspRFChannel.getSelectedItem().toString() + ",";
-                            Log.v(TAG, "rf channel> " + mActionParam);
-                            // Pkt type, 10 radxi
-                            mActionParam = mActionParam.concat(mspPktType.getSelectedItemPosition() + ",");
-                            Log.v(TAG, "+pkt type> " + mActionParam);
                             // Hopping fix channel
                             mActionParam = mActionParam.concat(metxHoppingFixChannel.getText().toString() + ",");
                             Log.v(TAG, "+hopping fix channel > " + mActionParam);
-                            // Whitening value
-                            mActionParam = mActionParam.concat(metxWhiteningValue.getText().toString() + ",");
-                            Log.v(TAG, "+whitening value> " + mActionParam);
-                            break;
-                        case MpOpCode.BT_MP_OP_CODE_SetHitTarget:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetHitTarget);
-                            mActionParam = null;
                             // Hit target, 16 radix
-                            mActionParam = metxHitTarget.getText().toString() + ",";
-                            Log.v(TAG, "hit target> " + mActionParam);
+                            mActionParam = mActionParam.concat(metxHitTarget.getText().toString() + ",");
+                            Log.v(TAG, "+hit target> " + mActionParam);
                             break;
                         case MpOpCode.BT_MP_OP_CODE_SetGainTable:
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetGainTable);
@@ -943,14 +931,12 @@ public class MainActivity extends Activity {
                     // TODO: use hashMap
                     if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_GetParam)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_GetParam;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetParam)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetParam;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetParam1)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_SetParam1;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetParam2)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_SetParam2;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetHoppingMode)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetHoppingMode;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetHitTarget)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetHitTarget;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetGainTable)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_SetGainTable;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetDacTable)) {

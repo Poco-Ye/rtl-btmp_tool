@@ -380,7 +380,7 @@ EXIT:
 int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
     char *token = NULL;
-    const uint8_t BT_PARA2_COUNT = 3;
+    const uint8_t BT_PARAM2_COUNT = 5;
     uint8_t params_count = 0;
     int ret = BT_FUNCTION_SUCCESS;
 
@@ -413,7 +413,25 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         goto EXIT;
     }
 
-    //end of parameter
+    // uint8_t mHoppingFixChannel
+    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
+    if (token != NULL) {
+        pBtModule->pBtParam->mHoppingFixChannel = strtol(token, NULL, 0);
+        params_count++;
+    } else {
+        goto EXIT;
+    }
+
+    // uint64_t(6 Bytes) mHitTarget
+    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
+    if (token != NULL) {
+        pBtModule->pBtParam->mHitTarget = strtoull(token, NULL, 16);
+        params_count++;
+    } else {
+        goto EXIT;
+    }
+
+    // end of parameter
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
         ALOGI("BT_SetParam2: redundant token[%s]", token);
@@ -423,38 +441,28 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 EXIT:
     ALOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM2, params_count);
 
-    if (params_count != BT_PARA2_COUNT) {
+    if (params_count != BT_PARAM2_COUNT) {
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
         ret = FUNCTION_PARAMETER_ERROR;
     } else {
-        ALOGI("mTxGainIndex:0x%02x, mTxDAC:0x%02x, mPacketHeader:0x%04x",
+        ALOGI("mTxGainIndex:0x%02x, mTxDAC:0x%02x, mPacketHeader:0x%04x, "
+              "mHoppingFixChannel:0x%02x, mHitTarget 0x%012llx",
                 pBtModule->pBtParam->mTxGainIndex,
                 pBtModule->pBtParam->mTxDAC,
-                pBtModule->pBtParam->mPacketHeader
+                pBtModule->pBtParam->mPacketHeader,
+                pBtModule->pBtParam->mHoppingFixChannel,
+                pBtModule->pBtParam->mHitTarget
              );
 
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
     ALOGI("--%s", STR_BT_MP_SET_PARAM2);
+
     return ret;
 }
 
-int BT_SetHit(BT_MODULE  *pBtModule, char *p, char* pNotifyBuffer)
-{
-    ALOGI("++%s: %s", STR_BT_MP_SET_HIT, p);
-    pBtModule->pBtParam->mHitTarget = strtoull(p, NULL, 16);
-
-    ALOGI("%s:0x%llx", STR_BT_MP_SET_HIT, pBtModule->pBtParam->mHitTarget);
-
-    ALOGI("%s%s%x", STR_BT_MP_SET_HIT, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_HIT, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-
-    ALOGI("--%s", STR_BT_MP_SET_HIT);
-    return 0;
-}
-
-int BT_SetGainTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
+int BT_SetGainTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
     char *token = NULL;
     const unsigned char BT_PARA1_COUNT = 7;
@@ -1226,98 +1234,6 @@ EXIT:
 
     ALOGI("--%s", STR_BT_MP_REG_BB);
     return rtn;
-}
-
-int BT_SetHoppingMode(BT_MODULE *pBtModule, char *p, char* pNotifyBuffer)
-{
-    char *token = NULL;
-    const unsigned char BT_PARA1_COUNT = 4;
-    unsigned char params_count = 0;
-
-    ALOGI("++%s: %s", STR_BT_MP_SET_HOPPING_MODE, p);
-
-    // unsigned char mChannelNumber
-    token = strtok(p, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL)
-    {
-        pBtModule->pBtParam->mChannelNumber = strtol(token, NULL, 0);
-        params_count++;
-    }
-    else
-    {
-        goto EXIT;
-    }
-
-    // BT_PKT_TYPE mPacketType
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL)
-    {
-        pBtModule->pBtParam->mPacketType = strtol(token, NULL, 0);
-        params_count++;
-    }
-    else
-    {
-        goto EXIT;
-    }
-
-    // unsigned char mHoppingFixChannel
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL)
-    {
-        pBtModule->pBtParam->mHoppingFixChannel = strtol(token, NULL, 0);
-        params_count++;
-    }
-    else
-    {
-        goto EXIT;
-    }
-
-    // uint8_t mWhiteningCoeffValue
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL)
-    {
-        pBtModule->pBtParam->mWhiteningCoeffValue = strtol(token, NULL, 0);
-        params_count++;
-    }
-    else
-    {
-        goto EXIT;
-    }
-
-    // end of parameter
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL)
-    {
-        ALOGI("token = %s", token);
-        params_count++;
-    }
-    else
-    {
-        goto EXIT;
-    }
-
-EXIT:
-    ALOGI("%s: params_count = %d", STR_BT_MP_SET_HOPPING_MODE, params_count);
-
-    if (params_count != BT_PARA1_COUNT)
-    {
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_HOPPING_MODE, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-    }
-    else
-    {
-        ALOGI("mChannelNumber:0x%x, mPacketType:0x%x, mHoppingFixChannel:0x%x, mWhiteningCoeffValue:0x%x",
-                                   pBtModule->pBtParam->mChannelNumber,
-                                   pBtModule->pBtParam->mPacketType,
-                                   pBtModule->pBtParam->mHoppingFixChannel,
-                                   pBtModule->pBtParam->mWhiteningCoeffValue
-                                   );
-
-        ALOGI("%s%s%x", STR_BT_MP_SET_HOPPING_MODE, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_HOPPING_MODE, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-    }
-
-    ALOGI("--%s", STR_BT_MP_SET_HOPPING_MODE);
-    return 0;
 }
 
 void BT_GetBDAddr(BT_MODULE  *pBtModule)

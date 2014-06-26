@@ -572,40 +572,6 @@ void bdt_set_param2(char *p)
     check_return_status(STR_BT_MP_SET_PARAM2, status);
 }
 
-void bdt_set_hopping_mode(char *p)
-{
-    int i;
-
-    uint32_t tmp;
-    uint16_t opcode;
-    uint8_t buf[260];
-    uint8_t len;
-
-    if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for test:%s", STR_BT_MP_SET_HOPPING_MODE);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_HOPPING_MODE, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SET_HOPPING_MODE, p);
-
-    check_return_status(STR_BT_MP_SET_HOPPING_MODE, status);
-}
-
-void bdt_set_hit(char *p)
-{
-    if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_HIT);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_HIT, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetHit, p);
-
-    check_return_status(STR_BT_MP_SET_HIT, status);
-}
-
-
 void bdt_set_gain_table(char *p)
 {
     if (!bt_enabled) {
@@ -827,16 +793,6 @@ void do_SetParam2(char *p)
     bdt_set_param2(p);
 }
 
-void do_SetHoppingMode(char *p)
-{
-    bdt_set_hopping_mode(p);
-}
-
-void do_SetHit(char *p)
-{
-    bdt_set_hit(p);
-}
-
 void do_SetGainTable(char *p)
 {
     bdt_set_gain_table(p);
@@ -918,8 +874,6 @@ const t_cmd console_cmd_list[] =
     { STR_BT_MP_SET_PARAM, do_SetParam, ":: do_SetParam", 0 },
     { STR_BT_MP_SET_PARAM1, do_SetParam1, ":: do_SetParam1", 0 },
     { STR_BT_MP_SET_PARAM2, do_SetParam2, ":: do_SetParam2", 0 },
-    { STR_BT_MP_SET_HOPPING_MODE, do_SetHoppingMode, ":: Set Hopping Mode", 0 },
-    { STR_BT_MP_SET_HIT, do_SetHit, ":: do_SetHit", 0 },
     { STR_BT_MP_SET_GAIN_TABLE, do_SetGainTable, ":: do_SetGainTable", 0 },
     { STR_BT_MP_SET_DAC_TABLE, do_SetDacTable, ":: do_SetDacTable", 0 },
     { STR_BT_MP_EXEC, do_Exec, ":: do_Exec", 0 },
