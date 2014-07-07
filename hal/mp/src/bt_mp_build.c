@@ -113,18 +113,21 @@ BuildBluetoothDevice(
     pBtDevice->BTDlFW = bt_default_BTDlFW;
     pBtDevice->BTDlMERGERFW = bt_default_BTDlMergerFW;
 
+    //new SpecialFunction
+    pBtDevice->BT_SP_PGEfuseRawData = BTDevice_SpecialFunction_Efuse_PGEfuseRawData;
+
     return 0;
 }
 
 // Base Module interface builder
 int
 BuildBluetoothModule(
-    BASE_INTERFACE_MODULE   *pBaseInterfaceModule,
-    BT_MODULE               *pBtModule,
-    void                    *pExtra,
-    uint8_t                 *pTxGainTable,
-    uint8_t                 *pTxDACTable
-    )
+        BASE_INTERFACE_MODULE   *pBaseInterfaceModule,
+        BT_MODULE               *pBtModule,
+        void                    *pExtra,
+        uint8_t                 *pTxGainTable,
+        uint8_t                 *pTxDACTable
+        )
 {
     int rtn = BT_FUNCTION_SUCCESS;
 

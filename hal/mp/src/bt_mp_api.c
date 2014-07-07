@@ -46,18 +46,19 @@
 #define DEFAULT_HOPPING_CH_NUM              0
 #define DEFAULT_MULTI_RX_ENABLE             0
 
-#define BT_PARAM0   0   //mChannelNumber
-#define BT_PARAM1   1   //mPacketType
-#define BT_PARAM2   2   //mPayloadType
-#define BT_PARAM3   3   //mTxPacketCount
-#define BT_PARAM4   4   //mTxGainValue
-#define BT_PARAM5   5   //mWhiteningCoeffValue
-#define BT_PARAM6   6   //mTxGainIndex
-#define BT_PARAM7   7   //mTxDAC
-#define BT_PARAM8   8   //mPacketHeader
-#define BT_PARAM9   9   //mHoppingFixChannel
-#define BT_PARAM10  10  //mHitTarget
-#define BT_PARAM_NUM 11
+#define BT_PARAM_IDX0    0   //mPGRawData
+#define BT_PARAM_IDX1    1   //mChannelNumber
+#define BT_PARAM_IDX2    2   //mPacketType
+#define BT_PARAM_IDX3    3   //mPayloadType
+#define BT_PARAM_IDX4    4   //mTxPacketCount
+#define BT_PARAM_IDX5    5   //mTxGainValue
+#define BT_PARAM_IDX6    6   //mWhiteningCoeffValue
+#define BT_PARAM_IDX7    7   //mTxGainIndex
+#define BT_PARAM_IDX8    8   //mTxDAC
+#define BT_PARAM_IDX9    9   //mPacketHeader
+#define BT_PARAM_IDX10   10  //mHoppingFixChannel
+#define BT_PARAM_IDX11   11  //mHitTarget
+#define BT_PARAM_IDX_NUM 12
 
 typedef struct _EVENT_STRING {
     char EventData[3];//,XX
@@ -66,37 +67,40 @@ typedef struct _EVENT_STRING {
 static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
 {
     switch (index) {
-    case BT_PARAM0:
+    case BT_PARAM_IDX0:
+        pBtModule->pBtParam->mPGRawData[0] = (uint8_t)value;
+        break;
+    case BT_PARAM_IDX1:
         pBtModule->pBtParam->mChannelNumber = (uint8_t)value;
         break;
-    case BT_PARAM1:
+    case BT_PARAM_IDX2:
         pBtModule->pBtParam->mPacketType = (BT_PKT_TYPE)value;
         break;
-    case BT_PARAM2:
+    case BT_PARAM_IDX3:
         pBtModule->pBtParam->mPayloadType = (BT_PAYLOAD_TYPE)value;
         break;
-    case BT_PARAM3:
+    case BT_PARAM_IDX4:
         pBtModule->pBtParam->mTxPacketCount = (uint16_t)value;
         break;
-    case BT_PARAM4:
+    case BT_PARAM_IDX5:
         pBtModule->pBtParam->mTxGainValue = (uint8_t)value;
         break;
-    case BT_PARAM5:
+    case BT_PARAM_IDX6:
         pBtModule->pBtParam->mWhiteningCoeffValue = (uint8_t)value;
         break;
-    case BT_PARAM6:
+    case BT_PARAM_IDX7:
         pBtModule->pBtParam->mTxGainIndex = (uint8_t)value;
         break;
-    case BT_PARAM7:
+    case BT_PARAM_IDX8:
         pBtModule->pBtParam->mTxDAC = (uint8_t)value;
         break;
-    case BT_PARAM8:
+    case BT_PARAM_IDX9:
         pBtModule->pBtParam->mPacketHeader = (uint16_t)value;
         break;
-    case BT_PARAM9:
+    case BT_PARAM_IDX10:
         pBtModule->pBtParam->mHoppingFixChannel = (uint8_t)value;
         break;
-    case BT_PARAM10:
+    case BT_PARAM_IDX11:
         pBtModule->pBtParam->mHitTarget = (uint64_t)value;
         break;
     default:
@@ -236,11 +240,12 @@ int BT_GetParam(BT_MODULE *pBtModule, char *pNotifyBuffer)
 
 int BT_SetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
-    uint8_t pairs_count, params_count;
+    uint16_t pairs_count, params_count;
     char *pair_token, *param_token;
     char *pairs_buf, *params_buf;
     char *save_pairs, *save_params;
-    int index;
+    int index = -1;
+    int var_pair;
     int64_t value = 0;
 
     ALOGI("++%s: %s", STR_BT_MP_SET_PARAM, p);
@@ -250,21 +255,32 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         if (pair_token == NULL)
             break;
 
+        var_pair = 0; // set 1 if variable pair
+
         for (params_count = 0, params_buf = pair_token; ; params_count++, params_buf = NULL) {
             param_token = strtok_r(params_buf, STR_BT_MP_PARAM_DELIM, &save_params);
             if (param_token && params_count == 0) {
                 index = strtol(param_token, NULL, 0);
-                if (index < 0 || index >= BT_PARAM_NUM) {
+                if (index < 0 || index >= BT_PARAM_IDX_NUM) {
                     ALOGI("Invalid BT param index %d", index);
                     sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
                     return FUNCTION_PARAMETER_ERROR;
+                } else if (index == 0) {
+                    var_pair = 1;
                 }
-            } else if (param_token && params_count == 1)
+            } else if (param_token && params_count == 1) {
                 value = strtoll(param_token, NULL, 0);
-            else if (param_token == NULL) // null token OR token parsing completed
+            } else if (param_token && params_count > 1 && var_pair == 1) {
+                pBtModule->pBtParam->mPGRawData[params_count - 1] = (uint8_t)strtoll(param_token, NULL, 0);
+            } else if (param_token == NULL) // null token OR token parsing completed
                 break;
         }
-        if (params_count == 2) { // valid pair format<index, value>
+        if (params_count > 2 && var_pair == 1) { // variable pair format<index, cmd, len, data...>
+            bt_index2param(pBtModule, index, value);
+            uint16_t i = 0;
+            for (i = 0; i < params_count - 1; i++) // exclude index
+                ALOGI("Raw data params data[%d]: 0x%02x", i, pBtModule->pBtParam->mPGRawData[i]);
+        } else if (params_count == 2 && var_pair == 0) { // 2-param pair format<index, value>
             bt_index2param(pBtModule, index, value);
             ALOGI("Pair index %d, pair value 0x%llx", index, value);
         } else if (params_count == 0) { // null pair
@@ -753,29 +769,29 @@ EXIT:
     return rtn;
 }
 
-int BT_ReportTx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
+int BT_ReportTx(BT_MODULE *pBtModule, char *pNotifyBuffer)
 {
     BT_DEVICE_REPORT BtDeviceReport;
     int rtn = BT_FUNCTION_SUCCESS;
 
-    ALOGI("++%s", STR_BT_MP_REPORTTX);
+    ALOGI("++%s", STR_BT_MP_REPORT_TX);
 
-    rtn=pBtModule->ActionReport(pBtModule, REPORT_TX, &BtDeviceReport);
+    rtn = pBtModule->ActionReport(pBtModule, REPORT_PKT_TX, &BtDeviceReport);
 
     if (rtn != BT_FUNCTION_SUCCESS) {
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RESULT_DELIM, rtn);
-        ALOGI("%s%s%x", STR_BT_MP_REPORTTX, STR_BT_MP_RESULT_DELIM, rtn);
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REPORT_TX, STR_BT_MP_RESULT_DELIM, rtn);
+        ALOGI("%s%s%x", STR_BT_MP_REPORT_TX, STR_BT_MP_RESULT_DELIM, rtn);
         goto exit;
     } else {
         ALOGI("%s%s%x%s%x",
-                STR_BT_MP_REPORTTX,
+                STR_BT_MP_REPORT_TX,
                 STR_BT_MP_RESULT_DELIM,
                 BtDeviceReport.TotalTXBits,
                 STR_BT_MP_RESULT_DELIM,
                 BtDeviceReport.TotalTxCounts);
 
         sprintf(pNotifyBuffer, "%s%s%x%s%x",
-                                STR_BT_MP_REPORTTX,
+                                STR_BT_MP_REPORT_TX,
                                 STR_BT_MP_RESULT_DELIM,
                                 BtDeviceReport.TotalTXBits,
                                 STR_BT_MP_RESULT_DELIM,
@@ -783,7 +799,42 @@ int BT_ReportTx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
     }
 
 exit:
-    ALOGI("--%s", STR_BT_MP_REPORTTX);
+    ALOGI("--%s", STR_BT_MP_REPORT_TX);
+
+    return rtn;
+}
+
+int BT_ReportContTx(BT_MODULE *pBtModule, char *pNotifyBuffer)
+{
+    BT_DEVICE_REPORT BtDeviceReport;
+    int rtn = BT_FUNCTION_SUCCESS;
+
+    ALOGI("++%s", STR_BT_MP_REPORT_CONT_TX);
+
+    rtn=pBtModule->ActionReport(pBtModule, REPORT_CONT_TX, &BtDeviceReport);
+
+    if (rtn != BT_FUNCTION_SUCCESS) {
+        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REPORT_CONT_TX, STR_BT_MP_RESULT_DELIM, rtn);
+        ALOGI("%s%s%x", STR_BT_MP_REPORT_CONT_TX, STR_BT_MP_RESULT_DELIM, rtn);
+        goto exit;
+    } else {
+        ALOGI("%s%s%x%s%x",
+                STR_BT_MP_REPORT_CONT_TX,
+                STR_BT_MP_RESULT_DELIM,
+                BtDeviceReport.TotalTXBits,
+                STR_BT_MP_RESULT_DELIM,
+                BtDeviceReport.TotalTxCounts);
+
+        sprintf(pNotifyBuffer, "%s%s%x%s%x",
+                                STR_BT_MP_REPORT_CONT_TX,
+                                STR_BT_MP_RESULT_DELIM,
+                                BtDeviceReport.TotalTXBits,
+                                STR_BT_MP_RESULT_DELIM,
+                                BtDeviceReport.TotalTxCounts);
+    }
+
+exit:
+    ALOGI("--%s", STR_BT_MP_REPORT_CONT_TX);
 
     return rtn;
 }
@@ -793,7 +844,7 @@ int BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
     BT_DEVICE_REPORT BtDeviceReport;
     int rtn = BT_FUNCTION_SUCCESS;
 
-    ALOGI("++%s", STR_BT_MP_REPORTRX);
+    ALOGI("++%s", STR_BT_MP_REPORT_RX);
 
     rtn = pBtModule->ActionReport(pBtModule, REPORT_RX, &BtDeviceReport);
     if (rtn != BT_FUNCTION_SUCCESS) {
@@ -802,7 +853,7 @@ int BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
         goto exit;
     } else {
         ALOGI("%s%s%x%s%x%s%x%s%x",
-                STR_BT_MP_REPORTRX,
+                STR_BT_MP_REPORT_RX,
                 STR_BT_MP_RESULT_DELIM,
                 BtDeviceReport.RxRssi,
                 STR_BT_MP_RESULT_DELIM,
@@ -814,7 +865,7 @@ int BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
              );
 
         sprintf(pNotifyBuffer, "%s%s%x%s%x%s%x%s%x",
-                STR_BT_MP_REPORTRX,
+                STR_BT_MP_REPORT_RX,
                 STR_BT_MP_RESULT_DELIM,
                 BtDeviceReport.RxRssi,
                 STR_BT_MP_RESULT_DELIM,
@@ -827,7 +878,7 @@ int BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
     }
 
 exit:
-    ALOGI("--%s", STR_BT_MP_REPORTRX);
+    ALOGI("--%s", STR_BT_MP_REPORT_RX);
 
     return rtn;
 }
@@ -992,6 +1043,7 @@ void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *p
             pTxDACTable
             );
 
+    pBtModule->pBtParam->mPGRawData[0] = 0;
     pBtModule->pBtParam->mChannelNumber = DEFAULT_CH_NUM;
     pBtModule->pBtParam->mPacketType = DEFAULT_PKT_TYPE;
     pBtModule->pBtParam->mPayloadType = DEFAULT_PAYLOAD_TYPE;

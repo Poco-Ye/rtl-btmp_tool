@@ -381,8 +381,10 @@ public class MainActivity extends Activity {
                             break;
 
                         case MpOpCode.BT_MP_OP_CODE_ReportTx:
+                        case MpOpCode.BT_MP_OP_CODE_ReportContTx:
                             if (bufArray.length != 3 ||
-                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REPORTTX)) {
+                                (!bufArray[0].equals(MpOpCode.STR_BT_MP_REPORT_TX) &&
+                                 !bufArray[0].equals(MpOpCode.STR_BT_MP_REPORT_CONT_TX))) {
                                 Log.e(TAG, "MP HCI Event Params error");
                                 break;
                             }
@@ -396,7 +398,7 @@ public class MainActivity extends Activity {
 
                         case MpOpCode.BT_MP_OP_CODE_ReportRx:
                             if (bufArray.length != 5 ||
-                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REPORTRX)) {
+                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REPORT_RX)) {
                                 Log.e(TAG, "MP HCI Event Params error");
                                 break;
                             }
@@ -494,7 +496,7 @@ public class MainActivity extends Activity {
                              MpOpCode.BT_MP_OP_STR_SetParam1, MpOpCode.BT_MP_OP_STR_SetParam2,
                              MpOpCode.BT_MP_OP_STR_SetGainTable, MpOpCode.BT_MP_OP_STR_SetDacTable,
                              MpOpCode.BT_MP_OP_STR_Exec,
-                             MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportRx,
+                             MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportContTx, MpOpCode.BT_MP_OP_STR_ReportRx,
                              MpOpCode.BT_MP_OP_STR_RegRW,
                              MpOpCode.BT_MP_OP_STR_PktTxStart, MpOpCode.BT_MP_OP_STR_PktTxUpdate,
                              MpOpCode.BT_MP_OP_STR_PktRxStart, MpOpCode.BT_MP_OP_STR_PktRxUpdate,
@@ -767,6 +769,10 @@ public class MainActivity extends Activity {
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_ReportTx);
                             mActionParam = null;
                             break;
+                        case MpOpCode.BT_MP_OP_CODE_ReportContTx:
+                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_ReportContTx);
+                            mActionParam = null;
+                            break;
                         case MpOpCode.BT_MP_OP_CODE_ReportRx:
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_ReportRx);
                             mActionParam = null;
@@ -881,6 +887,8 @@ public class MainActivity extends Activity {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportTx)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_ReportTx;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportContTx)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_ReportContTx;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportRx)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_ReportRx;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_RegRW)) {

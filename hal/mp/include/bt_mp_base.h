@@ -31,6 +31,10 @@ enum _bool{ false, true }bool;
 //--------------------------------------------------
 //  Realtek define
 //--------------------------------------------------
+#define MAX_USERAWDATA_SIZE     256
+#define SYS_EFUSE               0
+#define BT_EFUSE                1
+
 #define MAX_HCI_COMANND_BUF_SIZ 256
 #define MAX_HCI_EVENT_BUF_SIZ   256
 #define MAX_TXGAIN_TABLE_SIZE   7
@@ -94,6 +98,8 @@ typedef enum {
     SET_DEFAULT_TX_DAC_TABLE,           //37
     SET_RTL8761_XTAL,                   //38
 
+    EXEC_USE_RAWDATA,                   //39
+
     NUMBEROFBT_ACTIONCONTROL_TAG
 } BT_ACTIONCONTROL_TAG;
 
@@ -144,6 +150,7 @@ struct BT_PARAMETER_TAG
 {
     int ParameterIndex;
 
+    uint8_t mPGRawData[MAX_USERAWDATA_SIZE];
     uint8_t mChannelNumber;
     BT_PKT_TYPE mPacketType;
     uint8_t mTxGainIndex;
@@ -526,8 +533,9 @@ typedef int(*BT_FP_GET_ECOVERSION)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_GET_CHIPVERSIONINFO)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_BT_DL_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
+//SpecialFunction
+typedef int(*BT_FP_SF_PGEFUSE_RAWDATA)(BT_DEVICE *pBtDevice,int MapType, uint8_t *PGData, uint32_t PGDataLength);
 
-//------------------------------------------------------------------------------------------------------------------
 
 typedef struct BT_TRX_TIME_TAG BT_TRX_TIME;
 
@@ -645,6 +653,8 @@ struct BT_DEVICE_TAG  // Chip
     BT_FP_GET_CHIPVERSIONINFO GetChipVersionInfo;
     BT_FP_BT_DL_FW BTDlFW;
     BT_FP_BT_DL_MERGER_FW BTDlMERGERFW;
+    //SpecialFunction
+    BT_FP_SF_PGEFUSE_RAWDATA    BT_SP_PGEfuseRawData;
 };
 
 //-----------------------------------------------------------------------------------------------------------------
@@ -652,7 +662,7 @@ struct BT_DEVICE_TAG  // Chip
 //-----------------------------------------------------------------------------------------------------------------
 typedef enum _BT_REPORT_TAG {
     NO_THING,
-    REPORT_TX,
+    REPORT_PKT_TX,
     REPORT_RX,
     REPORT_CHIP,
     REPORT_ALL,
@@ -660,7 +670,8 @@ typedef enum _BT_REPORT_TAG {
     REPORT_TX_DAC_TABLE,
     REPORT_RTL8761_XTAL,
     REPORT_THERMAL,
-    REPORT_BT_STAGE
+    REPORT_BT_STAGE,
+    REPORT_CONT_TX
 } BT_REPORT_TAG;
 
 typedef struct  BT_MODULE_TAG BT_MODULE;
@@ -806,7 +817,6 @@ typedef int
         uint8_t Lsb,
         uint32_t *pUserValue
         );
-
 
 struct BT_MODULE_TAG {
     BT_PARAMETER        *pBtParam;

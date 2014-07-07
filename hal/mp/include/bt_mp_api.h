@@ -11,6 +11,7 @@ int BT_SetGainTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetDacTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_Exec(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_ReportTx(BT_MODULE *pBtModule, char *pNotifyBuffer);
+int BT_ReportContTx(BT_MODULE *pBtModule, char *pNotifyBuffer);
 int BT_ReportRx(BT_MODULE *pBtModule, char *pNotifyBuffer);
 int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 

@@ -46,8 +46,9 @@ enum BT_MP_OPCODE {
     BT_MP_OP_USER_DEF_SetDacTable = 0x15,
     BT_MP_OP_USER_DEF_Exec = 0x16,
     BT_MP_OP_USER_DEF_ReportTx = 0x17,
-    BT_MP_OP_USER_DEF_ReportRx = 0x18,
-    BT_MP_OP_USER_DEF_RegRW = 0x19,
+    BT_MP_OP_USER_DEF_ReportContTx = 0x18,
+    BT_MP_OP_USER_DEF_ReportRx = 0x19,
+    BT_MP_OP_USER_DEF_RegRW = 0x1a,
 
 };
 
@@ -56,17 +57,18 @@ enum BT_MP_OPCODE {
 #define STR_BT_MP_DISABLE       "disable"
 #define STR_BT_MP_DUT_MODE      "dut_mode_configure"
 
-#define STR_BT_MP_GET_PARAM      "bt_mp_GetParam"
-#define STR_BT_MP_SET_PARAM      "bt_mp_SetParam"
-#define STR_BT_MP_SET_PARAM1     "bt_mp_SetParam1"
-#define STR_BT_MP_SET_PARAM2     "bt_mp_SetParam2"
+#define STR_BT_MP_GET_PARAM         "bt_mp_GetParam"
+#define STR_BT_MP_SET_PARAM         "bt_mp_SetParam"
+#define STR_BT_MP_SET_PARAM1        "bt_mp_SetParam1"
+#define STR_BT_MP_SET_PARAM2        "bt_mp_SetParam2"
 #define STR_BT_MP_SET_GAIN_TABLE    "bt_mp_SetGainTable"
 #define STR_BT_MP_SET_DAC_TABLE     "bt_mp_SetDacTable"
-#define STR_BT_MP_EXEC          "bt_mp_Exec"
-#define STR_BT_MP_REPORTTX      "bt_mp_ReportTx"
-#define STR_BT_MP_REPORTRX      "bt_mp_ReportRx"
-#define STR_BT_MP_REG_RW        "bt_mp_RegRW"
-#define STR_BT_MP_HCI_CMD       "hci_cmd"
+#define STR_BT_MP_EXEC              "bt_mp_Exec"
+#define STR_BT_MP_REPORT_TX         "bt_mp_ReportTx"
+#define STR_BT_MP_REPORT_CONT_TX    "bt_mp_ReportContTx"
+#define STR_BT_MP_REPORT_RX         "bt_mp_ReportRx"
+#define STR_BT_MP_REG_RW            "bt_mp_RegRW"
+#define STR_BT_MP_HCI_CMD           "hci_cmd"
 
 #define STR_BT_MP_HCI_RESET     "bt_mp_HciReset"
 #define STR_BT_MP_CONTTXSTART   "bt_mp_ConTxStart"

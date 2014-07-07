@@ -12,8 +12,9 @@ public final class MpOpCode {
     public static final int BT_MP_OP_CODE_SetDacTable    =   0x0015;
     public static final int BT_MP_OP_CODE_Exec           =   0x0016;
     public static final int BT_MP_OP_CODE_ReportTx       =   0x0017;
-    public static final int BT_MP_OP_CODE_ReportRx       =   0x0018;
-    public static final int BT_MP_OP_CODE_RegRW          =   0x0019;
+    public static final int BT_MP_OP_CODE_ReportContTx   =   0x0018;
+    public static final int BT_MP_OP_CODE_ReportRx       =   0x0019;
+    public static final int BT_MP_OP_CODE_RegRW          =   0x001a;
 
     // All Exec subcodes
     public static final int BT_MP_OP_CODE_PktTxStart      =   0x1116; // subcode 17
@@ -33,8 +34,9 @@ public final class MpOpCode {
     public static final String BT_MP_OP_STR_SetGainTable    = "Set Gain Table";
     public static final String BT_MP_OP_STR_SetDacTable     = "Set Dac Table";
     public static final String BT_MP_OP_STR_Exec            = "Exec";
-    public static final String BT_MP_OP_STR_ReportTx        = "Report Tx";
-    public static final String BT_MP_OP_STR_ReportRx        = "Report Rx";
+    public static final String BT_MP_OP_STR_ReportTx        = "Report Pkt Tx";
+    public static final String BT_MP_OP_STR_ReportContTx    = "Report Continue Tx";
+    public static final String BT_MP_OP_STR_ReportRx        = "Report Pkt Rx";
     public static final String BT_MP_OP_STR_RegRW           = "Reg R/W";
 
     public static final String BT_MP_OP_STR_PktTxStart      = "Pkt Tx Start";
@@ -59,8 +61,9 @@ public final class MpOpCode {
     public static final String STR_BT_MP_SET_GAIN_TABLE   =   "bt_mp_SetGainTable";
     public static final String STR_BT_MP_SET_DAC_TABLE    =   "bt_mp_SetDacTable";
     public static final String STR_BT_MP_EXEC             =   "bt_mp_Exec";
-    public static final String STR_BT_MP_REPORTTX         =   "bt_mp_ReportTx";
-    public static final String STR_BT_MP_REPORTRX         =   "bt_mp_ReportRx";
+    public static final String STR_BT_MP_REPORT_TX        =   "bt_mp_ReportTx";
+    public static final String STR_BT_MP_REPORT_CONT_TX   =   "bt_mp_ReportContTx";
+    public static final String STR_BT_MP_REPORT_RX        =   "bt_mp_ReportRx";
     public static final String STR_BT_MP_REG_RW           =   "bt_mp_RegRW";
     public static final String STR_BT_MP_HCI_CMD          =   "hci_cmd";
 

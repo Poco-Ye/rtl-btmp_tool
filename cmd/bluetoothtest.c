@@ -614,27 +614,40 @@ void bdt_exec(char *p)
 void bdt_report_tx(char *p)
 {
     if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORTTX);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORTTX, STR_BT_NOT_ENABLED);
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT_TX);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORT_TX, STR_BT_NOT_ENABLED);
         return;
     }
 
     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportTx, p);
 
-    check_return_status(STR_BT_MP_REPORTTX, status);
+    check_return_status(STR_BT_MP_REPORT_TX, status);
+}
+
+void bdt_report_cont_tx(char *p)
+{
+    if (!bt_enabled) {
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT_CONT_TX);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORT_CONT_TX, STR_BT_NOT_ENABLED);
+        return;
+    }
+
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportContTx, p);
+
+    check_return_status(STR_BT_MP_REPORT_CONT_TX, status);
 }
 
 void bdt_report_rx(char *p)
 {
     if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORTRX);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORTRX, STR_BT_NOT_ENABLED);
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT_RX);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORT_RX, STR_BT_NOT_ENABLED);
         return;
     }
 
     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportRx, p);
 
-    check_return_status(STR_BT_MP_REPORTRX, status);
+    check_return_status(STR_BT_MP_REPORT_RX, status);
 }
 
 void bdt_reg_rw(char *p)
@@ -774,6 +787,11 @@ void do_ReportTx(char *p)
     bdt_report_tx(p);
 }
 
+void do_ReportContTx(char *p)
+{
+    bdt_report_cont_tx(p);
+}
+
 void do_ReportRx(char *p)
 {
     bdt_report_rx(p);
@@ -805,30 +823,34 @@ const t_cmd console_cmd_list[] =
     /*
      * INTERNAL
      */
-    { "help", do_help, "lists all available console commands", 0 },
-    { "quit", do_quit, "abort the MP tool test app", 0},
+    { "help", do_help, ":: Lists all available console commands", 0 },
+    { "quit", do_quit, ":: Abort the MP tool test app", 0},
 
     /*
      * API CONSOLE COMMANDS
      */
     /* Init and Cleanup shall be called automatically */
-    { STR_BT_MP_ENABLE, do_enable, ":: enables bluetooth", 0 },
-    { STR_BT_MP_DISABLE, do_disable, ":: disables bluetooth", 0 },
+    { STR_BT_MP_ENABLE, do_enable, ":: Enable bluetooth", 0 },
+    { STR_BT_MP_DISABLE, do_disable, ":: Disable bluetooth", 0 },
     { STR_BT_MP_DUT_MODE, do_dut_mode_configure, ":: DUT mode - 1 to enter,0 to exit", 0 },
 
-    { STR_BT_MP_GET_PARAM, do_GetParam, ":: do_GetParam", 0 },
-    { STR_BT_MP_SET_PARAM, do_SetParam, ":: do_SetParam", 0 },
-    { STR_BT_MP_SET_PARAM1, do_SetParam1, ":: do_SetParam1", 0 },
-    { STR_BT_MP_SET_PARAM2, do_SetParam2, ":: do_SetParam2", 0 },
-    { STR_BT_MP_SET_GAIN_TABLE, do_SetGainTable, ":: do_SetGainTable", 0 },
-    { STR_BT_MP_SET_DAC_TABLE, do_SetDacTable, ":: do_SetDacTable", 0 },
-    { STR_BT_MP_EXEC, do_Exec, ":: do_Exec", 0 },
-    { STR_BT_MP_REPORTTX, do_ReportTx, ":: do_ReportTx", 0 },
-    { STR_BT_MP_REPORTRX, do_ReportRx, ":: do_ReportRx", 0 },
+    { STR_BT_MP_GET_PARAM, do_GetParam, ":: Get all exposed parameters", 0 },
+    { STR_BT_MP_SET_PARAM, do_SetParam, ":: Set specific parameters<index,value>", 0 },
+    { STR_BT_MP_SET_PARAM1, do_SetParam1, ":: Set series 1 parameters", 0 },
+    { STR_BT_MP_SET_PARAM2, do_SetParam2, ":: Set series 2 parameters", 0 },
 
-    { STR_BT_MP_REG_RW, do_RegRW, ":: do_RegRW", 0 },
+    { STR_BT_MP_SET_GAIN_TABLE, do_SetGainTable, ":: Set Tx GAIN table", 0 },
+    { STR_BT_MP_SET_DAC_TABLE, do_SetDacTable, ":: Set Tx DAC table", 0 },
 
-    { STR_BT_MP_HCI_CMD, do_hci, ":: send hci command", 0 },
+    { STR_BT_MP_EXEC, do_Exec, ":: Execute specific action<action id>", 0 },
+
+    { STR_BT_MP_REPORT_TX, do_ReportTx, ":: Report Pkt Tx<TotalTxBits,TotalTxCounts>", 0 },
+    { STR_BT_MP_REPORT_CONT_TX, do_ReportContTx, ":: Report Pkt Continue Tx<TotalTxBits,TotalTxCounts>", 0 },
+    { STR_BT_MP_REPORT_RX, do_ReportRx, ":: Report Pkt Rx<RxRssi,TotalRxBits,TotalRxCounts,TotalRxErrorBits>", 0 },
+
+    { STR_BT_MP_REG_RW, do_RegRW, ":: R/W Modem, RF, SYS & BB registers", 0 },
+
+    { STR_BT_MP_HCI_CMD, do_hci, ":: Send HCI Commands", 0 },
 
     /* add here */
 

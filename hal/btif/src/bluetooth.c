@@ -209,6 +209,10 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         ret = BT_ReportTx(&BtModuleMemory, pNotifyBuffer);
         break;
 
+    case BT_MP_OP_USER_DEF_ReportContTx:
+        ret = BT_ReportContTx(&BtModuleMemory, pNotifyBuffer);
+        break;
+
     case BT_MP_OP_USER_DEF_ReportRx:
         ret = BT_ReportRx(&BtModuleMemory, pNotifyBuffer);
         break;

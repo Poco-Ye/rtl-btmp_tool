@@ -5,8 +5,9 @@
 #include "bluetoothmp.h"
 #include "bt_mp_build.h"
 #include "bt_mp_module_base.h"
-//------------------------------------------------------------------------------------------------------------------
 
+extern uint32_t PktRxCount;
+extern uint32_t PktRxErrBits;
 
 int BTModule_ActionReport(
         BT_MODULE *pBtModule,
@@ -24,14 +25,20 @@ int BTModule_ActionReport(
     case NO_THING:
         break;
 
-    case REPORT_TX:
+    case REPORT_PKT_TX:
         pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         pReport->TotalTXBits = pModuleBtReport->TotalTXBits;
         pReport->TotalTxCounts = pModuleBtReport->TotalTxCounts;
         break;
 
+    case REPORT_CONT_TX:
+        pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        pReport->TotalTXBits = pModuleBtReport->TotalTXBits;
+        pReport->TotalTxCounts = pModuleBtReport->TotalTxCounts;
+        break;
+
     case REPORT_RX:
-        pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         pReport->TotalRXBits = pModuleBtReport->TotalRXBits;
         pReport->TotalRxCounts = pModuleBtReport->TotalRxCounts;
         pReport->TotalRxErrorBits = pModuleBtReport->TotalRxErrorBits;
@@ -121,9 +128,9 @@ int BTModule_UpDataParameter(
         BT_PARAMETER *pParam
         )
 {
-    int rtn=BT_FUNCTION_SUCCESS;
+    int rtn = BT_FUNCTION_SUCCESS;
     BT_PARAMETER *pBtModuleParam = pBtModule->pBtParam;
-    int n=0;
+    int n = 0;
 
     pBtModuleParam->ParameterIndex          = pParam->ParameterIndex;
     pBtModuleParam->mChannelNumber          = pParam->mChannelNumber;
@@ -133,18 +140,24 @@ int BTModule_UpDataParameter(
     pBtModuleParam->mTxPacketCount          = pParam->mTxPacketCount;
     pBtModuleParam->mPayloadType            = pParam->mPayloadType;
     pBtModuleParam->mPacketHeader           = pParam->mPacketHeader;
-    pBtModuleParam->mWhiteningCoeffValue   = pParam->mWhiteningCoeffValue;
+    pBtModuleParam->mWhiteningCoeffValue    = pParam->mWhiteningCoeffValue;
     pBtModuleParam->mTxDAC                  = pParam->mTxDAC;
     pBtModuleParam->mHitTarget              = pParam->mHitTarget;
     pBtModuleParam->mHoppingFixChannel      = pParam->mHoppingFixChannel;
 
-    for (n=0;n<MAX_TXGAIN_TABLE_SIZE;n++)
+    for (n = 0; n < MAX_TXGAIN_TABLE_SIZE; n++)
     {
         pBtModuleParam->TXGainTable[n] = pParam->TXGainTable[n];
     }
-    for (n=0;n<MAX_TXDAC_TABLE_SIZE;n++)
+
+    for (n = 0; n < MAX_TXDAC_TABLE_SIZE; n++)
     {
         pBtModuleParam->TXDACTable[n] = pParam->TXDACTable[n];
+    }
+
+    for (n = 0; n < MAX_USERAWDATA_SIZE; n++)
+    {
+        pBtModuleParam->mPGRawData[n] = pParam->mPGRawData[n];
     }
 
     return rtn;
@@ -163,61 +176,52 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
             pModuleBtReport, Item);
 
     switch (Item) {
-    case MODULE_INIT:
-        break;
-
     case SETTXGAINTABLE:
-        rtn=pModuleBtDevice->SetTxGainTable(pModuleBtDevice,pModuleBtParam->TXGainTable);
+        rtn = pModuleBtDevice->SetTxGainTable(pModuleBtDevice,pModuleBtParam->TXGainTable);
         break;
 
     case SETTXDACTABLE:
-        rtn=pModuleBtDevice->SetTxDACTable(pModuleBtDevice,pModuleBtParam->TXDACTable);
+        rtn = pModuleBtDevice->SetTxDACTable(pModuleBtDevice,pModuleBtParam->TXDACTable);
         break;
 
     case SET_TXCHANNEL:
-        rtn=pModuleBtDevice->SetTxChannel(pModuleBtDevice,pModuleBtParam->mChannelNumber);
+        rtn = pModuleBtDevice->SetTxChannel(pModuleBtDevice,pModuleBtParam->mChannelNumber);
         break;
 
     case SET_RXCHANNEL:
-        rtn=pModuleBtDevice->SetRxChannel(pModuleBtDevice,pModuleBtParam->mChannelNumber);
+        rtn = pModuleBtDevice->SetRxChannel(pModuleBtDevice,pModuleBtParam->mChannelNumber);
         break;
 
     case SET_POWERGAININDEX:
-        rtn=pModuleBtDevice->SetPowerGainIndex(pModuleBtDevice,pModuleBtParam->mTxGainIndex);
+        rtn = pModuleBtDevice->SetPowerGainIndex(pModuleBtDevice,pModuleBtParam->mTxGainIndex);
         break;
 
     case SET_POWERGAIN:
-        rtn=pModuleBtDevice->SetPowerGain(pModuleBtDevice,pModuleBtParam->mTxGainValue);
+        rtn = pModuleBtDevice->SetPowerGain(pModuleBtDevice,pModuleBtParam->mTxGainValue);
         break;
 
     case SET_POWERDAC:
-        rtn=pModuleBtDevice->SetPowerDac(pModuleBtDevice,pModuleBtParam->mTxDAC);
+        rtn = pModuleBtDevice->SetPowerDac(pModuleBtDevice,pModuleBtParam->mTxDAC);
         break;
 
     case SET_PAYLOADTYPE:
-        rtn=pModuleBtDevice->SetPayloadType(pModuleBtDevice,pModuleBtParam->mPayloadType);
+        rtn = pModuleBtDevice->SetPayloadType(pModuleBtDevice,pModuleBtParam->mPayloadType);
         break;
 
     case SET_WHITENINGCOFF:
-        rtn=pModuleBtDevice->SetWhiteningCoeff(pModuleBtDevice,pModuleBtParam->mWhiteningCoeffValue);
+        rtn = pModuleBtDevice->SetWhiteningCoeff(pModuleBtDevice,pModuleBtParam->mWhiteningCoeffValue);
         break;
 
     case SET_PACKETTYPE:
-        rtn=pModuleBtDevice->SetPacketType(pModuleBtDevice,pModuleBtParam->mPacketType);
+        rtn = pModuleBtDevice->SetPacketType(pModuleBtDevice,pModuleBtParam->mPacketType);
         break;
 
     case SET_HITTARGET:
-        rtn=pModuleBtDevice->SetHitTarget(pModuleBtDevice,pModuleBtParam->mHitTarget);
-        break;
-
-    case SET_TESTMODE:
-        break;
-
-    case SET_MUTIRXENABLE:
+        rtn = pModuleBtDevice->SetHitTarget(pModuleBtDevice,pModuleBtParam->mHitTarget);
         break;
 
     case HCI_RESET:
-        rtn=pModuleBtDevice->SetHciReset(pModuleBtDevice,700);
+        rtn = pModuleBtDevice->SetHciReset(pModuleBtDevice,700);
         pModuleBtReport->TotalTXBits=0;
         pModuleBtReport->TotalTxCounts=0;
 
@@ -226,57 +230,50 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         pModuleBtReport->TotalRxErrorBits=0;
         pModuleBtReport->RxRssi=-90;
         pModuleBtReport->RXRecvPktCnts=0;
-        rtn=pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
+        PktRxCount = 0;
+        PktRxErrBits = 0;
+        rtn = pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
         break;
 
         /////////////////////////// PACKET_TX /////////////////////////////////////////////////////////
     case PACKET_TX_START:
-        rtn=pModuleBtDevice->SetPktTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
-        break;
-
-    case PACKET_TX_START_SET_CHANNEL_PKTTYPE:
+        rtn = pModuleBtDevice->SetPktTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case PACKET_TX_UPDATE:
-        rtn=pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
-        break;
-
-    case PACKET_TX_SEND_ONE:
+        rtn = pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case PACKET_TX_STOP:
-        rtn=pModuleBtDevice->SetPktTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        rtn = pModuleBtDevice->SetPktTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
         ////////////////////////// PACKET_RX /////////////////////////////////////////////////////////
     case PACKET_RX_START:
-        rtn=pModuleBtDevice->SetPktRxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
-        break;
-
-    case PACKET_RX_START_SET_CHANNEL_PKTTYPE:
+        rtn = pModuleBtDevice->SetPktRxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case PACKET_RX_UPDATE:
-        rtn=pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        rtn = pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case PACKET_RX_STOP:
-        rtn=pModuleBtDevice->SetPktRxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        rtn = pModuleBtDevice->SetPktRxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
         /////////////////////////// CONTINUE_TX /////////////////////////////////////////////////////////
     case CONTINUE_TX_LE_START:
     case CONTINUE_TX_START:
-        rtn=pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case CONTINUE_TX_LE_STOP:
     case CONTINUE_TX_STOP:
-        rtn=pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        rtn = pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case CONTINUE_TX_LE_UPDATE:
     case CONTINUE_TX_UPDATE:
-        rtn=pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        rtn = pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
     /////////////////////////// HOPPING  /////////////////////////////////////////////////////////
     case HOPPING_DWELL_TIME:
@@ -289,11 +286,11 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case TEST_MODE_ENABLE:
-        rtn=pModuleBtDevice->TestModeEnable(pModuleBtDevice);
+        rtn = pModuleBtDevice->TestModeEnable(pModuleBtDevice);
         break;
 
     case SET_PACKET_HEADER:
-        rtn=pModuleBtDevice->SetPackHeader(pModuleBtDevice, pModuleBtParam->mPacketHeader);
+        rtn = pModuleBtDevice->SetPackHeader(pModuleBtDevice, pModuleBtParam->mPacketHeader);
         break;
 
     /////////////////////////// REPORT /////////////////////////////////////////////////////////
@@ -306,19 +303,25 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         pModuleBtReport->TotalRxErrorBits=0;
         pModuleBtReport->RxRssi=-90;
         pModuleBtReport->RXRecvPktCnts=0;
-        rtn=pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
+        PktRxCount = 0;
+        PktRxErrBits = 0;
+        rtn = pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
         break;
 
     case SET_DEFAULT_TX_GAIN_TABLE:
-        rtn=pModuleBtDevice->SetTxGainTable(pModuleBtDevice, NULL);
+        rtn = pModuleBtDevice->SetTxGainTable(pModuleBtDevice, NULL);
         break;
 
     case SET_DEFAULT_TX_DAC_TABLE:
-        rtn=pModuleBtDevice->SetTxDACTable(pModuleBtDevice, NULL);
+        rtn = pModuleBtDevice->SetTxDACTable(pModuleBtDevice, NULL);
         break;
 
     case SET_RTL8761_XTAL:
-        rtn=pModuleBtDevice->SetRtl8761Xtal(pModuleBtDevice, pModuleBtParam->Rtl8761Xtal);
+        rtn = pModuleBtDevice->SetRtl8761Xtal(pModuleBtDevice, pModuleBtParam->Rtl8761Xtal);
+        break;
+
+    case EXEC_USE_RAWDATA:
+        rtn = BTModule_ExecRawData(pBtModule, pModuleBtParam);
         break;
 
     default:
@@ -559,4 +562,29 @@ BTModule_SetRegMaskBits(
     }
 
     return BT_FUNCTION_SUCCESS;
+}
+
+int
+BTModule_ExecRawData(
+        BT_MODULE *pBtModule,
+        BT_PARAMETER *pParam
+        )
+{
+    int rtn = BT_FUNCTION_SUCCESS;
+    BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
+    uint8_t Command = pParam->mPGRawData[0];
+
+    switch (Command)
+    {
+        case PG_BTMAP_RAWDATA:
+            rtn = pModuleBtDevice->BT_SP_PGEfuseRawData(pModuleBtDevice,BT_EFUSE,&pParam->mPGRawData[2],pParam->mPGRawData[1]);
+            break;
+        case PG_SYAMAP_RAWDATA:
+            rtn = pModuleBtDevice->BT_SP_PGEfuseRawData(pModuleBtDevice,SYS_EFUSE,&pParam->mPGRawData[2],pParam->mPGRawData[1]);
+            break;
+        case EXEC_NOTTNING:
+        default:
+            break;
+    }
+    return rtn;
 }

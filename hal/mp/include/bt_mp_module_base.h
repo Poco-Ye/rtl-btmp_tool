@@ -3,6 +3,14 @@
 
 #include "bt_mp_base.h"
 
+enum EXEC_RAWDATA_TAG {
+    EXEC_NOTTNING,          //0
+    PG_BTMAP_RAWDATA,       //1
+    PG_SYAMAP_RAWDATA,      //2
+
+    NUMBEROFEXEC_RAWDATA_TAG
+};
+
 int
 BTModule_ActionControlExcute(
         BT_MODULE *pBtModule
@@ -21,13 +29,18 @@ BTModule_UpDataParameter(
         BT_PARAMETER *pParam
         );
 
-
 int
 BTModule_DownloadPatchCode(
         BT_MODULE *pBtModule,
         uint8_t *pPatchcode,
         int patchLength,
         int Mode
+        );
+
+int
+BTModule_ExecRawData(
+        BT_MODULE *pBtModule,
+        BT_PARAMETER *pParam
         );
 
 int
@@ -142,4 +155,5 @@ BTModule_SetRegMaskBits(
         uint8_t Lsb,
         const uint32_t UserValue
         );
+
 #endif
