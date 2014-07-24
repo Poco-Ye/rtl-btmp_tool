@@ -57,6 +57,7 @@ enum BT_MP_OPCODE {
 #define STR_BT_MP_DISABLE       "disable"
 #define STR_BT_MP_DUT_MODE      "dut_mode_configure"
 
+#define STR_BT_MP_HCI_CMD           "bt_mp_HciCmd"
 #define STR_BT_MP_GET_PARAM         "bt_mp_GetParam"
 #define STR_BT_MP_SET_PARAM         "bt_mp_SetParam"
 #define STR_BT_MP_SET_PARAM1        "bt_mp_SetParam1"
@@ -68,7 +69,6 @@ enum BT_MP_OPCODE {
 #define STR_BT_MP_REPORT_CONT_TX    "bt_mp_ReportContTx"
 #define STR_BT_MP_REPORT_RX         "bt_mp_ReportRx"
 #define STR_BT_MP_REG_RW            "bt_mp_RegRW"
-#define STR_BT_MP_HCI_CMD           "hci_cmd"
 
 #define STR_BT_MP_HCI_RESET     "bt_mp_HciReset"
 #define STR_BT_MP_CONTTXSTART   "bt_mp_ConTxStart"

@@ -112,9 +112,13 @@ BTDevice_GetBTClockTime(
 int BTDevice_SetHoppingMode(
         BT_DEVICE *pBtDevice,
         uint8_t ChannelNumber,
-        BT_PKT_TYPE pktType,
-        uint8_t HoppingFixChannel,
-        uint8_t WhiteningCoeffValue
+        BT_PKT_TYPE PktType,
+        BT_PAYLOAD_TYPE PayloadType,
+        uint8_t TxGainValue,
+        uint8_t WhiteningCoeffValue,
+        uint8_t TxGainIndex,
+        uint8_t TxDAC,
+        uint8_t HoppingFixChannel
         );
 
 int
@@ -190,6 +194,27 @@ BTDevice_SetContinueTxStop(
 
 int
 BTDevice_SetContinueTxUpdate(
+        BT_DEVICE *pBtDevice,
+        BT_PARAMETER *pParam,
+        BT_DEVICE_REPORT *pBtReport
+        );
+
+int
+BTDevice_LeTxTestCmd(
+        BT_DEVICE *pBtDevice,
+        BT_PARAMETER *pParam,
+        BT_DEVICE_REPORT *pBtReport
+        );
+
+int
+BTDevice_LeRxTestCmd(
+        BT_DEVICE *pBtDevice,
+        BT_PARAMETER *pParam,
+        BT_DEVICE_REPORT *pBtReport
+        );
+
+int
+BTDevice_LeTestEndCmd(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,
         BT_DEVICE_REPORT *pBtReport

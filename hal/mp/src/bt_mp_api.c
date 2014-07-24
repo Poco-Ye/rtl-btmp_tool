@@ -110,17 +110,15 @@ static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
 
 int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
-    int rtn = 0;
+    int rtn = BT_FUNCTION_SUCCESS;
     char *token = NULL;
-    uint16_t opcode = 0;
-    unsigned char  paraLen = 0;
-    unsigned char paraMeters[255];
-    uint8_t maxParaCount = 255;
+    uint16_t OpCode = 0;
+    uint8_t ParamLen = 0;
+    uint8_t ParamLen_1 = 0;
+    uint8_t ParamArray[255];
 
-    const unsigned char nTotalParaCount = 2;//at least 2 parameters: opcode, parameterlen, parameters
-    unsigned char params_count = 0;
+    uint8_t params_count = 0;
 
-    uint8_t EventType = 0x0E;
     uint8_t pEvent[255] = {0};
     EVENT_STRING pEventString[255];
     uint32_t EventLen = 0;
@@ -130,51 +128,58 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
-        opcode = strtol(token, NULL, 0);
+        OpCode = strtol(token, NULL, 0);
         params_count++;
     } else {
+        rtn = FUNCTION_PARAMETER_ERROR;
         goto EXIT;
     }
 
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
-        paraLen = strtol(token, NULL, 0);
+        ParamLen = strtol(token, NULL, 0);
         params_count++;
     } else {
+        rtn = FUNCTION_PARAMETER_ERROR;
         goto EXIT;
     }
 
-    while (maxParaCount--) {
-        //end of parameter
+    ParamLen_1 = ParamLen;
+    while (ParamLen_1--) {
         token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
         if (token != NULL) {
-            paraMeters[i++] = strtol(token, NULL, 0);
+            ParamArray[i++] = strtol(token, NULL, 0);
             params_count++;
         } else {
+            rtn = FUNCTION_PARAMETER_ERROR;
             goto EXIT;
         }
     }
 
-EXIT:
-    if (params_count == paraLen + 2) {
-        ALOGI("Opcode:0x%04x, 0x%02x", opcode, paraLen);
+    if (params_count != ParamLen + 2) {
+        rtn = FUNCTION_PARAMETER_ERROR;
+        goto EXIT;
+    }
 
-        rtn = pBtModule->SendHciCommandWithEvent(pBtModule, opcode, paraLen, paraMeters, EventType, pEvent, &EventLen);
+    rtn = pBtModule->SendHciCommandWithEvent(pBtModule, OpCode, ParamLen, ParamArray, 0x0E, pEvent, &EventLen);
 
-        ALOGI("%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, rtn);
+    ALOGI("%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, rtn);
 
+    if (rtn == BT_FUNCTION_SUCCESS) {
         sprintf(pNotifyBuffer, "%s", STR_BT_MP_HCI_CMD);
-
         for (i = 0; i < EventLen; i++) {
             sprintf(pEventString[i].EventData, "%s%x", STR_BT_MP_RESULT_DELIM, pEvent[i]);
             strcat(pNotifyBuffer, pEventString[i].EventData);
         }
     } else {
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+        goto EXIT;
     }
 
     ALOGI("--%s", STR_BT_MP_HCI_CMD);
+    return rtn;
 
+EXIT:
+    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
     return rtn;
 }
 
@@ -302,7 +307,7 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
     char *token = NULL;
-    const uint8_t BT_PARA1_COUNT = 6;
+    const uint8_t BT_PARAM1_COUNT = 6;
     uint8_t params_count = 0;
     int ret = BT_FUNCTION_SUCCESS;
 
@@ -372,7 +377,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 EXIT:
     ALOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM1, params_count);
 
-    if (params_count != BT_PARA1_COUNT) {
+    if (params_count != BT_PARAM1_COUNT) {
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
         ret = FUNCTION_PARAMETER_ERROR;
     } else {
@@ -481,8 +486,8 @@ EXIT:
 int BT_SetGainTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
     char *token = NULL;
-    const unsigned char BT_PARA1_COUNT = 7;
-    unsigned char params_count = 0;
+    const uint8_t BT_GAIN_COUNT = 7;
+    uint8_t params_count = 0;
 
     ALOGI("++%s: %s", STR_BT_MP_SET_GAIN_TABLE, p);
 
@@ -578,7 +583,7 @@ int BT_SetGainTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 EXIT:
     ALOGI("%s: params_count = %d", STR_BT_MP_SET_GAIN_TABLE, params_count);
 
-    if (params_count != BT_PARA1_COUNT)
+    if (params_count != BT_GAIN_COUNT)
     {
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_GAIN_TABLE, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
     }
@@ -606,8 +611,8 @@ EXIT:
 int BT_SetDacTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
 {
     char *token = NULL;
-    const unsigned char BT_PARA1_COUNT = 5;
-    unsigned char params_count = 0;
+    const uint8_t BT_DAC_COUNT = 5;
+    uint8_t params_count = 0;
 
     ALOGI("++%s: %s", STR_BT_MP_SET_DAC_TABLE, p);
 
@@ -681,7 +686,7 @@ int BT_SetDacTable(BT_MODULE  *pBtModule, char *p, char *pNotifyBuffer)
 EXIT:
     ALOGI("%s: params_count = %d", STR_BT_MP_SET_DAC_TABLE, params_count);
 
-    if (params_count != BT_PARA1_COUNT)
+    if (params_count != BT_DAC_COUNT)
     {
         sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_DAC_TABLE, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
     }
@@ -714,6 +719,7 @@ int BT_Exec(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
     if (token != NULL) {
         ParameterIndex = strtol(token, NULL, 0);
     } else {
+        rtn = FUNCTION_PARAMETER_ERROR;
         goto EXIT;
     }
 
@@ -1004,23 +1010,10 @@ EXIT:
     return rtn;
 }
 
-void BT_GetBDAddr(BT_MODULE  *pBtModule)
-{
-    uint8_t pEvt[256];
-    uint32_t EvtLen = 0;
-    uint8_t para[256];
-
-    if (pBtModule->SendHciCommandWithEvent(pBtModule,0x1009,0,para,0x0e,pEvt, &EvtLen) != BT_FUNCTION_SUCCESS)
-    {
-        printf("Get BD Addree Fail!!..");
-    }
-    printf("BD_ADDR=[0x%.2x%.2x%.2x%.2x%.2x%.2x]",pEvt[11],pEvt[10],pEvt[9],pEvt[8],pEvt[7],pEvt[6]);
-}
-
 void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *pBtModule)
 {
-    unsigned char pTxGainTable[7] = {0x49,0x4d,0x69,0x89,0x8d,0xa9,0xa9};  //RTL8761 Table
-    unsigned char pTxDACTable[5] = {0x10,0x11,0x12,0x13,0x14};
+    uint8_t pTxGainTable[7] = {0x49,0x4d,0x69,0x89,0x8d,0xa9,0xa9}; // RTL8761 Table
+    uint8_t pTxDACTable[5] = {0x10,0x11,0x12,0x13,0x14};
 
     ALOGI("bt_mp_module_init, pBaseInterfaceModule %p, pBtModule %p", pBaseInterfaceModule, pBtModule);
 

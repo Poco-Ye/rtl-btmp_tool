@@ -84,6 +84,11 @@ BuildBluetoothDevice(
     pBtDevice->SetContinueTxStop    =       BTDevice_SetContinueTxStop;
     pBtDevice->SetContinueTxUpdate  =       BTDevice_SetContinueTxUpdate;
 
+    //LE Test
+    pBtDevice->LeTxTestCmd          = BTDevice_LeTxTestCmd;
+    pBtDevice->LeRxTestCmd          = BTDevice_LeRxTestCmd;
+    pBtDevice->LeTestEndCmd         = BTDevice_LeTestEndCmd;
+
     //PKT-TX
     pBtDevice->SetPktTxBegin        =       BTDevice_SetPktTxBegin;
     pBtDevice->SetPktTxBeginChannelPacketType = NULL;

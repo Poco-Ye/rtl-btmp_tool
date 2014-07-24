@@ -144,6 +144,7 @@ int BTModule_UpDataParameter(
     pBtModuleParam->mTxDAC                  = pParam->mTxDAC;
     pBtModuleParam->mHitTarget              = pParam->mHitTarget;
     pBtModuleParam->mHoppingFixChannel      = pParam->mHoppingFixChannel;
+    pBtModuleParam->Rtl8761Xtal             = pParam->Rtl8761Xtal;
 
     for (n = 0; n < MAX_TXGAIN_TABLE_SIZE; n++)
     {
@@ -280,8 +281,12 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         rtn = pModuleBtDevice->SetHoppingMode(pModuleBtDevice,
                 pModuleBtParam->mChannelNumber,
                 pModuleBtParam->mPacketType,
-                pModuleBtParam->mHoppingFixChannel,
-                pModuleBtParam->mWhiteningCoeffValue
+                pModuleBtParam->mPayloadType,
+                pModuleBtParam->mTxGainValue,
+                pModuleBtParam->mWhiteningCoeffValue,
+                pModuleBtParam->mTxGainIndex,
+                pModuleBtParam->mTxDAC,
+                pModuleBtParam->mHoppingFixChannel
                 );
         break;
 
@@ -322,6 +327,18 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
 
     case EXEC_USE_RAWDATA:
         rtn = BTModule_ExecRawData(pBtModule, pModuleBtParam);
+        break;
+
+    case LE_TX_DUT_TEST_CMD:
+        rtn = pModuleBtDevice->LeTxTestCmd(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        break;
+
+    case LE_RX_DUT_TEST_CMD:
+        rtn = pModuleBtDevice->LeRxTestCmd(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        break;
+
+    case LE_DUT_TEST_END_CMD:
+        rtn = pModuleBtDevice->LeTestEndCmd(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         break;
 
     default:

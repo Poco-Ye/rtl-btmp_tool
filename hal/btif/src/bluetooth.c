@@ -155,10 +155,9 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
     char pNotifyBuffer[1024] = {0};
     int ret = 0;
 
-
     memset(pNotifyBuffer, 0, sizeof(pNotifyBuffer));
 
-    p_buf = (BT_HDR *)GKI_getbuf(sizeof(BT_HDR) + 1026);//1024 + 1 + 1
+    p_buf = (BT_HDR *)GKI_getbuf(sizeof(BT_HDR) + 1026); //1024 + 1 + 1
     p_buf->offset = 0;
     p = (char *)(p_buf + 1);
     memset(p, 0, 1026);

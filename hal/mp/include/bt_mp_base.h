@@ -97,8 +97,12 @@ typedef enum {
     SET_DEFAULT_TX_GAIN_TABLE,          //36
     SET_DEFAULT_TX_DAC_TABLE,           //37
     SET_RTL8761_XTAL,                   //38
-
+    // Efuse setting
     EXEC_USE_RAWDATA,                   //39
+    // LE
+    LE_TX_DUT_TEST_CMD,                 //40
+    LE_RX_DUT_TEST_CMD,                 //41
+    LE_DUT_TEST_END_CMD,                //42
 
     NUMBEROFBT_ACTIONCONTROL_TAG
 } BT_ACTIONCONTROL_TAG;
@@ -153,13 +157,13 @@ struct BT_PARAMETER_TAG
     uint8_t mPGRawData[MAX_USERAWDATA_SIZE];
     uint8_t mChannelNumber;
     BT_PKT_TYPE mPacketType;
-    uint8_t mTxGainIndex;
-    uint8_t mTxGainValue;
-    uint16_t mTxPacketCount;
     BT_PAYLOAD_TYPE mPayloadType;
-    uint16_t mPacketHeader;
+    uint16_t mTxPacketCount;
+    uint8_t mTxGainValue;
     uint8_t mWhiteningCoeffValue;
+    uint8_t mTxGainIndex;
     uint8_t mTxDAC;
+    uint16_t mPacketHeader;
     uint8_t mHoppingFixChannel;
     uint64_t mHitTarget;
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
@@ -239,7 +243,6 @@ typedef int
         int length
         );
 
-//------------------------------------------------------------------------------------------------------------------
 //-->HCI Command & Event
 typedef int
 (*BT_FP_SEND_HCICOMMANDWITHEVENT)(
@@ -274,15 +277,18 @@ typedef int
         uint32_t *pLen
         );
 
-//------------------------------------------------------------------------------------------------------------------
 //-->Vendor HCI Command Control
 typedef int
 (*BT_FP_SET_HOPPINGMODE)(
         BT_DEVICE *pBtDevice,
         uint8_t ChannelNumber,
-        BT_PKT_TYPE pktType,
-        uint8_t HoppingFixChannel,
-        uint8_t WhiteningCoeffValue
+        BT_PKT_TYPE PktType,
+        BT_PAYLOAD_TYPE PayloadType,
+        uint8_t TxGainValue,
+        uint8_t WhiteningCoeffValue,
+        uint8_t TxGainIndex,
+        uint8_t TxDAC,
+        uint8_t HoppingFixChannel
         );
 
 typedef int
@@ -533,9 +539,10 @@ typedef int(*BT_FP_GET_ECOVERSION)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_GET_CHIPVERSIONINFO)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_BT_DL_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
-//SpecialFunction
-typedef int(*BT_FP_SF_PGEFUSE_RAWDATA)(BT_DEVICE *pBtDevice,int MapType, uint8_t *PGData, uint32_t PGDataLength);
-
+// PG efuse
+typedef int(*BT_FP_SF_PGEFUSE_RAWDATA)(BT_DEVICE *pBtDevice, int MapType, uint8_t *PGData, uint32_t PGDataLength);
+// LE
+typedef int(*BT_FP_LE_TEST)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport);
 
 typedef struct BT_TRX_TIME_TAG BT_TRX_TIME;
 
@@ -553,7 +560,7 @@ struct BT_TRX_TIME_TAG {
     unsigned long endTimeClockCnt;
 };
 
-struct BT_DEVICE_TAG  // Chip
+struct BT_DEVICE_TAG
 {
     //-->Table is base function
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
@@ -621,6 +628,11 @@ struct BT_DEVICE_TAG  // Chip
     BT_FP_SET_CONTINUETX_STOP       SetContinueTxStop;
     BT_FP_SET_CONTINUETX_UPDATE     SetContinueTxUpdate;
 
+    // LE
+    BT_FP_LE_TEST LeTxTestCmd;
+    BT_FP_LE_TEST LeRxTestCmd;
+    BT_FP_LE_TEST LeTestEndCmd;
+
     //PKT-TX
     BT_FP_SET_PKTTX_BEGIN           SetPktTxBegin;
     BT_FP_SET_PKTTX_BEGIN_CHANNEL_PKTTYPE   SetPktTxBeginChannelPacketType;
@@ -653,7 +665,7 @@ struct BT_DEVICE_TAG  // Chip
     BT_FP_GET_CHIPVERSIONINFO GetChipVersionInfo;
     BT_FP_BT_DL_FW BTDlFW;
     BT_FP_BT_DL_MERGER_FW BTDlMERGERFW;
-    //SpecialFunction
+    // Efuse settting
     BT_FP_SF_PGEFUSE_RAWDATA    BT_SP_PGEfuseRawData;
 };
 

@@ -834,6 +834,8 @@ const t_cmd console_cmd_list[] =
     { STR_BT_MP_DISABLE, do_disable, ":: Disable bluetooth", 0 },
     { STR_BT_MP_DUT_MODE, do_dut_mode_configure, ":: DUT mode - 1 to enter,0 to exit", 0 },
 
+    { STR_BT_MP_HCI_CMD, do_hci, ":: Send HCI Commands", 0 },
+
     { STR_BT_MP_GET_PARAM, do_GetParam, ":: Get all exposed parameters", 0 },
     { STR_BT_MP_SET_PARAM, do_SetParam, ":: Set specific parameters<index,value>", 0 },
     { STR_BT_MP_SET_PARAM1, do_SetParam1, ":: Set series 1 parameters", 0 },
@@ -849,8 +851,6 @@ const t_cmd console_cmd_list[] =
     { STR_BT_MP_REPORT_RX, do_ReportRx, ":: Report Pkt Rx<RxRssi,TotalRxBits,TotalRxCounts,TotalRxErrorBits>", 0 },
 
     { STR_BT_MP_REG_RW, do_RegRW, ":: R/W Modem, RF, SYS & BB registers", 0 },
-
-    { STR_BT_MP_HCI_CMD, do_hci, ":: Send HCI Commands", 0 },
 
     /* add here */
 

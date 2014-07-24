@@ -54,6 +54,7 @@ public final class MpOpCode {
     public static final String STR_BT_MP_DISABLE          =   "disable";
     public static final String STR_BT_MP_DUT_MODE         =   "dut_mode_configure";
 
+    public static final String STR_BT_MP_HCI_CMD          =   "bt_mp_HciCmd";
     public static final String STR_BT_MP_GET_PARAM        =   "bt_mp_GetParam";
     public static final String STR_BT_MP_SET_PARAM        =   "bt_mp_SetParam";
     public static final String STR_BT_MP_SET_PARAM1       =   "bt_mp_SetParam1";
@@ -65,7 +66,6 @@ public final class MpOpCode {
     public static final String STR_BT_MP_REPORT_CONT_TX   =   "bt_mp_ReportContTx";
     public static final String STR_BT_MP_REPORT_RX        =   "bt_mp_ReportRx";
     public static final String STR_BT_MP_REG_RW           =   "bt_mp_RegRW";
-    public static final String STR_BT_MP_HCI_CMD          =   "hci_cmd";
 
     public static final String STR_BT_MP_HCI_RESET        =   "bt_mp_HciReset";
     public static final String STR_BT_MP_CONTTXSTART      =   "bt_mp_ConTxStart";
