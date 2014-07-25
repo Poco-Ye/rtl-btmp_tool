@@ -495,7 +495,7 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
     char *save_pairs, *save_params;
     int8_t mode = 0;
     char config_path[128];
-    uint8_t buffer[128];
+    char buffer[128];
     int fd = -1;
 
     ALOGI("++%s: %s", STR_BT_MP_SET_CONFIG, p);
@@ -542,12 +542,21 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
             for (params_count = 0, params_buf = pair_token; ; params_count++, params_buf = NULL) {
                 param_token = strtok_r(params_buf, STR_BT_MP_PARAM_DELIM, &save_params);
                 if (param_token) {
-                    buffer[params_count] = strtol(param_token, NULL, 0);
+                    if (mode == 0) {
+                        strcpy(buffer, param_token);
+                        ALOGI("Write BT MAC address %s", buffer);
+                    } else {
+                        buffer[params_count] = strtol(param_token, NULL, 0);
+                    }
                 } else if (param_token == NULL) // null token OR token parsing completed
                     break;
             }
 
-            ssize_t count = write(fd, buffer, params_count);
+            ssize_t count;
+            if (mode == 0)
+                count = write(fd, buffer, 17);
+            else
+                count = write(fd, buffer, params_count);
             if (count < 0) {
                 ALOGI("Failed to write config file<%s>", strerror(errno));
                 sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
