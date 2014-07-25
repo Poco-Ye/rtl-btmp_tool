@@ -56,10 +56,7 @@ int BTModule_ActionReport(
         if (pModuleBtDevice->GetChipVersionInfo(pModuleBtDevice) != BT_FUNCTION_SUCCESS) {
             rtn = FUNCTION_ERROR;
         } else {
-            if (pReport->pBTInfo == NULL)
-            {
-                pReport->pBTInfo = &(pReport->BTInfoMemory);
-            }
+            pReport->pBTInfo = &(pReport->BTInfoMemory);
 
             pReport->pBTInfo->ChipType = pModuleBtDevice->pBTInfo->ChipType;
             pReport->pBTInfo->HCI_SubVersion = pModuleBtDevice->pBTInfo->HCI_SubVersion;
@@ -161,6 +158,11 @@ int BTModule_UpDataParameter(
         pBtModuleParam->mPGRawData[n] = pParam->mPGRawData[n];
     }
 
+    for (n = 0; n < MAX_USERAWDATA_SIZE; n++)
+    {
+        pBtModuleParam->mParamData[n] = pParam->mParamData[n];
+    }
+
     return rtn;
 }
 
@@ -235,7 +237,6 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         PktRxErrBits = 0;
         rtn = pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
         break;
-
         /////////////////////////// PACKET_TX /////////////////////////////////////////////////////////
     case PACKET_TX_START:
         rtn = pModuleBtDevice->SetPktTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
@@ -603,5 +604,6 @@ BTModule_ExecRawData(
         default:
             break;
     }
+
     return rtn;
 }

@@ -15,16 +15,40 @@ UserDefinedWaitMs(
     return;
 }
 
-unsigned int OsSleepSeconds(unsigned int seconds)
+int
+UserDefined_Open_Func(
+        BASE_INTERFACE_MODULE *pBaseInterface
+        )
 {
-    return sleep(seconds);
+    return 0;
 }
 
-unsigned long GetTickCount()
+int
+UserDefined_Send_Func(
+        BASE_INTERFACE_MODULE *pBaseInterface,
+        uint8_t *pWritingBuf,
+        uint32_t Len
+        )
 {
-    struct timeval tv;
-    if(gettimeofday(&tv, NULL) != 0)
-        return 0;
+    return 0;
+}
 
-    return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+int
+UserDefined_Recv_Func(
+        BASE_INTERFACE_MODULE *pBaseInterface,
+        uint8_t *pReadingBuf,
+        uint32_t Len,
+        uint32_t *pRetLen
+        )
+{
+
+    return 0;
+}
+
+int
+UserDefined_Close_Func(
+        BASE_INTERFACE_MODULE *pBaseInterface
+        )
+{
+    return 0;
 }

@@ -3,6 +3,8 @@
 
 #include "bt_mp_base.h"
 
+#define BLUETOOTH_MP_CODE_VERSION   "24,07,2014,1"
+
 enum EXEC_RAWDATA_TAG {
     EXEC_NOTTNING,          //0
     PG_BTMAP_RAWDATA,       //1

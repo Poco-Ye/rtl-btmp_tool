@@ -690,7 +690,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
         pBtReport->TotalRxErrorBits = PktRxErrBits+rxErrbits;
         if (pBtReport->TotalRXBits > 0)
         {
-            pBtReport->ber = (float) ((float)rxErrbits/(float)rxBits);
+            pBtReport->ber = (float)pBtReport->TotalRxErrorBits / (float)pBtReport->TotalRXBits;
         }
         else
         {
@@ -1562,9 +1562,9 @@ int BTDevice_LeTxTestCmd(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_R
     uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint32_t EventLen = 0;
 
-    pPayload[0] = pParam->mPGRawData[0]; // channel: 0~39
-    pPayload[1] = pParam->mPGRawData[1]; // Length_Of_Test_Data: 0x00~0x25
-    pPayload[2] = pParam->mPGRawData[2]; // Packet_Payload
+    pPayload[0] = pParam->mParamData[0]; // channel: 0~39
+    pPayload[1] = pParam->mParamData[1]; // Length_Of_Test_Data: 0x00~0x25
+    pPayload[2] = pParam->mParamData[2]; // Packet_Payload
 
     if (pPayload[0] > 39 || pPayload[1] > 0x25 || pPayload[2] > 7)
     {
@@ -1597,7 +1597,7 @@ int BTDevice_LeRxTestCmd(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_R
     uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint32_t EventLen = 0;
 
-    pPayload[0] = pParam->mPGRawData[0]; // channel: 0~39
+    pPayload[0] = pParam->mParamData[0]; // channel: 0~39
 
     if (pPayload[0] > 39)
     {
@@ -2202,6 +2202,7 @@ BTDevice_SendHciCommandWithEvent(
     uint8_t pWritingBuf[MAX_HCI_COMANND_BUF_SIZ];
     uint8_t hci_rtn = 0;
     uint8_t n = 0;
+    BASE_INTERFACE_MODULE *pBaseInterface = pBtDevice->pBaseInterface;
 
     len = PayLoadLength + 3;
     pWritingBuf[0] = OpCode & 0xFF;
@@ -2209,7 +2210,7 @@ BTDevice_SendHciCommandWithEvent(
     pWritingBuf[2] = PayLoadLength;
     for (n = 0; n < PayLoadLength; n++)
     {
-        pWritingBuf[3+n] = pPayLoad[n];
+        pWritingBuf[3 + n] = pPayLoad[n];
     }
 
     if (pBtDevice->SendHciCmd(pBtDevice, HCIIO_BTCMD, pWritingBuf, len) != BT_FUNCTION_SUCCESS)
@@ -2218,10 +2219,9 @@ BTDevice_SendHciCommandWithEvent(
         goto exit;
     }
 
-    if (OpCode == 0xFC20)
+    if (((OpCode == 0xFC20) && ((pPayLoad[0] & 0x80) != 0)) || (OpCode == 0x0C03))
     {
-        pEvent[5] = 0x00;
-        return BT_FUNCTION_SUCCESS;
+        pBaseInterface->WaitMs(pBaseInterface,965);
     }
 
     if (pBtDevice->RecvHciEvent(pBtDevice, HCIIO_BTEVT, pEvent, pEventLen) != BT_FUNCTION_SUCCESS)
@@ -2230,8 +2230,7 @@ BTDevice_SendHciCommandWithEvent(
         goto exit;
     }
 
-    switch (EventType)
-    {
+    switch (EventType) {
         case 0x0e:
             hci_rtn = pEvent[5];
             break;

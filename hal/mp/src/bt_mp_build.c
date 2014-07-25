@@ -28,17 +28,14 @@ BuildBluetoothDevice(
     pBtDevice->SetTxDACTable        =       BTDevice_SetTxDACTable;
     pBtDevice->GetPayloadLenTable   =       BTDevice_GetPayloadLenTable;
 
-    ////////////////  USE Register /////////////////////////////////////
     //-->Register Read/Write
     pBtDevice->SetMdRegMaskBits = bt_default_SetMDRegMaskBits;
     pBtDevice->GetMdRegMaskBits = bt_default_GetMDRegMaskBits;
-
     pBtDevice->SetRfRegMaskBits = bt_default_SetRFRegMaskBits;;
     pBtDevice->GetRfRegMaskBits = bt_default_GetRFRegMaskBits;
     //-->HCI command raw data
     pBtDevice->SendHciCmd = bt_default_SendHCICmd;
     pBtDevice->RecvHciEvent = bt_default_RecvHCIEvent;
-
     //-->HCI Command & Event
     pBtDevice->SendHciCommandWithEvent = BTDevice_SendHciCommandWithEvent;
     pBtDevice->RecvAnyHciEvent = BTDevice_RecvAnyHciEvent;
@@ -80,46 +77,36 @@ BuildBluetoothDevice(
 
     pBtDevice->TxTriggerPktCnt = 0;
 
+    //CON-TX
     pBtDevice->SetContinueTxBegin   =       BTDevice_SetContinueTxBegin;
     pBtDevice->SetContinueTxStop    =       BTDevice_SetContinueTxStop;
     pBtDevice->SetContinueTxUpdate  =       BTDevice_SetContinueTxUpdate;
-
     //LE Test
-    pBtDevice->LeTxTestCmd          = BTDevice_LeTxTestCmd;
-    pBtDevice->LeRxTestCmd          = BTDevice_LeRxTestCmd;
-    pBtDevice->LeTestEndCmd         = BTDevice_LeTestEndCmd;
-
+    pBtDevice->LeTxTestCmd          =       BTDevice_LeTxTestCmd;
+    pBtDevice->LeRxTestCmd          =       BTDevice_LeRxTestCmd;
+    pBtDevice->LeTestEndCmd         =       BTDevice_LeTestEndCmd;
     //PKT-TX
     pBtDevice->SetPktTxBegin        =       BTDevice_SetPktTxBegin;
-    pBtDevice->SetPktTxBeginChannelPacketType = NULL;
-
     pBtDevice->SetPktTxStop         =       BTDevice_SetPktTxStop;
     pBtDevice->SetPktTxUpdate       =       BTDevice_SetPktTxUpdate;
-    pBtDevice->SetPktTxSendOne      =       NULL;
-
     //PKT-RX
-    pBtDevice->SetPktRxBegin = BTDevice_SetPktRxBegin;
-    pBtDevice->SetPktRxBeginChannelPacketType = NULL;
-
-    pBtDevice->SetPktRxStop = BTDevice_SetPktRxStop;
-    pBtDevice->SetPktRxUpdate = BTDevice_SetPktRxUpdate;
-
+    pBtDevice->SetPktRxBegin        =       BTDevice_SetPktRxBegin;
+    pBtDevice->SetPktRxStop         =       BTDevice_SetPktRxStop;
+    pBtDevice->SetPktRxUpdate       =       BTDevice_SetPktRxUpdate;
     //Base Function
-    pBtDevice->GetPayLoadTypeValidFlag = BTBASE_GetPayLoadTypeValidFlag;
-    pBtDevice->HitTargetAccessCodeGen = BTBASE_HitTargetAccessCodeGen;
+    pBtDevice->GetPayLoadTypeValidFlag =    BTBASE_GetPayLoadTypeValidFlag;
+    pBtDevice->HitTargetAccessCodeGen  =    BTBASE_HitTargetAccessCodeGen;
 
+    pBtDevice->GetChipId            =       bt_default_GetChipId;
+    pBtDevice->GetECOVersion        =       bt_default_GetECOVersion;
+    pBtDevice->GetChipVersionInfo   =       bt_default_GetBTChipVersionInfo;
+    pBtDevice->BTDlFW               =       bt_default_BTDlFW;
+    pBtDevice->BTDlMERGERFW         =       bt_default_BTDlMergerFW;
+    //PG Efuse
+    pBtDevice->BT_SP_PGEfuseRawData =       BTDevice_SpecialFunction_Efuse_PGEfuseRawData;
     //Table
     pBtDevice->SetTxGainTable(pBtDevice,pTxGainTable);
     pBtDevice->SetTxDACTable(pBtDevice,pTxDACTable);
-
-    pBtDevice->GetChipId = bt_default_GetChipId;
-    pBtDevice->GetECOVersion = bt_default_GetECOVersion;
-    pBtDevice->GetChipVersionInfo = bt_default_GetBTChipVersionInfo;
-    pBtDevice->BTDlFW = bt_default_BTDlFW;
-    pBtDevice->BTDlMERGERFW = bt_default_BTDlMergerFW;
-
-    //new SpecialFunction
-    pBtDevice->BT_SP_PGEfuseRawData = BTDevice_SpecialFunction_Efuse_PGEfuseRawData;
 
     return 0;
 }

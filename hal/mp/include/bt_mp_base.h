@@ -31,9 +31,9 @@ enum _bool{ false, true }bool;
 //--------------------------------------------------
 //  Realtek define
 //--------------------------------------------------
-#define MAX_USERAWDATA_SIZE     256
-#define SYS_EFUSE               0
+#define MAX_USERAWDATA_SIZE     64
 #define BT_EFUSE                1
+#define SYS_EFUSE               2
 
 #define MAX_HCI_COMANND_BUF_SIZ 256
 #define MAX_HCI_EVENT_BUF_SIZ   256
@@ -150,11 +150,11 @@ typedef struct BT_PARAMETER_TAG   BT_PARAMETER;
 typedef struct BT_DEVICE_REPORT_TAG BT_DEVICE_REPORT;
 typedef struct BT_CHIPINFO_TAG   BT_CHIPINFO;
 
-struct BT_PARAMETER_TAG
-{
+struct BT_PARAMETER_TAG {
     int ParameterIndex;
 
     uint8_t mPGRawData[MAX_USERAWDATA_SIZE];
+    uint8_t mParamData[MAX_USERAWDATA_SIZE];
     uint8_t mChannelNumber;
     BT_PKT_TYPE mPacketType;
     BT_PAYLOAD_TYPE mPayloadType;
@@ -171,8 +171,7 @@ struct BT_PARAMETER_TAG
     uint32_t Rtl8761Xtal;
 };
 
-struct BT_CHIPINFO_TAG
-{
+struct BT_CHIPINFO_TAG {
     uint32_t HCI_Version;
     uint32_t HCI_SubVersion;
     uint32_t LMP_Version;
@@ -204,9 +203,10 @@ struct BT_DEVICE_REPORT_TAG {
 
     BT_CHIPINFO   *pBTInfo;
     BT_CHIPINFO   BTInfoMemory;
+    uint8_t ReportData[MAX_USERAWDATA_SIZE];
 };
 
-enum RTK_BT_CHIP_ID_GROUP_{
+enum RTK_BT_CHIP_ID_GROUP {
     RTK_BT_CHIP_ID_UNKNOWCHIP=0xFF,
     RTK_BT_CHIP_ID_RTL8723A=0,
     RTK_BT_CHIP_ID_RTL8723B=1,
@@ -523,14 +523,10 @@ typedef int(*BT_FP_SET_CONTINUETX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pPara
 typedef int(*BT_FP_SET_CONTINUETX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 //-->PKT TX Flow
 typedef int(*BT_FP_SET_PKTTX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_PKTTX_BEGIN_CHANNEL_PKTTYPE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-
 typedef int(*BT_FP_SET_PKTTX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_PKTTX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_PKTTX_SEND_ONE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 //-->PKT RX Flow
 typedef int(*BT_FP_SET_PKTRX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_PKTRX_BEGIN_CHANNEL_PKTTYPE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_PKTRX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_PKTRX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 
@@ -627,27 +623,18 @@ struct BT_DEVICE_TAG
     BT_FP_SET_CONTINUETX_BEGIN      SetContinueTxBegin;
     BT_FP_SET_CONTINUETX_STOP       SetContinueTxStop;
     BT_FP_SET_CONTINUETX_UPDATE     SetContinueTxUpdate;
-
     // LE
     BT_FP_LE_TEST LeTxTestCmd;
     BT_FP_LE_TEST LeRxTestCmd;
     BT_FP_LE_TEST LeTestEndCmd;
-
     //PKT-TX
     BT_FP_SET_PKTTX_BEGIN           SetPktTxBegin;
-    BT_FP_SET_PKTTX_BEGIN_CHANNEL_PKTTYPE   SetPktTxBeginChannelPacketType;
-
-    BT_FP_SET_PKTTX_STOP    SetPktTxStop;
-    BT_FP_SET_PKTTX_UPDATE  SetPktTxUpdate;
-    BT_FP_SET_PKTTX_SEND_ONE    SetPktTxSendOne;
-
+    BT_FP_SET_PKTTX_STOP            SetPktTxStop;
+    BT_FP_SET_PKTTX_UPDATE          SetPktTxUpdate;
     //PKT-RX
-    BT_FP_SET_PKTRX_BEGIN   SetPktRxBegin;
-    BT_FP_SET_PKTRX_BEGIN_CHANNEL_PKTTYPE   SetPktRxBeginChannelPacketType;
-
-    BT_FP_SET_PKTRX_STOP    SetPktRxStop;
-    BT_FP_SET_PKTRX_UPDATE  SetPktRxUpdate;
-
+    BT_FP_SET_PKTRX_BEGIN           SetPktRxBegin;
+    BT_FP_SET_PKTRX_STOP            SetPktRxStop;
+    BT_FP_SET_PKTRX_UPDATE          SetPktRxUpdate;
     //Base Function
     BT_BASE_FP_GETPAYLOADTYPEVAILDFLAG  GetPayLoadTypeValidFlag;
     BT_BASE_FP_HITTARGETACCRESSCODEGEN  HitTargetAccessCodeGen;
