@@ -572,6 +572,19 @@ void bdt_set_param2(char *p)
     check_return_status(STR_BT_MP_SET_PARAM2, status);
 }
 
+void bdt_set_config(char *p)
+{
+    if (!bt_enabled) {
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_CONFIG);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_CONFIG, STR_BT_NOT_ENABLED);
+        return;
+    }
+
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetConfig, p);
+
+    check_return_status(STR_BT_MP_SET_CONFIG, status);
+}
+
 void bdt_set_gain_table(char *p)
 {
     if (!bt_enabled) {
@@ -767,6 +780,11 @@ void do_SetParam2(char *p)
     bdt_set_param2(p);
 }
 
+void do_SetConfig(char *p)
+{
+    bdt_set_config(p);
+}
+
 void do_SetGainTable(char *p)
 {
     bdt_set_gain_table(p);
@@ -840,6 +858,8 @@ const t_cmd console_cmd_list[] =
     { STR_BT_MP_SET_PARAM, do_SetParam, ":: Set specific parameters<index,value>", 0 },
     { STR_BT_MP_SET_PARAM1, do_SetParam1, ":: Set series 1 parameters", 0 },
     { STR_BT_MP_SET_PARAM2, do_SetParam2, ":: Set series 2 parameters", 0 },
+
+    { STR_BT_MP_SET_CONFIG, do_SetConfig, ":: Set configurations to the specific file", 0 },
 
     { STR_BT_MP_SET_GAIN_TABLE, do_SetGainTable, ":: Set Tx GAIN table", 0 },
     { STR_BT_MP_SET_DAC_TABLE, do_SetDacTable, ":: Set Tx DAC table", 0 },

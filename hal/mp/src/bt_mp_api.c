@@ -2,6 +2,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
 #include <math.h>
 #include <termios.h>
 #include <time.h>
@@ -481,6 +485,85 @@ EXIT:
     ALOGI("--%s", STR_BT_MP_SET_PARAM2);
 
     return ret;
+}
+
+int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
+{
+    uint16_t pairs_count, params_count;
+    char *pair_token, *param_token;
+    char *pairs_buf, *params_buf;
+    char *save_pairs, *save_params;
+    int8_t mode = 0;
+    char config_path[128];
+    uint8_t buffer[128];
+    int fd = -1;
+
+    ALOGI("++%s: %s", STR_BT_MP_SET_CONFIG, p);
+
+    for (pairs_count = 0, pairs_buf = p; ; pairs_count++, pairs_buf = NULL) {
+        pair_token = strtok_r(pairs_buf, STR_BT_MP_PAIR_DELIM, &save_pairs);
+        if (pair_token == NULL)
+            break;
+
+        // First pair must be <config_path, mode>
+        if (pairs_count == 0) {
+            for (params_count = 0, params_buf = pair_token; ; params_count++, params_buf = NULL) {
+                param_token = strtok_r(params_buf, STR_BT_MP_PARAM_DELIM, &save_params);
+                if (param_token && params_count == 0) {
+                    strcpy(config_path, param_token);
+                } else if (param_token && params_count == 1) {
+                    mode = (int8_t)strtol(param_token, NULL, 0);
+                    if (mode < 0 || mode > 3) {
+                        ALOGI("Invalid file mode %d", mode);
+                        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+                        return FUNCTION_PARAMETER_ERROR;
+                    }
+                } else if (param_token && params_count > 1) {
+                    ALOGI("Invalid config pair format<%s>", pair_token);
+                    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+                    return FUNCTION_PARAMETER_ERROR;
+                } else if (param_token == NULL) // null token OR token parsing completed
+                    break;
+            }
+
+            if (params_count == 2) {
+                fd = open(config_path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+                if (fd < 0) {
+                    ALOGI("Failed to open config file: %s", strerror(errno));
+                    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
+                    return FUNCTION_ERROR;
+                }
+            } else {
+                ALOGI("Invalid config pair format<%s>", pair_token);
+                sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+                return FUNCTION_PARAMETER_ERROR;
+            }
+        } else {
+            for (params_count = 0, params_buf = pair_token; ; params_count++, params_buf = NULL) {
+                param_token = strtok_r(params_buf, STR_BT_MP_PARAM_DELIM, &save_params);
+                if (param_token) {
+                    buffer[params_count] = strtol(param_token, NULL, 0);
+                } else if (param_token == NULL) // null token OR token parsing completed
+                    break;
+            }
+
+            ssize_t count = write(fd, buffer, params_count);
+            if (count < 0) {
+                ALOGI("Failed to write config file<%s>", strerror(errno));
+                sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
+                close(fd);
+                return FUNCTION_ERROR;
+            }
+        }
+    }
+
+    close(fd);
+
+    ALOGI("--%s: pairs count %d", STR_BT_MP_SET_CONFIG, pairs_count);
+
+    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+
+    return BT_FUNCTION_SUCCESS;
 }
 
 int BT_SetGainTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)

@@ -192,6 +192,10 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         ret = BT_SetParam2(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
+    case BT_MP_OP_USER_DEF_SetConfig:
+        ret = BT_SetConfig(&BtModuleMemory, buf, pNotifyBuffer);
+        break;
+
     case BT_MP_OP_USER_DEF_SetDacTable:
         ret = BT_SetDacTable(&BtModuleMemory, buf, pNotifyBuffer);
         break;

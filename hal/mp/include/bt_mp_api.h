@@ -7,6 +7,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *pNotifyBuffer);
 int BT_SetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
+int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetGainTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetDacTable(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_Exec(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
