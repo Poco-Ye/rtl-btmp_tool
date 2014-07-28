@@ -52,13 +52,6 @@
 **  Constants & Macros
 ************************************************************************************/
 
-#define PID_FILE "/data/.bdt_pid"
-
-#ifndef MAX
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
-
-
 /************************************************************************************
 **  Local type definitions
 ************************************************************************************/
@@ -72,9 +65,9 @@ static bt_status_t status;
 static int bt_try_enable = 0; /* 0: try to disable; 1: try to enable */
 
 /* Main API */
-static bluetooth_device_t* bt_device;
+static bluetooth_device_t *bt_device;
 
-const bt_interface_t* sBtInterface = NULL;
+const bt_interface_t *sBtInterface = NULL;
 
 static gid_t groups[] = { AID_NET_BT, AID_INET, AID_NET_BT_ADMIN,
                           AID_SYSTEM, AID_MISC, AID_SDCARD_RW,
@@ -142,61 +135,6 @@ static void config_permissions(void)
     setgroups(sizeof(groups)/sizeof(groups[0]), groups);
 }
 
-static void hex_dump(char *msg, void *data, int size, int trunc)
-{
-    unsigned char *p = data;
-    unsigned char c;
-    int n;
-    char bytestr[4] = {0};
-    char addrstr[10] = {0};
-    char hexstr[ 16*3 + 5] = {0};
-    char charstr[16*1 + 5] = {0};
-
-    ALOGI("%s  \n", msg);
-
-    /* truncate */
-    if(trunc && (size>32))
-        size = 32;
-
-    for(n=1;n<=size;n++) {
-        if (n%16 == 1) {
-            /* store address for this line */
-            snprintf(addrstr, sizeof(addrstr), "%.4x",
-               ((unsigned int)p-(unsigned int)data) );
-        }
-
-        c = *p;
-        if (isalnum(c) == 0) {
-            c = '.';
-        }
-
-        /* store hex str (for left side) */
-        snprintf(bytestr, sizeof(bytestr), "%02X ", *p);
-        strncat(hexstr, bytestr, sizeof(hexstr)-strlen(hexstr)-1);
-
-        /* store char str (for right side) */
-        snprintf(bytestr, sizeof(bytestr), "%c", c);
-        strncat(charstr, bytestr, sizeof(charstr)-strlen(charstr)-1);
-
-        if(n%16 == 0) {
-            /* line completed */
-            ALOGI("[%4.4s]   %-50.50s  %s\n", addrstr, hexstr, charstr);
-            hexstr[0] = 0;
-            charstr[0] = 0;
-        } else if(n%8 == 0) {
-            /* half line: add whitespaces */
-            strncat(hexstr, "  ", sizeof(hexstr)-strlen(hexstr)-1);
-            strncat(charstr, " ", sizeof(charstr)-strlen(charstr)-1);
-        }
-        p++; /* next byte */
-    }
-
-    if (strlen(hexstr) > 0) {
-        /* print rest of buffer if not empty */
-        ALOGI("[%4.4s]   %-50.50s  %s\n", addrstr, hexstr, charstr);
-    }
-}
-
 /*******************************************************************************
  ** Console helper functions
  *******************************************************************************/
@@ -205,54 +143,6 @@ void skip_blanks(char **p)
 {
     while (**p == ' ')
         (*p)++;
-}
-
-uint32_t get_int(char **p, int DefaultValue)
-{
-  uint32_t Value = 0;
-  unsigned char   UseDefault;
-
-  UseDefault = 1;
-  skip_blanks(p);
-
-  while ( ((**p)<= '9' && (**p)>= '0') )
-    {
-      Value = Value * 10 + (**p) - '0';
-      UseDefault = 0;
-      (*p)++;
-    }
-
-  if (UseDefault)
-    return DefaultValue;
-  else
-    return Value;
-}
-
-int get_signed_int(char **p, int DefaultValue)
-{
-  int    Value = 0;
-  unsigned char   UseDefault;
-  unsigned char  NegativeNum = 0;
-
-  UseDefault = 1;
-  skip_blanks(p);
-
-  if ( (**p) == '-')
-    {
-      NegativeNum = 1;
-      (*p)++;
-    }
-  while ( ((**p)<= '9' && (**p)>= '0') )
-    {
-      Value = Value * 10 + (**p) - '0';
-      UseDefault = 0;
-      (*p)++;
-    }
-
-  if (UseDefault)
-    return DefaultValue;
-  else
-    return ((NegativeNum == 0)? Value : -Value);
 }
 
 void get_str(char **p, char *buffer)
@@ -272,50 +162,6 @@ void get_str(char **p, char *buffer)
     *buffer = '\0';
 }
 
-uint32_t get_hex(char **p, int DefaultValue)
-{
-  uint32_t Value = 0;
-  unsigned char   UseDefault;
-
-  UseDefault = 1;
-  skip_blanks(p);
-
-  while ((**p == '0') && ( (*(*p+1) == 'x') ||(*(*p+1) == 'X') ))
-    (*p) = (*p)+2;
-
-  while ( ((**p)<= '9' && (**p)>= '0') ||
-          ((**p)<= 'f' && (**p)>= 'a') ||
-          ((**p)<= 'F' && (**p)>= 'A') )
-    {
-      if (**p >= 'a')
-        Value = Value * 16 + (**p) - 'a' + 10;
-      else if (**p >= 'A')
-        Value = Value * 16 + (**p) - 'A' + 10;
-      else
-        Value = Value * 16 + (**p) - '0';
-      UseDefault = 0;
-      (*p)++;
-    }
-
-  if (UseDefault)
-    return DefaultValue;
-  else
-    return Value;
-}
-
-void get_bdaddr(const char *str, bt_bdaddr_t *bd) {
-    char *d = ((char *)bd), *endp;
-    int i;
-    for(i = 0; i < 6; i++) {
-        *d++ = strtol(str, &endp, 16);
-        if (*endp != ':' && i != 5) {
-            memset(bd, 0, sizeof(bt_bdaddr_t));
-            return;
-        }
-        str = endp + 1;
-    }
-}
-
 #define is_cmd(str) ((strlen(str) == strlen(cmd)) && strncmp((const char *)&cmd, str, strlen(str)) == 0)
 #define if_cmd(str)  if (is_cmd(str))
 
@@ -331,7 +177,6 @@ typedef struct {
 t_console_cmd_handler *mp_cur_handler = NULL;
 
 const t_cmd console_cmd_list[];
-static int console_cmd_maxlen = 0;
 
 static void cmdjob_handler(void *param)
 {
@@ -351,11 +196,11 @@ static int create_cmdjob(char *cmd)
     pthread_t thread_id;
     char *job_cmd;
 
-    job_cmd = malloc(strlen(cmd)+1); /* freed in job handler */
+    job_cmd = malloc(strlen(cmd) + 1); /* freed in job handler */
     strcpy(job_cmd, cmd);
 
     if (pthread_create(&thread_id, NULL,
-                       (void*)cmdjob_handler, (void*)job_cmd)!=0)
+                       (void*)cmdjob_handler, (void*)job_cmd) != 0)
       perror("pthread_create");
 
     return 0;
@@ -365,7 +210,7 @@ static int create_cmdjob(char *cmd)
  ** Load stack lib
  *******************************************************************************/
 
-int HAL_load(void)
+static int HAL_load(void)
 {
     int err = 0;
 
@@ -388,33 +233,26 @@ int HAL_load(void)
     return err;
 }
 
-int HAL_unload(void)
+static void HAL_unload(void)
 {
-    int err = 0;
-
     ALOGI("Unloading HAL lib");
+
+    /* prevent abnormal exit */
+    if (bt_enabled) {
+        bt_try_enable = 0;
+
+        sBtInterface->disable();
+        sBtInterface->cleanup();
+    }
 
     sBtInterface = NULL;
 
-    ALOGI("HAL library unloaded (%s)", strerror(err));
-
-    return err;
+    ALOGI("HAL library unloaded");
 }
 
 /*******************************************************************************
  ** HAL test functions & callbacks
  *******************************************************************************/
-
-void setup_test_env(void)
-{
-    int i = 0;
-
-    while (console_cmd_list[i].name != NULL)
-    {
-        console_cmd_maxlen = MAX(console_cmd_maxlen, (int)strlen(console_cmd_list[i].name));
-        i++;
-    }
-}
 
 void check_return_status(const char *mp_str, bt_status_t status)
 {
@@ -430,7 +268,7 @@ static void adapter_state_changed(bt_state_t state)
     const char *bt_try_str;
     bt_status_t bt_status;
 
-    ALOGI("ADAPTER STATE UPDATED : %s", (state == BT_STATE_OFF)?"OFF":"ON");
+    ALOGI("ADAPTER STATE UPDATED : %s", (state == BT_STATE_OFF) ? "OFF" : "ON");
 
     if (state == BT_STATE_ON) {
         bt_enabled = 1;
@@ -459,15 +297,8 @@ static bt_callbacks_t bt_callbacks = {
 
 static void bdt_shutdown(void)
 {
-    ALOGI("shutdown bdroid test app");
+    ALOGI("shutdown bluetooth MP test tool");
     main_done = 1;
-}
-
-void bdt_init(bt_hci_if_t hci_if, const char *dev_node)
-{
-    ALOGI("INIT BT");
-    status = sBtInterface->init(&bt_callbacks, hci_if, dev_node);
-    //check_return_status(status);
 }
 
 void bdt_enable(bt_hci_if_t hci_if, const char *dev_node)
@@ -719,13 +550,11 @@ void do_quit(char *p)
     bdt_shutdown();
 }
 
-/*******************************************************************
- *
+/**
  *  BT TEST  CONSOLE COMMANDS
  *
  *  Parses argument lists and passes to API test function
- *
-*/
+ */
 
 void do_enable(char *p)
 {
@@ -830,11 +659,9 @@ void do_cleanup(char *p)
     bdt_cleanup();
 }
 
-/*******************************************************************
- *
+/**
  *  CONSOLE COMMAND TABLE
- *
-*/
+ */
 
 const t_cmd console_cmd_list[] =
 {
@@ -878,9 +705,9 @@ const t_cmd console_cmd_list[] =
     {NULL, NULL, "", 0},
 };
 
-/*
+/**
  * Main console command handler
-*/
+ */
 static void process_cmd(char *p, unsigned char is_job)
 {
     char cmd[64];
@@ -917,10 +744,9 @@ static void process_cmd(char *p, unsigned char is_job)
 int main(int argc, char *argv[])
 {
     int opt;
-    char cmd[128];
+    char cmdline[128];
     int args_processed = 0;
     int pid = -1;
-
 
     config_permissions();
     bdt_log("\n:::::::::::::::::::::::::::::::::::::::::::::::::");
@@ -928,35 +754,24 @@ int main(int argc, char *argv[])
 
     if (HAL_load() < 0) {
         perror("HAL failed to initialize, exit\n");
-        unlink(PID_FILE);
         exit(0);
     }
 
-    setup_test_env();
-
-    /* Automatically perform the init */
-//    bdt_init();
-
     while (!main_done) {
-        char line[128];
-
         /* command prompt */
         printf("> ");
         fflush(stdout);
 
-        fgets(line, 128, stdin);
+        fgets(cmdline, 128, stdin);
 
-        if (line[0] != '\0') {
+        if (cmdline[0] != '\0') {
             /* remove linefeed */
-            line[strlen(line)-1] = 0;
+            cmdline[strlen(cmdline)-1] = 0;
 
-            process_cmd(line, 0);
-            memset(line, '\0', 128);
+            process_cmd(cmdline, 0);
+            memset(cmdline, '\0', 128);
         }
     }
-
-    /* FIXME: Commenting this out as for some reason, the application does not exit otherwise*/
-    //bdt_cleanup();
 
     HAL_unload();
 
