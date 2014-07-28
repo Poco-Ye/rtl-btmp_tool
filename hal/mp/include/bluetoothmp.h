@@ -43,13 +43,11 @@ enum BT_MP_OPCODE {
     BT_MP_OP_USER_DEF_SetParam1 = 0x12,
     BT_MP_OP_USER_DEF_SetParam2 = 0x13,
     BT_MP_OP_USER_DEF_SetConfig = 0x14,
-    BT_MP_OP_USER_DEF_SetGainTable = 0x15,
-    BT_MP_OP_USER_DEF_SetDacTable = 0x16,
-    BT_MP_OP_USER_DEF_Exec = 0x17,
-    BT_MP_OP_USER_DEF_ReportTx = 0x18,
-    BT_MP_OP_USER_DEF_ReportContTx = 0x19,
-    BT_MP_OP_USER_DEF_ReportRx = 0x1a,
-    BT_MP_OP_USER_DEF_RegRW = 0x1b,
+    BT_MP_OP_USER_DEF_Exec = 0x15,
+    BT_MP_OP_USER_DEF_ReportTx = 0x16,
+    BT_MP_OP_USER_DEF_ReportContTx = 0x17,
+    BT_MP_OP_USER_DEF_ReportRx = 0x18,
+    BT_MP_OP_USER_DEF_RegRW = 0x19,
 
 };
 
@@ -65,7 +63,9 @@ enum BT_MP_OPCODE {
 #define STR_BT_MP_SET_PARAM2        "bt_mp_SetParam2"
 #define STR_BT_MP_SET_CONFIG        "bt_mp_SetConfig"
 #define STR_BT_MP_SET_GAIN_TABLE    "bt_mp_SetGainTable"
+#define STR_BT_MP_GET_GAIN_TABLE    "bt_mp_GetGainTable"
 #define STR_BT_MP_SET_DAC_TABLE     "bt_mp_SetDacTable"
+#define STR_BT_MP_GET_DAC_TABLE     "bt_mp_GetDacTable"
 #define STR_BT_MP_EXEC              "bt_mp_Exec"
 #define STR_BT_MP_REPORT_TX         "bt_mp_ReportTx"
 #define STR_BT_MP_REPORT_CONT_TX    "bt_mp_ReportContTx"

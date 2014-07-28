@@ -416,32 +416,6 @@ void bdt_set_config(char *p)
     check_return_status(STR_BT_MP_SET_CONFIG, status);
 }
 
-void bdt_set_gain_table(char *p)
-{
-    if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_GAIN_TABLE);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_GAIN_TABLE, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetGainTable, p);
-
-    check_return_status(STR_BT_MP_SET_GAIN_TABLE, status);
-}
-
-void bdt_set_dac_table(char *p)
-{
-    if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_DAC_TABLE);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_DAC_TABLE, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetDacTable, p);
-
-    check_return_status(STR_BT_MP_SET_DAC_TABLE, status);
-}
-
 void bdt_exec(char *p)
 {
     if (!bt_enabled) {
@@ -614,16 +588,6 @@ void do_SetConfig(char *p)
     bdt_set_config(p);
 }
 
-void do_SetGainTable(char *p)
-{
-    bdt_set_gain_table(p);
-}
-
-void do_SetDacTable(char *p)
-{
-    bdt_set_dac_table(p);
-}
-
 void do_Exec(char *p)
 {
     bdt_exec(p);
@@ -681,15 +645,12 @@ const t_cmd console_cmd_list[] =
 
     { STR_BT_MP_HCI_CMD, do_hci, ":: Send HCI Commands", 0 },
 
-    { STR_BT_MP_GET_PARAM, do_GetParam, ":: Get all exposed parameters", 0 },
+    { STR_BT_MP_GET_PARAM, do_GetParam, ":: Get all/individual exposed parameters", 0 },
     { STR_BT_MP_SET_PARAM, do_SetParam, ":: Set specific parameters<index,value>", 0 },
     { STR_BT_MP_SET_PARAM1, do_SetParam1, ":: Set series 1 parameters", 0 },
     { STR_BT_MP_SET_PARAM2, do_SetParam2, ":: Set series 2 parameters", 0 },
 
     { STR_BT_MP_SET_CONFIG, do_SetConfig, ":: Set configurations to the specific file", 0 },
-
-    { STR_BT_MP_SET_GAIN_TABLE, do_SetGainTable, ":: Set Tx GAIN table", 0 },
-    { STR_BT_MP_SET_DAC_TABLE, do_SetDacTable, ":: Set Tx DAC table", 0 },
 
     { STR_BT_MP_EXEC, do_Exec, ":: Execute specific action<action id>", 0 },
 

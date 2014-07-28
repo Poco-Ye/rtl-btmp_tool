@@ -177,7 +177,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         break;
 
     case BT_MP_OP_USER_DEF_GetParam:
-        ret = BT_GetParam(&BtModuleMemory, pNotifyBuffer);
+        ret = BT_GetParam(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
     case BT_MP_OP_USER_DEF_SetParam:
@@ -194,14 +194,6 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
 
     case BT_MP_OP_USER_DEF_SetConfig:
         ret = BT_SetConfig(&BtModuleMemory, buf, pNotifyBuffer);
-        break;
-
-    case BT_MP_OP_USER_DEF_SetDacTable:
-        ret = BT_SetDacTable(&BtModuleMemory, buf, pNotifyBuffer);
-        break;
-
-    case BT_MP_OP_USER_DEF_SetGainTable:
-        ret = BT_SetGainTable(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
     case BT_MP_OP_USER_DEF_Exec:

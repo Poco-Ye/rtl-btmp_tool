@@ -9,24 +9,22 @@ public final class MpOpCode {
     public static final int BT_MP_OP_CODE_SetParam1      =   0x0012;
     public static final int BT_MP_OP_CODE_SetParam2      =   0x0013;
     public static final int BT_MP_OP_CODE_SetConfig      =   0x0014;
-    public static final int BT_MP_OP_CODE_SetGainTable   =   0x0015;
-    public static final int BT_MP_OP_CODE_SetDacTable    =   0x0016;
-    public static final int BT_MP_OP_CODE_Exec           =   0x0017;
-    public static final int BT_MP_OP_CODE_ReportTx       =   0x0018;
-    public static final int BT_MP_OP_CODE_ReportContTx   =   0x0019;
-    public static final int BT_MP_OP_CODE_ReportRx       =   0x001a;
-    public static final int BT_MP_OP_CODE_RegRW          =   0x001b;
+    public static final int BT_MP_OP_CODE_Exec           =   0x0015;
+    public static final int BT_MP_OP_CODE_ReportTx       =   0x0016;
+    public static final int BT_MP_OP_CODE_ReportContTx   =   0x0017;
+    public static final int BT_MP_OP_CODE_ReportRx       =   0x0018;
+    public static final int BT_MP_OP_CODE_RegRW          =   0x0019;
 
     // All Exec subcodes
-    public static final int BT_MP_OP_CODE_PktTxStart      =   0x1117; // subcode 17
-    public static final int BT_MP_OP_CODE_PktTxUpdate     =   0x1317; // subcode 19
-    public static final int BT_MP_OP_CODE_PktTxStop       =   0x1517; // subcode 21
-    public static final int BT_MP_OP_CODE_PktRxStart      =   0x1617; // subcode 22
-    public static final int BT_MP_OP_CODE_PktRxUpdate     =   0x1817; // subcode 24
-    public static final int BT_MP_OP_CODE_PktRxStop       =   0x1917; // subcode 25
-    public static final int BT_MP_OP_CODE_PktContTxStart  =   0x1a17; // subcode 26
-    public static final int BT_MP_OP_CODE_PktContTxUpdate =   0x1b17; // subcode 27
-    public static final int BT_MP_OP_CODE_PktContTxStop   =   0x1c17; // subcode 28
+    public static final int BT_MP_OP_CODE_PktTxStart      =   0x1115; // subcode 17
+    public static final int BT_MP_OP_CODE_PktTxUpdate     =   0x1315; // subcode 19
+    public static final int BT_MP_OP_CODE_PktTxStop       =   0x1515; // subcode 21
+    public static final int BT_MP_OP_CODE_PktRxStart      =   0x1615; // subcode 22
+    public static final int BT_MP_OP_CODE_PktRxUpdate     =   0x1815; // subcode 24
+    public static final int BT_MP_OP_CODE_PktRxStop       =   0x1915; // subcode 25
+    public static final int BT_MP_OP_CODE_PktContTxStart  =   0x1a15; // subcode 26
+    public static final int BT_MP_OP_CODE_PktContTxUpdate =   0x1b15; // subcode 27
+    public static final int BT_MP_OP_CODE_PktContTxStop   =   0x1c15; // subcode 28
 
     public static final String BT_MP_OP_STR_GetParam        = "Get Param";
     public static final String BT_MP_OP_STR_SetParam        = "Set Param";
@@ -62,7 +60,9 @@ public final class MpOpCode {
     public static final String STR_BT_MP_SET_PARAM2       =   "bt_mp_SetParam2";
     public static final String STR_BT_MP_SET_CONFIG       =   "bt_mp_SetConfig";
     public static final String STR_BT_MP_SET_GAIN_TABLE   =   "bt_mp_SetGainTable";
+    public static final String STR_BT_MP_GET_GAIN_TABLE   =   "bt_mp_GetGainTable";
     public static final String STR_BT_MP_SET_DAC_TABLE    =   "bt_mp_SetDacTable";
+    public static final String STR_BT_MP_GET_DAC_TABLE    =   "bt_mp_GetDacTable";
     public static final String STR_BT_MP_EXEC             =   "bt_mp_Exec";
     public static final String STR_BT_MP_REPORT_TX        =   "bt_mp_ReportTx";
     public static final String STR_BT_MP_REPORT_CONT_TX   =   "bt_mp_ReportContTx";
