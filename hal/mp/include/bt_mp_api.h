@@ -9,9 +9,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_Exec(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
-int BT_ReportTx(BT_MODULE *pBtModule, char *pNotifyBuffer);
-int BT_ReportContTx(BT_MODULE *pBtModule, char *pNotifyBuffer);
-int BT_ReportRx(BT_MODULE *pBtModule, char *pNotifyBuffer);
+int BT_Report(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer);
 

@@ -104,7 +104,7 @@ typedef enum {
     LE_RX_DUT_TEST_CMD,                 //41
     LE_DUT_TEST_END_CMD,                //42
 
-    NUMBEROFBT_ACTIONCONTROL_TAG
+    BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
 
 typedef enum {
@@ -194,15 +194,15 @@ struct BT_DEVICE_REPORT_TAG {
     float    ber;
     float    Cfo;
 
-    uint8_t       CurrTXGainTable[MAX_TXGAIN_TABLE_SIZE];
-    uint8_t       CurrTXDACTable[MAX_TXDAC_TABLE_SIZE];
+    uint8_t  CurrTXGainTable[MAX_TXGAIN_TABLE_SIZE];
+    uint8_t  CurrTXDACTable[MAX_TXDAC_TABLE_SIZE];
 
-    uint8_t       CurrThermalValue;
-    uint32_t      CurrRtl8761Xtal;
-    uint8_t       CurrStage;
+    uint8_t  CurrThermalValue;
+    uint32_t CurrRtl8761Xtal;
+    uint8_t  CurrStage;
 
-    BT_CHIPINFO   *pBTInfo;
-    BT_CHIPINFO   BTInfoMemory;
+    BT_CHIPINFO *pBTInfo;
+    BT_CHIPINFO BTInfoMemory;
     uint8_t ReportData[MAX_USERAWDATA_SIZE];
 };
 
@@ -647,30 +647,29 @@ struct BT_DEVICE_TAG
 
     BT_CHIPINFO *pBTInfo;
     BT_CHIPINFO BaseBTInfoMemory;
-    BT_FP_GET_CHIPID        GetChipId;
-    BT_FP_GET_ECOVERSION    GetECOVersion;
-    BT_FP_GET_CHIPVERSIONINFO GetChipVersionInfo;
-    BT_FP_BT_DL_FW BTDlFW;
-    BT_FP_BT_DL_MERGER_FW BTDlMERGERFW;
+    BT_FP_GET_CHIPID            GetChipId;
+    BT_FP_GET_ECOVERSION        GetECOVersion;
+    BT_FP_GET_CHIPVERSIONINFO   GetChipVersionInfo;
+    BT_FP_BT_DL_FW              BTDlFW;
+    BT_FP_BT_DL_MERGER_FW       BTDlMERGERFW;
     // Efuse settting
-    BT_FP_SF_PGEFUSE_RAWDATA    BT_SP_PGEfuseRawData;
+    BT_FP_SF_PGEFUSE_RAWDATA    BT_PGEfuseRawData;
 };
 
 //-----------------------------------------------------------------------------------------------------------------
 //  Module
 //-----------------------------------------------------------------------------------------------------------------
 typedef enum _BT_REPORT_TAG {
-    NO_THING,
+    REPORT_ALL = 0,
     REPORT_PKT_TX,
-    REPORT_RX,
-    REPORT_CHIP,
-    REPORT_ALL,
+    REPORT_CONT_TX,
+    REPORT_PKT_RX,
     REPORT_TX_GAIN_TABLE,
     REPORT_TX_DAC_TABLE,
     REPORT_RTL8761_XTAL,
     REPORT_THERMAL,
     REPORT_BT_STAGE,
-    REPORT_CONT_TX
+    REPORT_CHIP,
 } BT_REPORT_TAG;
 
 typedef struct  BT_MODULE_TAG BT_MODULE;

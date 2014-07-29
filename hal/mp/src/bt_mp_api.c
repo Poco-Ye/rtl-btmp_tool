@@ -133,10 +133,12 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
     case BT_PARAM_IDX0:
         len = pBtModule->pBtParam->mPGRawData[1];
 
-        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPGRawData[0],
                 STR_BT_MP_RESULT_DELIM,
@@ -148,98 +150,122 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
         }
         break;
     case BT_PARAM_IDX1:
-        sprintf(buf_cb, "%s%s%d%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mChannelNumber);
         break;
     case BT_PARAM_IDX2:
-        sprintf(buf_cb, "%s%s%d%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPacketType);
         break;
     case BT_PARAM_IDX3:
-        sprintf(buf_cb, "%s%s%d%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPayloadType);
         break;
     case BT_PARAM_IDX4:
-        sprintf(buf_cb, "%s%s%d%s0x%04x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%04x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxPacketCount);
         break;
     case BT_PARAM_IDX5:
-        sprintf(buf_cb, "%s%s%d%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxGainValue);
         break;
     case BT_PARAM_IDX6:
-        sprintf(buf_cb, "%s%s%d%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mWhiteningCoeffValue);
         break;
     case BT_PARAM_IDX7:
-        sprintf(buf_cb, "%s%s%d%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxGainIndex);
         break;
     case BT_PARAM_IDX8:
-        sprintf(buf_cb, "%s%s%d%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxDAC);
         break;
     case BT_PARAM_IDX9:
-        sprintf(buf_cb, "%s%s%d%s0x%04x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%04x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPacketHeader);
         break;
     case BT_PARAM_IDX10:
-        sprintf(buf_cb, "%s%s%d%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHoppingFixChannel);
         break;
     case BT_PARAM_IDX11:
-        sprintf(buf_cb, "%s%s%d%s0x%012llx",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%012llx",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHitTarget);
         break;
     case BT_PARAM_IDX12:
-        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->TXGainTable[0],
                 STR_BT_MP_RESULT_DELIM,
@@ -256,10 +282,12 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
                 pBtModule->pBtParam->TXGainTable[6]);
         break;
     case BT_PARAM_IDX13:
-        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->TXDACTable[0],
                 STR_BT_MP_RESULT_DELIM,
@@ -272,10 +300,12 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
                 pBtModule->pBtParam->TXDACTable[4]);
         break;
     case BT_PARAM_IDX14:
-        sprintf(buf_cb, "%s%s%d%s0x%08x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->Rtl8761Xtal);
         break;
@@ -284,9 +314,252 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
     }
 }
 
+static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf_cb)
+{
+    switch (item) {
+    case REPORT_ALL:
+        break;
+    case REPORT_PKT_TX:
+    case REPORT_CONT_TX:
+        ALOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+        break;
+    case REPORT_PKT_RX:
+        ALOGI("%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->RxRssi,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRXBits,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxErrorBits);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->RxRssi,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRXBits,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxErrorBits);
+        break;
+    case REPORT_TX_GAIN_TABLE:
+        ALOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[0],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[1],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[2],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[3],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[4],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[5],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[6]);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[0],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[1],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[2],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[3],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[4],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[5],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[6]);
+        break;
+    case REPORT_TX_DAC_TABLE:
+        ALOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[0],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[1],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[2],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[3],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[4]);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[0],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[1],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[2],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[3],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[4]);
+        break;
+    case REPORT_RTL8761_XTAL:
+        ALOGI("%s%s%d%s0x%02x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrRtl8761Xtal);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrRtl8761Xtal);
+        break;
+    case REPORT_THERMAL:
+        ALOGI("%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrThermalValue);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrThermalValue);
+        break;
+    case REPORT_BT_STAGE:
+        ALOGI("%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrStage);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrStage);
+        break;
+    case REPORT_CHIP:
+        ALOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->ChipType,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_SubVersion,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_Version,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->Is_After_PatchCode,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_SubVersion,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_Version,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->Version);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->ChipType,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_SubVersion,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_Version,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->Is_After_PatchCode,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_SubVersion,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_Version,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->Version);
+        break;
+    default:
+        break;
+    }
+}
+
 int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
-    int rtn = BT_FUNCTION_SUCCESS;
+    int ret = BT_FUNCTION_SUCCESS;
     char *token = NULL;
     uint16_t OpCode = 0;
     uint8_t ParamLen = 0;
@@ -307,8 +580,8 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         OpCode = strtol(token, NULL, 0);
         params_count++;
     } else {
-        rtn = FUNCTION_PARAMETER_ERROR;
-        goto EXIT;
+        ret = FUNCTION_PARAMETER_ERROR;
+        goto exit;
     }
 
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
@@ -316,8 +589,8 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         ParamLen = strtol(token, NULL, 0);
         params_count++;
     } else {
-        rtn = FUNCTION_PARAMETER_ERROR;
-        goto EXIT;
+        ret = FUNCTION_PARAMETER_ERROR;
+        goto exit;
     }
 
     ParamLen_1 = ParamLen;
@@ -327,36 +600,36 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
             ParamArray[i++] = strtol(token, NULL, 0);
             params_count++;
         } else {
-            rtn = FUNCTION_PARAMETER_ERROR;
-            goto EXIT;
+            ret = FUNCTION_PARAMETER_ERROR;
+            goto exit;
         }
     }
 
     if (params_count != ParamLen + 2) {
-        rtn = FUNCTION_PARAMETER_ERROR;
-        goto EXIT;
+        ret = FUNCTION_PARAMETER_ERROR;
+        goto exit;
     }
 
-    rtn = pBtModule->SendHciCommandWithEvent(pBtModule, OpCode, ParamLen, ParamArray, 0x0E, pEvent, &EventLen);
+    ret = pBtModule->SendHciCommandWithEvent(pBtModule, OpCode, ParamLen, ParamArray, 0x0E, pEvent, &EventLen);
 
-    ALOGI("%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, rtn);
+    ALOGI("%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, ret);
 
-    if (rtn == BT_FUNCTION_SUCCESS) {
+    if (ret == BT_FUNCTION_SUCCESS) {
         sprintf(pNotifyBuffer, "%s", STR_BT_MP_HCI_CMD);
         for (i = 0; i < EventLen; i++) {
             sprintf(pEventString[i].EventData, "%s%x", STR_BT_MP_RESULT_DELIM, pEvent[i]);
             strcat(pNotifyBuffer, pEventString[i].EventData);
         }
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     ALOGI("--%s", STR_BT_MP_HCI_CMD);
-    return rtn;
+    return ret;
 
-EXIT:
+exit:
     sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-    return rtn;
+    return ret;
 }
 
 int BT_GetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
@@ -364,8 +637,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
     char *token = NULL;
     char *endptr = NULL;
     int index = -1;
-    int rtn = BT_FUNCTION_SUCCESS;
-
+    int ret = BT_FUNCTION_SUCCESS;
 
     ALOGI("++%s: index %s", STR_BT_MP_GET_PARAM, p);
 
@@ -373,17 +645,21 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
     if (token != NULL) {
         index = strtol(token, &endptr, 0);
         if (*endptr || index < 0 || index >= BT_PARAM_IDX_NUM) {
+            if (*endptr) {
+                index = -1;
+            }
+
             ALOGI("%s%s%d%s0x%02x",
                     STR_BT_MP_GET_PARAM,
                     STR_BT_MP_RESULT_DELIM,
-                    BT_PARAM_IDX_NUM,
+                    index,
                     STR_BT_MP_RESULT_DELIM,
                     FUNCTION_PARAMETER_ERROR);
 
             sprintf(pNotifyBuffer, "%s%s%d%s0x%02x",
                     STR_BT_MP_GET_PARAM,
                     STR_BT_MP_RESULT_DELIM,
-                    BT_PARAM_IDX_NUM,
+                    index,
                     STR_BT_MP_RESULT_DELIM,
                     FUNCTION_PARAMETER_ERROR);
 
@@ -392,7 +668,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 
         bt_index2print(pBtModule, index, pNotifyBuffer);
     } else {
-        /* print all exposed params if not specified */
+        /* print all exposed params if not specified[Deprecated] */
         ALOGI("%s%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%012llx",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
@@ -442,11 +718,10 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
                 pBtModule->pBtParam->mHoppingFixChannel,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHitTarget);
-
     }
 
     ALOGI("--%s", STR_BT_MP_GET_PARAM);
-    return rtn;
+    return ret;
 }
 
 int BT_SetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
@@ -474,7 +749,12 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
                 index = strtol(param_token, NULL, 0);
                 if (index < 0 || index >= BT_PARAM_IDX_NUM) {
                     ALOGI("Invalid BT param index %d", index);
-                    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+                    sprintf(pNotifyBuffer, "%s%s%d%s0x%02x",
+                            STR_BT_MP_SET_PARAM,
+                            STR_BT_MP_RESULT_DELIM,
+                            index,
+                            STR_BT_MP_RESULT_DELIM,
+                            FUNCTION_PARAMETER_ERROR);
                     return FUNCTION_PARAMETER_ERROR;
                 } else if (index == 0 || index == 12 || index == 13) {
                     var_pair = 1;
@@ -504,20 +784,30 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
                     ALOGI("TX dac table[%d]: 0x%02x", i, pBtModule->pBtParam->TXDACTable[i]);
             }
         } else if (params_count == 2 && var_pair == 0) { // 2-param pair format<index, value>
-            bt_index2param(pBtModule, index, value);
             ALOGI("Pair index %d, pair value 0x%llx", index, value);
+            bt_index2param(pBtModule, index, value);
         } else if (params_count == 0) { // null pair
             continue;
         } else { // wrong pair format
             ALOGI("Invalid BT pair format, params count %d", params_count);
-            sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+            sprintf(pNotifyBuffer, "%s%s%d%s0x%02x",
+                    STR_BT_MP_SET_PARAM,
+                    STR_BT_MP_RESULT_DELIM,
+                    index,
+                    STR_BT_MP_RESULT_DELIM,
+                    FUNCTION_PARAMETER_ERROR);
             return FUNCTION_PARAMETER_ERROR;
         }
     }
 
     ALOGI("--%s: pairs count %d", STR_BT_MP_SET_PARAM, pairs_count);
 
-    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+    sprintf(pNotifyBuffer, "%s%s%d%s0x%02x",
+            STR_BT_MP_SET_PARAM,
+            STR_BT_MP_RESULT_DELIM,
+            index,
+            STR_BT_MP_RESULT_DELIM,
+            BT_FUNCTION_SUCCESS);
 
     return BT_FUNCTION_SUCCESS;
 }
@@ -537,7 +827,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mChannelNumber = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // BT_PKT_TYPE mPacketType;
@@ -546,7 +836,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mPacketType = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // BT_PAYLOAD_TYPE mPayloadType;
@@ -555,7 +845,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mPayloadType = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint16_t mTxPacketCount;
@@ -564,7 +854,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mTxPacketCount = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint8_t mTxGainValue;
@@ -573,7 +863,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mTxGainValue = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint8_t mWhiteningCoeffValue;
@@ -582,7 +872,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mWhiteningCoeffValue = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     //end of parameter
@@ -592,7 +882,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         params_count++;
     }
 
-EXIT:
+exit:
     ALOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM1, params_count);
 
     if (params_count != BT_PARAM1_COUNT) {
@@ -631,7 +921,7 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mTxGainIndex = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint8_t mTxDAC;
@@ -640,7 +930,7 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mTxDAC = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint16_t mPacketHeader;
@@ -649,7 +939,7 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mPacketHeader = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint8_t mHoppingFixChannel
@@ -658,7 +948,7 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mHoppingFixChannel = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint64_t(6 Bytes) mHitTarget
@@ -667,7 +957,7 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         pBtModule->pBtParam->mHitTarget = strtoull(token, NULL, 16);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // end of parameter
@@ -677,7 +967,7 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         params_count++;
     }
 
-EXIT:
+exit:
     ALOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM2, params_count);
 
     if (params_count != BT_PARAM2_COUNT) {
@@ -792,183 +1082,132 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 int BT_Exec(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
     char *token = NULL;
-    int ParameterIndex = 0;
+    char *endptr = NULL;
+    int action_index = -1;
     BT_PARAMETER *pBtParam = NULL;
-    int rtn = BT_FUNCTION_SUCCESS;
+    int ret = BT_FUNCTION_SUCCESS;
+
+    ALOGI("++%s: action index[%s]", STR_BT_MP_EXEC, p);
 
     // index
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
-        ParameterIndex = strtol(token, NULL, 0);
+        action_index = strtol(token, &endptr, 0);
+        if (*endptr || action_index <= NOTTHING || action_index >= BT_ACTION_NUM) {
+            if (*endptr) {
+                action_index = -1;
+            }
+            ret = FUNCTION_PARAMETER_ERROR;
+            goto exit;
+        }
     } else {
-        rtn = FUNCTION_PARAMETER_ERROR;
-        goto EXIT;
+        action_index = -1;
+        ret = FUNCTION_PARAMETER_ERROR;
+        goto exit;
     }
 
     // end of parameter
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
         ALOGI("BT_Exec: redundant token[%s]", token);
-        rtn = FUNCTION_PARAMETER_ERROR;
-        goto EXIT;
-    }
-
-    ALOGI("BT_Exec: param index[%d]", ParameterIndex);
-
-    if (ParameterIndex > NOTTHING &&
-        ParameterIndex < NUMBEROFBT_ACTIONCONTROL_TAG) {
-
-        pBtParam = pBtModule->pBtParam;
-        pBtParam->ParameterIndex = ParameterIndex;
-        rtn = pBtModule->ActionControlExcute(pBtModule);
-
-        sprintf(pNotifyBuffer, "%s%s%x%s%x",
-                STR_BT_MP_EXEC,
-                STR_BT_MP_RESULT_DELIM,
-                ParameterIndex,
-                STR_BT_MP_RESULT_DELIM,
-                rtn
-                );
-         ALOGI("%s%s%x%s%x",
-                STR_BT_MP_EXEC,
-                STR_BT_MP_RESULT_DELIM,
-                ParameterIndex,
-                STR_BT_MP_RESULT_DELIM,
-                rtn
-                );
-    } else {
-        sprintf(pNotifyBuffer, "%s%s%s%s%x",
-                STR_BT_MP_EXEC,
-                STR_BT_MP_RESULT_DELIM,
-                p,
-                STR_BT_MP_RESULT_DELIM,
-                FUNCTION_PARAMETER_ERROR
-                );
-        ALOGI("%s%s%s%s%x",
-                STR_BT_MP_EXEC,
-                STR_BT_MP_RESULT_DELIM,
-                p,
-                STR_BT_MP_RESULT_DELIM,
-                FUNCTION_PARAMETER_ERROR
-                );
-    }
-
-EXIT:
-    return rtn;
-}
-
-int BT_ReportTx(BT_MODULE *pBtModule, char *pNotifyBuffer)
-{
-    BT_DEVICE_REPORT BtDeviceReport;
-    int rtn = BT_FUNCTION_SUCCESS;
-
-    ALOGI("++%s", STR_BT_MP_REPORT_TX);
-
-    rtn = pBtModule->ActionReport(pBtModule, REPORT_PKT_TX, &BtDeviceReport);
-
-    if (rtn != BT_FUNCTION_SUCCESS) {
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REPORT_TX, STR_BT_MP_RESULT_DELIM, rtn);
-        ALOGI("%s%s%x", STR_BT_MP_REPORT_TX, STR_BT_MP_RESULT_DELIM, rtn);
+        ret = FUNCTION_PARAMETER_ERROR;
         goto exit;
-    } else {
-        ALOGI("%s%s%x%s%x",
-                STR_BT_MP_REPORT_TX,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalTXBits,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalTxCounts);
-
-        sprintf(pNotifyBuffer, "%s%s%x%s%x",
-                                STR_BT_MP_REPORT_TX,
-                                STR_BT_MP_RESULT_DELIM,
-                                BtDeviceReport.TotalTXBits,
-                                STR_BT_MP_RESULT_DELIM,
-                                BtDeviceReport.TotalTxCounts);
     }
+
+    pBtParam = pBtModule->pBtParam;
+    pBtParam->ParameterIndex = action_index;
+
+    ret = pBtModule->ActionControlExcute(pBtModule);
+    if (ret == BT_FUNCTION_SUCCESS) {
+        ALOGI("%s%s%d%s0x%02x",
+                STR_BT_MP_EXEC,
+                STR_BT_MP_RESULT_DELIM,
+                action_index,
+                STR_BT_MP_RESULT_DELIM,
+                ret);
+
+        sprintf(pNotifyBuffer, "%s%s%d%s0x%02x",
+                STR_BT_MP_EXEC,
+                STR_BT_MP_RESULT_DELIM,
+                action_index,
+                STR_BT_MP_RESULT_DELIM,
+                ret);
+    } else {
+        goto exit;
+    }
+
+    ALOGI("--%s: action index[%d]", STR_BT_MP_EXEC, action_index);
+    return ret;
 
 exit:
-    ALOGI("--%s", STR_BT_MP_REPORT_TX);
+    ALOGI("%s%s%d%s0x%02x",
+            STR_BT_MP_EXEC,
+            STR_BT_MP_RESULT_DELIM,
+            action_index,
+            STR_BT_MP_RESULT_DELIM,
+            ret);
 
-    return rtn;
+    sprintf(pNotifyBuffer, "%s%s%d%s0x%02x",
+            STR_BT_MP_EXEC,
+            STR_BT_MP_RESULT_DELIM,
+            action_index,
+            STR_BT_MP_RESULT_DELIM,
+            ret);
+
+    return ret;
 }
 
-int BT_ReportContTx(BT_MODULE *pBtModule, char *pNotifyBuffer)
+int BT_Report(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 {
     BT_DEVICE_REPORT BtDeviceReport;
-    int rtn = BT_FUNCTION_SUCCESS;
+    char *token = NULL;
+    char *endptr = NULL;
+    int report_item = -1;
+    int ret = BT_FUNCTION_SUCCESS;
 
-    ALOGI("++%s", STR_BT_MP_REPORT_CONT_TX);
+    ALOGI("++%s: %s", STR_BT_MP_REPORT, p);
 
-    rtn=pBtModule->ActionReport(pBtModule, REPORT_CONT_TX, &BtDeviceReport);
-
-    if (rtn != BT_FUNCTION_SUCCESS) {
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REPORT_CONT_TX, STR_BT_MP_RESULT_DELIM, rtn);
-        ALOGI("%s%s%x", STR_BT_MP_REPORT_CONT_TX, STR_BT_MP_RESULT_DELIM, rtn);
-        goto exit;
+    token = strtok(p, STR_BT_MP_PARAM_DELIM);
+    if (token != NULL) {
+        report_item = strtol(token, &endptr, 0);
+        if (*endptr) {
+            report_item = -1;
+            ret = FUNCTION_PARAMETER_ERROR;
+            goto exit;
+        }
     } else {
-        ALOGI("%s%s%x%s%x",
-                STR_BT_MP_REPORT_CONT_TX,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalTXBits,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalTxCounts);
-
-        sprintf(pNotifyBuffer, "%s%s%x%s%x",
-                                STR_BT_MP_REPORT_CONT_TX,
-                                STR_BT_MP_RESULT_DELIM,
-                                BtDeviceReport.TotalTXBits,
-                                STR_BT_MP_RESULT_DELIM,
-                                BtDeviceReport.TotalTxCounts);
+        report_item = -1;
+        ret = FUNCTION_PARAMETER_ERROR;
+        goto exit;
     }
 
-exit:
-    ALOGI("--%s", STR_BT_MP_REPORT_CONT_TX);
+    ret = pBtModule->ActionReport(pBtModule, report_item, &BtDeviceReport);
 
-    return rtn;
-}
-
-int BT_ReportRx(BT_MODULE  *pBtModule, char* pNotifyBuffer)
-{
-    BT_DEVICE_REPORT BtDeviceReport;
-    int rtn = BT_FUNCTION_SUCCESS;
-
-    ALOGI("++%s", STR_BT_MP_REPORT_RX);
-
-    rtn = pBtModule->ActionReport(pBtModule, REPORT_RX, &BtDeviceReport);
-    if (rtn != BT_FUNCTION_SUCCESS) {
-        ALOGI("%s%s%x", STR_BT_MP_PKTRXSTART, STR_BT_MP_RESULT_DELIM, rtn);
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_PKTRXSTART, STR_BT_MP_RESULT_DELIM, rtn);
-        goto exit;
+    if (ret == BT_FUNCTION_SUCCESS) {
+        bt_item2print(&BtDeviceReport, report_item, pNotifyBuffer);
     } else {
-        ALOGI("%s%s%x%s%x%s%x%s%x",
-                STR_BT_MP_REPORT_RX,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.RxRssi,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalRXBits,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalRxCounts,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalRxErrorBits
-             );
-
-        sprintf(pNotifyBuffer, "%s%s%x%s%x%s%x%s%x",
-                STR_BT_MP_REPORT_RX,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.RxRssi,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalRXBits,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalRxCounts,
-                STR_BT_MP_RESULT_DELIM,
-                BtDeviceReport.TotalRxErrorBits
-               );
+        goto exit;
     }
 
-exit:
-    ALOGI("--%s", STR_BT_MP_REPORT_RX);
+    ALOGI("--%s", STR_BT_MP_REPORT);
+    return ret;
 
-    return rtn;
+exit:
+    ALOGI("%s%s%d%s0x%02x",
+            STR_BT_MP_REPORT,
+            STR_BT_MP_RESULT_DELIM,
+            report_item,
+            STR_BT_MP_RESULT_DELIM,
+            ret);
+
+    sprintf(pNotifyBuffer, "%s%s%d%s0x%02x",
+            STR_BT_MP_GET_PARAM,
+            STR_BT_MP_RESULT_DELIM,
+            report_item,
+            STR_BT_MP_RESULT_DELIM,
+            ret);
+
+    return ret;
 }
 
 int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
@@ -983,7 +1222,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
     uint8_t msb = 0;
     uint8_t lsb = 0;
     uint32_t data = 0;
-    int rtn = BT_FUNCTION_SUCCESS;
+    int ret = BT_FUNCTION_SUCCESS;
 
     ALOGI("++%s: %s", STR_BT_MP_REG_RW, p);
 
@@ -993,7 +1232,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         type = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint8_t rw;
@@ -1002,7 +1241,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         rw = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // BB Reg has an extra field<PAGE>
@@ -1013,7 +1252,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
             page = strtol(token, NULL, 0);
             params_count++;
         } else {
-            goto EXIT;
+            goto exit;
         }
     }
 
@@ -1023,7 +1262,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         address = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint8_t msb;
@@ -1032,7 +1271,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         msb = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     // uint8_t lsb;
@@ -1041,7 +1280,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         lsb = strtol(token, NULL, 0);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
     if (rw == 1) { //write
@@ -1051,7 +1290,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
             data = strtol(token, NULL, 0);
             params_count++;
         } else {
-            goto EXIT;
+            goto exit;
         }
 
     }
@@ -1062,10 +1301,10 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         ALOGI("BT_RegRW: redundant token[%s]", token);
         params_count++;
     } else {
-        goto EXIT;
+        goto exit;
     }
 
-EXIT:
+exit:
     ALOGI("%s: params_count = %d", STR_BT_MP_REG_RW, params_count);
 
     if (rw == 1) REGRW_PARAM_COUNT++;
@@ -1078,18 +1317,18 @@ EXIT:
                 type, rw, page, address, msb, lsb, data);
 
         if (rw == 0) {
-            rtn = pBtModule->GetRegMaskBits(pBtModule, type, page, address, msb, lsb, &data);
-            sprintf(pNotifyBuffer, "%s%s%x%s%08x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, rtn,
+            ret = pBtModule->GetRegMaskBits(pBtModule, type, page, address, msb, lsb, &data);
+            sprintf(pNotifyBuffer, "%s%s%x%s%08x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, ret,
                     STR_BT_MP_RESULT_DELIM, data);
         } else {
-            rtn = pBtModule->SetRegMaskBits(pBtModule, type, page, address, msb, lsb, data);
-            sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, rtn);
+            ret = pBtModule->SetRegMaskBits(pBtModule, type, page, address, msb, lsb, data);
+            sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, ret);
         }
 
     }
 
     ALOGI("--%s", STR_BT_MP_REG_RW);
-    return rtn;
+    return ret;
 }
 
 void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *pBtModule)

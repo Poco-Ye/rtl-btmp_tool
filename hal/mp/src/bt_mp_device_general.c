@@ -162,7 +162,12 @@ int BTDevice_SetPowerDac(BT_DEVICE *pBtDevice, uint8_t DacValue)
  *  [181]Phyical map[1][010][Len=4][0f,6e,44,33,]-->[n=0,180-44 33]
  */
 #define MAX_BANK_SIZE 1024
-int BTDevice_SpecialFunction_Efuse_PGEfuseRawData(BT_DEVICE *pBtDevice, int MapType, uint8_t *PGData, uint32_t PGDataLength)
+int BTDevice_PGEfuseRawData(
+        BT_DEVICE *pBtDevice,
+        int MapType,
+        uint8_t *PGData,
+        uint32_t PGDataLength
+        )
 {
     int rtn = BT_FUNCTION_SUCCESS;
     uint32_t Bank1_PGlength=0;

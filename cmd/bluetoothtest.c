@@ -429,43 +429,17 @@ void bdt_exec(char *p)
     check_return_status(STR_BT_MP_EXEC, status);
 }
 
-void bdt_report_tx(char *p)
+void bdt_report(char *p)
 {
     if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT_TX);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORT_TX, STR_BT_NOT_ENABLED);
+        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT);
+        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORT, STR_BT_NOT_ENABLED);
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportTx, p);
+    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_Report, p);
 
-    check_return_status(STR_BT_MP_REPORT_TX, status);
-}
-
-void bdt_report_cont_tx(char *p)
-{
-    if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT_CONT_TX);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORT_CONT_TX, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportContTx, p);
-
-    check_return_status(STR_BT_MP_REPORT_CONT_TX, status);
-}
-
-void bdt_report_rx(char *p)
-{
-    if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT_RX);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORT_RX, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_ReportRx, p);
-
-    check_return_status(STR_BT_MP_REPORT_RX, status);
+    check_return_status(STR_BT_MP_REPORT, status);
 }
 
 void bdt_reg_rw(char *p)
@@ -593,19 +567,9 @@ void do_Exec(char *p)
     bdt_exec(p);
 }
 
-void do_ReportTx(char *p)
+void do_Report(char *p)
 {
-    bdt_report_tx(p);
-}
-
-void do_ReportContTx(char *p)
-{
-    bdt_report_cont_tx(p);
-}
-
-void do_ReportRx(char *p)
-{
-    bdt_report_rx(p);
+    bdt_report(p);
 }
 
 void do_RegRW(char *p)
@@ -654,9 +618,7 @@ const t_cmd console_cmd_list[] =
 
     { STR_BT_MP_EXEC, do_Exec, ":: Execute specific action<action id>", 0 },
 
-    { STR_BT_MP_REPORT_TX, do_ReportTx, ":: Report Pkt Tx<TotalTxBits,TotalTxCounts>", 0 },
-    { STR_BT_MP_REPORT_CONT_TX, do_ReportContTx, ":: Report Pkt Continue Tx<TotalTxBits,TotalTxCounts>", 0 },
-    { STR_BT_MP_REPORT_RX, do_ReportRx, ":: Report Pkt Rx<RxRssi,TotalRxBits,TotalRxCounts,TotalRxErrorBits>", 0 },
+    { STR_BT_MP_REPORT, do_Report, ":: Report specific info according to item selected", 0 },
 
     { STR_BT_MP_REG_RW, do_RegRW, ":: R/W Modem, RF, SYS & BB registers", 0 },
 

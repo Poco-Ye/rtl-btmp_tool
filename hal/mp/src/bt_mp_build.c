@@ -103,7 +103,7 @@ BuildBluetoothDevice(
     pBtDevice->BTDlFW               =       bt_default_BTDlFW;
     pBtDevice->BTDlMERGERFW         =       bt_default_BTDlMergerFW;
     //PG Efuse
-    pBtDevice->BT_SP_PGEfuseRawData =       BTDevice_SpecialFunction_Efuse_PGEfuseRawData;
+    pBtDevice->BT_PGEfuseRawData    =       BTDevice_PGEfuseRawData;
     //Table
     pBtDevice->SetTxGainTable(pBtDevice,pTxGainTable);
     pBtDevice->SetTxDACTable(pBtDevice,pTxDACTable);

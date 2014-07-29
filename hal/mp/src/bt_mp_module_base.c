@@ -22,9 +22,6 @@ int BTModule_ActionReport(
     uint32_t i;
 
     switch (ActiceItem) {
-    case NO_THING:
-        break;
-
     case REPORT_PKT_TX:
         pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         pReport->TotalTXBits = pModuleBtReport->TotalTXBits;
@@ -37,7 +34,7 @@ int BTModule_ActionReport(
         pReport->TotalTxCounts = pModuleBtReport->TotalTxCounts;
         break;
 
-    case REPORT_RX:
+    case REPORT_PKT_RX:
         pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         pReport->TotalRXBits = pModuleBtReport->TotalRXBits;
         pReport->TotalRxCounts = pModuleBtReport->TotalRxCounts;
@@ -69,7 +66,6 @@ int BTModule_ActionReport(
         break;
 
     case REPORT_ALL:
-    default:
         pReport->TotalTXBits = pModuleBtReport->TotalTXBits;
         pReport->TotalTxCounts = pModuleBtReport->TotalTxCounts;
         pReport->TotalRXBits = pModuleBtReport->TotalRXBits;
@@ -90,15 +86,13 @@ int BTModule_ActionReport(
         break;
 
     case REPORT_TX_GAIN_TABLE:
-        for( i = 0 ; i <MAX_TXGAIN_TABLE_SIZE; i++)
-        {
+        for( i = 0 ; i <MAX_TXGAIN_TABLE_SIZE; i++) {
             pReport->CurrTXGainTable[i] = pModuleBtDevice->TXGainTable[i];
         }
         break;
 
     case REPORT_TX_DAC_TABLE:
-        for(i = 0 ; i <MAX_TXDAC_TABLE_SIZE; i++)
-        {
+        for(i = 0 ; i <MAX_TXDAC_TABLE_SIZE; i++) {
             pReport->CurrTXDACTable[i]= pModuleBtDevice->TXDACTable[i];
         }
         break;
@@ -107,13 +101,16 @@ int BTModule_ActionReport(
         rtn = pModuleBtDevice->GetRtl8761Xtal(pModuleBtDevice, &pReport->CurrRtl8761Xtal);
         break;
 
-
     case REPORT_THERMAL:
         rtn = pModuleBtDevice->ReadThermal(pModuleBtDevice, pBtModule->pBtParam, &pReport->CurrThermalValue);
         break;
 
     case REPORT_BT_STAGE:
         rtn = pModuleBtDevice->GetStage(pModuleBtDevice, &pReport->CurrStage);
+        break;
+
+    default:
+        rtn = FUNCTION_ERROR;
         break;
     }
 
@@ -592,17 +589,16 @@ BTModule_ExecRawData(
     BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
     uint8_t Command = pParam->mPGRawData[0];
 
-    switch (Command)
-    {
-        case PG_BTMAP_RAWDATA:
-            rtn = pModuleBtDevice->BT_SP_PGEfuseRawData(pModuleBtDevice,BT_EFUSE,&pParam->mPGRawData[2],pParam->mPGRawData[1]);
-            break;
-        case PG_SYAMAP_RAWDATA:
-            rtn = pModuleBtDevice->BT_SP_PGEfuseRawData(pModuleBtDevice,SYS_EFUSE,&pParam->mPGRawData[2],pParam->mPGRawData[1]);
-            break;
-        case EXEC_NOTTNING:
-        default:
-            break;
+    switch (Command) {
+    case PG_BTMAP_RAWDATA:
+        rtn = pModuleBtDevice->BT_PGEfuseRawData(pModuleBtDevice,BT_EFUSE,&pParam->mPGRawData[2],pParam->mPGRawData[1]);
+        break;
+    case PG_SYAMAP_RAWDATA:
+        rtn = pModuleBtDevice->BT_PGEfuseRawData(pModuleBtDevice,SYS_EFUSE,&pParam->mPGRawData[2],pParam->mPGRawData[1]);
+        break;
+    case EXEC_NOTTNING:
+    default:
+        break;
     }
 
     return rtn;
