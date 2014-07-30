@@ -13,8 +13,6 @@ LOCAL_SRC_FILES += \
     mp/src/bt_mp_build.c \
     mp/src/bt_mp_device_base.c \
     mp/src/bt_mp_device_general.c \
-    mp/src/bt_mp_device_rtl8723a.c \
-    mp/src/bt_mp_device_skip.c \
     mp/src/bt_mp_module_base.c \
     mp/src/bt_user_func.c \
     mp/src/foundation.c \

@@ -49,60 +49,42 @@ typedef enum {
 } BT_REG_TYPE;
 
 typedef enum {
-    NOTTHING = 0,                       //0
-    //Module Select Process
-    MODULE_INIT,                        //1
-    //set table
-    SETTXGAINTABLE,                     //2
-    SETTXDACTABLE,                      //3
-    //Device Setting
-    HCI_RESET,                          //4
-    SET_TXCHANNEL,                      //5
-    SET_RXCHANNEL,                      //6
-    SET_LETXCHANNEL,                    //7
-    SET_POWERGAININDEX,                 //8
-    SET_POWERGAIN,                      //9
-    SET_POWERDAC,                       //10
-    SET_PAYLOADTYPE,                    //11
-    SET_WHITENINGCOFF,                  //12
-    SET_PACKETTYPE,                     //13
-    SET_HITTARGET,                      //14
-    SET_TESTMODE,                       //15
-    SET_MUTIRXENABLE,                   //16
-    //Module Control
-    PACKET_TX_START,                    //17
-    PACKET_TX_START_SET_CHANNEL_PKTTYPE,//18
-    PACKET_TX_UPDATE,                   //19
-    PACKET_TX_SEND_ONE,                 //20
-    PACKET_TX_STOP,                     //21
-
-    PACKET_RX_START,                    //22
-    PACKET_RX_START_SET_CHANNEL_PKTTYPE,//23
-    PACKET_RX_UPDATE,                   //24
-    PACKET_RX_STOP,                     //25
-
-    CONTINUE_TX_START,                  //26
-    CONTINUE_TX_UPDATE,                 //27
-    CONTINUE_TX_STOP,                   //28
-
-    CONTINUE_TX_LE_START,               //29
-    CONTINUE_TX_LE_UPDATE,              //30
-    CONTINUE_TX_LE_STOP,                //31
-    HOPPING_DWELL_TIME,                 //32
-    //Report
-    REPORT_CLEAR,                       //33
-
-    TEST_MODE_ENABLE,                   //34
-    SET_PACKET_HEADER,                  //35
-    SET_DEFAULT_TX_GAIN_TABLE,          //36
-    SET_DEFAULT_TX_DAC_TABLE,           //37
-    SET_RTL8761_XTAL,                   //38
-    // Efuse setting
-    EXEC_USE_RAWDATA,                   //39
+    HCI_RESET = 0,                  //0
+    // test mode
+    TEST_MODE_ENABLE,               //1
+    // efuse setting
+    PG_EFUSE_RAWDATA,               //2
+    // set table
+    SET_TX_GAIN_TABLE,              //3
+    SET_TX_DAC_TABLE,               //4
+    SET_DEFAULT_TX_GAIN_TABLE,      //5
+    SET_DEFAULT_TX_DAC_TABLE,       //6
+    // set power
+    SET_POWER_GAIN_INDEX,           //7
+    SET_POWER_GAIN,                 //8
+    SET_POWER_DAC,                  //9
+    // set xtal
+    SET_XTAL,                       //10
+    // report clear
+    REPORT_CLEAR,                   //11
+    // pkt tx
+    PACKET_TX_START,                //12
+    PACKET_TX_UPDATE,               //13
+    PACKET_TX_STOP,                 //14
+    // continue tx
+    CONTINUE_TX_START,              //15
+    CONTINUE_TX_UPDATE,             //16
+    CONTINUE_TX_STOP,               //17
+    // pkt rx
+    PACKET_RX_START,                //18
+    PACKET_RX_UPDATE,               //19
+    PACKET_RX_STOP,                 //20
+    // hopping mode
+    HOPPING_DWELL_TIME,             //21
     // LE
-    LE_TX_DUT_TEST_CMD,                 //40
-    LE_RX_DUT_TEST_CMD,                 //41
-    LE_DUT_TEST_END_CMD,                //42
+    LE_TX_DUT_TEST_CMD,             //22
+    LE_RX_DUT_TEST_CMD,             //23
+    LE_DUT_TEST_END_CMD,            //24
 
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
@@ -120,8 +102,6 @@ typedef enum {
     BT_PAYLOAD_TYPE_NUM = 8
 } BT_PAYLOAD_TYPE;
 
-
-
 typedef enum {
     BT_PKT_1DH1 = 0,
     BT_PKT_1DH3,
@@ -133,9 +113,8 @@ typedef enum {
     BT_PKT_3DH3,
     BT_PKT_3DH5,
     BT_PKT_LE,
-
     BT_PKT_TYPE_NULL,
-    BT_PKT_TYPE_RTL8723A,
+
     BT_PKT_TYPE_NUM
 } BT_PKT_TYPE;
 
@@ -461,7 +440,6 @@ typedef int
         uint8_t DacValue
         );
 
-//------------------------------------------------------------------------------------------------------------------
 //-->Register Read/Write
 typedef int
 (*BT_FP_SET_MD_REG_MASK_BITS)(
@@ -499,7 +477,6 @@ typedef int
         uint16_t *pReadingValue
         );
 
-//------------------------------------------------------------------------------------------------------------------
 //-->BASE
 typedef int
 (*BT_BASE_FP_HITTARGETACCRESSCODEGEN)(
@@ -516,7 +493,6 @@ typedef int
         unsigned int *ValidFlag
         );
 
-//------------------------------------------------------------------------------------------------------------------
 //-->Control Flow
 typedef int(*BT_FP_SET_CONTINUETX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_CONTINUETX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
@@ -666,7 +642,7 @@ typedef enum _BT_REPORT_TAG {
     REPORT_PKT_RX,
     REPORT_TX_GAIN_TABLE,
     REPORT_TX_DAC_TABLE,
-    REPORT_RTL8761_XTAL,
+    REPORT_XTAL,
     REPORT_THERMAL,
     REPORT_BT_STAGE,
     REPORT_CHIP,

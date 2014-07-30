@@ -44,7 +44,7 @@ static unsigned int  Arrary_PayloadLength[BT_PKT_TYPE_NUM]={
     216,1464,2712,  //1M
     432,2936,5432,  //2M
     664,4416,8168,  //3M
-    296,296,296     //LE
+    296,296         //LE
 };
 
 #define OCF_HCI_WRITE_SCAN_ENABLE   0x1A
@@ -1946,35 +1946,30 @@ int BTBASE_GetPayLoadTypeValidFlag(BT_DEVICE *pBtDevice,BT_TEST_MODE TestMode,BT
     {
         {1,1,1,1,1,1,1,1},      //General
         {1,1,0,1,0,0,1,1},      //LE
-        {1,1,1,1,1,0,0,0}       //RTL8723A
-
     };
     int Arrary_PayloadType_DUTMODE_ValidFlag[3][BT_PAYLOAD_TYPE_NUM]=
     {
         {1,1,1,0,0,0,1,0},      //General
         {1,1,0,1,0,0,1,1},      //LE
-        {1,1,1,0,0,0,1,0}       //RTL8723A
-
     };
+
     if (PKT_TYPE == BT_PKT_LE)
         index=1;
-    else if( PKT_TYPE== BT_PKT_TYPE_RTL8723A)
-        index=2;
     else
         index=0;
-    switch (TestMode)
-    {
-        case BT_DUT_MODE:
-            pFlag=Arrary_PayloadType_DUTMODE_ValidFlag[index];
-            break;
-        case BT_PSEUDO_MODE:
-            pFlag=Arrary_PayloadType_PseudoOuterMODE_ValidFlag[index];
-            break;
-        default:
-            goto error;
+
+    switch (TestMode) {
+    case BT_DUT_MODE:
+        pFlag=Arrary_PayloadType_DUTMODE_ValidFlag[index];
+        break;
+    case BT_PSEUDO_MODE:
+        pFlag=Arrary_PayloadType_PseudoOuterMODE_ValidFlag[index];
+        break;
+    default:
+        goto error;
     }
-    if (ValidFlag != NULL)
-    {
+
+    if (ValidFlag != NULL) {
         for (i=0;i<BT_PAYLOAD_TYPE_NUM;i++)
             ValidFlag[i]=pFlag[i];
     }
