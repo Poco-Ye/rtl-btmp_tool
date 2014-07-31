@@ -173,9 +173,6 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         ret = BT_SendHciCmd(&BtModuleMemory, buf, pNotifyBuffer);
         break;
 
-    case BT_MP_OP_DUT_MODE_CONFIGURE:
-        break;
-
     case BT_MP_OP_USER_DEF_GetParam:
         ret = BT_GetParam(&BtModuleMemory, buf, pNotifyBuffer);
         break;

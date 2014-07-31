@@ -335,22 +335,6 @@ void bdt_disable(void)
     sBtInterface->cleanup();
 }
 
-void bdt_dut_mode_configure(char *p)
-{
-    int32_t mode = -1;
-
-    ALOGI("BT DUT MODE CONFIGURE");
-    if (!bt_enabled) {
-        ALOGI("Bluetooth must be enabled for test_mode to work.");
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_DUT_MODE, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_DUT_MODE_CONFIGURE, p);
-
-    check_return_status(STR_BT_MP_DUT_MODE, status);
-}
-
 void bdt_get_params(char *p)
 {
     if (!bt_enabled) {
@@ -532,11 +516,6 @@ void do_disable(char *p)
     bdt_disable();
 }
 
-void do_dut_mode_configure(char *p)
-{
-    bdt_dut_mode_configure(p);
-}
-
 void do_GetParam(char *p)
 {
     bdt_get_params(p);
@@ -605,7 +584,6 @@ const t_cmd console_cmd_list[] =
     /* Init and Cleanup shall be called automatically */
     { STR_BT_MP_ENABLE, do_enable, ":: Enable bluetooth", 0 },
     { STR_BT_MP_DISABLE, do_disable, ":: Disable bluetooth", 0 },
-    { STR_BT_MP_DUT_MODE, do_dut_mode_configure, ":: DUT mode - 1 to enter,0 to exit", 0 },
 
     { STR_BT_MP_HCI_CMD, do_hci, ":: Send HCI Commands", 0 },
 

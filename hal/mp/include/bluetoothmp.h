@@ -36,7 +36,6 @@ __BEGIN_DECLS
 enum BT_MP_OPCODE {
 
     BT_MP_OP_HCI_SEND_CMD = 0x00,
-    BT_MP_OP_DUT_MODE_CONFIGURE = 0x01,
 
     BT_MP_OP_USER_DEF_GetParam = 0x10,
     BT_MP_OP_USER_DEF_SetParam = 0x11,
@@ -52,7 +51,6 @@ enum BT_MP_OPCODE {
 /** MP opcode string */
 #define STR_BT_MP_ENABLE        "enable"
 #define STR_BT_MP_DISABLE       "disable"
-#define STR_BT_MP_DUT_MODE      "dut_mode_configure"
 
 #define STR_BT_MP_HCI_CMD           "bt_mp_HciCmd"
 #define STR_BT_MP_GET_PARAM         "bt_mp_GetParam"

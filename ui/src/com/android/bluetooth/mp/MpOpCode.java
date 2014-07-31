@@ -2,7 +2,6 @@ package com.android.bluetooth.mp;
 
 public final class MpOpCode {
     public static final int BT_MP_OP_CODE_HCI_SEND_CMD       = 0x0000;
-    public static final int BT_MP_OP_CODE_DUT_MODE_CONFIGURE = 0x0001;
 
     public static final int BT_MP_OP_CODE_GetParam       =   0x0010;
     public static final int BT_MP_OP_CODE_SetParam       =   0x0011;
@@ -51,7 +50,6 @@ public final class MpOpCode {
     // Copied from bluetoothmp.h
     public static final String STR_BT_MP_ENABLE           =   "enable";
     public static final String STR_BT_MP_DISABLE          =   "disable";
-    public static final String STR_BT_MP_DUT_MODE         =   "dut_mode_configure";
 
     public static final String STR_BT_MP_HCI_CMD          =   "bt_mp_HciCmd";
     public static final String STR_BT_MP_GET_PARAM        =   "bt_mp_GetParam";
