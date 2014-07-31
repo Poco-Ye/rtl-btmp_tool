@@ -16,13 +16,9 @@
     <string name="Whitening_Value">Whitening Value</string>
     <!-- param2 -->
     <string name="Tx_Gain_Index">Tx Gain Index</string>
-    <string name="Test_Mode">Test Mode</string>
     <string name="Tx_Dac">Tx Dac</string>
     <string name="Pkt_Header">Packet Header</string>
-    <string name="Multi_Rx_Enable">Mulit Rx Enable</string>
-    <!-- param3 -->
     <string name="Hopping_Fix_Channel">Hopping Fix Channel</string>
-    <!-- hit target -->
     <string name="Hit_Target">Hit Target</string>
     <!-- tx gain table-->
     <string name="Tx_Gain_Table">Tx Gain Table</string>
@@ -41,7 +37,7 @@
     <string name="Tx_Dac_Table3">T3</string>
     <string name="Tx_Dac_Table4">T4</string>
     <!-- rtl8761 xtal -->
-    <string name="RTL8761_Xtal">RTL8761 Xtal</string>
+    <string name="Xtal">Xtal</string>
     <!-- register ID -->
     <string name="Register_ID">Reg ID</string>
     <string name="Reg_RW">R/W</string>
@@ -51,9 +47,9 @@
     <string name="Reg_Lsb">Lsb</string>
     <string name="Reg_Data">Data</string>
     <!-- get thermal -->
-    <string name="Get_Thermal">Get Thermal</string>
+    <string name="Thermal">Thermal</string>
     <!-- get stage -->
-    <string name="Get_Stage">Get Stage</string>
+    <string name="Stage">Stage</string>
     <!-- rx report-->
     <string name="Rx_Rssi">Rx Rssi</string>
     <string name="Rx_Bits">Rx Bits</string>
@@ -80,19 +76,18 @@
     <string name="hint_Whitening_Value">xx</string>
     <string name="hint_Tx_Dac">xx</string>
     <string name="hint_Pkt_Header">xxxx</string>
-    <string name="hint_Multi_Rx_Enable">xx</string>
     <string name="hint_Hopping_Fix_Channel">xx</string>
     <string name="hint_Hit_Target">xxxxxx</string>
     <string name="hint_Tx_Gain_Table">xx</string>
     <string name="hint_Tx_Dac_Table">xx</string>
-    <string name="hint_RTL8761_Xtal">xxxxxxxx</string>
+    <string name="hint_Xtal">xxxxxxxx</string>
     <string name="hint_Reg_Page">xx</string>
     <string name="hint_Reg_Addr">xx</string>
     <string name="hint_Reg_Msb">xx</string>
     <string name="hint_Reg_Lsb">xx</string>
     <string name="hint_Reg_Data">xxxxxxxx</string>
-    <string name="hint_Get_Thermal">xx</string>
-    <string name="hint_Get_Stage">xx</string>
+    <string name="hint_Thermal">xx</string>
+    <string name="hint_Stage">xx</string>
     <string name="hint_Rx_Rssi">xx</string>
     <string name="hint_Rx_Bits">xxxx</string>
     <string name="hint_Rx_Err_Bits">xxxx</string>

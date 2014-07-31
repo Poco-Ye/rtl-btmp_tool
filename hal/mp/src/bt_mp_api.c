@@ -65,10 +65,6 @@
 #define BT_PARAM_IDX14   14  //Xtal
 #define BT_PARAM_IDX_NUM 15
 
-typedef struct _EVENT_STRING {
-    char EventData[3];//,XX
-} EVENT_STRING;
-
 static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
 {
     switch (index) {
@@ -563,12 +559,10 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
     uint8_t ParamLen = 0;
     uint8_t ParamLen_1 = 0;
     uint8_t ParamArray[255];
-
-    uint8_t params_count = 0;
-
     uint8_t pEvent[255] = {0};
-    EVENT_STRING pEventString[255];
+    char evt_str[6] = {0};
     uint32_t EventLen = 0;
+    uint8_t params_count = 0;
     uint8_t i = 0;
 
     ALOGI("++%s: %s", STR_BT_MP_HCI_CMD, p);
@@ -609,24 +603,21 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
     }
 
     ret = pBtModule->SendHciCommandWithEvent(pBtModule, OpCode, ParamLen, ParamArray, 0x0E, pEvent, &EventLen);
-
-    ALOGI("%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, ret);
-
     if (ret == BT_FUNCTION_SUCCESS) {
         sprintf(pNotifyBuffer, "%s", STR_BT_MP_HCI_CMD);
         for (i = 0; i < EventLen; i++) {
-            sprintf(pEventString[i].EventData, "%s%x", STR_BT_MP_RESULT_DELIM, pEvent[i]);
-            strcat(pNotifyBuffer, pEventString[i].EventData);
+            sprintf(evt_str, "%s0x%02x", STR_BT_MP_RESULT_DELIM, pEvent[i]);
+            strcat(pNotifyBuffer, evt_str);
         }
     } else {
         goto exit;
     }
 
-    ALOGI("--%s", STR_BT_MP_HCI_CMD);
+    ALOGI("--%s%s0x%02x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, ret);
     return ret;
 
 exit:
-    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+    sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
     return ret;
 }
 
@@ -667,7 +658,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
         bt_index2print(pBtModule, index, pNotifyBuffer);
     } else {
         /* print all exposed params if not specified[Deprecated] */
-        ALOGI("%s%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%012llx",
+        ALOGI("%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%012llx",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mChannelNumber,
@@ -692,7 +683,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHitTarget);
 
-        sprintf(pNotifyBuffer, "%s%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%x%s%012llx",
+        sprintf(pNotifyBuffer, "%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%012llx",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mChannelNumber,
@@ -884,7 +875,7 @@ exit:
     ALOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM1, params_count);
 
     if (params_count != BT_PARAM1_COUNT) {
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+        sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
         ret = FUNCTION_PARAMETER_ERROR;
     } else {
         ALOGI("mChannelNumber:0x%02x, mPacketType:0x%02x, mPayloadType:0x%02x, "
@@ -897,7 +888,7 @@ exit:
               pBtModule->pBtParam->mWhiteningCoeffValue
              );
 
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
     ALOGI("--%s", STR_BT_MP_SET_PARAM1);
@@ -969,7 +960,7 @@ exit:
     ALOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM2, params_count);
 
     if (params_count != BT_PARAM2_COUNT) {
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+        sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
         ret = FUNCTION_PARAMETER_ERROR;
     } else {
         ALOGI("mTxGainIndex:0x%02x, mTxDAC:0x%02x, mPacketHeader:0x%04x, "
@@ -981,7 +972,7 @@ exit:
                 pBtModule->pBtParam->mHitTarget
              );
 
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+        sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
     ALOGI("--%s", STR_BT_MP_SET_PARAM2);
@@ -1017,12 +1008,12 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
                     mode = (int8_t)strtol(param_token, NULL, 0);
                     if (mode < 0 || mode > 3) {
                         ALOGI("Invalid file mode %d", mode);
-                        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+                        sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
                         return FUNCTION_PARAMETER_ERROR;
                     }
                 } else if (param_token && params_count > 1) {
                     ALOGI("Invalid config pair format<%s>", pair_token);
-                    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+                    sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
                     return FUNCTION_PARAMETER_ERROR;
                 } else if (param_token == NULL) // null token OR token parsing completed
                     break;
@@ -1032,12 +1023,12 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
                 fd = open(config_path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
                 if (fd < 0) {
                     ALOGI("Failed to open config file: %s", strerror(errno));
-                    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
+                    sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
                     return FUNCTION_ERROR;
                 }
             } else {
                 ALOGI("Invalid config pair format<%s>", pair_token);
-                sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+                sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
                 return FUNCTION_PARAMETER_ERROR;
             }
         } else {
@@ -1061,7 +1052,7 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
                 count = write(fd, buffer, params_count);
             if (count < 0) {
                 ALOGI("Failed to write config file<%s>", strerror(errno));
-                sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
+                sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
                 close(fd);
                 return FUNCTION_ERROR;
             }
@@ -1072,7 +1063,7 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *pNotifyBuffer)
 
     ALOGI("--%s: pairs count %d", STR_BT_MP_SET_CONFIG, pairs_count);
 
-    sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+    sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
 
     return BT_FUNCTION_SUCCESS;
 }
@@ -1199,7 +1190,7 @@ exit:
             ret);
 
     sprintf(pNotifyBuffer, "%s%s%d%s0x%02x",
-            STR_BT_MP_GET_PARAM,
+            STR_BT_MP_REPORT,
             STR_BT_MP_RESULT_DELIM,
             report_item,
             STR_BT_MP_RESULT_DELIM,
@@ -1309,18 +1300,18 @@ exit:
     if (type == BB_REG) REGRW_PARAM_COUNT++;
 
     if (params_count != REGRW_PARAM_COUNT) {
-        sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
+        sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
     } else {
         ALOGI("BT_RegRW: type 0x%x, rw 0x%x, page 0x%x, address 0x%04x, msb 0x%x, lsb 0x%x, data 0x%08x",
                 type, rw, page, address, msb, lsb, data);
 
         if (rw == 0) {
             ret = pBtModule->GetRegMaskBits(pBtModule, type, page, address, msb, lsb, &data);
-            sprintf(pNotifyBuffer, "%s%s%x%s%08x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, ret,
+            sprintf(pNotifyBuffer, "%s%s0x%02x%s0x%08x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, ret,
                     STR_BT_MP_RESULT_DELIM, data);
         } else {
             ret = pBtModule->SetRegMaskBits(pBtModule, type, page, address, msb, lsb, data);
-            sprintf(pNotifyBuffer, "%s%s%x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, ret);
+            sprintf(pNotifyBuffer, "%s%s0x%02x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, ret);
         }
 
     }

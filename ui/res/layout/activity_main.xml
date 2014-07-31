@@ -9,10 +9,10 @@
   <!-- part1 -->
   <LinearLayout
     android:orientation="vertical"
+    android:background="#ffffff"
     android:layout_width="match_parent"
     android:layout_height="0px"
     android:layout_weight="2" >
-
     <!-- part1-L1 interface, dev_node, on/off switch -->
     <LinearLayout
       android:orientation="horizontal"
@@ -54,7 +54,6 @@
         android:focusable="false"
         android:clickable="true" />
     </LinearLayout>
-
     <!-- part1-L2 action item, start/stop button -->
     <LinearLayout
       android:orientation="horizontal"
@@ -95,17 +94,15 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="0px"
-    android:layout_weight="10" >
-    <!-- part2-L1 params button bar -->
-    <include layout="@layout/buttonbar" />
-    <!-- part2-L2 add contents -->
-    <!-- FIXME currently we list all the items here, no fragments -->
-    <!-- param1, param2 and param3 -->
+    android:layout_weight="8" >
+    <!-- part2-L1 params array: divided into 2 chunks -->
+    <!-- param1 & param2: use get/set param interface -->
     <LinearLayout
       android:orientation="horizontal"
       android:layout_width="match_parent"
       android:layout_height="0px"
       android:layout_weight="1" >
+      <!-- start of param1 -->
       <TextView
         android:text="@string/RF_Channel"
         android:gravity="bottom|center"
@@ -201,20 +198,6 @@
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
-<!--
-      <TextView
-        android:text="@string/Test_Mode"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <Spinner
-        android:id="@+id/spinner_Test_Mode"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
--->
       <TextView
         android:text="@string/Tx_Dac"
         android:gravity="bottom|center"
@@ -247,24 +230,6 @@
         android:layout_width="0px"
         android:layout_weight="1"
         android:hint="@string/hint_Pkt_Header" />
-<!--
-      <TextView
-        android:text="@string/Multi_Rx_Enable"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Multi_Rx_Enable"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Multi_Rx_Enable" />
--->
-        <!-- end of param2 -->
-      <!-- start of param3 -->
-      <!--share RF channel, pkt type & whitening value -->
       <TextView
         android:text="@string/Hopping_Fix_Channel"
         android:gravity="bottom|center"
@@ -278,8 +243,6 @@
         android:layout_width="0px"
         android:layout_weight="1"
         android:hint="@string/hint_Hopping_Fix_Channel" />
-      <!-- end of param3 -->
-      <!-- hit target -->
       <TextView
         android:text="@string/Hit_Target"
         android:gravity="bottom|center"
@@ -292,7 +255,9 @@
         android:layout_width="0px"
         android:layout_weight="2"
         android:hint="@string/hint_Hit_Target" />
+      <!-- end of param2 -->
     </LinearLayout>
+    <!-- part2-L2: all report items -->
     <!-- tx gain table -->
     <LinearLayout
       android:orientation="horizontal"
@@ -463,25 +428,158 @@
         android:layout_weight="1"
         android:hint="@string/hint_Tx_Dac_Table" />
     </LinearLayout>
-    <!-- set/get rtl8761 xtal -->
+    <!-- set/get xtal, get thermal, get stage  -->
     <LinearLayout
       android:orientation="horizontal"
       android:layout_width="match_parent"
       android:layout_height="0px"
       android:layout_weight="1" >
       <TextView
-        android:text="@string/RTL8761_Xtal"
+        android:text="@string/Xtal"
         android:gravity="bottom|center"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1" />
       <EditText
-        android:id="@+id/editText_RTL8761_Xtal"
+        android:id="@+id/editText_Xtal"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="2"
+        android:hint="@string/hint_Xtal" />
+      <TextView
+        android:text="@string/Thermal"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Thermal"
+        android:gravity="bottom|center"
         android:layout_height="match_parent"
         android:layout_width="0px"
         android:layout_weight="1"
-        android:hint="@string/hint_RTL8761_Xtal" />
+        android:hint="@string/hint_Thermal" />
+      <TextView
+        android:text="@string/Stage"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Stage"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Stage" />
     </LinearLayout>
+    <!-- Rx report -->
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
+      <TextView
+        android:text="@string/Rx_Rssi"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Rx_Rssi"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Rx_Rssi"
+        android:inputType="number"/>
+      <TextView
+        android:text="@string/Rx_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Rx_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Rx_Bits"
+        android:inputType="number"/>
+      <TextView
+        android:text="@string/Rx_Err_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Rx_Err_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Rx_Err_Bits"
+        android:inputType="number"/>
+      <TextView
+        android:text="@string/Rx_Pkt_Counts"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Rx_Pkt_Counts"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Rx_Pkt_Counts"
+        android:inputType="number"/>
+    </LinearLayout>
+    <!-- Tx report -->
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="0px"
+      android:layout_weight="1" >
+      <TextView
+        android:text="@string/Tx_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Bits"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Bits"
+        android:inputType="number"/>
+      <TextView
+        android:text="@string/Tx_Pkt_Counts"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1" />
+      <EditText
+        android:id="@+id/editText_Tx_Pkt_Counts"
+        android:gravity="bottom|center"
+        android:layout_height="match_parent"
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:hint="@string/hint_Tx_Pkt_Counts"
+        android:inputType="number"/>
+    </LinearLayout>
+  </LinearLayout>
+
+  <!-- part3 -->
+  <LinearLayout
+    android:orientation="vertical"
+    android:background="#ffffff"
+    android:layout_width="match_parent"
+    android:layout_height="0px"
+    android:layout_weight="1" >
     <!-- set modem, RF, sys & BB registers -->
     <LinearLayout
       android:orientation="horizontal"
@@ -571,38 +669,6 @@
         android:layout_weight="3"
         android:hint="@string/hint_Reg_Data" />
     </LinearLayout>
-    <LinearLayout
-      android:orientation="horizontal"
-      android:layout_width="match_parent"
-      android:layout_height="0px"
-      android:layout_weight="1" >
-      <TextView
-        android:text="@string/Get_Thermal"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Get_Thermal"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Get_Thermal" />
-      <TextView
-        android:text="@string/Get_Stage"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Get_Stage"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Get_Stage" />
-    </LinearLayout>
   </LinearLayout>
 
 <!--
@@ -671,111 +737,6 @@
         android:text="@string/Pause"/>
 -->
 
-  <!-- part3 -->
-  <LinearLayout
-    android:orientation="vertical"
-    android:background="#ffffff"
-    android:layout_width="match_parent"
-    android:layout_height="0px"
-    android:layout_weight="2" >
-    <!-- Rx, Tx report -->
-    <LinearLayout
-      android:orientation="horizontal"
-      android:layout_width="match_parent"
-      android:layout_height="0px"
-      android:layout_weight="1" >
-      <TextView
-        android:text="@string/Rx_Rssi"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Rx_Rssi"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Rx_Rssi"
-        android:inputType="number"/>
-      <TextView
-        android:text="@string/Rx_Bits"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Rx_Bits"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Rx_Bits"
-        android:inputType="number"/>
-      <TextView
-        android:text="@string/Rx_Err_Bits"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Rx_Err_Bits"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Rx_Err_Bits"
-        android:inputType="number"/>
-      <TextView
-        android:text="@string/Rx_Pkt_Counts"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Rx_Pkt_Counts"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Rx_Pkt_Counts"
-        android:inputType="number"/>
-    </LinearLayout>
-    <LinearLayout
-      android:orientation="horizontal"
-      android:layout_width="match_parent"
-      android:layout_height="0px"
-      android:layout_weight="1" >
-      <TextView
-        android:text="@string/Tx_Bits"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Tx_Bits"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Tx_Bits"
-        android:inputType="number"/>
-      <TextView
-        android:text="@string/Tx_Pkt_Counts"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1" />
-      <EditText
-        android:id="@+id/editText_Tx_Pkt_Counts"
-        android:gravity="bottom|center"
-        android:layout_height="match_parent"
-        android:layout_width="0px"
-        android:layout_weight="1"
-        android:hint="@string/hint_Tx_Pkt_Counts"
-        android:inputType="number"/>
-    </LinearLayout>
-  </LinearLayout>
 
   <!-- part4 -->
   <LinearLayout

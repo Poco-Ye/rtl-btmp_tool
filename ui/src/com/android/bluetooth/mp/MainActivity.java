@@ -67,10 +67,8 @@ public class MainActivity extends Activity {
     Spinner mspPktType = null;
     Spinner mspPayloadType = null;
     Spinner mspTxGainIndex = null;
-    //Spinner mspTestMode = null;
     Spinner mspRegID = null;
     Spinner mspRegRW = null;
-    //Spinner mspHitTarget = null;
     //Spinner mspLEConnect = null;
     //EditText
     EditText metxDevNode = null;
@@ -82,7 +80,6 @@ public class MainActivity extends Activity {
     EditText metxWhiteningValue = null;
     EditText metxTxDac = null;
     EditText metxPacketHeader = null;
-    //EditText metxMultiRxEnable = null;
     EditText metxHoppingFixChannel = null;
     EditText metxHitTarget = null;
     EditText metxTxGainTable0 = null;
@@ -97,14 +94,14 @@ public class MainActivity extends Activity {
     EditText metxTxDacTable2 = null;
     EditText metxTxDacTable3 = null;
     EditText metxTxDacTable4 = null;
-    EditText metxRTL8761Xtal = null;
+    EditText metxXtal = null;
     EditText metxRegPage = null; // only for Reg BB
     EditText metxRegAddr = null;
     EditText metxRegMsb = null;
     EditText metxRegLsb = null;
     EditText metxRegData = null;
-    EditText metxGetThermal = null;
-    EditText metxGetStage = null;
+    EditText metxThermal = null;
+    EditText metxStage = null;
     EditText metxRxRssi = null;
     EditText metxRxBits = null;
     EditText metxRxErrBits = null;
@@ -140,10 +137,11 @@ public class MainActivity extends Activity {
 
     // Internal Messages
     public static final int MSG_MP_STACK_STATUS = 0;
-    public static final int MSG_MP_ACTION_START_RESULT = 1;
-    public static final int MSG_MP_ACTION_STOP_RESULT = 2;
-    public static final int MSG_HCI_SEND = 3;
-    public static final int MSG_MP_HCI_EVENT = 4;
+    public static final int MSG_MP_ACTION_START = 1;
+    public static final int MSG_MP_ACTION_UPDATE = 2;
+    public static final int MSG_MP_ACTION_STOP = 3;
+    public static final int MSG_HCI_SEND = 4;
+    public static final int MSG_MP_HCI_EVENT = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,10 +180,8 @@ public class MainActivity extends Activity {
         mspPktType = (Spinner) findViewById(R.id.spinner_Pkt_Type);
         mspPayloadType = (Spinner) findViewById(R.id.spinner_Payload_Type);
         mspTxGainIndex = (Spinner) findViewById(R.id.spinner_Tx_Gain_Index);
-        //mspTestMode = (Spinner) findViewById(R.id.spinner_Test_Mode);
         mspRegID = (Spinner) findViewById(R.id.spinner_Register_ID);
         mspRegRW = (Spinner) findViewById(R.id.spinner_Reg_RW);
-        //mspHitTarget = (Spinner) findViewById(R.id.spinner_Hit_Target);
         //mspLEConnect=  (Spinner) findViewById(R.id.spinner_LE_Connect);
         //add intems and listener to all spinners
         InitAllSpinners();
@@ -200,7 +196,6 @@ public class MainActivity extends Activity {
         //metxErrorBits = (EditText) findViewById(R.id.editText_ErrorBits);
         //metxBER = (EditText) findViewById(R.id.editText_BER);
         metxPacketHeader = (EditText) findViewById(R.id.editText_Pkt_Header);
-        //metxMultiRxEnable = (EditText) findViewById(R.id.editText_Multi_Rx_Enable);
         metxHoppingFixChannel = (EditText) findViewById(R.id.editText_Hopping_Fix_Channel);
         metxHitTarget = (EditText) findViewById(R.id.editText_Hit_Target);
         metxTxGainTable0 = (EditText) findViewById(R.id.editText_Tx_Gain_Table0);
@@ -215,14 +210,14 @@ public class MainActivity extends Activity {
         metxTxDacTable2 = (EditText) findViewById(R.id.editText_Tx_Dac_Table2);
         metxTxDacTable3 = (EditText) findViewById(R.id.editText_Tx_Dac_Table3);
         metxTxDacTable4 = (EditText) findViewById(R.id.editText_Tx_Dac_Table4);
-        metxRTL8761Xtal = (EditText) findViewById(R.id.editText_RTL8761_Xtal);
+        metxXtal = (EditText) findViewById(R.id.editText_Xtal);
         metxRegPage = (EditText) findViewById(R.id.editText_Reg_Page);
         metxRegAddr = (EditText) findViewById(R.id.editText_Reg_Addr);
         metxRegMsb = (EditText) findViewById(R.id.editText_Reg_Msb);
         metxRegLsb = (EditText) findViewById(R.id.editText_Reg_Lsb);
         metxRegData = (EditText) findViewById(R.id.editText_Reg_Data);
-        metxGetThermal = (EditText) findViewById(R.id.editText_Get_Thermal);
-        metxGetStage = (EditText) findViewById(R.id.editText_Get_Stage);
+        metxThermal = (EditText) findViewById(R.id.editText_Thermal);
+        metxStage = (EditText) findViewById(R.id.editText_Stage);
         metxRxRssi = (EditText) findViewById(R.id.editText_Rx_Rssi);
         metxRxBits = (EditText) findViewById(R.id.editText_Rx_Bits);
         metxRxErrBits = (EditText) findViewById(R.id.editText_Rx_Err_Bits);
@@ -255,11 +250,20 @@ public class MainActivity extends Activity {
         metxLog.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         // checkBox
-        //cbGetThermal = (CheckBox) findViewById(R.id.checkbox_Get_Thermal);
+        //cbGetThermal = (CheckBox) findViewById(R.id.checkbox_Thermal);
         //cbLEConnect = (CheckBox)findViewById(R.id.checkbox_LE_Connect);
         //add listener to all CheckBoxs
         //cbGetThermal.setOnCheckedChangeListener(new CheckBoxListener());
         //cbLEConnect.setOnCheckedChangeListener(new CheckBoxListener());
+    }
+
+    static private int strParseInt(String string) {
+        if (string.startsWith("0x") || string.startsWith("0X"))
+            return Integer.parseInt(string.substring(2), 16);
+        else if (string.startsWith("0"))
+            return Integer.parseInt(string.substring(1), 8);
+        else
+            return Integer.parseInt(string, 10);
     }
 
     // Update UI here
@@ -282,7 +286,7 @@ public class MainActivity extends Activity {
                     }
                     break;
 
-                case MSG_MP_ACTION_START_RESULT:
+                case MSG_MP_ACTION_START:
                     Log.v(TAG, "MP action start result received: " + msg.arg1);
                     metxLog.append("Start result: " + String.valueOf(msg.arg1) + "\n");
                     // start successfully
@@ -298,7 +302,7 @@ public class MainActivity extends Activity {
                     }
                     break;
 
-                case MSG_MP_ACTION_STOP_RESULT:
+                case MSG_MP_ACTION_STOP:
                     Log.v(TAG, "MP action stop result received: " + msg.arg1);
                     metxLog.append("Stop result: " + String.valueOf(msg.arg1) + "\n");
                     // stop successfully
@@ -338,82 +342,160 @@ public class MainActivity extends Activity {
                                 break;
                             }
                             // RF channel
-                            Log.v(TAG, "rf channel> 0x" + bufArray[1]);
-                            mspRFChannel.setSelection(Integer.parseInt(bufArray[1], 16), true);
+                            Log.v(TAG, "rf channel> " + bufArray[1]);
+                            mspRFChannel.setSelection(strParseInt(bufArray[1]), true);
                             // Packet type
-                            Log.v(TAG, "pkt type> 0x" + bufArray[2]);
-                            mspPktType.setSelection(Integer.parseInt(bufArray[2], 16), true);
+                            Log.v(TAG, "pkt type> " + bufArray[2]);
+                            mspPktType.setSelection(strParseInt(bufArray[2]), true);
                             // Payload type
-                            Log.v(TAG, "payload type> 0x" + bufArray[3]);
-                            mspPayloadType.setSelection(Integer.parseInt(bufArray[3], 16), true);
-                            // TxPkt count
-                            Log.v(TAG, "tx pkt count> 0x" + bufArray[4]);
-                            metxPacketCount.setText("0x" + bufArray[4]);
+                            Log.v(TAG, "payload type> " + bufArray[3]);
+                            mspPayloadType.setSelection(strParseInt(bufArray[3]), true);
+                            // Tx Pkt count
+                            Log.v(TAG, "tx pkt count> " + bufArray[4]);
+                            metxPacketCount.setText("0x" + Integer.toHexString(strParseInt(bufArray[4])));
                             // Tx Gain value
-                            Log.v(TAG, "tx gain value> 0x" + bufArray[5]);
-                            metxTxGainValue.setText("0x" + bufArray[5]);
+                            Log.v(TAG, "tx gain value> " + bufArray[5]);
+                            metxTxGainValue.setText("0x" + Integer.toHexString(strParseInt(bufArray[5])));
                             // Whitening value
-                            Log.v(TAG, "whitening value> 0x" + bufArray[6]);
-                            metxWhiteningValue.setText("0x" + bufArray[6]);
+                            Log.v(TAG, "whitening value> " + bufArray[6]);
+                            metxWhiteningValue.setText("0x" + Integer.toHexString(strParseInt(bufArray[6])));
                             // Tx Gain index
-                            Log.v(TAG, "tx gain index> 0x" + bufArray[7]);
-                            int tx_gain_index = Integer.parseInt(bufArray[7], 16);
+                            Log.v(TAG, "tx gain index> " + bufArray[7]);
+                            int tx_gain_index = strParseInt(bufArray[7]);
                             if (tx_gain_index < 1 || tx_gain_index > 7) {
                                 Log.i(TAG, "Tx Gain index disabled, set to 0");
                                 tx_gain_index = 0;
                             }
                             mspTxGainIndex.setSelection(tx_gain_index, true);
-                            // Test mode
-                            //Log.v(TAG, "tx gain index> " + bufArray[8]);
-                            //mspTestMode.setSelection(Integer.parseInt(bufArray[8], 16), true);
                             // Tx Dac
-                            Log.v(TAG, "tx dac> 0x" + bufArray[8]);
-                            metxTxDac.setText("0x" + bufArray[8]);
+                            Log.v(TAG, "tx dac> " + bufArray[8]);
+                            metxTxDac.setText("0x" + Integer.toHexString(strParseInt(bufArray[8])));
                             // Pkt header
-                            Log.v(TAG, "pkt hdr> 0x" + bufArray[9]);
-                            metxPacketHeader.setText("0x"+bufArray[9]);
+                            Log.v(TAG, "pkt hdr> " + bufArray[9]);
+                            metxPacketHeader.setText("0x" + Integer.toHexString(strParseInt(bufArray[9])));
                             // Hopping fix channel
-                            Log.v(TAG, "hopping fix channel> 0x" + bufArray[10]);
-                            metxHoppingFixChannel.setText(Integer.parseInt(bufArray[10], 10) + "");
-                            // Hit target
-                            Log.v(TAG, "hit target> 0x" + bufArray[11]);
-                            metxHitTarget.setText("0x" + bufArray[11]);
+                            Log.v(TAG, "hopping fix channel> " + bufArray[10]);
+                            metxHoppingFixChannel.setText(strParseInt(bufArray[10]) + "");
+                            // Hit target, must be hex format
+                            Log.v(TAG, "hit target> " + bufArray[11]);
+                            metxHitTarget.setText(bufArray[11]);
                             break;
 
-                        case MpOpCode.BT_MP_OP_CODE_ReportTx:
-                        case MpOpCode.BT_MP_OP_CODE_ReportContTx:
-                            if (bufArray.length != 3 ||
-                                (!bufArray[0].equals(MpOpCode.STR_BT_MP_REPORT_TX) &&
-                                 !bufArray[0].equals(MpOpCode.STR_BT_MP_REPORT_CONT_TX))) {
+                        case MpOpCode.BT_MP_OP_CODE_Report:
+                            if (!bufArray[0].equals(MpOpCode.STR_BT_MP_REPORT)) {
                                 Log.e(TAG, "MP HCI Event Params error");
                                 break;
                             }
-                            // Total tx bits
-                            Log.v(TAG, "total tx bits> " + bufArray[1]);
-                            metxTxBits.setText("0x" + bufArray[1]);
-                            // Total tx counts
-                            Log.v(TAG, "total tx counts> " + bufArray[2]);
-                            metxTxPktCounts.setText("0x" + bufArray[2]);
-                            break;
-
-                        case MpOpCode.BT_MP_OP_CODE_ReportRx:
-                            if (bufArray.length != 5 ||
-                                !bufArray[0].equals(MpOpCode.STR_BT_MP_REPORT_RX)) {
-                                Log.e(TAG, "MP HCI Event Params error");
-                                break;
+                            switch (strParseInt(bufArray[1])) {
+                                case MpOpCode.BT_MP_OP_CODE_ReportTx >> 8:
+                                case MpOpCode.BT_MP_OP_CODE_ReportContTx >> 8:
+                                    if (bufArray.length != 5 || strParseInt(bufArray[2]) != 0) {
+                                        Log.e(TAG, "MP HCI Event Params error");
+                                        break;
+                                    }
+                                    // Total tx bits
+                                    Log.v(TAG, "total tx bits> " + bufArray[3]);
+                                    metxTxBits.setText("0x" + Integer.toHexString(strParseInt(bufArray[3])));
+                                    // Total tx counts
+                                    Log.v(TAG, "total tx counts> " + bufArray[4]);
+                                    metxTxBits.setText("0x" + Integer.toHexString(strParseInt(bufArray[4])));
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_ReportRx >> 8:
+                                    if (bufArray.length != 7 || strParseInt(bufArray[2]) != 0) {
+                                        Log.e(TAG, "MP HCI Event Params error");
+                                        break;
+                                    }
+                                    // Rx Rssi
+                                    Log.v(TAG, "rx rssi> " + bufArray[3]);
+                                    metxRxRssi.setText("" + strParseInt(bufArray[3]));
+                                    // Total rx bits
+                                    Log.v(TAG, "total rx bits> " + bufArray[4]);
+                                    metxRxBits.setText("0x" + Integer.toHexString(strParseInt(bufArray[4])));
+                                    // Total rx counts
+                                    Log.v(TAG, "total rx counts> " + bufArray[5]);
+                                    metxRxPktCounts.setText("0x" + Integer.toHexString(strParseInt(bufArray[5])));
+                                    // Total rx error bits
+                                    Log.v(TAG, "total rx error bits> " + bufArray[6]);
+                                    metxRxErrBits.setText("0x" + Integer.toHexString(strParseInt(bufArray[6])));
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_ReportTxGainTable >> 8:
+                                    if (bufArray.length != 10 || strParseInt(bufArray[2]) != 0) {
+                                        Log.e(TAG, "MP HCI Event Params error");
+                                        break;
+                                    }
+                                    // gain table0
+                                    Log.v(TAG, "gain table0> " + bufArray[3]);
+                                    metxTxGainTable0.setText("0x" + Integer.toHexString(strParseInt(bufArray[3])));
+                                    // gain table1
+                                    Log.v(TAG, "gain table1> " + bufArray[4]);
+                                    metxTxGainTable1.setText("0x" + Integer.toHexString(strParseInt(bufArray[4])));
+                                    // gain table2
+                                    Log.v(TAG, "gain table2> " + bufArray[5]);
+                                    metxTxGainTable2.setText("0x" + Integer.toHexString(strParseInt(bufArray[5])));
+                                    // gain table3
+                                    Log.v(TAG, "gain table3> " + bufArray[6]);
+                                    metxTxGainTable3.setText("0x" + Integer.toHexString(strParseInt(bufArray[6])));
+                                    // gain table4
+                                    Log.v(TAG, "gain table4> " + bufArray[7]);
+                                    metxTxGainTable4.setText("0x" + Integer.toHexString(strParseInt(bufArray[7])));
+                                    // gain table5
+                                    Log.v(TAG, "gain table5> " + bufArray[8]);
+                                    metxTxGainTable5.setText("0x" + Integer.toHexString(strParseInt(bufArray[8])));
+                                    // gain table6
+                                    Log.v(TAG, "gain table6> " + bufArray[9]);
+                                    metxTxGainTable6.setText("0x" + Integer.toHexString(strParseInt(bufArray[9])));
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_ReportTxDACTable >> 8:
+                                    if (bufArray.length != 8 || strParseInt(bufArray[2]) != 0) {
+                                        Log.e(TAG, "MP HCI Event Params error");
+                                        break;
+                                    }
+                                    // dac table0
+                                    Log.v(TAG, "dac table0> " + bufArray[3]);
+                                    metxTxDacTable0.setText("0x" + Integer.toHexString(strParseInt(bufArray[3])));
+                                    // dac table1
+                                    Log.v(TAG, "dac table1> " + bufArray[4]);
+                                    metxTxDacTable1.setText("0x" + Integer.toHexString(strParseInt(bufArray[4])));
+                                    // dac table2
+                                    Log.v(TAG, "dac table2> " + bufArray[5]);
+                                    metxTxDacTable2.setText("0x" + Integer.toHexString(strParseInt(bufArray[5])));
+                                    // dac table3
+                                    Log.v(TAG, "dac table3> " + bufArray[6]);
+                                    metxTxDacTable3.setText("0x" + Integer.toHexString(strParseInt(bufArray[6])));
+                                    // dac table4
+                                    Log.v(TAG, "dac table4> " + bufArray[7]);
+                                    metxTxDacTable4.setText("0x" + Integer.toHexString(strParseInt(bufArray[7])));
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_ReportXTAL >> 8:
+                                    if (bufArray.length != 4 || strParseInt(bufArray[2]) != 0) {
+                                        Log.e(TAG, "MP HCI Event Params error");
+                                        break;
+                                    }
+                                    // xtal
+                                    Log.v(TAG, "xtal> " + bufArray[3]);
+                                    metxXtal.setText("0x" + Integer.toHexString(strParseInt(bufArray[3])));
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_ReportThermal >> 8:
+                                    if (bufArray.length != 4 || strParseInt(bufArray[2]) != 0) {
+                                        Log.e(TAG, "MP HCI Event Params error");
+                                        break;
+                                    }
+                                    // thermal
+                                    Log.v(TAG, "thermal> " + bufArray[3]);
+                                    metxThermal.setText("0x" + Integer.toHexString(strParseInt(bufArray[3])));
+                                    break;
+                                case MpOpCode.BT_MP_OP_CODE_ReportStage >> 8:
+                                    if (bufArray.length != 4 || strParseInt(bufArray[2]) != 0) {
+                                        Log.e(TAG, "MP HCI Event Params error");
+                                        break;
+                                    }
+                                    // stage
+                                    Log.v(TAG, "stage> " + bufArray[3]);
+                                    metxStage.setText("0x" + Integer.toHexString(strParseInt(bufArray[3])));
+                                    break;
+                                default:
+                                    break;
                             }
-                            // Rx Rssi
-                            Log.v(TAG, "rx rssi> " + bufArray[1]);
-                            metxRxRssi.setText("0x" + bufArray[1]);
-                            // Total rx bits
-                            Log.v(TAG, "total rx bits> " + bufArray[2]);
-                            metxRxBits.setText("0x" + bufArray[2]);
-                            // Total rx counts
-                            Log.v(TAG, "total rx counts> " + bufArray[3]);
-                            metxRxPktCounts.setText("0x" + bufArray[3]);
-                            // Total rx error bits
-                            Log.v(TAG, "total rx error bits> " + bufArray[4]);
-                            metxRxErrBits.setText("0x" + bufArray[4]);
                             break;
 
                         case MpOpCode.BT_MP_OP_CODE_RegRW:
@@ -431,14 +513,13 @@ public class MainActivity extends Activity {
                                 (mspRegRW.getSelectedItemPosition() == 0)) {
                                 // It's read operation, update the value
                                 Log.v(TAG, "reg data> " + bufArray[2]);
-                                metxRegData.setText("0x" + bufArray[2]);
+                                metxRegData.setText("0x" + Integer.toHexString(strParseInt(bufArray[2])));
                             }
                             break;
 
                         default:
                             break;
                     }
-
                     break;
             }
             super.handleMessage(msg);
@@ -490,17 +571,23 @@ public class MainActivity extends Activity {
 
         // Action items
         items = new ArrayList<String>();
-        //str = new String[] {"Packet Tx", "Packet Rx",
-        //                    "Continue Tx", "Continue LE Tx"};
         str = new String[] { MpOpCode.BT_MP_OP_STR_GetParam, MpOpCode.BT_MP_OP_STR_SetParam,
-                             MpOpCode.BT_MP_OP_STR_SetParam1, MpOpCode.BT_MP_OP_STR_SetParam2,
-                             MpOpCode.BT_MP_OP_STR_SetGainTable, MpOpCode.BT_MP_OP_STR_SetDacTable,
-                             MpOpCode.BT_MP_OP_STR_Exec,
-                             MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportContTx, MpOpCode.BT_MP_OP_STR_ReportRx,
-                             MpOpCode.BT_MP_OP_STR_RegRW,
+                             MpOpCode.BT_MP_OP_STR_TestMode,
+                             MpOpCode.BT_MP_OP_STR_SetTxGainTable, MpOpCode.BT_MP_OP_STR_SetTxDACTable,
+                             MpOpCode.BT_MP_OP_STR_SetDefaultTxGainTable, MpOpCode.BT_MP_OP_STR_SetDefaultTxDACTable,
+                             MpOpCode.BT_MP_OP_STR_SetPowerGainIndex, MpOpCode.BT_MP_OP_STR_SetPowerGain,
+                             MpOpCode.BT_MP_OP_STR_SetPowerDAC, MpOpCode.BT_MP_OP_STR_SetXTAL,
+                             MpOpCode.BT_MP_OP_STR_ClearReport,
                              MpOpCode.BT_MP_OP_STR_PktTxStart, MpOpCode.BT_MP_OP_STR_PktTxUpdate,
+                             MpOpCode.BT_MP_OP_STR_PktContTxStart, MpOpCode.BT_MP_OP_STR_PktContTxUpdate,
                              MpOpCode.BT_MP_OP_STR_PktRxStart, MpOpCode.BT_MP_OP_STR_PktRxUpdate,
-                             MpOpCode.BT_MP_OP_STR_PktContTxStart, MpOpCode.BT_MP_OP_STR_PktContTxUpdate };
+                             MpOpCode.BT_MP_OP_STR_HoppingMode,
+                             MpOpCode.BT_MP_OP_STR_LETxTest, MpOpCode.BT_MP_OP_STR_LERxTest, MpOpCode.BT_MP_OP_STR_LEEndTest,
+                             MpOpCode.BT_MP_OP_STR_RegRW,
+                             MpOpCode.BT_MP_OP_STR_ReportTx, MpOpCode.BT_MP_OP_STR_ReportContTx, MpOpCode.BT_MP_OP_STR_ReportRx,
+                             MpOpCode.BT_MP_OP_STR_ReportTxGainTable, MpOpCode.BT_MP_OP_STR_ReportTxDACTable,
+                             MpOpCode.BT_MP_OP_STR_ReportXTAL, MpOpCode.BT_MP_OP_STR_ReportThermal,
+                             MpOpCode.BT_MP_OP_STR_ReportStage };
         for (int i = 0; i < str.length; i++) {
             items.add(str[i]);
         }
@@ -549,16 +636,6 @@ public class MainActivity extends Activity {
         adpTxGainIndex.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mspTxGainIndex.setAdapter(adpTxGainIndex);
 
-        // TestMode
-        //str = new String[]{"DUT Mode", "PSEUDO Mode"};
-        //items = new ArrayList<String>();
-        //for (int i = 0; i < str.length; i++) {
-        //    items.add(str[i]);
-        //}
-        //adpTestMode = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
-        //adpTestMode.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //mspTestMode.setAdapter(adpTestMode);
-
         // Reg ID: modem, RF, Sys, BB
         str = new String[]{"Modem", "RF", "Sys", "BB"};
         items = new ArrayList<String>();
@@ -588,9 +665,7 @@ public class MainActivity extends Activity {
         mspTxGainIndex.setOnItemSelectedListener(new SpinnerListener());
         mspPayloadType.setOnItemSelectedListener(new SpinnerListener());
         mspRegID.setOnItemSelectedListener(new SpinnerListener());
-        //mspTestMode.setOnItemSelectedListener(new SpinnerListener());
         //mspLEConnect.setOnItemSelectedListener(new SpinnerListener());
-        //mspHitTarget.setOnItemSelectedListener(new SpinnerListener());
     }
 
     // Switch Click response
@@ -632,150 +707,108 @@ public class MainActivity extends Activity {
                         case MpOpCode.BT_MP_OP_CODE_SetParam:
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetParam);
                             mActionParam = null;
-                            // TODO
-                            break;
-                        case MpOpCode.BT_MP_OP_CODE_SetParam1:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetParam1);
-                            mActionParam = null;
-                            // RF channel, 10 radix
-                            mActionParam = mspRFChannel.getSelectedItem().toString() + ",";
+                            // RF channel(index: 1)
+                            mActionParam = "1," + mspRFChannel.getSelectedItem().toString() + ";";
                             Log.v(TAG, "rf channel> " + mActionParam);
-                            // Pkt type, 10 radix
-                            mActionParam = mActionParam.concat(mspPktType.getSelectedItemPosition() + ",");
+                            // Pkt type(index: 2)
+                            mActionParam = mActionParam.concat("2," + mspPktType.getSelectedItemPosition() + ";");
                             Log.v(TAG, "+pkt type> " + mActionParam);
-                            // Payload type, 10 radix
-                            mActionParam = mActionParam.concat(mspPayloadType.getSelectedItemPosition() + ",");
+                            // Payload type(index: 3)
+                            mActionParam = mActionParam.concat("3," + mspPayloadType.getSelectedItemPosition() + ";");
                             Log.v(TAG, "+payload type> " + mActionParam);
-                            // Tx pkt count, 10/16 radix
-                            mActionParam = mActionParam.concat(metxPacketCount.getText().toString() + ",");
+                            // Tx pkt count(index: 4)
+                            mActionParam = mActionParam.concat("4," + metxPacketCount.getText().toString() + ";");
                             Log.v(TAG, "+tx pkt count> " + mActionParam);
-                            // Tx gain value
-                            mActionParam = mActionParam.concat(metxTxGainValue.getText().toString() + ",");
+                            // Tx gain value(index: 5)
+                            mActionParam = mActionParam.concat("5," + metxTxGainValue.getText().toString() + ";");
                             Log.v(TAG, "+tx gain value> " + mActionParam);
-                            // Whitening value
-                            mActionParam = mActionParam.concat(metxWhiteningValue.getText().toString() + ",");
+                            // Whitening value(index: 6)
+                            mActionParam = mActionParam.concat("6," + metxWhiteningValue.getText().toString() + ";");
                             Log.v(TAG, "+whitening value> " + mActionParam);
-                            break;
-                        case MpOpCode.BT_MP_OP_CODE_SetParam2:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetParam2);
-                            mActionParam = null;
-                            // Tx gain index
-                            mActionParam = mspTxGainIndex.getSelectedItem().toString() + ",";
+                            // Tx gain index(index: 7)
+                            mActionParam = mActionParam.concat("7," + mspTxGainIndex.getSelectedItem().toString() + ";");
                             Log.v(TAG, "tx gain index> " + mActionParam);
-                            // Test mode
-                            //mActionParam = mActionParam.concat(mspTestMode.getSelectedItemPosition() + ",");
-                            //Log.v(TAG, "+test mode> " + mActionParam);
-                            // Tx dac
-                            mActionParam = mActionParam.concat(metxPacketCount.getText().toString() + ",");
+                            // Tx dac(index: 8)
+                            mActionParam = mActionParam.concat("8," + metxTxDac.getText().toString() + ";");
                             Log.v(TAG, "+tx dac> " + mActionParam);
-                            // Pkt header
-                            mActionParam = mActionParam.concat(mspPktType.getSelectedItemPosition() + ",");
+                            // Pkt header(index: 9)
+                            mActionParam = mActionParam.concat("9," + metxPacketHeader.getText().toString() + ";");
                             Log.v(TAG, "+pkt header> " + mActionParam);
-                            // Multi rx enable, 10/16 radix
-                            //mActionParam = mActionParam.concat(metxMultiRxEnable.getText().toString() + ",");
-                            //Log.v(TAG, "+multi rx enable> " + mActionParam);
-                            // Hopping fix channel
-                            mActionParam = mActionParam.concat(metxHoppingFixChannel.getText().toString() + ",");
+                            // Hopping fix channel(index: 10)
+                            mActionParam = mActionParam.concat("10," + metxHoppingFixChannel.getText().toString() + ";");
                             Log.v(TAG, "+hopping fix channel > " + mActionParam);
-                            // Hit target, 16 radix
-                            mActionParam = mActionParam.concat(metxHitTarget.getText().toString() + ",");
+                            // Hit target(index: 11), 16 radix
+                            mActionParam = mActionParam.concat("11," + metxHitTarget.getText().toString() + ";");
                             Log.v(TAG, "+hit target> " + mActionParam);
                             break;
-                        case MpOpCode.BT_MP_OP_CODE_SetGainTable:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetGainTable);
-                            mActionParam = null;
-                            // Table0
-                            mActionParam = metxTxGainTable0.getText().toString() + ",";
-                            Log.v(TAG, "table0> " + mActionParam);
-                            // Table1
-                            mActionParam = mActionParam.concat(metxTxGainTable1.getText().toString() + ",");
-                            Log.v(TAG, "+table1> " + mActionParam);
-                            // Table2
-                            mActionParam = mActionParam.concat(metxTxGainTable2.getText().toString() + ",");
-                            Log.v(TAG, "+table2> " + mActionParam);
-                            // Table3
-                            mActionParam = mActionParam.concat(metxTxGainTable3.getText().toString() + ",");
-                            Log.v(TAG, "+table3> " + mActionParam);
-                            // Table4
-                            mActionParam = mActionParam.concat(metxTxGainTable4.getText().toString() + ",");
-                            Log.v(TAG, "+table4> " + mActionParam);
-                            // Table5
-                            mActionParam = mActionParam.concat(metxTxGainTable5.getText().toString() + ",");
-                            Log.v(TAG, "+table5> " + mActionParam);
-                            // Table6
-                            mActionParam = mActionParam.concat(metxTxGainTable6.getText().toString() + ",");
-                            Log.v(TAG, "+table6> " + mActionParam);
-                            break;
-                        case MpOpCode.BT_MP_OP_CODE_SetDacTable:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_SetDacTable);
-                            mActionParam = null;
-                            // Table0
-                            mActionParam = metxTxDacTable0.getText().toString() + ",";
-                            Log.v(TAG, "table0> " + mActionParam);
-                            // Table1
-                            mActionParam = mActionParam.concat(metxTxDacTable1.getText().toString() + ",");
-                            Log.v(TAG, "+table1> " + mActionParam);
-                            // Table2
-                            mActionParam = mActionParam.concat(metxTxDacTable2.getText().toString() + ",");
-                            Log.v(TAG, "+table2> " + mActionParam);
-                            // Table3
-                            mActionParam = mActionParam.concat(metxTxDacTable3.getText().toString() + ",");
-                            Log.v(TAG, "+table3> " + mActionParam);
-                            // Table4
-                            mActionParam = mActionParam.concat(metxTxDacTable4.getText().toString() + ",");
-                            Log.v(TAG, "+table4> " + mActionParam);
-                            break;
                         case MpOpCode.BT_MP_OP_CODE_Exec:
-                            mActionParam = null;
+                            Log.v(TAG, "Start action: " + mActionCode + ", subAction: " + mSubActionCode);
                             switch (mSubActionCode) {
-                                case MpOpCode.BT_MP_OP_CODE_PktTxStart:
-                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktTxStart);
-                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
-                                    Log.v(TAG, "action index> " + mActionParam);
-                                    mStopSubActionCode = MpOpCode.BT_MP_OP_CODE_PktTxStop;
+                                case MpOpCode.BT_MP_OP_CODE_SetTxGainTable:
+                                    // index12, Table0
+                                    mActionParam = "12," + metxTxGainTable0.getText().toString() + ",";
+                                    Log.v(TAG, "table0> " + mActionParam);
+                                    // Table1
+                                    mActionParam = mActionParam.concat(metxTxGainTable1.getText().toString() + ",");
+                                    Log.v(TAG, "+table1> " + mActionParam);
+                                    // Table2
+                                    mActionParam = mActionParam.concat(metxTxGainTable2.getText().toString() + ",");
+                                    Log.v(TAG, "+table2> " + mActionParam);
+                                    // Table3
+                                    mActionParam = mActionParam.concat(metxTxGainTable3.getText().toString() + ",");
+                                    Log.v(TAG, "+table3> " + mActionParam);
+                                    // Table4
+                                    mActionParam = mActionParam.concat(metxTxGainTable4.getText().toString() + ",");
+                                    Log.v(TAG, "+table4> " + mActionParam);
+                                    // Table5
+                                    mActionParam = mActionParam.concat(metxTxGainTable5.getText().toString() + ",");
+                                    Log.v(TAG, "+table5> " + mActionParam);
+                                    // Table6
+                                    mActionParam = mActionParam.concat(metxTxGainTable6.getText().toString() + ",");
+                                    Log.v(TAG, "+table6> " + mActionParam);
+                                    // update Tx gain table param first
+                                    mService.hciSend(MpOpCode.BT_MP_OP_CODE_SetParam, mActionParam, MSG_MP_ACTION_UPDATE);
+
+                                    mActionParam = Integer.toString((mSubActionCode >> 8) & 0xFF);
                                     break;
-                                case MpOpCode.BT_MP_OP_CODE_PktTxUpdate:
-                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktTxUpdate);
-                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
-                                    Log.v(TAG, "action index> " + mActionParam);
+                                case MpOpCode.BT_MP_OP_CODE_SetTxDACTable:
+                                    // index13, Table0
+                                    mActionParam = "13," + metxTxDacTable0.getText().toString() + ",";
+                                    Log.v(TAG, "table0> " + mActionParam);
+                                    // Table1
+                                    mActionParam = mActionParam.concat(metxTxDacTable1.getText().toString() + ",");
+                                    Log.v(TAG, "+table1> " + mActionParam);
+                                    // Table2
+                                    mActionParam = mActionParam.concat(metxTxDacTable2.getText().toString() + ",");
+                                    Log.v(TAG, "+table2> " + mActionParam);
+                                    // Table3
+                                    mActionParam = mActionParam.concat(metxTxDacTable3.getText().toString() + ",");
+                                    Log.v(TAG, "+table3> " + mActionParam);
+                                    // Table4
+                                    mActionParam = mActionParam.concat(metxTxDacTable4.getText().toString() + ",");
+                                    Log.v(TAG, "+table4> " + mActionParam);
+                                    // update Tx dac table param first
+                                    mService.hciSend(MpOpCode.BT_MP_OP_CODE_SetParam, mActionParam, MSG_MP_ACTION_UPDATE);
+
+                                    mActionParam = Integer.toString((mSubActionCode >> 8) & 0xFF);
                                     break;
-                                case MpOpCode.BT_MP_OP_CODE_PktRxStart:
-                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktRxStart);
-                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
-                                    Log.v(TAG, "action index> " + mActionParam);
-                                    mStopSubActionCode = MpOpCode.BT_MP_OP_CODE_PktRxStop;
-                                    break;
-                                case MpOpCode.BT_MP_OP_CODE_PktRxUpdate:
-                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktRxUpdate);
-                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
-                                    Log.v(TAG, "action index> " + mActionParam);
-                                    break;
-                                case MpOpCode.BT_MP_OP_CODE_PktContTxStart:
-                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktContTxStart);
-                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
-                                    Log.v(TAG, "action index> " + mActionParam);
-                                    mStopSubActionCode = MpOpCode.BT_MP_OP_CODE_PktContTxStop;
-                                    break;
-                                case MpOpCode.BT_MP_OP_CODE_PktContTxUpdate:
-                                    Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_PktContTxUpdate);
-                                    mActionParam = Integer.toString((mSubActionCode >> 8 ) & 0xFF);
-                                    Log.v(TAG, "action index> " + mActionParam);
+                                case MpOpCode.BT_MP_OP_CODE_SetXTAL:
+                                    // index14, xtal
+                                    mActionParam = "14," + metxTxDacTable0.getText().toString() + ",";
+                                    Log.v(TAG, "xtal> " + mActionParam);
+                                    // update xtal param first
+                                    mService.hciSend(MpOpCode.BT_MP_OP_CODE_SetParam, mActionParam, MSG_MP_ACTION_UPDATE);
+
+                                    mActionParam = Integer.toString((mSubActionCode >> 8) & 0xFF);
                                     break;
                                 default:
+                                    mActionParam = Integer.toString((mSubActionCode >> 8) & 0xFF);
                                     break;
                             }
                             break;
-                        case MpOpCode.BT_MP_OP_CODE_ReportTx:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_ReportTx);
-                            mActionParam = null;
-                            break;
-                        case MpOpCode.BT_MP_OP_CODE_ReportContTx:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_ReportContTx);
-                            mActionParam = null;
-                            break;
-                        case MpOpCode.BT_MP_OP_CODE_ReportRx:
-                            Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_ReportRx);
-                            mActionParam = null;
+                        case MpOpCode.BT_MP_OP_CODE_Report:
+                            Log.v(TAG, "Start action: " + mActionCode + ", subAction: " + mSubActionCode);
+                            mActionParam = Integer.toString((mSubActionCode >> 8) & 0xFF);
                             break;
                         case MpOpCode.BT_MP_OP_CODE_RegRW:
                             Log.v(TAG, "Start action: " + MpOpCode.BT_MP_OP_STR_RegRW);
@@ -815,8 +848,7 @@ public class MainActivity extends Activity {
 
                     mspActionItem.setEnabled(actSpinnerEnable);
                     // Send action to stack; subaction code set in mActionParam
-                    mService.hciSend(mActionCode & 0xFF, mActionParam, true);
-
+                    mService.hciSend(mActionCode & 0xFF, mActionParam, MSG_MP_ACTION_START);
                     break;
 
                 case R.id.button_Stop:
@@ -828,7 +860,7 @@ public class MainActivity extends Activity {
                         mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktContTxStart)) {
                         mActionParam = Integer.toString((mStopSubActionCode >> 8) & 0xFF);
                         Log.v(TAG, "stop action index> " + mActionParam);
-                        mService.hciSend(mActionCode & 0xFF, mActionParam, false);
+                        mService.hciSend(mActionCode & 0xFF, mActionParam, MSG_MP_ACTION_STOP);
                     } else {
                         setButtonStateStopped();
                         // Action spinner is available after stop clicked.
@@ -875,42 +907,92 @@ public class MainActivity extends Activity {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_GetParam;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetParam)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_SetParam;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetParam1)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetParam1;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetParam2)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetParam2;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetGainTable)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetGainTable;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetDacTable)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_SetDacTable;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_Exec)) {
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_TestMode)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportTx)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_ReportTx;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportContTx)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_ReportContTx;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportRx)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_ReportRx;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_RegRW)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_RegRW;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_TestMode;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetTxGainTable)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_SetTxGainTable;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetTxDACTable)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_SetTxDACTable;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetDefaultTxGainTable)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_SetDefaultTxGainTable;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetDefaultTxDACTable)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_SetDefaultTxDACTable;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetPowerGainIndex)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_SetPowerGainIndex;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetPowerGain)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_SetPowerGain;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetPowerDAC)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_SetPowerDAC;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_SetXTAL)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_SetXTAL;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ClearReport)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ClearReport;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktTxStart)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
                         mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktTxStart;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktTxUpdate)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
                         mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktTxUpdate;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktRxStart)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
-                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktRxStart;
-                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktRxUpdate)) {
-                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
-                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktRxUpdate;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktContTxStart)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
                         mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktContTxStart;
                     } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktContTxUpdate)) {
                         mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
                         mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktContTxUpdate;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktRxStart)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktRxStart;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_PktRxUpdate)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_PktRxUpdate;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_HoppingMode)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_HoppingMode;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_LETxTest)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_LETxTest;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_LERxTest)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_LERxTest;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_LEEndTest)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Exec;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_LEEndTest;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_RegRW)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_RegRW;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportTx)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Report;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ReportTx;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportContTx)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Report;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ReportContTx;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportRx)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Report;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ReportRx;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportTxGainTable)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Report;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ReportTxGainTable;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportTxDACTable)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Report;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ReportTxDACTable;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportXTAL)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Report;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ReportXTAL;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportThermal)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Report;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ReportThermal;
+                    } else if (mActionItem.equals(MpOpCode.BT_MP_OP_STR_ReportStage)) {
+                        mActionCode = MpOpCode.BT_MP_OP_CODE_Report;
+                        mSubActionCode = MpOpCode.BT_MP_OP_CODE_ReportStage;
                     }
                     break;
 
@@ -930,10 +1012,6 @@ public class MainActivity extends Activity {
                     Log.v(TAG, "Spinner Tx Gain Index selected: " + mspTxGainIndex.getSelectedItem().toString());
                     break;
 
-                //case R.id.spinner_Test_Mode:
-                //    Log.v(TAG, "Spinner Test Mode selected: " + mspTestMode.getSelectedItem().toString());
-                //    break;
-
                 case R.id.spinner_Register_ID:
                     Log.v(TAG, "Register ID selected: " + mspRegID.getSelectedItem().toString());
                     break;
@@ -941,11 +1019,6 @@ public class MainActivity extends Activity {
                 //case R.id.spinner_LE_Connect:
                 //    Log.v(TAG, "Spinner LE Connect selected: " + mspLEConnect.getSelectedItem().toString());
                 //    break;
-
-                //case R.id.spinner_Hit_Target:
-                //    Log.v(TAG, "Spinner Hit Target selected: " + mspHitTarget.getSelectedItem().toString());
-                //    break;
-
             }
         }
         @Override
@@ -960,7 +1033,7 @@ public class MainActivity extends Activity {
         @Override
         public void onCheckedChanged(CompoundButton bv, boolean isChecked) {
             switch (bv.getId()) {
-                //case R.id.checkbox_Get_Thermal:
+                //case R.id.checkbox_Thermal:
                 //    if (isChecked) {
                 //        Log.v(TAG, "UploadThremal Checkbox is selected!");
                 //    } else {
