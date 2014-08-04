@@ -304,7 +304,7 @@ static bt_status_t btif_mp_notify_evt(void* msg)
     STREAM_TO_UINT8(opcode, p);
     STREAM_TO_UINT8(param_len, p);
 
-    p[param_len] = '\0'; /* exceed boundary? */
+    p[param_len] = '\0'; /* must allocate extra 1 byte */
 
     ALOGI("%s: opcode[0x%02x], params[%s]", __FUNCTION__, opcode, p);
 
@@ -373,7 +373,7 @@ static void btif_task(UINT32 params)
         {
             while((p_msg = GKI_read_mbox(BTU_BTIF_MBOX)) != NULL)
             {
-                BTIF_TRACE_VERBOSE1("btif task fetched event %x", p_msg->event);
+                BTIF_TRACE_VERBOSE1("btif task fetched event 0x%x", p_msg->event);
 
                 switch (p_msg->event)
                 {

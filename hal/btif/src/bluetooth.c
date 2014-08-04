@@ -152,15 +152,13 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
     BT_HDR *p_buf = NULL;
     char *p = NULL;
     uint8_t buf_len = 0;
-    char pNotifyBuffer[1024] = {0};
+    char buf_cb[1024] = {0};
     int ret = 0;
 
-    memset(pNotifyBuffer, 0, sizeof(pNotifyBuffer));
-
-    p_buf = (BT_HDR *)GKI_getbuf(sizeof(BT_HDR) + 1026); //1024 + 1 + 1
+    p_buf = (BT_HDR *)GKI_getbuf(sizeof(BT_HDR) + 1024);
     p_buf->offset = 0;
     p = (char *)(p_buf + 1);
-    memset(p, 0, 1026);
+    memset(p, 0, 1024);
 
     ALOGI("hal_mp_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
 
@@ -170,39 +168,39 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
 
     switch (opcode) {
     case BT_MP_OP_HCI_SEND_CMD:
-        ret = BT_SendHciCmd(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_SendHciCmd(&BtModuleMemory, buf, buf_cb);
         break;
 
     case BT_MP_OP_USER_DEF_GetParam:
-        ret = BT_GetParam(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_GetParam(&BtModuleMemory, buf, buf_cb);
         break;
 
     case BT_MP_OP_USER_DEF_SetParam:
-        ret = BT_SetParam(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_SetParam(&BtModuleMemory, buf, buf_cb);
         break;
 
     case BT_MP_OP_USER_DEF_SetParam1:
-        ret = BT_SetParam1(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_SetParam1(&BtModuleMemory, buf, buf_cb);
         break;
 
     case BT_MP_OP_USER_DEF_SetParam2:
-        ret = BT_SetParam2(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_SetParam2(&BtModuleMemory, buf, buf_cb);
         break;
 
     case BT_MP_OP_USER_DEF_SetConfig:
-        ret = BT_SetConfig(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_SetConfig(&BtModuleMemory, buf, buf_cb);
         break;
 
     case BT_MP_OP_USER_DEF_Exec:
-        ret = BT_Exec(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_Exec(&BtModuleMemory, buf, buf_cb);
         break;
 
     case BT_MP_OP_USER_DEF_Report:
-        ret = BT_Report(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_Report(&BtModuleMemory, buf, buf_cb);
         break;
 
     case BT_MP_OP_USER_DEF_RegRW:
-        ret = BT_RegRW(&BtModuleMemory, buf, pNotifyBuffer);
+        ret = BT_RegRW(&BtModuleMemory, buf, buf_cb);
         break;
 
     default:
@@ -210,14 +208,14 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         break;
     }
 
-    buf_len = strlen(pNotifyBuffer);
+    buf_len = strlen(buf_cb);
 
     UINT8_TO_STREAM(p, opcode);
     UINT8_TO_STREAM(p, buf_len);
 
-    ALOGI("pNotifyBuffer: %s, buf_len %d", pNotifyBuffer, buf_len);
+    ALOGI("buf_cb: %s, buf_len %d", buf_cb, buf_len);
 
-    memcpy(p, pNotifyBuffer, buf_len);
+    memcpy(p, buf_cb, buf_len);
 
     btu_hcif_mp_notify_event(p_buf);
 

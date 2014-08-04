@@ -120,15 +120,16 @@ static void send_recv_evt_message(UINT16 evt, UINT8 evt_opcode, UINT8 *p, UINT16
     BT_HDR *p_msg;
     UINT8 *pp;
 
-    if ((p_msg = (BT_HDR *)GKI_getbuf(BT_HDR_SIZE + evt_len + sizeof(UINT8) + sizeof(UINT8))) != NULL)
-    {
+    p_msg = (BT_HDR *)GKI_getbuf(BT_HDR_SIZE + evt_len + 3); /* 3 --> op + len + '\0' */
+    if (p_msg != NULL) {
         p_msg->event = evt;
         p_msg->offset = 0;
         pp = (UINT8 *)(p_msg + 1);
+
         UINT8_TO_STREAM (pp, evt_opcode);
         UINT8_TO_STREAM (pp, evt_len);
-        if (evt_len > 0)
-            ARRAY_TO_STREAM(pp, p, evt_len);
+        ARRAY_TO_STREAM(pp, p, evt_len);
+
         GKI_send_msg (BTIF_TASK, BTU_BTIF_MBOX, p_msg);
     }
 }
