@@ -62,14 +62,6 @@ enum BT_MP_OPCODE {
 #define STR_BT_MP_REPORT            "bt_mp_Report"
 #define STR_BT_MP_REG_RW            "bt_mp_RegRW"
 
-#define STR_BT_MP_HCI_RESET     "bt_mp_HciReset"
-#define STR_BT_MP_CONTTXSTART   "bt_mp_ConTxStart"
-#define STR_BT_MP_CONTTXSTOP    "bt_mp_ConTxStop"
-#define STR_BT_MP_PKTTXSTART    "bt_mp_PktTxStart"
-#define STR_BT_MP_PKTTXSTOP     "bt_mp_PktTxStop"
-#define STR_BT_MP_PKTRXSTART    "bt_mp_PktRxStart"
-#define STR_BT_MP_PKTRXSTOP     "bt_mp_PktRxStop"
-
 #define STR_BT_MP_PARAM_DELIM        ","
 #define STR_BT_MP_RESULT_DELIM       ","
 #define STR_BT_MP_PAIR_DELIM         ";"

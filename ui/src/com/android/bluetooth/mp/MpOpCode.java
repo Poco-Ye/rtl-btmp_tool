@@ -100,14 +100,6 @@ public final class MpOpCode {
     public static final String STR_BT_MP_REPORT           =   "bt_mp_Report";
     public static final String STR_BT_MP_REG_RW           =   "bt_mp_RegRW";
 
-    public static final String STR_BT_MP_HCI_RESET        =   "bt_mp_HciReset";
-    public static final String STR_BT_MP_CONTTXSTART      =   "bt_mp_ConTxStart";
-    public static final String STR_BT_MP_CONTTXSTOP       =   "bt_mp_ConTxStop";
-    public static final String STR_BT_MP_PKTTXSTART       =   "bt_mp_PktTxStart";
-    public static final String STR_BT_MP_PKTTXSTOP        =   "bt_mp_PktTxStop";
-    public static final String STR_BT_MP_PKTRXSTART       =   "bt_mp_PktRxStart";
-    public static final String STR_BT_MP_PKTRXSTOP        =   "bt_mp_PktRxStop";
-
     public static final String STR_BT_MP_PARAM_DELIM   =   ",";
     public static final String STR_BT_MP_RESULT_DELIM  =   ",";
     public static final String STR_BT_MP_PAIR_DELIM    =   ";";

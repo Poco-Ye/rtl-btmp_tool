@@ -875,6 +875,8 @@ public class MainActivity extends Activity {
 
                 case R.id.button_HCI_Reset:
                     Log.v(TAG, "button_HCI_Reset clicked");
+                    mService.hciSend(MpOpCode.BT_MP_OP_CODE_Exec,
+                            Integer.toString(MpOpCode.BT_MP_OP_CODE_HciReset >> 8), MSG_MP_ACTION_UPDATE);
                     break;
 
                 default:
