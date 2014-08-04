@@ -1812,8 +1812,8 @@ int BTDevice_SetPayloadType(BT_DEVICE *pBtDevice,BT_PAYLOAD_TYPE PayloadType)
 int BTDevice_SetPacketType(BT_DEVICE *pBtDevice,BT_PKT_TYPE PktType)
 {
     int rtn = BT_FUNCTION_SUCCESS;
-    unsigned char PktBandWidth = 0;
-    unsigned long Payload_length = 0;
+    uint8_t PktBandWidth = 0;
+    uint16_t Payload_length = 0;
 
     switch (PktType) {
         case BT_PKT_1DH1: PktBandWidth=1;  break;
@@ -1831,8 +1831,13 @@ int BTDevice_SetPacketType(BT_DEVICE *pBtDevice,BT_PKT_TYPE PktType)
     }
 
     if (rtn != FUNCTION_ERROR) {
-        Payload_length=Arrary_PayloadLength[PktType];
+        Payload_length = Arrary_PayloadLength[PktType];
     }
+
+    if (PktType == BT_PKT_1DH1)
+        rtn = pBtDevice->SetMdRegMaskBits(pBtDevice, 0x2e, 3, 2, 0x1);
+    else
+        rtn = pBtDevice->SetMdRegMaskBits(pBtDevice, 0x2e, 3, 2, 0x2);
 
     if (PktBandWidth != 0) {
 
