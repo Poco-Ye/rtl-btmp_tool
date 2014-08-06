@@ -55,7 +55,7 @@ BuildBluetoothDevice(
     pBtDevice->SetTestMode = BTDevice_SetTestMode;
     pBtDevice->SetMutiRxEnable = BTDevice_SetMutiRxEnable;
     pBtDevice->SetRestMDCount = BTDevice_SetResetMDCount;
-    pBtDevice->SetPackHeader = BTDevice_SetPackHeader;
+    pBtDevice->SetPacketHeader = BTDevice_SetPacketHeader;
     pBtDevice->SetPesudoOuterSetup = BTDevice_SetPesudoOuterSetup;
 
     pBtDevice->TestModeEnable = BTDevice_TestModeEnable;

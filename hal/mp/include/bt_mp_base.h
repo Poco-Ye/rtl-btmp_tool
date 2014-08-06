@@ -142,7 +142,7 @@ struct BT_PARAMETER_TAG {
     uint8_t mWhiteningCoeffValue;
     uint8_t mTxGainIndex;
     uint8_t mTxDAC;
-    uint16_t mPacketHeader;
+    uint32_t mPacketHeader;
     uint8_t mHoppingFixChannel;
     uint64_t mHitTarget;
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
@@ -364,9 +364,9 @@ typedef int
         );
 
 typedef int
-(*BT_FP_SET_SETPACKHEADER)(
+(*BT_FP_SET_SETPACKETHEADER)(
         BT_DEVICE *pBtDevice,
-        unsigned int packHeader
+        uint32_t pktHeader
         );
 
 typedef int
@@ -571,7 +571,7 @@ struct BT_DEVICE_TAG
     BT_FP_SET_TESTMODE          SetTestMode;
     BT_FP_SET_MUTIRXENABLE      SetMutiRxEnable;
     BT_FP_SET_SETRESETMDCOUNT   SetRestMDCount;
-    BT_FP_SET_SETPACKHEADER     SetPackHeader;
+    BT_FP_SET_SETPACKETHEADER     SetPacketHeader;
     BT_FP_SET_PESUDOOUTERSETUP  SetPesudoOuterSetup;
     BT_FP_SET_TEST_MODE_ENABLE TestModeEnable;
 

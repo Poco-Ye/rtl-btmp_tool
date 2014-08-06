@@ -341,12 +341,11 @@ int BTDevice_SetPesudoOuterSetup(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
         goto exit;
     }
     /* set packet header */
-    if (pBtDevice->SetPackHeader(pBtDevice,pParam->mPacketHeader)!=BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetPacketHeader(pBtDevice,pParam->mPacketHeader)!=BT_FUNCTION_SUCCESS)
     {
         rtn=FUNCTION_ERROR;
         goto exit;
     }
-
 
     /* set syncword */
     //set target bd address
@@ -368,17 +367,17 @@ exit:
     return rtn;
 }
 
-int BTDevice_SetPackHeader(BT_DEVICE *pBtDevice,unsigned int packHeader)
+int BTDevice_SetPacketHeader(BT_DEVICE *pBtDevice, uint32_t pktHeader)
 {
-    int rtn=BT_FUNCTION_SUCCESS;
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x30,15,0,packHeader &0xFFFF) != BT_FUNCTION_SUCCESS) 
-    {
-        rtn = FUNCTION_HCISEND_ERROR;
+    int rtn = BT_FUNCTION_SUCCESS;
+
+    rtn = pBtDevice->SetMdRegMaskBits(pBtDevice, 0x30, 15, 0, pktHeader & 0xFFFF);
+    if (rtn != BT_FUNCTION_SUCCESS) {
         goto exit;
     }
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x32,1,0,(packHeader>>16) &0x3) != BT_FUNCTION_SUCCESS) 
-    {
-        rtn = FUNCTION_HCISEND_ERROR;
+
+    rtn = pBtDevice->SetMdRegMaskBits(pBtDevice, 0x32, 1, 0, (pktHeader>>16) & 0x3);
+    if (rtn != BT_FUNCTION_SUCCESS) {
         goto exit;
     }
 
@@ -552,7 +551,7 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         goto exit;
     }
     // set packet header
-    if (pBtDevice->SetPackHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetPacketHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
@@ -942,7 +941,7 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     }
 
     // set packet header
-    if (pBtDevice->SetPackHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS) {
+    if (pBtDevice->SetPacketHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS) {
         goto exit;
     }
 
@@ -1285,7 +1284,7 @@ int BTDevice_SetContinueTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEV
         goto error;
     }
     // set packet header
-    if (pBtDevice->SetPackHeader(pBtDevice,pParam->mPacketHeader) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetPacketHeader(pBtDevice,pParam->mPacketHeader) != BT_FUNCTION_SUCCESS)
     {
         goto error;
     }

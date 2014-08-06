@@ -139,9 +139,9 @@ BTDevice_SetPesudoOuterSetup(
         );
 
 int
-BTDevice_SetPackHeader(
+BTDevice_SetPacketHeader(
         BT_DEVICE *pBtDevice,
-        unsigned int packHeader
+        uint32_t pktHeader
         );
 
 int

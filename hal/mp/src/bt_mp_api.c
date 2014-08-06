@@ -96,7 +96,7 @@ static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
         pBtModule->pBtParam->mTxDAC = (uint8_t)value;
         break;
     case BT_PARAM_IDX9:
-        pBtModule->pBtParam->mPacketHeader = (uint16_t)value;
+        pBtModule->pBtParam->mPacketHeader = (uint32_t)value;
         break;
     case BT_PARAM_IDX10:
         pBtModule->pBtParam->mHoppingFixChannel = (uint8_t)value;
@@ -224,7 +224,7 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
                 pBtModule->pBtParam->mTxDAC);
         break;
     case BT_PARAM_IDX9:
-        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%04x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
@@ -658,7 +658,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
         bt_index2print(pBtModule, index, buf_cb);
     } else {
         /* print all exposed params if not specified[Deprecated] */
-        ALOGI("%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%012llx",
+        ALOGI("%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012llx",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mChannelNumber,
@@ -683,7 +683,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHitTarget);
 
-        sprintf(buf_cb, "%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%012llx",
+        sprintf(buf_cb, "%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012llx",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mChannelNumber,
@@ -922,7 +922,7 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *buf_cb)
         goto exit;
     }
 
-    // uint16_t mPacketHeader;
+    // uint32_t mPacketHeader;
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
         pBtModule->pBtParam->mPacketHeader = strtol(token, NULL, 0);
@@ -963,14 +963,13 @@ exit:
         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
         ret = FUNCTION_PARAMETER_ERROR;
     } else {
-        ALOGI("mTxGainIndex:0x%02x, mTxDAC:0x%02x, mPacketHeader:0x%04x, "
-              "mHoppingFixChannel:0x%02x, mHitTarget 0x%012llx",
+        ALOGI("mTxGainIndex:0x%02x, mTxDAC:0x%02x, mPacketHeader:0x%08x, "
+                "mHoppingFixChannel:0x%02x, mHitTarget 0x%012llx",
                 pBtModule->pBtParam->mTxGainIndex,
                 pBtModule->pBtParam->mTxDAC,
                 pBtModule->pBtParam->mPacketHeader,
                 pBtModule->pBtParam->mHoppingFixChannel,
-                pBtModule->pBtParam->mHitTarget
-             );
+                pBtModule->pBtParam->mHitTarget);
 
         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
