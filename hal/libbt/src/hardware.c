@@ -1533,19 +1533,6 @@ DOWNLOAD_FW:
 
                     hw_cfg_cb.state = 0;
 
-              if(gNeedToSetHWFlowControl)
-              {
-                    if(gHwFlowControlEnable)
-                    {
-                        userial_vendor_set_hw_fctrl(1);
-                    }
-                    else
-                    {
-                        userial_vendor_set_hw_fctrl(0);
-                    }
-
-            }
-
                     if (hw_cfg_cb.fw_fd != -1)
                     {
                         close(hw_cfg_cb.fw_fd);
@@ -1586,6 +1573,22 @@ DOWNLOAD_FW:
                     ALOGI("iCurIndex = %i, iCurLen = %i", iCurIndex, iCurLen);
 
                     is_proceeding = hci_download_patch_h4(p_buf, iCurIndex, bufpatch, iCurLen);
+                    if (iCurIndex & 0x80) {
+                        ALOGI("Change HW flowcontrol setting");
+                        if (gNeedToSetHWFlowControl)
+                        {
+                            if (gHwFlowControlEnable)
+                            {
+                                userial_vendor_set_hw_fctrl(1);
+                            }
+                            else
+                            {
+                                userial_vendor_set_hw_fctrl(0);
+                            }
+
+                        }
+                    }
+
 
 
                 break;
