@@ -457,16 +457,13 @@ uint16_t userial_write(uint16_t msg_id, uint8_t *p_data, uint16_t len)
 {
     int ret, total = 0;
 
-    while(len != 0)
-    {
+    while (len != 0) {
         ret = write(userial_cb.fd, p_data+total, len);
-        //RTK add start
-        if(ret == -1)
-        {
-            ALOGE("ret = %d, errno = %d", ret,errno);
+        if (ret == -1) {
+            ALOGE("userial_write: fd %d, errno %d", userial_cb.fd, errno);
             break;
         }
-        //RTK add end
+
         total += ret;
         len -= ret;
     }
