@@ -358,12 +358,6 @@ typedef int
         );
 
 typedef int
-(*BT_FP_SET_PESUDOOUTERSETUP)(
-        BT_DEVICE *pBtDevice,
-        BT_PARAMETER *pParam
-        );
-
-typedef int
 (*BT_FP_SET_SETPACKETHEADER)(
         BT_DEVICE *pBtDevice,
         uint32_t pktHeader
@@ -572,7 +566,6 @@ struct BT_DEVICE_TAG
     BT_FP_SET_MUTIRXENABLE      SetMutiRxEnable;
     BT_FP_SET_SETRESETMDCOUNT   SetRestMDCount;
     BT_FP_SET_SETPACKETHEADER     SetPacketHeader;
-    BT_FP_SET_PESUDOOUTERSETUP  SetPesudoOuterSetup;
     BT_FP_SET_TEST_MODE_ENABLE TestModeEnable;
 
     BT_FP_SET_RTL8761_XTAL SetRtl8761Xtal;

@@ -60,7 +60,7 @@ int BTDevice_SetTestMode(BT_DEVICE *pBtDevice,BT_TEST_MODE TestMode)
             goto exit;
         }
         /* enable pesudo outter mode */
-        rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,8,0x0F);
+        rtn=pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x1);
         if (rtn !=BT_FUNCTION_SUCCESS)
         {
             rtn=FUNCTION_ERROR;

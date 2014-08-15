@@ -307,66 +307,6 @@ error:
     return FUNCTION_ERROR;
 }
 
-int BTDevice_SetPesudoOuterSetup(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
-{
-    int rtn=BT_FUNCTION_SUCCESS;
-
-    /* disable modem fix tx */
-    // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
-    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x3c,12,12,0x0) !=BT_FUNCTION_SUCCESS)
-    {
-        rtn=FUNCTION_ERROR;
-        goto exit;
-    }
-
-    /* enable pesudo outter mode */
-    // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x2E), BIT8, BIT8);
-    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2E,8,8,0x1) !=BT_FUNCTION_SUCCESS)
-    {
-        rtn=FUNCTION_ERROR;
-        goto exit;
-    }
-
-    /* set payload type */
-
-    if (pBtDevice->SetPayloadType(pBtDevice,pParam->mPayloadType)  !=BT_FUNCTION_SUCCESS)
-    {
-        rtn=FUNCTION_ERROR;
-        goto exit;
-    }
-    /* set rate and payload length */
-    if (pBtDevice->SetPacketType(pBtDevice,pParam->mPacketType) !=BT_FUNCTION_SUCCESS)
-    {
-        rtn=FUNCTION_ERROR;
-        goto exit;
-    }
-    /* set packet header */
-    if (pBtDevice->SetPacketHeader(pBtDevice,pParam->mPacketHeader)!=BT_FUNCTION_SUCCESS)
-    {
-        rtn=FUNCTION_ERROR;
-        goto exit;
-    }
-
-    /* set syncword */
-    //set target bd address
-    rtn=pBtDevice->SetHitTarget(pBtDevice,pParam->mHitTarget);
-    if (rtn != BT_FUNCTION_SUCCESS)
-    {
-        goto exit;
-    }
-
-    /* set whitenning setting */
-    // set WhiteningCoeffValue
-    rtn=pBtDevice->SetWhiteningCoeff(pBtDevice,pParam->mWhiteningCoeffValue);
-    if (rtn != BT_FUNCTION_SUCCESS)
-    {
-        goto exit;
-    }
-
-exit:
-    return rtn;
-}
-
 int BTDevice_SetPacketHeader(BT_DEVICE *pBtDevice, uint32_t pktHeader)
 {
     int rtn = BT_FUNCTION_SUCCESS;
@@ -390,25 +330,13 @@ int BTDevice_SetResetMDCount(BT_DEVICE *pBtDevice)
     int rtn = BT_FUNCTION_SUCCESS;
 
     /* reset report counter */
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x00) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x00) != BT_FUNCTION_SUCCESS)
     {
         rtn = FUNCTION_HCISEND_ERROR;
         goto exit;
     }
 
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x07) != BT_FUNCTION_SUCCESS)
-    {
-        rtn = FUNCTION_HCISEND_ERROR;
-        goto exit;
-    }
-
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,1,1,0x00) != BT_FUNCTION_SUCCESS)
-    {
-        rtn = FUNCTION_HCISEND_ERROR;
-        goto exit;
-    }
-
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,1,1,0x01) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x07) != BT_FUNCTION_SUCCESS)
     {
         rtn = FUNCTION_HCISEND_ERROR;
         goto exit;
@@ -470,23 +398,18 @@ int BTDevice_SetPktRxStop(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_
     else
 #endif
     {
-        //Back to Shut Down mode
-        if (pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x0000) != BT_FUNCTION_SUCCESS)
-        {
-            goto exit;
-        }
-        //Reset Modem
-        if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,1,1,0x00) != BT_FUNCTION_SUCCESS)
-        {
-            goto exit;
-        }
-        //Disable multi-packet Tx
-        if ( pBtDevice->SetMutiRxEnable(pBtDevice,0x00) != BT_FUNCTION_SUCCESS)
+        if (pBtDevice->SetMutiRxEnable(pBtDevice, 0x00) != BT_FUNCTION_SUCCESS)
         {
             goto exit;
         }
 
-        if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x00) != BT_FUNCTION_SUCCESS)
+        if (pBtDevice->SetMdRegMaskBits(pBtDevice, 0x2e, 15, 0, 0x0070) != BT_FUNCTION_SUCCESS)
+        {
+            goto exit;
+        }
+
+        //Back to Shut Down mode
+        if (pBtDevice->SetRfRegMaskBits(pBtDevice, 0x00, 15, 0, 0x0000) != BT_FUNCTION_SUCCESS)
         {
             goto exit;
         }
@@ -508,20 +431,25 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     //uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint32_t EventLen = 0;
     uint16_t OpCode=0x0000;
-    int pktType=pParam->mPacketType;
+    int pktType = pParam->mPacketType;
     uint8_t pPayload_Len=0;
     uint16_t tmp = 0;
+
+    ALOGI("+BTDevice_SetPktRxBegin: mChannelNumber 0x%x, mPacketType 0x%x, mTxGainIndex 0x%x, "
+          "mTxGainValue 0x%x, mTxPacketCount 0x%x, mPayloadType 0x%x, mPacketHeader 0x%x, "
+          "mWhiteningCoeffValue 0x%x, mTxDAC 0x%x, mHitTarget 0x%012llx",
+          pParam->mChannelNumber, pParam->mPacketType, pParam->mTxGainIndex, pParam->mTxGainValue,
+          pParam->mTxPacketCount, pParam->mPayloadType, pParam->mPacketHeader,
+          pParam->mWhiteningCoeffValue, pParam->mTxDAC, pParam->mHitTarget);
 
     if (pParam->mPacketType == BT_PKT_LE)
     {
         if (pParam->mChannelNumber > 39)
         {
-            rtn=FUNCTION_PARAMETER_INVALID_CHANNEL;
+            rtn = FUNCTION_PARAMETER_INVALID_CHANNEL;
             return rtn;
         }
     }
-
-    ALOGI("+BTDevice_SetPktRxBegin");
 
     if (pBtReport != NULL)
     {
@@ -565,11 +493,6 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     {
         goto exit;
     }
-    //set test mode
-    if (pBtDevice->SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS)
-    {
-        goto exit;
-    }
     //set channel
     if (pBtDevice->SetRxChannel(pBtDevice,pParam->mChannelNumber) != BT_FUNCTION_SUCCESS)
     {
@@ -577,6 +500,11 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     }
     //multi-packet Rx
     if (pBtDevice->SetMutiRxEnable(pBtDevice, 1) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+    //set test mode
+    if (pBtDevice->SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
@@ -612,11 +540,11 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     {
         goto exit;
     }
-    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x00) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetMdRegMaskBits(pBtDevice, 0x2e, 1, 1, 0x00) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
-    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x01) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetMdRegMaskBits(pBtDevice, 0x2e, 1, 1, 0x01) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
@@ -731,43 +659,18 @@ int BTDevice_SetPktTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_RE
     int pktType = pParam->mPacketType;
 
     ALOGI("+BTDevice_SetPktTxStop");
-#if 0
-    if (pParam->mTestMode == BT_DUT_MODE)
-    {
-        if (pktType == BT_PKT_LE)
-        {
-            OpCode=0x201F;
-            if (pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
-            {
-                goto exit;
-            }
-        }
-        else
-        {
-            goto exit;
-        }
-    }
-    else
-#endif
-    {
-        //disable multi-packet Tx
-        if (pBtDevice->SetMutiRxEnable(pBtDevice,0x00) != BT_FUNCTION_SUCCESS)
-        {
-            goto exit;
-        }
-        //Back to Shut Down mode
-        if (pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x00) != BT_FUNCTION_SUCCESS)
-        {
-            goto exit;
-        }
-    }
 
-
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x00) != BT_FUNCTION_SUCCESS)
+    //disable multi-packet Tx
+    if (pBtDevice->SetMutiRxEnable(pBtDevice, 0x00) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,8,8,0x01) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetMdRegMaskBits(pBtDevice, 0x2e, 15, 0, 0x0070) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+    //Back to Shut Down mode
+    if (pBtDevice->SetRfRegMaskBits(pBtDevice, 0x00, 15, 0, 0x0000) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
@@ -823,14 +726,7 @@ int BTDevice_SetPktTxBegin_PSEUDOMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
         goto exit;
     }
 
-
-
-    //Reset Counter, Reset Report Count
-    if(pBtDevice->SetRestMDCount(pBtDevice) != BT_FUNCTION_SUCCESS)
-        goto exit;
-
     /* generate neg-edge pulse to trigger */
-
     if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,0,0,0x01) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
@@ -844,48 +740,6 @@ int BTDevice_SetPktTxBegin_PSEUDOMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
 
 exit:
     return FUNCTION_ERROR;
-}
-
-int BTDevice_SetPktTxBegin_DUTMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
-{
-    int rtn=BT_FUNCTION_SUCCESS;
-    uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
-    uint32_t EventLen = 0;
-    uint16_t OpCode=0x0000;
-    int pktType=pParam->mPacketType;
-    uint8_t pPayload_Len=0;
-
-    pPayload[0]= pParam->mChannelNumber;
-
-    if (pktType == BT_PKT_LE)
-    {
-        pPayload[1]=37;
-        pPayload[2]=pParam->mPayloadType;
-        pPayload_Len=3;
-        OpCode=0x201e;
-    }
-    else
-    {
-        pPayload_Len=0;
-        OpCode=0xFD42;
-    }
-
-    if (OpCode>0)
-    {
-        if (pBtDevice->SendHciCommandWithEvent(pBtDevice,OpCode,pPayload_Len,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
-        {
-            rtn=FUNCTION_HCISEND_ERROR;
-            goto exit;
-        }
-        if (pEvent[5] != 0x00)
-        {
-            rtn=FUNCTION_HCISEND_STAUTS_ERROR;
-        }
-    }
-
-exit:
-    return rtn;
 }
 
 int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport)
@@ -955,11 +809,6 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         goto exit;
     }
 
-    //set test mode
-    if (pBtDevice->SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS) {
-        goto exit;
-    }
-
     //set channel
     if (pBtDevice->SetTxChannel(pBtDevice,pParam->mChannelNumber) != BT_FUNCTION_SUCCESS) {
         goto exit;
@@ -973,6 +822,11 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
 
     if (rtn != BT_FUNCTION_SUCCESS)
     {
+        goto exit;
+    }
+
+    //set test mode
+    if (pBtDevice->SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS) {
         goto exit;
     }
 
@@ -1028,6 +882,8 @@ int BTDevice_SetPktTxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
     unsigned long NewModemReg4Value=0;
     uint16_t tmp=0;
     uint32_t TXUpdateBits, TXPktUpdateCnts;
+
+    ALOGI("BTDevice_SetPktTxUpdate");
 
     //report
     BTDevice_CalculatedTxBits(pBtDevice, pParam, pBtReport, PKT_TX, &TXUpdateBits, &TXPktUpdateCnts);
@@ -1219,16 +1075,6 @@ static int BTDevice_SetContinueTxBegin_PSEUDOMODE(BT_DEVICE *pBtDevice,BT_PARAME
     {
         goto error;
     }
-    //------------------------------------------------------
-    //Reset Counter, Reset Report Count
-    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x00) != BT_FUNCTION_SUCCESS)
-    {
-        goto error;
-    }
-    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,11,9,0x07) != BT_FUNCTION_SUCCESS)
-    {
-        goto error;
-    }
     //Generate Negedge Pulse
     if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,0,0,0x01) != BT_FUNCTION_SUCCESS)
     {
@@ -1370,23 +1216,13 @@ error:
 
 static int BTDevice_SetContinueTxStop_PSEUDOMODE(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam)
 {
+    if (pBtDevice->SetMdRegMaskBits(pBtDevice, 0x2e, 15, 0, 0x0070) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+
     //Back to Standby Mode from Shut Down mode
-    if (pBtDevice->SetRfRegMaskBits(pBtDevice,0x00,15,0,0x0000) != BT_FUNCTION_SUCCESS)
-    {
-        goto exit;
-    }
-    //LE Con-Tx Disable
-    if ( pBtDevice->SetMdRegMaskBits(pBtDevice,0x3c,5,5,0x00) != BT_FUNCTION_SUCCESS)
-    {
-        goto exit;
-    }
-    //Continue Tx mode disable
-    if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,12,12,0x00) != BT_FUNCTION_SUCCESS)
-    {
-        goto exit;
-    }
-    //enable multi-packet Tx
-    if (pBtDevice->SetMutiRxEnable(pBtDevice,0x00) != BT_FUNCTION_SUCCESS)
+    if (pBtDevice->SetRfRegMaskBits(pBtDevice, 0x00, 15, 0, 0x0000) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }

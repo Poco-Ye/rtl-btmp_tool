@@ -133,12 +133,6 @@ BTDevice_SetLETxChannel(
         );
 
 int
-BTDevice_SetPesudoOuterSetup(
-        BT_DEVICE *pBtDevice,
-        BT_PARAMETER *pParam
-        );
-
-int
 BTDevice_SetPacketHeader(
         BT_DEVICE *pBtDevice,
         uint32_t pktHeader

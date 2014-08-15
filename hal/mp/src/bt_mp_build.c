@@ -56,7 +56,6 @@ BuildBluetoothDevice(
     pBtDevice->SetMutiRxEnable = BTDevice_SetMutiRxEnable;
     pBtDevice->SetRestMDCount = BTDevice_SetResetMDCount;
     pBtDevice->SetPacketHeader = BTDevice_SetPacketHeader;
-    pBtDevice->SetPesudoOuterSetup = BTDevice_SetPesudoOuterSetup;
 
     pBtDevice->TestModeEnable = BTDevice_TestModeEnable;
     pBtDevice->SetRtl8761Xtal = BTDevice_SetRTL8761Xtal;
