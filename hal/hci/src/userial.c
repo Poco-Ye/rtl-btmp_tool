@@ -399,7 +399,7 @@ uint8_t userial_open(uint8_t port)
 **                 copied into p_data.  This may be less than len.
 **
 *******************************************************************************/
-uint16_t  userial_read(uint16_t msg_id, uint8_t *p_buffer, uint16_t len)
+uint16_t userial_read(uint16_t msg_id, uint8_t *p_buffer, uint16_t len)
 {
     uint16_t total_len = 0;
     uint16_t copy_len = 0;

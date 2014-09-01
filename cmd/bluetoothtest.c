@@ -111,16 +111,27 @@ static void config_permissions(void)
 {
     struct __user_cap_header_struct header;
     struct __user_cap_data_struct cap;
+    int ret;
 
-    ALOGI("set_aid_and_cap : pid %d, uid %d gid %d", getpid(), getuid(), getgid());
-
-    header.pid = 0;
+    ALOGI("pre set_aid: pid %d, ppid %d, uid %d, euid %d, gid %d, egid %d",
+            getpid(), getppid(), getuid(), geteuid(), getgid(), getegid());
 
     prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
 
-    setuid(AID_BLUETOOTH);
-    setgid(AID_NET_BT_STACK);
+    ret = setgid(AID_NET_BT_STACK);
+    if (ret < 0) {
+        ALOGI("setgid AID_NET_BT_STACK failed: %s(%d)", strerror(errno), errno);
+    }
 
+    ret = setuid(AID_BLUETOOTH);
+    if (ret < 0) {
+        ALOGI("setuid AID_BLUETOOTH failed: %s(%d)", strerror(errno), errno);
+    }
+
+    ALOGI("post set_aid: pid %d, ppid %d, uid %d, euid %d, gid %d, egid %d",
+            getpid(), getppid(), getuid(), geteuid(), getgid(), getegid());
+
+    header.pid = 0;
     header.version = _LINUX_CAPABILITY_VERSION;
 
     cap.effective = cap.permitted = cap.inheritable =
