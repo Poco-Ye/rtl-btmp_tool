@@ -387,19 +387,19 @@ static void *bt_hc_worker_thread(void *arg)
         }
 #endif
 
-        if (events & HC_EVENT_PRELOAD)
-        {
-            userial_open(USERIAL_PORT_1);
-
-            /* Calling vendor-specific part */
-            if (bt_vnd_if)
-            {
-                bt_vnd_if->op(BT_VND_OP_FW_CFG, NULL);
-            }
-            else
-            {
+        if (events & HC_EVENT_PRELOAD) {
+            int ret = userial_open(USERIAL_PORT_1);
+            if (ret == FALSE) {
                 if (bt_hc_cbacks)
                     bt_hc_cbacks->preload_cb(NULL, BT_HC_PRELOAD_FAIL);
+            } else {
+                /* Calling vendor-specific part */
+                if (bt_vnd_if) {
+                    bt_vnd_if->op(BT_VND_OP_FW_CFG, NULL);
+                } else {
+                    if (bt_hc_cbacks)
+                        bt_hc_cbacks->preload_cb(NULL, BT_HC_PRELOAD_FAIL);
+                }
             }
         }
 
