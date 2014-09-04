@@ -27,7 +27,6 @@
 
 #define LOG_TAG "bte_conf"
 
-#include <utils/Log.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -60,9 +59,9 @@ DEV_CLASS local_device_default_class = {0x40, 0x02, 0x0C};
 **  Local type definitions
 ******************************************************************************/
 #define CONF_DBG          0
-#define info(format, ...) ALOGI (format, ## __VA_ARGS__)
-#define debug(format, ...) if (CONF_DBG) ALOGD (format, ## __VA_ARGS__)
-#define error(format, ...) ALOGE (format, ## __VA_ARGS__)
+#define info(format, ...) //ALOGI (format, ## __VA_ARGS__)
+#define debug(format, ...) if (CONF_DBG) //ALOGD (format, ## __VA_ARGS__)
+#define error(format, ...) //ALOGE (format, ## __VA_ARGS__)
 
 #define CONF_KEY_LEN   32
 #define CONF_VALUE_LEN 96
@@ -207,7 +206,7 @@ void bte_load_conf(const char *p_path)
     char    line[CONF_MAX_LINE_LEN+1]; /* add 1 for \0 char */
     BOOLEAN name_matched;
 
-    ALOGI("Attempt to load stack conf from %s", p_path);
+    //ALOGI("Attempt to load stack conf from %s", p_path);
 
     if ((p_file = fopen(p_path, "r")) != NULL)
     {
@@ -228,7 +227,7 @@ void bte_load_conf(const char *p_path)
 
             if (NULL == p_value)
             {
-                ALOGW("bte_load_conf: missing value for name: %s", p_name);
+                //ALOGW("bte_load_conf: missing value for name: %s", p_name);
                 continue;
             }
 
@@ -259,7 +258,7 @@ void bte_load_conf(const char *p_path)
     }
     else
     {
-        ALOGI( "bte_load_conf file >%s< not found", p_path);
+        //ALOGI( "bte_load_conf file >%s< not found", p_path);
     }
 }
 
@@ -283,7 +282,7 @@ static BOOLEAN bte_parse_did_conf (const char *p_path, UINT32 num,
     char    *p;
     char    line[CONF_MAX_LINE_LEN+1]; /* add 1 for \0 char */
 
-    ALOGI("Attempt to load did conf from %s", p_path);
+    //ALOGI("Attempt to load did conf from %s", p_path);
 
     if ((p_file = fopen(p_path, "r")) != NULL)
     {
@@ -343,7 +342,7 @@ static BOOLEAN bte_parse_did_conf (const char *p_path, UINT32 num,
    }
    else
    {
-        ALOGI( "bte_parse_did_conf file >%s< not found", p_path);
+        //ALOGI( "bte_parse_did_conf file >%s< not found", p_path);
    }
    if (!end_count)
        end_count = count;

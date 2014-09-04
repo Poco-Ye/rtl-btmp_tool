@@ -23,15 +23,12 @@
 #include "bt_types.h"
 
 
-
-#include <utils/Log.h>
-
 /*******************************************************************************
 **  Constants & Macros
 ********************************************************************************/
 
-#define ASSERTC(cond, msg, val) if (!(cond)) { ALOGE( \
-    "### ASSERT : %s line %d %s (%d) ###", __FILE__, __LINE__, msg, val);}
+#define ASSERTC(cond, msg, val) if (!(cond)) { /*ALOGE( \
+    "### ASSERT : %s line %d %s (%d) ###", __FILE__, __LINE__, msg, val);*/}
 
 /* Calculate start of event enumeration; id is top 8 bits of event */
 #define BTIF_SIG_START(id)       ((id) << 8)

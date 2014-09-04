@@ -28,7 +28,7 @@
 #define LOG_TAG "btif_core"
 
 #include <stdlib.h>
-#include "bluetoothmp.h"
+#include <bluetoothmp.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -36,8 +36,6 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <ctype.h>
-#include <cutils/properties.h>
-#include <utils/Log.h>
 
 #include "btif_api.h"
 
@@ -258,11 +256,11 @@ static void btif_mp_rx_data_ind(uint8_t evtcode, uint8_t *buf, uint8_t len)
 
     BaseInterfaceModuleMemory.evtLen = sizeof(evtcode) + sizeof(len) + len;
 
-    ALOGI("<-- HCI EVENT event code: 0x%x %d", evtcode, len);
+    //ALOGI("<-- HCI EVENT event code: 0x%x %d", evtcode, len);
 
     for( i = 0 ; i < len; i++ )
     {
-        ALOGI("0x%x ",buf[i]);
+        //ALOGI("0x%x ",buf[i]);
     }
 
     UINT8_TO_STREAM(pEvtBuf, evtcode);
@@ -284,7 +282,7 @@ static bt_status_t btif_mp_test_evt(void* msg)
     STREAM_TO_UINT8  (hci_evt_code, p);
     STREAM_TO_UINT8  (hci_evt_len, p);
 
-    ALOGI("%s: evtcode[0x%02x]", __FUNCTION__, hci_evt_code);
+    //ALOGI("%s: evtcode[0x%02x]", __FUNCTION__, hci_evt_code);
 
     if (btif_dut_mode)
     {
@@ -306,7 +304,7 @@ static bt_status_t btif_mp_notify_evt(void* msg)
 
     p[param_len] = '\0'; /* must allocate extra 1 byte */
 
-    ALOGI("%s: opcode[0x%02x], params[%s]", __FUNCTION__, opcode, p);
+    //ALOGI("%s: opcode[0x%02x], params[%s]", __FUNCTION__, opcode, p);
 
     HAL_CBACK(bt_hal_cbacks, dut_mode_recv_cb, opcode, p);
 
@@ -491,7 +489,7 @@ bt_status_t btif_enable_bluetooth(bt_hci_if_t hci_if, const char *dev_node)
 
     if (btif_core_state != BTIF_CORE_STATE_DISABLED)
     {
-        ALOGD("not disabled");
+        //ALOGD("not disabled");
         return BT_STATUS_DONE;
     }
 
@@ -538,8 +536,6 @@ void btif_enable_bluetooth_evt(tBTA_STATUS status)
 *******************************************************************************/
 bt_status_t btif_disable_bluetooth(void)
 {
-    tBTA_STATUS status;
-
     if (!btif_is_enabled())
     {
         BTIF_TRACE_ERROR0("btif_disable_bluetooth : not yet enabled");

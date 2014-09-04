@@ -30,6 +30,8 @@
 #ifndef BT_HCI_BDROID_H
 #define BT_HCI_BDROID_H
 
+#include <linux/sched.h>
+
 #include "bt_hci_lib.h"
 
 /******************************************************************************

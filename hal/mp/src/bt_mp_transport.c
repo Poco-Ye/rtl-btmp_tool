@@ -1,7 +1,7 @@
 #define LOG_TAG "bt_mp_transport"
 
 #include <stdio.h>
-#include <utils/Log.h>
+#include <string.h>
 #include <pthread.h>
 
 #include "bluetoothmp.h"
@@ -60,8 +60,8 @@ int bt_transport_RecvHciEvt(
         if(events & MP_TRANSPORT_EVENT_RX_HCIEVT)
         {
             *pRetEvtLen = pBaseInterface->evtLen;
-            ALOGI("pEvtBuffer %p, pBaseInterface->evtBuffer %p, pBaseInterface->evtLen %d",
-                    pEvtBuffer, pBaseInterface->evtBuffer, pBaseInterface->evtLen);
+            //ALOGI("pEvtBuffer %p, pBaseInterface->evtBuffer %p, pBaseInterface->evtLen %d",
+            //        pEvtBuffer, pBaseInterface->evtBuffer, pBaseInterface->evtLen);
             memcpy(pEvtBuffer, pBaseInterface->evtBuffer, pBaseInterface->evtLen);
             break;
         }

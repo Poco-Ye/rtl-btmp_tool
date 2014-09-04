@@ -1590,7 +1590,7 @@ and USER_HW_DISABLE_API macros */
 ******************************************************************************/
 
 #ifndef RFCOMM_INCLUDED
-#define RFCOMM_INCLUDED             TRUE
+#define RFCOMM_INCLUDED             FALSE
 #endif
 
 /* The maximum number of ports supported. */
@@ -1940,7 +1940,7 @@ Range: Minimum 12000 (12 secs) on BR/EDR when supporting PBF.
 ******************************************************************************/
 
 #ifndef BNEP_INCLUDED
-#define BNEP_INCLUDED               TRUE
+#define BNEP_INCLUDED               FALSE
 #endif
 
 /* Protocol filtering is an optional feature. Bydefault it will be turned on */
@@ -2086,7 +2086,7 @@ Range: Minimum 12000 (12 secs) on BR/EDR when supporting PBF.
 ******************************************************************************/
 
 #ifndef PAN_INCLUDED
-#define PAN_INCLUDED                     TRUE
+#define PAN_INCLUDED                     FALSE
 #endif
 
 /* This will enable the PANU role */
@@ -2824,7 +2824,7 @@ Range: Minimum 12000 (12 secs) on BR/EDR when supporting PBF.
 ** Definitions for HID-Host
 */
 #ifndef  HID_HOST_INCLUDED
-#define HID_HOST_INCLUDED           TRUE
+#define HID_HOST_INCLUDED           FALSE
 #endif
 
 #ifndef HID_HOST_MAX_DEVICES
@@ -3363,7 +3363,7 @@ Range: Minimum 12000 (12 secs) on BR/EDR when supporting PBF.
  * A2DP Definitions
  */
 #ifndef A2D_INCLUDED
-#define A2D_INCLUDED            TRUE
+#define A2D_INCLUDED            FALSE
 #endif
 
 /* TRUE to include SBC utility functions */
@@ -3479,7 +3479,7 @@ Range: Minimum 12000 (12 secs) when supporting PBF.
 ******************************************************************************/
 
 #ifndef AVRC_INCLUDED
-#define AVRC_INCLUDED               TRUE
+#define AVRC_INCLUDED               FALSE
 #endif
 
 /******************************************************************************

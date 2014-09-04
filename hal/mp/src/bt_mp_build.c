@@ -1,7 +1,5 @@
 #define LOG_TAG "btif_mp_build"
 
-#include <utils/Log.h>
-
 #include "bluetoothmp.h"
 #include "bt_mp_build.h"
 

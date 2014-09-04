@@ -28,10 +28,12 @@
 
 #define LOG_TAG "bt_upio"
 
-#include <utils/Log.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <cutils/properties.h>
+
 #include "bt_vendor_uart.h"
 #include "upio.h"
 #include "userial_vendor.h"
@@ -45,7 +47,7 @@
 #endif
 
 #if (UPIO_DBG == TRUE)
-#define UPIODBG(param, ...) {ALOGD(param, ## __VA_ARGS__);}
+#define UPIODBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
 #else
 #define UPIODBG(param, ...) {}
 #endif
@@ -73,6 +75,10 @@
  */
 #ifndef PROC_BTWRITE_TIMER_TIMEOUT_MS
 #define PROC_BTWRITE_TIMER_TIMEOUT_MS   8000
+#endif
+
+#ifndef PROPERTY_VALUE_MAX
+#define PROPERTY_VALUE_MAX  128
 #endif
 
 /* lpm proc control block */
@@ -118,26 +124,26 @@ static char *lpm_state[] = {
 *****************************************************************************/
 static int is_emulator_context(void)
 {
-    char value[PROPERTY_VALUE_MAX];
+    //char value[PROPERTY_VALUE_MAX];
 
-    property_get("ro.kernel.qemu", value, "0");
-    UPIODBG("is_emulator_context : %s", value);
-    if (strcmp(value, "1") == 0) {
-        return 1;
-    }
+    //property_get("ro.kernel.qemu", value, "0");
+    //UPIODBG("is_emulator_context : %s", value);
+    //if (strcmp(value, "1") == 0) {
+    //    return 1;
+    //}
     return 0;
 }
 
 static int is_rfkill_disabled(void)
 {
-    char value[PROPERTY_VALUE_MAX];
+    //char value[PROPERTY_VALUE_MAX];
 
-    property_get("ro.rfkilldisabled", value, "0");
-    UPIODBG("is_rfkill_disabled ? [%s]", value);
+    //property_get("ro.rfkilldisabled", value, "0");
+    //UPIODBG("is_rfkill_disabled ? [%s]", value);
 
-    if (strcmp(value, "1") == 0) {
-        return UPIO_BT_POWER_ON;
-    }
+    //if (strcmp(value, "1") == 0) {
+    //    return UPIO_BT_POWER_ON;
+    //}
 
     return UPIO_BT_POWER_OFF;
 }
@@ -157,8 +163,8 @@ static int init_rfkill()
         fd = open(path, O_RDONLY);
         if (fd < 0)
         {
-            ALOGE("init_rfkill : open(%s) failed: %s (%d)\n", \
-                 path, strerror(errno), errno);
+            //ALOGE("init_rfkill : open(%s) failed: %s (%d)\n",
+            //     path, strerror(errno), errno);
             return -1;
         }
 
@@ -292,16 +298,16 @@ int upio_set_bluetooth_power(int on)
 
     if (fd < 0)
     {
-        ALOGE("set_bluetooth_power : open(%s) for write failed: %s (%d)",
-            rfkill_state_path, strerror(errno), errno);
+        //ALOGE("set_bluetooth_power : open(%s) for write failed: %s (%d)",
+        //    rfkill_state_path, strerror(errno), errno);
         return ret;
     }
 
     sz = write(fd, &buffer, 1);
 
     if (sz < 0) {
-        ALOGE("set_bluetooth_power : write(%s) failed: %s (%d)",
-            rfkill_state_path, strerror(errno),errno);
+        //ALOGE("set_bluetooth_power : write(%s) failed: %s (%d)",
+        //    rfkill_state_path, strerror(errno),errno);
     }
     else
         ret = 0;
@@ -346,8 +352,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
 
             if (fd < 0)
             {
-                ALOGE("upio_set : open(%s) for write failed: %s (%d)",
-                        VENDOR_LPM_PROC_NODE, strerror(errno), errno);
+                //ALOGE("upio_set : open(%s) for write failed: %s (%d)",
+                //        VENDOR_LPM_PROC_NODE, strerror(errno), errno);
                 return;
             }
 
@@ -369,8 +375,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
 
             if (write(fd, &buffer, 1) < 0)
             {
-                ALOGE("upio_set : write(%s) failed: %s (%d)",
-                        VENDOR_LPM_PROC_NODE, strerror(errno),errno);
+                //ALOGE("upio_set : write(%s) failed: %s (%d)",
+                //        VENDOR_LPM_PROC_NODE, strerror(errno),errno);
             }
             else
             {
@@ -441,8 +447,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
 
             if (fd < 0)
             {
-                ALOGE("upio_set : open(%s) for write failed: %s (%d)",
-                        VENDOR_BTWRITE_PROC_NODE, strerror(errno), errno);
+                //ALOGE("upio_set : open(%s) for write failed: %s (%d)",
+                //        VENDOR_BTWRITE_PROC_NODE, strerror(errno), errno);
                 return;
             }
 
@@ -450,8 +456,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
 
             if (write(fd, &buffer, 1) < 0)
             {
-                ALOGE("upio_set : write(%s) failed: %s (%d)",
-                        VENDOR_BTWRITE_PROC_NODE, strerror(errno),errno);
+                //ALOGE("upio_set : write(%s) failed: %s (%d)",
+                //        VENDOR_BTWRITE_PROC_NODE, strerror(errno),errno);
             }
             else
             {

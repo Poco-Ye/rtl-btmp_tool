@@ -26,22 +26,25 @@
 
 #define LOG_TAG "hci_h5"
 
-#include <utils/Log.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
+#include <termios.h>
+#include <errno.h>
+#include <signal.h>
+#include <time.h>
+#include <sys/prctl.h>
+#include <sys/types.h>
+#include <pthread.h>
+
 #include "bt_hci_bdroid.h"
 #include "hci.h"
 #include "userial.h"
 #include "utils.h"
-#include <termios.h>
-#include <errno.h>
 #include "bt_skbuff.h"
 #include "bt_list.h"
-
-#include <signal.h>
-#include <time.h>
-
-#include <sys/prctl.h>
 
 /******************************************************************************
 **  Constants & Macros
@@ -157,7 +160,7 @@ uint32_t rtk_set_bt_cal_inqury_result(uint8_t result);
 /* BD Address */
 typedef struct {
     uint8_t b[6];
-} __packed bdaddr_t;
+} __attribute__ ((packed)) bdaddr_t;
 
 
 /******************************************************************************
@@ -171,9 +174,6 @@ static const uint16_t msg_evt_table[] =
     MSG_HC_TO_STACK_HCI_SCO,       /* H4_TYPE_SCO_DATA */
     MSG_HC_TO_STACK_HCI_EVT        /* H4_TYPE_EVENT */
 };
-
-/* Callback function for the returned event of internal issued command */
-typedef void (*tINT_CMD_CBACK)(void *p_mem);
 
 typedef struct
 {
@@ -517,7 +517,7 @@ const uint8_t byte_rev_table[256] = {
 #endif
 #define H5_LOG_MAX_SIZE  (H5_LOG_BUF_SIZE - 12)
 
-#define LOGI0(t,s) __android_log_write(ANDROID_LOG_INFO, t, s)
+//#define LOGI0(t,s) __android_log_write(ANDROID_LOG_INFO, t, s)
 
 void
 LogMsg(const char *fmt_str, ...)
@@ -525,12 +525,12 @@ LogMsg(const char *fmt_str, ...)
     static char buffer[H5_LOG_BUF_SIZE];
     if(h5_log_enable == 1)
     {
-        va_list ap;
-        va_start(ap, fmt_str);
-        vsnprintf(&buffer[0], H5_LOG_MAX_SIZE, fmt_str, ap);
-        va_end(ap);
+        //va_list ap;
+        //va_start(ap, fmt_str);
+        //vsnprintf(&buffer[0], H5_LOG_MAX_SIZE, fmt_str, ap);
+        //va_end(ap);
 
-        LOGI0("H5: ", buffer);
+        //LOGI0("H5: ", buffer);
      }
      else
      {
@@ -1089,7 +1089,7 @@ static void h5_unslip_one_byte(struct tHCI_H5_CB *h5, unsigned char byte)
             h5->rx_count--;
             break;
         default:
-            ALOGE("Error: Invalid byte %02x after esc byte", byte);
+            //ALOGE("Error: Invalid byte %02x after esc byte", byte);
             skb_free(&h5->rx_skb);
             h5->rx_skb = NULL;
             h5->rx_state = H5_W4_PKT_DELIMITER;
@@ -1136,7 +1136,7 @@ static sk_buff * h5_prepare_pkt(struct tHCI_H5_CB *h5, uint8_t *data, signed lon
     rel = 0;// unreliable
     break;
     default:
-    ALOGE("Unknown packet type");
+    //ALOGE("Unknown packet type");
     return NULL;
     }
 
@@ -1289,7 +1289,7 @@ static void hci_h5_send_pure_ack(void)
     sk_buff *nskb = h5_prepare_pkt(&rtk_h5, NULL, 0, H5_ACK_PKT);
     if(nskb == NULL)
     {
-        ALOGE("h5_prepare_pkt allocate memory fail");
+        //ALOGE("h5_prepare_pkt allocate memory fail");
         return;
     }
     LogMsg("H5: --->>>send pure ack");
@@ -1330,7 +1330,7 @@ static void hci_h5_send_sync_req()
     sk_buff *nskb = h5_prepare_pkt(&rtk_h5, h5sync, sizeof(h5sync), H5_LINK_CTL_PKT);
     if(nskb == NULL)
     {
-        ALOGE("h5_prepare_pkt allocate memory fail");
+        //ALOGE("h5_prepare_pkt allocate memory fail");
         return;
     }
     LogMsg("H5: --->>>send sync req");
@@ -1368,7 +1368,7 @@ static void hci_h5_send_sync_resp()
     sk_buff *nskb = h5_prepare_pkt(&rtk_h5, h5syncresp, sizeof(h5syncresp), H5_LINK_CTL_PKT);
     if(nskb == NULL)
     {
-        ALOGE("h5_prepare_pkt allocate memory fail");
+        //ALOGE("h5_prepare_pkt allocate memory fail");
         return;
     }
     LogMsg("H5: --->>>send sync resp");
@@ -1406,7 +1406,7 @@ static void hci_h5_send_conf_req()
     sk_buff *nskb = h5_prepare_pkt(&rtk_h5, h5conf, sizeof(h5conf), H5_LINK_CTL_PKT);
     if(nskb == NULL)
     {
-        ALOGE("h5_prepare_pkt allocate memory fail");
+        //ALOGE("h5_prepare_pkt allocate memory fail");
         return;
     }
     LogMsg("H5: --->>>send conf req");
@@ -1445,7 +1445,7 @@ static void hci_h5_send_conf_resp()
     sk_buff *nskb = h5_prepare_pkt(&rtk_h5, h5confresp, sizeof(h5confresp), H5_LINK_CTL_PKT);
     if(nskb == NULL)
     {
-        ALOGE("h5_prepare_pkt allocate memory fail");
+        //ALOGE("h5_prepare_pkt allocate memory fail");
         return;
     }
     LogMsg("H5: --->>>send conf resp");
@@ -1586,7 +1586,7 @@ h5_enqueue(
     //Pkt length must be less than 4095 bytes
     if (skb_get_data_length(skb) > 0xFFF)
     {
-        ALOGE("skb len > 0xFFF");
+        //ALOGE("skb len > 0xFFF");
         skb_free(&skb);
         return 0;
     }
@@ -1963,7 +1963,7 @@ uint8_t internal_event_intercept_h5(void)
 
         if (len < num_of_handle*4+sizeof(num_of_handle))
         {
-            ALOGE("len is error");
+            //ALOGE("len is error");
             internal_command = 0;
             return internal_command;
         }
@@ -2030,12 +2030,12 @@ uint8_t internal_event_intercept_h5(void)
                 }
                 else
                 {
-                    ALOGE("HciConnAllocate fail");
+                    //ALOGE("HciConnAllocate fail");
                 }
             }
             else
             {
-                ALOGE("HCI Connection handle(0x%x) has already exist!", handle);
+                //ALOGE("HCI Connection handle(0x%x) has already exist!", handle);
                 bacpy(&hci_conn->bd_addr, &bd_addr);
                 hci_conn->link_type = link_type;
                 hci_conn->encrypt_enabled = encrypt_enabled;
@@ -2087,19 +2087,19 @@ uint8_t internal_event_intercept_h5(void)
                 }
                 else
                 {
-                    ALOGE("HciConnAllocate fail");
+                    //ALOGE("HciConnAllocate fail");
                 }
             }
             else
             {
-                ALOGE("HCI Connection handle(0x%x) has already exist!", handle);
+                //ALOGE("HCI Connection handle(0x%x) has already exist!", handle);
                 bacpy(&hci_conn->bd_addr, &bd_addr);
                 hci_conn->link_type = link_type;
                 hci_conn->encrypt_enabled = encrypt_enabled;
                 hci_conn->NumOfNotCmpAclPkts = 0;
 
             }
-            ALOGI("hc_cur_acl_total_num(%d)", rtk_h5.hc_cur_acl_total_num);
+            //ALOGI("hc_cur_acl_total_num(%d)", rtk_h5.hc_cur_acl_total_num);
         }
 
     }
@@ -2125,7 +2125,7 @@ uint8_t internal_event_intercept_h5(void)
             }
             else
             {
-                ALOGE("HCI Connection handle(0x%x) not found", handle);
+                //ALOGE("HCI Connection handle(0x%x) not found", handle);
             }
         }
     }
@@ -2251,7 +2251,7 @@ uint8_t hci_rx_dispatch_by_handle(sk_buff* rx_skb)
         }
         else
         {
-            ALOGE("HciConnAllocate fail");
+            //ALOGE("HciConnAllocate fail");
             return 0;
         }
     }
@@ -2300,7 +2300,7 @@ uint8_t hci_rx_dispatch_by_handle(sk_buff* rx_skb)
         }
         else
         {
-            ALOGE("skb_alloc fail");
+            //ALOGE("skb_alloc fail");
             return 0;
         }
     }
@@ -2388,7 +2388,7 @@ static void h5_complete_rx_pkt(struct tHCI_H5_CB *h5)
             break;
 
         default:
-          ALOGE("Unknown pkt type(%d)", h5_hdr->PktType);
+          //ALOGE("Unknown pkt type(%d)", h5_hdr->PktType);
           eventtype = MSG_HC_TO_STACK_HCI_ERR;
           pass_up = 0;
           break;
@@ -2477,7 +2477,7 @@ static int h5_recv(struct tHCI_H5_CB *h5, void *data, int count)
         {
             if (*ptr == 0xc0)
             {
-                ALOGE("short h5 packet");
+                //ALOGE("short h5 packet");
                 skb_free(&h5->rx_skb);
                 h5->rx_state = H5_W4_PKT_START;
                 h5->rx_count = 0;
@@ -2498,7 +2498,7 @@ static int h5_recv(struct tHCI_H5_CB *h5, void *data, int count)
             if ((0xff & (uint8_t) ~ (skb_data[0] + skb_data[1] +
                                    skb_data[2])) != skb_data[3])
             {
-                ALOGE("h5 hdr checksum error!!!");
+                //ALOGE("h5 hdr checksum error!!!");
                 skb_free(&h5->rx_skb);
                 h5->rx_state = H5_W4_PKT_DELIMITER;
                 h5->rx_count = 0;
@@ -2508,8 +2508,8 @@ static int h5_recv(struct tHCI_H5_CB *h5, void *data, int count)
               if (hdr->ReliablePkt
                 && (hdr->SeqNumber!= h5->rxseq_txack))
             {
-                ALOGE("Out-of-order packet arrived, got(%u)expected(%u)",
-                   hdr->SeqNumber, h5->rxseq_txack);
+                //ALOGE("Out-of-order packet arrived, got(%u)expected(%u)",
+                //   hdr->SeqNumber, h5->rxseq_txack);
                 h5->is_txack_req = 1;
                 h5_wake_up();
 
@@ -2540,8 +2540,8 @@ static int h5_recv(struct tHCI_H5_CB *h5, void *data, int count)
         case H5_W4_CRC:
             if (bit_rev16(h5->message_crc) != h5_get_crc(h5))
             {
-                ALOGE("Checksum failed, computed(%04x)received(%04x)",
-                    bit_rev16(h5->message_crc), h5_get_crc(h5));
+                //ALOGE("Checksum failed, computed(%04x)received(%04x)",
+                //    bit_rev16(h5->message_crc), h5_get_crc(h5));
                 skb_free(&h5->rx_skb);
                 h5->rx_state = H5_W4_PKT_DELIMITER;
                 h5->rx_count = 0;
@@ -2698,7 +2698,7 @@ void get_acl_data_length_cback_h5(void *p_mem)
         if (bt_hc_cbacks)
         {
             bt_hc_cbacks->dealloc((TRANSAC) p_buf, (char *) (p_buf + 1));
-            ALOGE("vendor lib postload completed");
+            //ALOGE("vendor lib postload completed");
             bt_hc_cbacks->postload_cb(NULL, BT_HC_POSTLOAD_SUCCESS);
         }
     }
@@ -2729,7 +2729,7 @@ static void data_retransfer_thread(void *arg)
         if (events & H5_EVENT_RX)
         {
             sk_buff *skb;
-            ALOGE("retransmitting (%u) pkts, retransfer count(%d)", skb_queue_get_length(rtk_h5.unack), rtk_h5.data_retrans_count);
+            //ALOGE("retransmitting (%u) pkts, retransfer count(%d)", skb_queue_get_length(rtk_h5.unack), rtk_h5.data_retrans_count);
             if(rtk_h5.data_retrans_count < DATA_RETRANS_COUNT)
             {
                 while ((skb = skb_dequeue_tail(rtk_h5.unack)) != NULL)
@@ -2740,7 +2740,7 @@ static void data_retransfer_thread(void *arg)
                      data_len=16;
 
                     for(i = 0 ; i < data_len; i++)
-                        ALOGE("0x%02X", pdata[i]);
+                        //ALOGE("0x%02X", pdata[i]);
 
                     rtk_h5.msgq_txseq = (rtk_h5.msgq_txseq - 1) & 0x07;
                     skb_queue_head(rtk_h5.rel, skb);
@@ -2791,7 +2791,7 @@ static int create_data_retransfer_thread()
 
     if (h5_retransfer_running)
     {
-        ALOGW("create_data_retransfer_thread has been called repeatedly without calling cleanup ?");
+        //ALOGW("create_data_retransfer_thread has been called repeatedly without calling cleanup ?");
     }
 
     h5_retransfer_running = 1;
@@ -2804,7 +2804,7 @@ static int create_data_retransfer_thread()
     if (pthread_create(&rtk_h5.thread_data_retrans, &thread_attr, \
                (void*)data_retransfer_thread, NULL) != 0)
     {
-        ALOGE("pthread_create failed!");
+        //ALOGE("pthread_create failed!");
         h5_retransfer_running = 0;
         return -1 ;
     }
@@ -2843,7 +2843,7 @@ static int create_data_retransfer_thread()
 *******************************************************************************/
 void hci_h5_init(void)
 {
-    ALOGI("hci_h5_init");
+    //ALOGI("hci_h5_init");
 
     memset(&rtk_h5, 0, sizeof(struct tHCI_H5_CB));
     utils_queue_init(&(rtk_h5.acl_rx_q));
@@ -2868,7 +2868,7 @@ void hci_h5_init(void)
     rtk_h5.thread_data_retrans = -1;
 
     if(create_data_retransfer_thread() != 0)
-        ALOGE("H5 create_data_retransfer_thread failed");
+        //ALOGE("H5 create_data_retransfer_thread failed");
 
 
     rtk_h5.unack = RtbQueueInit();
@@ -2919,7 +2919,7 @@ void hci_h5_cleanup(void)
         h5_retransfer_running = 0;
         h5_retransfer_signal_event(H5_EVENT_EXIT);
         if ((result=pthread_join(rtk_h5.thread_data_retrans, NULL)) < 0)
-        ALOGE( "H5 pthread_join() FAILED result:%d", result);
+            ;//ALOGE( "H5 pthread_join() FAILED result:%d", result);
     }
 
     h5_ms_delay(200);
@@ -3003,8 +3003,8 @@ void hci_h5_send_msg(HC_BT_HDR *p_msg)
         hci_conn = ConnHashLookupByHandle(&rtk_h5, handle);
         if(hci_conn == NULL)
         {
-            ALOGE("HCI connection handle (0x%x) has been disconnected or not connected", handle);
-            ALOGE("Return NOT Send this packet!!");
+            //ALOGE("HCI connection handle (0x%x) has been disconnected or not connected", handle);
+            //ALOGE("Return NOT Send this packet!!");
             return;
         }
     }
@@ -3042,7 +3042,7 @@ void hci_h5_send_msg(HC_BT_HDR *p_msg)
             else
             {
                 //store skb in pending pkts queue
-                ALOGE("******************(%d)", rtk_h5.hc_cur_acl_total_num);
+                //ALOGE("******************(%d)", rtk_h5.hc_cur_acl_total_num);
 
                 skb_queue_tail(hci_conn->pending_pkts, skb);
             }
@@ -3235,9 +3235,8 @@ uint8_t hci_h5_send_int_cmd(uint16_t opcode, HC_BT_HDR *p_buf, \
         LogMsg("hci_h5_send_int_cmd(0x%x)", opcode);
         if (rtk_h5.int_cmd_rsp_pending > INT_CMD_PKT_MAX_COUNT)
         {
-            ALOGE( \
-            "Allow only %d outstanding internal commands at a time [Reject 0x%04X]"\
-            , INT_CMD_PKT_MAX_COUNT, opcode);
+            //ALOGE("Allow only %d outstanding internal commands at a time [Reject 0x%04X]",
+            //        INT_CMD_PKT_MAX_COUNT, opcode);
             return FALSE;
         }
 
@@ -3337,7 +3336,7 @@ static timer_t OsAllocateTimer(int signo)
     }
     else
     {
-        ALOGE("timer_create error!");
+        //ALOGE("timer_create error!");
         return -1;
     }
 }
@@ -3347,7 +3346,7 @@ static timer_t OsAllocateTimer(int signo)
     int ret = 0;
     ret = timer_delete(timerid);
     if(ret != 0)
-        ALOGE("timer_delete fail with errno(%d)", errno);
+        ;//ALOGE("timer_delete fail with errno(%d)", errno);
 
     return ret;
 }
@@ -3376,7 +3375,7 @@ static timer_t OsAllocateTimer(int signo)
 
     if (timer_settime(timerid, 0, &itval, NULL) != 0)
     {
-        ALOGE("time_settime error!");
+        //ALOGE("time_settime error!");
         return -1;
     }
 
@@ -3392,10 +3391,10 @@ static timer_t OsAllocateTimer(int signo)
 static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
  {
 
-    ALOGE("h5_timeout_handler");
+    //ALOGE("h5_timeout_handler");
     if(rtk_h5.cleanuping)
     {
-        ALOGE("H5 is cleanuping, EXIT here!");
+        //ALOGE("H5 is cleanuping, EXIT here!");
         return;
     }
     if (signo == TIMER_H5_DATA_RETRANS)
@@ -3405,7 +3404,7 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
     else
     if (signo == TIMER_H5_SYNC_RETRANS)
     {
-        ALOGE("Wait H5 Sync Resp timeout, %d times", rtk_h5.sync_retrans_count);
+        //ALOGE("Wait H5 Sync Resp timeout, %d times", rtk_h5.sync_retrans_count);
         if(rtk_h5.sync_retrans_count < SYNC_RETRANS_COUNT)
         {
             hci_h5_send_sync_req();
@@ -3419,7 +3418,7 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
     else
     if (signo == TIMER_H5_CONF_RETRANS)
     {
-        ALOGE("Wait H5 Conf Resp timeout, %d times", rtk_h5.conf_retrans_count);
+        //ALOGE("Wait H5 Conf Resp timeout, %d times", rtk_h5.conf_retrans_count);
         if(rtk_h5.conf_retrans_count < CONF_RETRANS_COUNT)
         {
             hci_h5_send_conf_req();
@@ -3458,7 +3457,7 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
     }
     else
     {
-        ALOGE("H5 timer rx unspported signo(%d)", signo);
+        //ALOGE("H5 timer rx unspported signo(%d)", signo);
     }
 }
 

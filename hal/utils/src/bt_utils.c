@@ -24,24 +24,24 @@
  *
  *
  ***********************************************************************************/
+#define LOG_TAG "BT_UTILS"
 
-#include <cutils/properties.h>
-#include <cutils/sched_policy.h>
-#include <errno.h>
-#include <pthread.h>
-#include <sys/resource.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <utils/ThreadDefs.h>
-
-#define LOG_TAG "BT_UTILS"
-
-#include <utils/Log.h>
+#include <errno.h>
+#include <pthread.h>
+#include <sys/types.h>
+#include <sys/resource.h>
+//#include <cutils/sched_policy.h>
 
 #include "data_types.h"
 #include "bt_utils.h"
 
+
+#ifndef PROPERTY_VALUE_MAX
+#define PROPERTY_VALUE_MAX  128
+#endif
 
 /*******************************************************************************
 **  Type definitions for callback functions
@@ -94,16 +94,16 @@ void bt_utils_cleanup() {
 ** Returns         void
 **
 *******************************************************************************/
-static void check_do_scheduling_group(void) {
-    char buf[PROPERTY_VALUE_MAX];
-    int len = property_get("debug.sys.noschedgroups", buf, "");
-    if (len > 0) {
-        int temp;
-        if (sscanf(buf, "%d", &temp) == 1) {
-            g_DoSchedulingGroup[g_TaskIdx] = temp == 0;
-        }
-    }
-}
+//static void check_do_scheduling_group(void) {
+    //char buf[PROPERTY_VALUE_MAX];
+    //int len = property_get("debug.sys.noschedgroups", buf, "");
+    //if (len > 0) {
+    //    int temp;
+    //    if (sscanf(buf, "%d", &temp) == 1) {
+    //        g_DoSchedulingGroup[g_TaskIdx] = temp == 0;
+    //    }
+    //}
+//}
 
 /*****************************************************************************
 **
@@ -115,24 +115,24 @@ static void check_do_scheduling_group(void) {
 **
 *******************************************************************************/
 void raise_priority_a2dp(tHIGH_PRIORITY_TASK high_task) {
-    int rc = 0;
-    int tid = gettid();
+    //int rc = 0;
+    //int tid = gettid();
 
-    pthread_mutex_lock(&gIdxLock);
-    g_TaskIdx = high_task;
+    //pthread_mutex_lock(&gIdxLock);
+    //g_TaskIdx = high_task;
 
-    pthread_once(&g_DoSchedulingGroupOnce[g_TaskIdx], check_do_scheduling_group);
-    if (g_DoSchedulingGroup[g_TaskIdx]) {
-        // set_sched_policy does not support tid == 0
-        rc = set_sched_policy(tid, SP_FOREGROUND);
-    }
-    pthread_mutex_unlock(&gIdxLock);
+    //pthread_once(&g_DoSchedulingGroupOnce[g_TaskIdx], check_do_scheduling_group);
+    //if (g_DoSchedulingGroup[g_TaskIdx]) {
+    //    // set_sched_policy does not support tid == 0
+    //    //rc = set_sched_policy(tid, SP_FOREGROUND);
+    //}
+    //pthread_mutex_unlock(&gIdxLock);
 
-    if (rc) {
-        ALOGW("failed to change sched policy, tid %d, err: %d", tid, errno);
-    }
+    //if (rc) {
+        //ALOGW("failed to change sched policy, tid %d, err: %d", tid, errno);
+    //}
 
-    if (setpriority(PRIO_PROCESS, tid, ANDROID_PRIORITY_AUDIO) < 0) {
-        ALOGW("failed to change priority tid: %d to %d", tid, ANDROID_PRIORITY_AUDIO);
-    }
+    //if (setpriority(PRIO_PROCESS, tid, ANDROID_PRIORITY_AUDIO) < 0) {
+    //    //ALOGW("failed to change priority tid: %d to %d", tid, ANDROID_PRIORITY_AUDIO);
+    //}
 }

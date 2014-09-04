@@ -23,6 +23,7 @@
 #include <sys/cdefs.h>
 #include <sys/types.h>
 
+#include "hci.h"
 /** Struct types */
 
 
@@ -235,7 +236,8 @@ typedef void (*mdealloc_cb)(void *p_buf);
  *  complete packet. Vendor lib is responsible for releasing the buffer passed
  *  in at the p_mem parameter by calling dealloc callout function.
  */
-typedef void (*tINT_CMD_CBACK)(void *p_mem);
+ /* included from hci.h */
+ /* typedef void (*tINT_CMD_CBACK)(void *p_mem); */
 
 /* hci command packet transmit callback (callout)
  *

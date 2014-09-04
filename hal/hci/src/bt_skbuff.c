@@ -17,22 +17,20 @@ Notes:
 --*/
 
 #define LOG_TAG "bt_h5"
-#undef NDEBUG
-#include <utils/Log.h>
+
 #include <stdlib.h>
 #include <fcntl.h>
-#include "bt_hci_bdroid.h"
-#include "hci.h"
-#include "userial.h"
-#include "utils.h"
+#include <string.h>
 #include <termios.h>
 #include <errno.h>
 #include <pthread.h>
 
-
+#include "bt_hci_bdroid.h"
+#include "hci.h"
+#include "userial.h"
+#include "utils.h"
 #include "bt_list.h"
 #include "bt_skbuff.h"
-
 
 #define IN
 #define OUT
@@ -49,16 +47,6 @@ Notes:
 
 //do alignment with RTB_ALIGN
 #define RTB_DATA_ALIGN(_Length)     ((_Length + (RTB_ALIGN - 1)) & (~(RTB_ALIGN - 1)))
-
-//****************************************************************************
-// STRUCTURE DEFINITION
-//****************************************************************************
-typedef struct _RTB_QUEUE_HEAD{
-    RT_LIST_HEAD List;
-    uint32_t  QueueLen;
-    pthread_mutex_t Lock;
-    uint8_t   Id[RTB_QUEUE_ID_LENGTH];
-}RTB_QUEUE_HEAD, *PRTB_QUEUE_HEAD;
 
 //****************************************************************************
 // FUNCTION

@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 #include "gki_int.h"
-#include <cutils/log.h>
 
 #if (GKI_NUM_TOTAL_BUF_POOLS > 16)
 #error Number of pools out of range (16 Max)!

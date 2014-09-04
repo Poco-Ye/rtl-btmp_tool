@@ -28,7 +28,10 @@
 
 #define LOG_TAG "bt_hwcfg"
 
-#include <utils/Log.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
@@ -37,15 +40,12 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <ctype.h>
-#include <cutils/properties.h>
-#include <stdlib.h>
+
 #include "bt_hci_bdroid.h"
 #include "bt_vendor_uart.h"
 #include "userial.h"
 #include "userial_vendor.h"
 #include "upio.h"
-#include <unistd.h>
-
 #include "bt_vendor_lib.h"
 #include "hci.h"
 
@@ -59,7 +59,7 @@
 #endif
 
 #if (BTHW_DBG == TRUE)
-#define BTHWDBG(param, ...) {ALOGD(param, ## __VA_ARGS__);}
+#define BTHWDBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
 #else
 #define BTHWDBG(param, ...) {}
 #endif
@@ -409,7 +409,7 @@ uint8_t line_speed_to_userial_baud(uint32_t line_speed)
         baud = USERIAL_BAUD_600;
     else
     {
-        ALOGE( "userial vendor: unsupported baud speed %d", line_speed);
+        //ALOGE( "userial vendor: unsupported baud speed %d", line_speed);
         baud = USERIAL_BAUD_115200;
     }
 
@@ -564,13 +564,13 @@ uint32_t rtk_parse_config_file(unsigned char* config_buf, size_t filelen, char b
 
     if (config->signature != RTK_VENDOR_CONFIG_MAGIC)
     {
-        ALOGE("config signature magic number(%x) is not set to RTK_VENDOR_CONFIG_MAGIC", config->signature);
+        //ALOGE("config signature magic number(%x) is not set to RTK_VENDOR_CONFIG_MAGIC", config->signature);
         return 0;
     }
 
     if (config_len != filelen - sizeof(struct rtk_bt_vendor_config))
     {
-        ALOGE("config len(%x) is not right(%x)", config_len, filelen-sizeof(struct rtk_bt_vendor_config));
+        //ALOGE("config len(%x) is not right(%x)", config_len, filelen-sizeof(struct rtk_bt_vendor_config));
         return 0;
     }
 
@@ -601,11 +601,11 @@ uint32_t rtk_parse_config_file(unsigned char* config_buf, size_t filelen, char b
                 {
                     gNeedToSetHWFlowControl = 0;
                 }
-                ALOGI("config baud rate to :%08x, hwflowcontrol:%x, %x", baudrate, entry->entry_data[12], gHwFlowControlEnable);
+                //ALOGI("config baud rate to :%08x, hwflowcontrol:%x, %x", baudrate, entry->entry_data[12], gHwFlowControlEnable);
                 break;
             }
             default:
-                ALOGI("config offset(%x),length(%x)", entry->offset, entry->entry_len);
+                //ALOGI("config offset(%x),length(%x)", entry->offset, entry->entry_len);
                 break;
         }
         temp = entry->entry_len + sizeof(struct rtk_bt_vendor_config_entry);
@@ -634,23 +634,23 @@ uint32_t rtk_get_bt_cal_info(unsigned char** cal_buf)
 
     if (stat(bt_cal_file_name, &st) < 0)
     {
-        ALOGE("can't access bt cal file:%s, errno:%d\n", bt_cal_file_name, errno);
+        //ALOGE("can't access bt cal file:%s, errno:%d\n", bt_cal_file_name, errno);
         return -1;
     }
 
     filelen = st.st_size;
-    ALOGI("CAL File Length = %d", filelen);
+    //ALOGI("CAL File Length = %d", filelen);
 
     if ((fd = open(bt_cal_file_name, O_RDONLY)) < 0)
     {
-        ALOGE("Can't open bt cal file, errno = %d", errno);
+        //ALOGE("Can't open bt cal file, errno = %d", errno);
         return -1;
     }
 
 
     if ((*cal_buf = malloc(filelen)) == NULL)
     {
-        ALOGE("malloc buffer for cal file fail(%x)\n", filelen);
+        //ALOGE("malloc buffer for cal file fail(%x)\n", filelen);
         return -1;
     }
 
@@ -659,7 +659,7 @@ uint32_t rtk_get_bt_cal_info(unsigned char** cal_buf)
     //for easy debug, only get need data.
     ret_len = read(fd, *cal_buf, filelen);
     if ( ret_len < (ssize_t)filelen) {
-        ALOGE("Can't load bt cal file, ret_len(%d), errno = %d", ret_len, errno);
+        //ALOGE("Can't load bt cal file, ret_len(%d), errno = %d", ret_len, errno);
         free(*cal_buf);
         close(fd);
         return -1;
@@ -682,7 +682,7 @@ uint32_t rtk_set_bt_cal_info(unsigned char* cal_buf, uint32_t length)
 
     if (stat(bt_cal_file_name, &st) < 0)
     {
-        ALOGE("can't access bt cal file:%s, errno:%d\n", bt_cal_file_name, errno);
+        //ALOGE("can't access bt cal file:%s, errno:%d\n", bt_cal_file_name, errno);
         filelen = length;
     }
     else
@@ -692,11 +692,11 @@ uint32_t rtk_set_bt_cal_info(unsigned char* cal_buf, uint32_t length)
 
 
 
-    ALOGI("CAL File Length = %d", filelen);
+    //ALOGI("CAL File Length = %d", filelen);
 
     if ((fd = open(bt_cal_file_name, O_RDWR | O_CREAT, 0666)) < 0)
     {
-        ALOGE("Can't open bt cal file, errno = %d", errno);
+        //ALOGE("Can't open bt cal file, errno = %d", errno);
         return -1;
     }
 
@@ -705,7 +705,7 @@ uint32_t rtk_set_bt_cal_info(unsigned char* cal_buf, uint32_t length)
     //for easy debug, only get need data.
 
     if (write(fd, cal_buf, filelen) < (ssize_t)filelen) {
-        ALOGE("Can't load bt cal file, errno = %d", errno);
+        //ALOGE("Can't load bt cal file, errno = %d", errno);
 
         close(fd);
         return -1;
@@ -729,11 +729,11 @@ uint32_t rtk_get_bt_config(unsigned char** config_buf,
     FILE* file = NULL;
 
     sprintf(bt_config_file_name, BT_CONFIG_DIRECTORY, config_file_short_name);
-    ALOGI("BT config file: %s", bt_config_file_name);
+    //ALOGI("BT config file: %s", bt_config_file_name);
 
     if (stat(bt_config_file_name, &st) < 0)
     {
-        ALOGE("can't access bt config file:%s, errno:%d\n", bt_config_file_name, errno);
+        //ALOGE("can't access bt config file:%s, errno:%d\n", bt_config_file_name, errno);
         return -1;
     }
 
@@ -741,13 +741,13 @@ uint32_t rtk_get_bt_config(unsigned char** config_buf,
 
     if ((fd = open(bt_config_file_name, O_RDONLY)) < 0)
     {
-        ALOGE("Can't open bt config file");
+        //ALOGE("Can't open bt config file");
         return -1;
     }
 
     if ((*config_buf = malloc(filelen)) == NULL)
     {
-        ALOGE("malloc buffer for config file fail(%x)\n", filelen);
+        //ALOGE("malloc buffer for config file fail(%x)\n", filelen);
         return -1;
     }
 
@@ -756,14 +756,14 @@ uint32_t rtk_get_bt_config(unsigned char** config_buf,
     //for easy debug, only get need data.
 
     if (read(fd, *config_buf, filelen) < (ssize_t)filelen) {
-        ALOGE("Can't load bt config file");
+        //ALOGE("Can't load bt config file");
         free(*config_buf);
         close(fd);
         return -1;
     }
 
     *config_baud_rate = rtk_parse_config_file(*config_buf, filelen, bt_addr);
-    ALOGI("Get config baud rate from config file:%x", *config_baud_rate);
+    //ALOGI("Get config baud rate from config file:%x", *config_baud_rate);
 
     close(fd);
     return filelen;
@@ -778,10 +778,10 @@ int rtk_get_bt_firmware(uint8_t** fw_buf, size_t addi_len, char* fw_short_name)
        size_t buf_size = 0;
 
     sprintf(filename, FIRMWARE_DIRECTORY, fw_short_name);
-    ALOGI("BT fw file: %s", (char*)filename);
+    //ALOGI("BT fw file: %s", (char*)filename);
 
     if (stat(filename, &st) < 0) {
-        ALOGE("Can't access firmware, errno:%d", errno);
+        //ALOGE("Can't access firmware, errno:%d", errno);
         return -1;
     }
 
@@ -789,12 +789,12 @@ int rtk_get_bt_firmware(uint8_t** fw_buf, size_t addi_len, char* fw_short_name)
     buf_size = fwsize + addi_len;
 
     if ((fd = open(filename, O_RDONLY)) < 0) {
-        ALOGE("Can't open firmware, errno:%d", errno);
+        //ALOGE("Can't open firmware, errno:%d", errno);
         return -1;
     }
 
     if (!(*fw_buf = malloc(buf_size))) {
-        ALOGE("Can't alloc memory for fw&config, errno:%d", errno);
+        //ALOGE("Can't alloc memory for fw&config, errno:%d", errno);
         if (fd >= 0)
         close(fd);
         return -1;
@@ -811,7 +811,7 @@ int rtk_get_bt_firmware(uint8_t** fw_buf, size_t addi_len, char* fw_short_name)
     if (fd >= 0)
         close(fd);
 
-    ALOGI("Load FW OK");
+    //ALOGI("Load FW OK");
     return buf_size;
 }
 
@@ -859,7 +859,7 @@ static void rtk_download_fw_config(HC_BT_HDR *p_buf, uint8_t* buf, size_t filesi
     iTotalIndex = iAdditionPkt + iEndIndex;
     rtk_patch.nTotal = iTotalIndex; //init TotalIndex
 
-    ALOGI("iEndIndex:%d  iLastPacketLen:%d iAdditionpkt:%d\n", iEndIndex, iLastPacketLen, iAdditionPkt);
+    //ALOGI("iEndIndex:%d  iLastPacketLen:%d iAdditionpkt:%d\n", iEndIndex, iLastPacketLen, iAdditionPkt);
 
     if (iLastPacketLen == 0)
         iLastPacketLen = PATCH_DATA_FIELD_MAX_SIZE;
@@ -893,20 +893,20 @@ static void rtk_download_fw_config(HC_BT_HDR *p_buf, uint8_t* buf, size_t filesi
         }
 
         if (iCurIndex & 0x80)
-            ALOGI("Send FW last command");
+            ;//ALOGI("Send FW last command");
 
         if (proto == HCI_UART_H4) {
             iCurIndex = hci_download_patch_h4(p_buf, iCurIndex, bufpatch, iCurLen);
             if ((iCurIndex != i) && (i != rtk_patch.nTotal))
             {
                 // check index but ignore last pkt
-                ALOGE("index mismatch i:%d iCurIndex:%d, patch fail\n", i, iCurIndex);
+                //ALOGE("index mismatch i:%d iCurIndex:%d, patch fail\n", i, iCurIndex);
                 return;
             }
         }
         else if(proto == HCI_UART_3WIRE)
             //hci_download_patch(fd, iCurIndex, bufpatch, iCurLen);
-            ALOGI("iHCI_UART_3WIRE");
+            //ALOGI("iHCI_UART_3WIRE");
 
         if (iCurIndex < iEndIndex) {
             bufpatch += PATCH_DATA_FIELD_MAX_SIZE;
@@ -924,7 +924,7 @@ static void rtk_download_fw_config(HC_BT_HDR *p_buf, uint8_t* buf, size_t filesi
 
 void rtk_get_eversion_timeout(int sig)
 {
-    ALOGE("RTK get eversion timeout\n");
+    //ALOGE("RTK get eversion timeout\n");
     need_download_fw = 0;
     UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
 }
@@ -945,7 +945,7 @@ void rtk_get_eversion(void)
     p_buf->len = 0;
     p_buf->layer_specific = 0;
 
-    ALOGI("bt vendor lib: Get eversion");
+    //ALOGI("bt vendor lib: Get eversion");
     struct sigaction sa;
     uint8_t *p = (uint8_t *) (p_buf + 1);
 
@@ -959,7 +959,7 @@ void rtk_get_eversion(void)
                                  hw_config_cback);
 
     gRom_version_cmd_state = cmd_has_sent;
-    ALOGI("RTK send HCI_VENDOR_READ_RTK_ROM_VERISION_Command\n");
+    //ALOGI("RTK send HCI_VENDOR_READ_RTK_ROM_VERISION_Command\n");
 
     alarm(0);
     memset(&sa, 0, sizeof(sa));
@@ -972,7 +972,7 @@ void rtk_get_eversion(void)
 
 void rtk_get_lmp_timeout(int sig)
 {
-    ALOGE("RTK get lmp timeout\n");
+    //ALOGE("RTK get lmp timeout\n");
     need_download_fw = 0;
     UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
 }
@@ -989,7 +989,7 @@ void rtk_get_lmp()
     p_buf->len = 0;
     p_buf->layer_specific = 0;
 
-    ALOGI("bt vendor lib: Get lmp");
+    //ALOGI("bt vendor lib: Get lmp");
     uint8_t *p = (uint8_t *) (p_buf + 1);
 
     UINT16_TO_STREAM(p, HCI_READ_LMP);
@@ -1001,7 +1001,7 @@ void rtk_get_lmp()
     UART_bt_vendor_cbacks->xmit_cb(HCI_READ_LMP, p_buf, rtk_get_lmp_cback);
 
     gRom_version_cmd_state = cmd_has_sent;
-    ALOGI("RTK send HCI_READ_LMP_Command \n");
+    //ALOGI("RTK send HCI_READ_LMP_Command \n");
 
     alarm(0);
     memset(&sa, 0, sizeof(sa));
@@ -1025,7 +1025,7 @@ void rtk_get_lmp_cback(void *p_mem)
     {
         p = (uint8_t *)(p_evt_buf + 1) + LPM_CMD_PARAM_SIZE;
         STREAM_TO_UINT16(lmp_version,p);
-        ALOGI("lmp_version = %x", lmp_version);
+        //ALOGI("lmp_version = %x", lmp_version);
         if(lmp_version == ROM_LMP_8723a)
         {
             hw_config_cback(NULL);
@@ -1126,7 +1126,7 @@ void hw_config_cback(void *p_mem)
 
         p = (uint8_t *) (p_buf + 1);
 
-        ALOGI("hw_cfg_cb.state = %i", hw_cfg_cb.state);
+        //ALOGI("hw_cfg_cb.state = %i", hw_cfg_cb.state);
         switch (hw_cfg_cb.state)
         {
             case HW_CFG_START:
@@ -1148,16 +1148,16 @@ void hw_config_cback(void *p_mem)
                     }
                     else
                     {
-                        ALOGE("READ_RTK_ROM_VERISION return status error!");
+                        //ALOGE("READ_RTK_ROM_VERISION return status error!");
                         //Need to do more
                     }
-                    ALOGI("bt vendor lib: READ_RTK_ROM_VERISION status:%i, gEVersion:%i", status, gEVersion);
+                    //ALOGI("bt vendor lib: READ_RTK_ROM_VERISION status:%i, gEVersion:%i", status, gEVersion);
                 }
 
                 uint8_t*config_file_buf = NULL;
                 int config_len = -1;
 
-                ALOGI("bt vendor lib:HW_CFG_START");
+                //ALOGI("bt vendor lib:HW_CFG_START");
                 //reset all static variable here
                 buf_len = -1;
                 buf = NULL;
@@ -1186,7 +1186,7 @@ void hw_config_cback(void *p_mem)
                 }
                 if (config_len < 0)
                 {
-                    ALOGE("Get Config file error, just use efuse settings");
+                    //ALOGE("Get Config file error, just use efuse settings");
                     config_len = 0;
                 }
 #ifdef BT_FW_CAL_ENABLE
@@ -1204,7 +1204,7 @@ void hw_config_cback(void *p_mem)
 
                 if (buf_len < 0)
                 {
-                    ALOGE("Get BT firmware error, continue without bt firmware");
+                    //ALOGE("Get BT firmware error, continue without bt firmware");
                 }
                 else
                 {
@@ -1212,18 +1212,18 @@ void hw_config_cback(void *p_mem)
                     {
                         if(memcmp(epatch_buf, RTK_EPATCH_SIGNATURE, 8) == 0)
                         {
-                            ALOGE("8723as Check signature error!");
+                            //ALOGE("8723as Check signature error!");
                             need_download_fw = 0;
                         }
                         else
                         {
                             if (!(buf = malloc(buf_len))) {
-                                ALOGE("Can't alloc memory for fw&config, errno:%d", errno);
+                                //ALOGE("Can't alloc memory for fw&config, errno:%d", errno);
                                 buf_len = -1;
                             }
                             else
                             {
-                                ALOGI("8723as, fw copy direct");
+                                //ALOGI("8723as, fw copy direct");
                                 memcpy(buf,epatch_buf,buf_len);
                                 free(epatch_buf);
                                 epatch_buf = NULL;
@@ -1240,7 +1240,7 @@ void hw_config_cback(void *p_mem)
                         //check Extension Section Field
                         if(memcmp(epatch_buf + buf_len-config_len-4 ,Extension_Section_SIGNATURE,4) != 0)
                         {
-                            ALOGE("Check Extension_Section_SIGNATURE error! do not download fw");
+                            //ALOGE("Check Extension_Section_SIGNATURE error! do not download fw");
                             need_download_fw = 0;
                         }
                         else
@@ -1256,9 +1256,9 @@ void hw_config_cback(void *p_mem)
                                     {
                                         memcpy(patch_lmp.data,temp-2,patch_lmp.length);
                                     }
-                                    ALOGI("opcode = 0x%x",patch_lmp.opcode);
-                                    ALOGI("length = 0x%x",patch_lmp.length);
-                                    ALOGI("data = 0x%x",*(patch_lmp.data));
+                                    //ALOGI("opcode = 0x%x",patch_lmp.opcode);
+                                    //ALOGI("length = 0x%x",patch_lmp.length);
+                                    //ALOGI("data = 0x%x",*(patch_lmp.data));
                                     break;
                                 }
                                 temp -= *(temp-1)+2;
@@ -1266,24 +1266,24 @@ void hw_config_cback(void *p_mem)
 
                             if(lmp_version != project_id[*(patch_lmp.data)])
                             {
-                                ALOGE("lmp_version is %x, project_id is %x, does not match!!!",lmp_version,project_id[*(patch_lmp.data)]);
+                                //ALOGE("lmp_version is %x, project_id is %x, does not match!!!",lmp_version,project_id[*(patch_lmp.data)]);
                                 need_download_fw = 0;
                             }
                             else
                             {
-                                ALOGI("lmp_version is %x, project_id is %x, match!",lmp_version, project_id[*(patch_lmp.data)]);
+                                //ALOGI("lmp_version is %x, project_id is %x, match!",lmp_version, project_id[*(patch_lmp.data)]);
 
                                 if(memcmp(epatch_buf, RTK_EPATCH_SIGNATURE, 8) != 0)
                                 {
-                                    ALOGI("Check signature error!");
+                                    //ALOGI("Check signature error!");
                                     need_download_fw = 0;
                                 }
                                 else
                                 {
                                     int i = 0;
                                     epatch_info = (struct rtk_epatch*)epatch_buf;
-                                    ALOGI("fm_version = 0x%x",epatch_info->fm_version);
-                                    ALOGI("number_of_total_patch = %d",epatch_info->number_of_total_patch);
+                                    //ALOGI("fm_version = 0x%x",epatch_info->fm_version);
+                                    //ALOGI("number_of_total_patch = %d",epatch_info->number_of_total_patch);
 
                                     //get right epatch entry
                                     for(i; i<epatch_info->number_of_total_patch; i++) {
@@ -1291,8 +1291,8 @@ void hw_config_cback(void *p_mem)
                                             current_entry.chipID = gEVersion + 1;
                                             current_entry.patch_length = *(uint16_t*)(epatch_buf+14+2*epatch_info->number_of_total_patch+2*i);
                                             current_entry.start_offset = *(uint32_t*)(epatch_buf+14+4*epatch_info->number_of_total_patch+4*i);
-                                            ALOGI("chipID %d, patch_length 0x%x, start_offset 0x%x",
-                                                    current_entry.chipID, current_entry.patch_length, current_entry.start_offset);
+                                            //ALOGI("chipID %d, patch_length 0x%x, start_offset 0x%x",
+                                            //        current_entry.chipID, current_entry.patch_length, current_entry.start_offset);
                                             break;
                                         }
                                     }
@@ -1331,44 +1331,44 @@ void hw_config_cback(void *p_mem)
                                             isFirstBoot = FALSE;
                                             rtk_bt_cal_info_entry->bt_cal_efuse_host_info |= IS_FIRST_BT_INIT_AFTER_BOOT;
                                             //rtk_bt_cal_info_entry->bt_cal_efuse_host_info= 0xECFF;
-                                            ALOGI("isFirstBoot is TRUE");
+                                            //ALOGI("isFirstBoot is TRUE");
 
                                         }
                                         else
                                         {
                                             rtk_bt_cal_info_entry->bt_cal_efuse_host_info &= (~IS_FIRST_BT_INIT_AFTER_BOOT);
                                             //rtk_bt_cal_info_entry->bt_cal_efuse_host_info= 0xE8FF;
-                                            ALOGI("isFirstBoot is FALSE");
+                                            //ALOGI("isFirstBoot is FALSE");
                                         }
 
                                         if(is_first_bt_init ==TRUE)
                                         {
                                             rtk_bt_cal_info_entry->bt_cal_efuse_host_info |= IS_FIRST_BT_INIT;
-                                            ALOGI("is_first_bt_init is TRUE");
+                                            //ALOGI("is_first_bt_init is TRUE");
                                         }
                                         else
                                         {
                                             rtk_bt_cal_info_entry->bt_cal_efuse_host_info &= (~IS_FIRST_BT_INIT);
-                                            ALOGI("is_first_bt_init is FALSE");
+                                            //ALOGI("is_first_bt_init is FALSE");
                                         }
 
                                     }
                                     else
                                     {
 
-                                        ALOGI("rtk_bt_cal_info_entry malloc fail");
+                                        //ALOGI("rtk_bt_cal_info_entry malloc fail");
                                     }
 
-                                    ALOGE("after update bt_efuse_host_info");
+                                    //ALOGE("after update bt_efuse_host_info");
                                     rtk_print_host_info(rtk_bt_cal_info_entry->bt_cal_efuse_host_info);
 
                                     iBtCalLen = sizeof(struct _rtk_bt_cal_info_entry);
                                     buf_len = buf_len + iBtCalLen;
 #endif
-                                    ALOGI("buf_len = 0x%x",buf_len);
+                                    //ALOGI("buf_len = 0x%x",buf_len);
 
                                     if (!(buf = malloc(buf_len))) {
-                                        ALOGE("Can't alloc memory for multi fw&config, errno:%d", errno);
+                                        //ALOGE("Can't alloc memory for multi fw&config, errno:%d", errno);
                                         buf_len = -1;
                                     }
                                     else
@@ -1403,7 +1403,7 @@ void hw_config_cback(void *p_mem)
                 if (config_file_buf)
                 free(config_file_buf);
 
-                ALOGI("Fw:%s exists, config file:%s exists", (buf_len > 0) ? "":"not", (config_len>0)?"":"not");
+                //ALOGI("Fw:%s exists, config file:%s exists", (buf_len > 0) ? "":"not", (config_len>0)?"":"not");
 
                 if((buf_len > 0)&&(need_download_fw))
                 {
@@ -1421,7 +1421,7 @@ void hw_config_cback(void *p_mem)
                     iTotalIndex = iAdditionPkt + iEndIndex;
                     rtk_patch.nTotal = iTotalIndex; //init TotalIndex
 
-                    ALOGI("iEndIndex:%d  iLastPacketLen:%d iAdditionpkt:%d\n", iEndIndex, iLastPacketLen, iAdditionPkt);
+                    //ALOGI("iEndIndex:%d  iLastPacketLen:%d iAdditionpkt:%d\n", iEndIndex, iLastPacketLen, iAdditionPkt);
 
                     if (iLastPacketLen == 0)
                         iLastPacketLen = PATCH_DATA_FIELD_MAX_SIZE;
@@ -1445,7 +1445,7 @@ void hw_config_cback(void *p_mem)
             case HW_CFG_SET_UART_BAUD_CONTROLLER:
 
 
-                ALOGI("bt vendor lib: set CONTROLLER UART baud %x", baudrate);
+                //ALOGI("bt vendor lib: set CONTROLLER UART baud %x", baudrate);
 
 
                 is_proceeding = hw_config_set_controller_baudrate(p_buf, baudrate);
@@ -1457,12 +1457,12 @@ void hw_config_cback(void *p_mem)
             {
                 uint32_t HostBaudRate = 0;
 
-                ALOGI("========add delay 100 ms");
+                //ALOGI("========add delay 100 ms");
                 ms_delay(100);
 
                 /* update baud rate of host's UART port */
                 rtk_speed_to_uart_speed(baudrate, &HostBaudRate);
-                ALOGI("bt vendor lib: set HOST UART baud %i", HostBaudRate);
+                //ALOGI("bt vendor lib: set HOST UART baud %i", HostBaudRate);
                 userial_vendor_set_baud( \
                     line_speed_to_userial_baud(HostBaudRate) \
                 );
@@ -1473,12 +1473,12 @@ DOWNLOAD_FW:
             case HW_CFG_DL_FW_PATCH:
 
                 status = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE);
-                ALOGI("bt vendor lib: HW_CFG_DL_FW_PATCH status:%i, opcode:%x", status, opcode);
+                //ALOGI("bt vendor lib: HW_CFG_DL_FW_PATCH status:%i, opcode:%x", status, opcode);
 
                 //recv command complete event for patch code download command
                 if(opcode == HCI_VSC_DOWNLOAD_FW_PATCH){
                      iIndexRx = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE + 1);
-                     ALOGI("bt vendor lib: HW_CFG_DL_FW_PATCH status:%i, iIndexRx:%i", status, iIndexRx);
+                     //ALOGI("bt vendor lib: HW_CFG_DL_FW_PATCH status:%i, iIndexRx:%i", status, iIndexRx);
                     //update buf of patch and index.
                     if (iCurIndex < iEndIndex) {
                         bufpatch += PATCH_DATA_FIELD_MAX_SIZE;
@@ -1493,7 +1493,7 @@ DOWNLOAD_FW:
             bt_cal_ext_length= *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE + 1 +
             1 +1);
 
-            ALOGI("bt_cal_ext_id = %d, bt_cal_ext_length = %d", bt_cal_ext_id, bt_cal_ext_length);
+            //ALOGI("bt_cal_ext_id = %d, bt_cal_ext_length = %d", bt_cal_ext_id, bt_cal_ext_length);
 
             if(rtk_bt_cal_info_entry != NULL)
             {
@@ -1513,7 +1513,7 @@ DOWNLOAD_FW:
                 rtk_bt_cal_info_entry->bt_cal_efuse_cal_sts[3] = 0x4444;
                 rtk_bt_cal_info_entry->bt_cal_efuse_cal_sts[4] = 0x5555;
             */
-                ALOGI("rtk_set_bt_cal_info");
+                //ALOGI("rtk_set_bt_cal_info");
                 rtk_set_bt_cal_info(rtk_bt_cal_info_entry, sizeof(struct _rtk_bt_cal_info_entry));
                 free(rtk_bt_cal_info_entry);
                 rtk_bt_cal_info_entry = NULL;
@@ -1523,7 +1523,7 @@ DOWNLOAD_FW:
 
 
 #endif
-                    ALOGI("vendor lib fwcfg completed");
+                    //ALOGI("vendor lib fwcfg completed");
                     if(buf) {
                         free(buf);
                         buf = NULL;
@@ -1568,13 +1568,13 @@ DOWNLOAD_FW:
                     }
 
                     if (iCurIndex & 0x80)
-                        ALOGI("Send FW last command");
+                        //ALOGI("Send FW last command");
 
-                    ALOGI("iCurIndex = %i, iCurLen = %i", iCurIndex, iCurLen);
+                    //ALOGI("iCurIndex = %i, iCurLen = %i", iCurIndex, iCurLen);
 
                     is_proceeding = hci_download_patch_h4(p_buf, iCurIndex, bufpatch, iCurLen);
                     if (iCurIndex & 0x80) {
-                        ALOGI("Change HW flowcontrol setting");
+                        //ALOGI("Change HW flowcontrol setting");
                         if (gNeedToSetHWFlowControl)
                         {
                             if (gHwFlowControlEnable)
@@ -1604,7 +1604,7 @@ DOWNLOAD_FW:
 
     if (is_proceeding == FALSE)
     {
-        ALOGE("vendor lib fwcfg aborted!!!");
+        //ALOGE("vendor lib fwcfg aborted!!!");
         if (UART_bt_vendor_cbacks)
         {
             if (p_buf != NULL)
@@ -1699,7 +1699,7 @@ void hw_config_start(void)
         UINT16_TO_STREAM(p, HCI_VSC_H5_INIT);
 
         hw_cfg_cb.state = HW_CFG_START;
-        ALOGI("hw_config_start:Realtek version %s \n",RTK_VERSION);
+        //ALOGI("hw_config_start:Realtek version %s \n",RTK_VERSION);
         //UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, hw_config_cback);
         UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, rtk_get_lmp);
     }
@@ -1707,7 +1707,7 @@ void hw_config_start(void)
     {
         if (UART_bt_vendor_cbacks)
         {
-            ALOGE("vendor lib fw conf aborted [no buffer]");
+            //ALOGE("vendor lib fw conf aborted [no buffer]");
             UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
         }
     }
@@ -1727,19 +1727,19 @@ void rtk_print_host_cal_info(struct _rtk_bt_cal_info_entry *cal_info_entry)
 
 void rtk_print_host_info(uint16_t bt_cal_efuse_host_info)
 {
-    ALOGI("bt_cal_efuse_host_info = 0x%04x", bt_cal_efuse_host_info);
-    ALOGI("BT_EFUSE_HOST_INFO_DISABLE:  %d", bt_cal_efuse_host_info&BT_EFUSE_HOST_INFO_DISABLE);
-    ALOGI("BT_EFUSE_CAL_STS_EN_DISABLE: %d",bt_cal_efuse_host_info&BT_EFUSE_CAL_STS_EN_DISABLE);
-    ALOGI("IS_FIRST_BT_INIT_AFTER_BOOT: %d", bt_cal_efuse_host_info&IS_FIRST_BT_INIT_AFTER_BOOT);
-    ALOGI("IS_FIRST_BT_INIT:            %d", bt_cal_efuse_host_info&IS_FIRST_BT_INIT);
-    ALOGI("IS_LAST_INQUIRY_SUCCESS:     %d", bt_cal_efuse_host_info&IS_LAST_INQUIRY_SUCCESS);
+    //ALOGI("bt_cal_efuse_host_info = 0x%04x", bt_cal_efuse_host_info);
+    //ALOGI("BT_EFUSE_HOST_INFO_DISABLE:  %d", bt_cal_efuse_host_info&BT_EFUSE_HOST_INFO_DISABLE);
+    //ALOGI("BT_EFUSE_CAL_STS_EN_DISABLE: %d",bt_cal_efuse_host_info&BT_EFUSE_CAL_STS_EN_DISABLE);
+    //ALOGI("IS_FIRST_BT_INIT_AFTER_BOOT: %d", bt_cal_efuse_host_info&IS_FIRST_BT_INIT_AFTER_BOOT);
+    //ALOGI("IS_FIRST_BT_INIT:            %d", bt_cal_efuse_host_info&IS_FIRST_BT_INIT);
+    //ALOGI("IS_LAST_INQUIRY_SUCCESS:     %d", bt_cal_efuse_host_info&IS_LAST_INQUIRY_SUCCESS);
 }
 
 void rtk_print_cal_info(uint16_t *bt_cal_efuse_cal_sts)
 {
     if(bt_cal_efuse_cal_sts)
     {
-        ALOGI("BT_CAL_STS: %04X, %04X, %04X, %04X, %04X",
+        //ALOGI("BT_CAL_STS: %04X, %04X, %04X, %04X, %04X",
         bt_cal_efuse_cal_sts[0],
         bt_cal_efuse_cal_sts[1],
         bt_cal_efuse_cal_sts[2],

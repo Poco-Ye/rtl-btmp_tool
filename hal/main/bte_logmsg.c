@@ -90,7 +90,6 @@ const char * const bt_layer_tags[] = {
 };
 
 #ifndef LINUX_NATIVE
-#include <cutils/log.h>
 #define LOGI0(t,s) __android_log_write(ANDROID_LOG_INFO, t, s)
 #define LOGD0(t,s) __android_log_write(ANDROID_LOG_DEBUG, t, s)
 #define LOGW0(t,s) __android_log_write(ANDROID_LOG_WARN, t, s)
@@ -174,24 +173,24 @@ BTLogMsg(UINT32 trace_set_mask, const char *fmt_str, ...)
     switch ( TRACE_GET_TYPE(trace_set_mask) )
     {
         case TRACE_TYPE_ERROR:
-            LOGE0(bt_layer_tags[trace_layer], buffer);
+            //LOGE0(bt_layer_tags[trace_layer], buffer);
             break;
         case TRACE_TYPE_WARNING:
-            LOGW0(bt_layer_tags[trace_layer], buffer);
+            //LOGW0(bt_layer_tags[trace_layer], buffer);
             break;
         case TRACE_TYPE_API:
         case TRACE_TYPE_EVENT:
-            LOGI0(bt_layer_tags[trace_layer], buffer);
+            //LOGI0(bt_layer_tags[trace_layer], buffer);
             break;
         case TRACE_TYPE_DEBUG:
-            LOGD0(bt_layer_tags[trace_layer], buffer);
+            //LOGD0(bt_layer_tags[trace_layer], buffer);
             break;
         default:
-            LOGE0(bt_layer_tags[trace_layer], buffer);      /* we should never get this */
+            //LOGE0(bt_layer_tags[trace_layer], buffer);      /* we should never get this */
             break;
     }
 #else
-    LOGI0(bt_layer_tags[trace_layer], buffer);
+    //LOGI0(bt_layer_tags[trace_layer], buffer);
 #endif
 #else
 	write(2, buffer, strlen(buffer));
@@ -225,7 +224,7 @@ ScrLog(UINT32 trace_set_mask, const char *fmt_str, ...)
 	va_end(ap);
 
 #if (defined(ANDROID_USE_LOGCAT) && (ANDROID_USE_LOGCAT==TRUE))
-    LOGI0(bt_layer_tags[trace_layer], buffer);
+    //LOGI0(bt_layer_tags[trace_layer], buffer);
 #else
 	write(2, buffer, strlen(buffer));
 	write(2, "\n", 1);
@@ -394,7 +393,7 @@ BT_API void BTE_InitTraceLevels( void )
 
         while (p_f_map->trc_name != NULL)
         {
-            ALOGI("BTE_InitTraceLevels -- %s", p_f_map->trc_name);
+            //ALOGI("BTE_InitTraceLevels -- %s", p_f_map->trc_name);
 
             if (p_f_map->p_f)
                 p_f_map->p_f(p_f_map->trace_level);
@@ -404,7 +403,7 @@ BT_API void BTE_InitTraceLevels( void )
     }
     else
     {
-        ALOGI("[bttrc] using compile default trace settings");
+        //ALOGI("[bttrc] using compile default trace settings");
     }
 #endif
 }

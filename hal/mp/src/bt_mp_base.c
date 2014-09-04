@@ -1,7 +1,6 @@
 #define LOG_TAG "bt_mp_base"
 
 #include <stdio.h>
-#include <utils/Log.h>
 
 #include "bluetoothmp.h"
 #include "bt_mp_base.h"
@@ -451,7 +450,7 @@ bt_default_SetRFRegMaskBits(
                 Lsb,
                 &rUserValue
                 );
-        ALOGI("[RF][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]",Addr,Msb,Lsb,rUserValue,UserValue);
+        //ALOGI("[RF][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]",Addr,Msb,Lsb,rUserValue,UserValue);
 
     }
 #endif
@@ -560,7 +559,7 @@ bt_default_SetMDRegMaskBits(
                 Lsb,
                 &rUserValue
                 );
-        ALOGI("[MD][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]",Addr,Msb,Lsb,rUserValue,UserValue);
+        //ALOGI("[MD][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]",Addr,Msb,Lsb,rUserValue,UserValue);
 
     }
 #endif
@@ -1317,7 +1316,7 @@ bt_default_BTDlMergerFW(
         goto exit;
     }
 
-    ALOGI(">>Patch offset=%x Len=%d",Start_Offset,Patch_Code_Length);
+    //ALOGI(">>Patch offset=%x Len=%d",Start_Offset,Patch_Code_Length);
 
     if (pBtDevice->BTDlFW(pBtDevice,&pPatchcode[Start_Offset],Patch_Code_Length) != BT_FUNCTION_SUCCESS)
     {

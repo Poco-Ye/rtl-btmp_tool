@@ -1,7 +1,6 @@
 #define LOG_TAG "bt_user_func"
 
 #include <unistd.h>
-#include <utils/Log.h>
 
 #include "bt_user_func.h"
 

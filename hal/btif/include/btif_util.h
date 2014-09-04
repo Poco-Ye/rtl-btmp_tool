@@ -20,7 +20,6 @@
 #define BTIF_UTIL_H
 
 #include <hardware/bt_hf.h>
-#include <utils/Log.h>
 #include "bluetoothmp.h"
 
 #include "data_types.h"

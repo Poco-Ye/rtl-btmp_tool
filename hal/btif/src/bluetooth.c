@@ -78,7 +78,7 @@ uint8_t hal_interface_ready(void)
 
 int hal_init(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node)
 {
-    ALOGI("init");
+    //ALOGI("init");
 
     /* sanity check */
     if (hal_interface_ready() == TRUE)
@@ -102,7 +102,7 @@ int hal_init(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node
 
 int hal_enable(void)
 {
-    ALOGI("enable");
+    //ALOGI("enable");
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)
@@ -136,7 +136,7 @@ void hal_cleanup( void )
 
 int hal_dut_mode_configure(uint8_t enable)
 {
-    ALOGI("hal_dut_mode_configure");
+    //ALOGI("hal_dut_mode_configure");
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)
@@ -160,7 +160,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
     p = (char *)(p_buf + 1);
     memset(p, 0, 1024);
 
-    ALOGI("hal_mp_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
+    //ALOGI("hal_mp_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)
@@ -204,7 +204,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         break;
 
     default:
-        ALOGW("hal_mp_op_send: undefined opcode[0x%02x]", opcode);
+        //ALOGW("hal_mp_op_send: undefined opcode[0x%02x]", opcode);
         break;
     }
 
@@ -213,7 +213,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
     UINT8_TO_STREAM(p, opcode);
     UINT8_TO_STREAM(p, buf_len);
 
-    ALOGI("buf_cb: %s, buf_len %d", buf_cb, buf_len);
+    //ALOGI("buf_cb: %s, buf_len %d", buf_cb, buf_len);
 
     memcpy(p, buf_cb, buf_len);
 
@@ -242,38 +242,21 @@ const bt_interface_t* bluetooth_get_bluetooth_interface ()
     return &bluetoothInterface;
 }
 
-static int close_bluetooth_stack(struct hw_device_t* device)
+static int close_bluetooth_stack()
 {
     hal_cleanup();
     return 0;
 }
 
-static int open_bluetooth_stack (const struct hw_module_t* module, char const
-* name,
-struct hw_device_t** abstraction)
+int open_bluetooth_stack(char const *name, bluetooth_device_t **bt_device)
 {
-    bluetooth_device_t *stack = malloc(sizeof(bluetooth_device_t) );
-    memset(stack, 0, sizeof(bluetooth_device_t) );
-    stack->common.tag = HARDWARE_DEVICE_TAG;
-    stack->common.version = 0;
-    stack->common.module = (struct hw_module_t*)module;
-    stack->common.close = close_bluetooth_stack;
+    bluetooth_device_t *stack = malloc(sizeof(bluetooth_device_t));
+    memset(stack, 0, sizeof(bluetooth_device_t));
+
+    strncpy(stack->name, name, 35); // one byte reserved for null
+    stack->close = close_bluetooth_stack;
     stack->get_bluetooth_interface = bluetooth_get_bluetooth_interface;
-    *abstraction = (struct hw_device_t*)stack;
+    *bt_device = stack;
+
     return 0;
 }
-
-
-static struct hw_module_methods_t bt_stack_module_methods = {
-    .open = open_bluetooth_stack,
-};
-
-struct hw_module_t HAL_MODULE_INFO_SYM = {
-    .tag = HARDWARE_MODULE_TAG,
-    .version_major = 1,
-    .version_minor = 0,
-    .id = BT_HARDWARE_MODULE_ID,
-    .name = "Bluetooth MP Stack",
-    .author = "The Android Open Source Project",
-    .methods = &bt_stack_module_methods
-};

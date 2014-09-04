@@ -21,8 +21,6 @@
 #include <sys/cdefs.h>
 #include <sys/types.h>
 
-#include <hardware/hardware.h>
-
 
 __BEGIN_DECLS
 /**
@@ -225,11 +223,18 @@ typedef struct {
 
 
 typedef struct {
-    struct hw_device_t common;
+    /** bluetooth device name */
+    char name[36];
+
+    /** Close this device */
+    int (*close)();
     const bt_interface_t* (*get_bluetooth_interface)();
 } bluetooth_device_t;
 
 typedef bluetooth_device_t bluetooth_module_t;
+
+int open_bluetooth_stack(char const *name, bluetooth_device_t **stack);
+
 __END_DECLS
 
 #endif /* BLUETOOTH_MP_H */

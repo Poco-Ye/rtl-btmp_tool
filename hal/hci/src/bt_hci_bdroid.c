@@ -27,16 +27,15 @@
 
 #define LOG_TAG "bt_hci_bdroid"
 
-#include <utils/Log.h>
 #include <pthread.h>
 #include <sys/prctl.h>
+
 #include "bt_hci_bdroid.h"
 #include "bt_vendor_lib.h"
 #include "utils.h"
 #include "hci.h"
 #include "userial.h"
 #include "bt_utils.h"
-
 #include "bluetoothmp.h"
 
 #ifndef BTHC_DBG
@@ -44,7 +43,7 @@
 #endif
 
 #if (BTHC_DBG == TRUE)
-#define BTHCDBG(param, ...) {ALOGD(param, ## __VA_ARGS__);}
+#define BTHCDBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
 #else
 #define BTHCDBG(param, ...) {}
 #endif
@@ -124,11 +123,11 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
     struct sched_param param;
     int policy, result;
 
-    ALOGI("init");
+    //ALOGI("init");
 
     if (p_cb == NULL)
     {
-        ALOGE("Init failed with no user callbacks!");
+        //ALOGE("Init failed with no user callbacks!");
         return BT_HC_STATUS_FAIL;
     }
 
@@ -148,7 +147,7 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
         p_hci_if = &hci_h4_func_table;
         num_hci_cmd_pkts = &H4_num_hci_cmd_pkts;
     } else {
-        ALOGE("Init failed with no HCI interface specified!");
+        //ALOGE("Init failed with no HCI interface specified!");
         return BT_HC_STATUS_FAIL;
     }
 
@@ -160,7 +159,7 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
 
     if (lib_running)
     {
-        ALOGW("init has been called repeatedly without calling cleanup ?");
+        //ALOGW("init has been called repeatedly without calling cleanup ?");
     }
 
     lib_running = 1;
@@ -172,7 +171,7 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
     if (pthread_create(&hc_cb.worker_thread, &thread_attr, \
                        bt_hc_worker_thread, NULL) != 0)
     {
-        ALOGE("pthread_create failed!");
+        //ALOGE("pthread_create failed!");
         lib_running = 0;
         return BT_HC_STATUS_FAIL;
     }
@@ -186,8 +185,8 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
         result = pthread_setschedparam(hc_cb.worker_thread, policy, &param);
         if (result != 0)
         {
-            ALOGW("libbt-hci init: pthread_setschedparam failed (%s)", \
-                  strerror(result));
+            //ALOGW("libbt-hci init: pthread_setschedparam failed (%s)",
+            //      strerror(result));
         }
     }
 
@@ -207,8 +206,9 @@ static void set_power(bt_hc_chip_power_state_t state)
 
     if (bt_vnd_if)
         bt_vnd_if->op(BT_VND_OP_POWER_CTRL, &pwr_state);
-    else
-        ALOGE("vendor lib is missing!");
+    else {
+        //ALOGE("vendor lib is missing!");
+    }
 }
 
 
@@ -354,7 +354,7 @@ static void *bt_hc_worker_thread(void *arg)
     uint16_t events;
     HC_BT_HDR *p_msg, *p_next_msg;
 
-    ALOGI("bt_hc_worker_thread started");
+    //ALOGI("bt_hc_worker_thread started");
     prctl(PR_SET_NAME, (unsigned long)"bt_hc_worker", 0, 0, 0);
     tx_cmd_pkts_pending = FALSE;
 
@@ -473,7 +473,7 @@ static void *bt_hc_worker_thread(void *arg)
             break;
     }
 
-    ALOGI("bt_hc_worker_thread exiting");
+    //ALOGI("bt_hc_worker_thread exiting");
 
     pthread_exit(NULL);
 

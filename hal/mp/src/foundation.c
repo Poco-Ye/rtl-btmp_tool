@@ -1,6 +1,5 @@
 #define LOG_TAG "foundation"
 
-#include <utils/Log.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

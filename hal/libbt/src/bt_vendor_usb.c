@@ -18,9 +18,12 @@
 
 #define LOG_TAG "bt_vendor_usb"
 
+#include <stdio.h>
+#include <string.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <utils/Log.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 #include "bt_vendor_usb.h"
 
@@ -29,7 +32,7 @@
 #endif
 
 #if (BTVND_DBG == TRUE)
-#define BTVNDDBG(param, ...) {ALOGD(param, ## __VA_ARGS__);}
+#define BTVNDDBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
 #else
 #define BTVNDDBG(param, ...) {}
 #endif
@@ -65,16 +68,16 @@ static void usb_vendor_init(const char *dev_node)
 
 static int usb_vendor_open(void)
 {
-    ALOGI("usb vendor open: opening %s", vnd_usb.port_name);
+    //ALOGI("usb vendor open: opening %s", vnd_usb.port_name);
 
     if ((vnd_usb.fd = open(vnd_usb.port_name, O_RDWR)) == -1)
     {
-        ALOGE("usb vendor open: unable to open %s(uid %d, gid %d): %s",
-                vnd_usb.port_name, getuid(), getgid(), strerror(errno));
+        //ALOGE("usb vendor open: unable to open %s(uid %d, gid %d): %s",
+        //        vnd_usb.port_name, getuid(), getgid(), strerror(errno));
         return -1;
     }
 
-    ALOGI("device fd = %d open", vnd_usb.fd);
+    //ALOGI("device fd = %d open", vnd_usb.fd);
 
     return vnd_usb.fd;
 }
@@ -86,11 +89,11 @@ static void usb_vendor_close(void)
     if (vnd_usb.fd == -1)
         return;
 
-    ALOGI("device fd = %d close", vnd_usb.fd);
+    //ALOGI("device fd = %d close", vnd_usb.fd);
 
     res = close(vnd_usb.fd);
     if (res  < 0)
-        ALOGE("Failed to close(fd %d): %s", vnd_usb.fd, strerror(res));
+        ;//ALOGE("Failed to close(fd %d): %s", vnd_usb.fd, strerror(res));
 
     vnd_usb.fd = -1;
 }
@@ -103,10 +106,10 @@ static void usb_vendor_close(void)
 
 static int USB_bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr, const char *dev_node)
 {
-    ALOGI("%s: dev_node %s", __FUNCTION__, dev_node);
+    //ALOGI("%s: dev_node %s", __FUNCTION__, dev_node);
 
     if (p_cb == NULL) {
-        ALOGE("init failed with no user callbacks!");
+        //ALOGE("init failed with no user callbacks!");
         return -1;
     }
 

@@ -18,7 +18,10 @@
 
 #define LOG_TAG "bt_vendor_uart"
 
-#include <utils/Log.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
 #include "bt_vendor_uart.h"
 #include "upio.h"
 #include "userial_vendor.h"
@@ -28,7 +31,7 @@
 #endif
 
 #if (BTVND_DBG == TRUE)
-#define BTVNDDBG(param, ...) {ALOGD(param, ## __VA_ARGS__);}
+#define BTVNDDBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
 #else
 #define BTVNDDBG(param, ...) {}
 #endif
@@ -74,11 +77,11 @@ static const tUSERIAL_CFG userial_init_cfg =
 
 static int UART_bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr, const char *dev_node)
 {
-    ALOGI("%s: dev_node %s", __FUNCTION__, dev_node);
+    //ALOGI("%s: dev_node %s", __FUNCTION__, dev_node);
 
     if (p_cb == NULL)
     {
-        ALOGE("init failed with no user callbacks!");
+        //ALOGE("init failed with no user callbacks!");
         return -1;
     }
 

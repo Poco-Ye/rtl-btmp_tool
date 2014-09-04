@@ -1,7 +1,5 @@
 #define LOG_TAG "bt_mp_module_base"
 
-#include <utils/Log.h>
-
 #include "bluetoothmp.h"
 #include "bt_mp_build.h"
 #include "bt_mp_module_base.h"
@@ -43,10 +41,10 @@ int BTModule_ActionReport(
         pReport->RxRssi = pModuleBtReport->RxRssi;
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
         pReport->Cfo=pModuleBtReport->Cfo;
-        ALOGI("BTModule_ActionReport[REPORT_RX]: RxRssi %d, TotalRXBits %u, TotalRxCounts %u, "
-              "TotalRxErrorBits %u, ber %f, RXRecvPktCnts %u, Cfo %f",
-              pReport->RxRssi, pReport->TotalRXBits, pReport->TotalRxCounts,
-              pReport->TotalRxErrorBits, pReport->ber, pReport->RXRecvPktCnts, pReport->Cfo);
+        //ALOGI("BTModule_ActionReport[REPORT_RX]: RxRssi %d, TotalRXBits %u, TotalRxCounts %u, "
+        //      "TotalRxErrorBits %u, ber %f, RXRecvPktCnts %u, Cfo %f",
+        //      pReport->RxRssi, pReport->TotalRXBits, pReport->TotalRxCounts,
+        //      pReport->TotalRxErrorBits, pReport->ber, pReport->RXRecvPktCnts, pReport->Cfo);
         break;
 
     case REPORT_CHIP:
@@ -171,9 +169,9 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
     BT_PARAMETER *pModuleBtParam = pBtModule->pBtParam;
     BT_DEVICE_REPORT *pModuleBtReport = pBtModule->pModuleBtReport;
 
-    ALOGI("BTModule_ActionControlExcute: pBtModule 0x%p, pBtDevice 0x%p, pBtParam 0x%p, "
-           "pModuleBtReport 0x%p, ParameterIndex %d", pBtModule, pModuleBtDevice, pModuleBtParam,
-            pModuleBtReport, Item);
+    //ALOGI("BTModule_ActionControlExcute: pBtModule 0x%p, pBtDevice 0x%p, pBtParam 0x%p, "
+    //       "pModuleBtReport 0x%p, ParameterIndex %d", pBtModule, pModuleBtDevice, pModuleBtParam,
+    //        pModuleBtReport, Item);
 
     switch (Item) {
     case HCI_RESET:

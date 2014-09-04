@@ -1,6 +1,7 @@
 #ifndef __FOUNDATION_H
 #define __FOUNDATION_H
 
+#include <stdint.h>
 #include <pthread.h>
 
 #define REALTEK_BT_MP_API_VERSION   "Realtek BT MP API 2014.02.17 - 1"

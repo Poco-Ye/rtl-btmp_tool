@@ -26,20 +26,21 @@
 *****************************************************************************/
 
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include <errno.h>
+#include <sys/types.h>
 #include <sys/times.h>
-
+#include <linux/sched.h>
 #include <pthread.h>  /* must be 1st header defined  */
 #include <time.h>
+
 #include "gki_int.h"
 #include "bt_utils.h"
 
 #define LOG_TAG "GKI_LINUX"
-
-#include <utils/Log.h>
-
-#include <hardware_legacy/power.h>
 
 /*****************************************************************************
 **  Constants & Macros
@@ -49,22 +50,16 @@
 #define GKI_TICK_TIMER_DEBUG FALSE
 #endif
 
-#define GKI_INFO(fmt, ...) ALOGI ("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
+#define GKI_INFO(fmt, ...) //ALOGI ("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
 
 /* always log errors */
-#define GKI_ERROR_LOG(fmt, ...)  ALOGE ("##### ERROR : %s: " fmt "#####", __FUNCTION__, ## __VA_ARGS__)
+#define GKI_ERROR_LOG(fmt, ...)  //ALOGE ("##### ERROR : %s: " fmt "#####", __FUNCTION__, ## __VA_ARGS__)
 
 #if defined (GKI_TICK_TIMER_DEBUG) && (GKI_TICK_TIMER_DEBUG == TRUE)
-#define GKI_TIMER_TRACE(fmt, ...) ALOGI ("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
+#define GKI_TIMER_TRACE(fmt, ...) //ALOGI ("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
 #else
 #define GKI_TIMER_TRACE(fmt, ...)
 #endif
-
-
-#define SCHED_NORMAL 0
-#define SCHED_FIFO 1
-#define SCHED_RR 2
-#define SCHED_BATCH 3
 
 #define NANOSEC_PER_MILLISEC (1000000)
 #define NSEC_PER_SEC (1000*NANOSEC_PER_MILLISEC)
@@ -126,8 +121,8 @@ gki_pthread_info_t gki_pthread_info[GKI_MAX_TASKS];
 //#define acquire_wake_lock
 //#define release_wake_lock
 
-extern int acquire_wake_lock(int lock, const char* id);
-extern int release_wake_lock(const char* id);
+//extern int acquire_wake_lock(int lock, const char* id);
+//extern int release_wake_lock(const char* id);
 
 /*****************************************************************************
 **  Functions
@@ -501,7 +496,7 @@ void GKI_shutdown(void)
 
             if ( result < 0 )
             {
-                ALOGE( "pthread_join() FAILED: result: %d", result );
+                //ALOGE( "pthread_join() FAILED: result: %d", result );
             }
 #endif
             // GKI_ERROR_LOG( "GKI_shutdown(): task %s dead\n", gki_cb.com.OSTName[task_id]);
@@ -528,7 +523,7 @@ void GKI_shutdown(void)
     if (g_GkiTimerWakeLockOn)
     {
         GKI_TRACE("GKI_shutdown :  release_wake_lock(brcm_btld)");
-        release_wake_lock(WAKE_LOCK_ID);
+        //release_wake_lock(WAKE_LOCK_ID);
         g_GkiTimerWakeLockOn = 0;
     }
 }
@@ -569,14 +564,14 @@ void gki_system_tick_start_stop_cback(BOOLEAN start)
 
             GKI_TIMER_TRACE(">>> STOP GKI_timer_update(), wake_lock_count:%d", --wake_lock_count);
 
-            release_wake_lock(WAKE_LOCK_ID);
+            //release_wake_lock(WAKE_LOCK_ID);
             g_GkiTimerWakeLockOn = 0;
         }
     }
     else
     {
         /* restart GKI_timer_update() loop */
-        acquire_wake_lock(PARTIAL_WAKE_LOCK, WAKE_LOCK_ID);
+        //acquire_wake_lock(PARTIAL_WAKE_LOCK, WAKE_LOCK_ID);
 
         g_GkiTimerWakeLockOn = 1;
         *p_run_cond = GKI_TIMER_TICK_RUN_COND;

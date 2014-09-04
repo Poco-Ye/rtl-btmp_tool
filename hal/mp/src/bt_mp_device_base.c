@@ -1,7 +1,5 @@
 #define LOG_TAG "bt_mp_device_base"
 
-#include <utils/Log.h>
-
 #include "bluetoothmp.h"
 #include "bt_mp_device_base.h"
 
@@ -174,7 +172,7 @@ int BTDevice_SetRTL8761Xtal(BT_DEVICE *pBtDevice, uint32_t Value)
     if (BT_SetSysRegMaskBits(pBtDevice, 0x2e, 15, 0, x2))
         goto error;
 
-    ALOGI("BTDevice_SetRTL8761Xtal : 0x%08x", Value);
+    //ALOGI("BTDevice_SetRTL8761Xtal : 0x%08x", Value);
 
     return BT_FUNCTION_SUCCESS;
 
@@ -200,7 +198,7 @@ int BTDevice_GetRTL8761Xtal(BT_DEVICE *pBtDevice, uint32_t *pValue)
 
     *pValue = data;
 
-    ALOGI("BTDevice_GetRTL8761Xtal : 0x%08x", *pValue);
+    //ALOGI("BTDevice_GetRTL8761Xtal : 0x%08x", *pValue);
 
     return BT_FUNCTION_SUCCESS;
 
@@ -370,7 +368,7 @@ int BTDevice_SetPktRxStop(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_
     uint16_t OpCode=0x0000;
     int pktType=pParam->mPacketType;
 
-    ALOGI("+BTDevice_SetPktRxStop");
+    //ALOGI("+BTDevice_SetPktRxStop");
 #if 0
     if (pParam->mTestMode == BT_DUT_MODE)
     {
@@ -415,11 +413,11 @@ int BTDevice_SetPktRxStop(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_
         }
     }
 
-    ALOGI("-BTDevice_SetPktRxStop");
+    //ALOGI("-BTDevice_SetPktRxStop");
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("-BTDevice_SetPktRxStop: ERROR");
+    //ALOGI("-BTDevice_SetPktRxStop: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -435,12 +433,12 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     uint8_t pPayload_Len=0;
     uint16_t tmp = 0;
 
-    ALOGI("+BTDevice_SetPktRxBegin: mChannelNumber 0x%x, mPacketType 0x%x, mTxGainIndex 0x%x, "
-          "mTxGainValue 0x%x, mTxPacketCount 0x%x, mPayloadType 0x%x, mPacketHeader 0x%x, "
-          "mWhiteningCoeffValue 0x%x, mTxDAC 0x%x, mHitTarget 0x%012llx",
-          pParam->mChannelNumber, pParam->mPacketType, pParam->mTxGainIndex, pParam->mTxGainValue,
-          pParam->mTxPacketCount, pParam->mPayloadType, pParam->mPacketHeader,
-          pParam->mWhiteningCoeffValue, pParam->mTxDAC, pParam->mHitTarget);
+    //ALOGI("+BTDevice_SetPktRxBegin: mChannelNumber 0x%x, mPacketType 0x%x, mTxGainIndex 0x%x, "
+    //      "mTxGainValue 0x%x, mTxPacketCount 0x%x, mPayloadType 0x%x, mPacketHeader 0x%x, "
+    //      "mWhiteningCoeffValue 0x%x, mTxDAC 0x%x, mHitTarget 0x%012llx",
+    //      pParam->mChannelNumber, pParam->mPacketType, pParam->mTxGainIndex, pParam->mTxGainValue,
+    //      pParam->mTxPacketCount, pParam->mPayloadType, pParam->mPacketHeader,
+    //      pParam->mWhiteningCoeffValue, pParam->mTxDAC, pParam->mHitTarget);
 
     if (pParam->mPacketType == BT_PKT_LE)
     {
@@ -549,11 +547,11 @@ int BTDevice_SetPktRxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         goto exit;
     }
 
-    ALOGI("-BTDevice_SetPktRxBegin");
+    //ALOGI("-BTDevice_SetPktRxBegin");
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("-BTDevice_SetPktRxBegin: ERROR");
+    //ALOGI("-BTDevice_SetPktRxBegin: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -627,7 +625,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
         if ((rxCount > MAX_RX_READ_COUNT_ADR_0X72) || (rxErrbits > MAX_RX_READ_ERRORBITS_ADR_0X78))
         {
 
-            ALOGI("BTDevice_SetPktRxUpdate: Reset rxCount & rxErrbits !!");
+            //ALOGI("BTDevice_SetPktRxUpdate: Reset rxCount & rxErrbits !!");
 
             if (pBtDevice->SetMdRegMaskBits(pBtDevice,0x2e,10,9,0x00) != BT_FUNCTION_SUCCESS)
             {
@@ -642,11 +640,11 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
         }
     }
 
-    ALOGI("-BTDevice_Set Pkt Rx Update : RxRssi= %d, rxCount = %d, ber=%f", pBtReport->RxRssi, rxCount, pBtReport->ber);
+    //ALOGI("-BTDevice_Set Pkt Rx Update : RxRssi= %d, rxCount = %d, ber=%f", pBtReport->RxRssi, rxCount, pBtReport->ber);
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("-BTDevice_Set Pkt Rx Update: ERROR");
+    //ALOGI("-BTDevice_Set Pkt Rx Update: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -658,7 +656,7 @@ int BTDevice_SetPktTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_RE
     uint32_t EventLen = 0;
     int pktType = pParam->mPacketType;
 
-    ALOGI("+BTDevice_SetPktTxStop");
+    //ALOGI("+BTDevice_SetPktTxStop");
 
     //disable multi-packet Tx
     if (pBtDevice->SetMutiRxEnable(pBtDevice, 0x00) != BT_FUNCTION_SUCCESS)
@@ -675,11 +673,11 @@ int BTDevice_SetPktTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_RE
         goto exit;
     }
 
-    ALOGI("-BTDevice_SetPktTxStop");
+    //ALOGI("-BTDevice_SetPktTxStop");
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("-BTDevice_SetPktTxStop: ERROR");
+    //ALOGI("-BTDevice_SetPktTxStop: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -749,14 +747,14 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
     uint16_t tmp = 0;
     BT_TRX_TIME *pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
 
-    ALOGI("BTDevice_SetPktTxBegin: mChannelNumber 0x%02x, mPacketType 0x%02x, "
-          "mPayloadType 0x%02x, mTxPacketCount 0x%04x, mTxGainValue 0x%02x, "
-          "mWhiteningCoeffValue 0x%02x, mTxGainIndex 0x%02x, "
-          "mTxDAC 0x%02x, mPacketHeader 0x%04x",
-          pParam->mChannelNumber, pParam->mPacketType,
-          pParam->mPayloadType, pParam->mTxPacketCount, pParam->mTxGainValue,
-          pParam->mWhiteningCoeffValue, pParam->mTxGainIndex,
-          pParam->mTxDAC, pParam->mPacketHeader);
+    //ALOGI("BTDevice_SetPktTxBegin: mChannelNumber 0x%02x, mPacketType 0x%02x, "
+    //      "mPayloadType 0x%02x, mTxPacketCount 0x%04x, mTxGainValue 0x%02x, "
+    //      "mWhiteningCoeffValue 0x%02x, mTxGainIndex 0x%02x, "
+    //      "mTxDAC 0x%02x, mPacketHeader 0x%04x",
+    //      pParam->mChannelNumber, pParam->mPacketType,
+    //      pParam->mPayloadType, pParam->mTxPacketCount, pParam->mTxGainValue,
+    //      pParam->mWhiteningCoeffValue, pParam->mTxGainIndex,
+    //      pParam->mTxDAC, pParam->mPacketHeader);
 
     if (pParam->mPacketType == BT_PKT_LE) {
         if (pParam->mChannelNumber > 39) {
@@ -765,7 +763,7 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         }
     }
 
-    ALOGI("+BTDevice_SetPktTxBegin");
+    //ALOGI("+BTDevice_SetPktTxBegin");
 
     pTxTime->beginTimeClockCnt=0;
     pTxTime->UseTimeClockCnt=0;
@@ -869,11 +867,11 @@ int BTDevice_SetPktTxBegin(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE
         pTxTime->beginTimeClockCnt = btClockTime;
     }
 
-    ALOGI("-BTDevice_SetPktTxBegin");
+    //ALOGI("-BTDevice_SetPktTxBegin");
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("-BTDevice_SetPktTxBegin: ERROR");
+    //ALOGI("-BTDevice_SetPktTxBegin: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -883,7 +881,7 @@ int BTDevice_SetPktTxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
     uint16_t tmp=0;
     uint32_t TXUpdateBits, TXPktUpdateCnts;
 
-    ALOGI("BTDevice_SetPktTxUpdate");
+    //ALOGI("BTDevice_SetPktTxUpdate");
 
     //report
     BTDevice_CalculatedTxBits(pBtDevice, pParam, pBtReport, PKT_TX, &TXUpdateBits, &TXPktUpdateCnts);
@@ -893,13 +891,13 @@ int BTDevice_SetPktTxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
 
     if ((pBtReport->TotalTxCounts >= pParam->mTxPacketCount) && (pParam->mTxPacketCount != 0))
     {
-        ALOGI("BTDevice_Set Pkt Tx Update: Pkt Tx Finish......");
+        //ALOGI("BTDevice_Set Pkt Tx Update: Pkt Tx Finish......");
         return FUNCTION_TX_FINISH;
     }
 
     if (pBtDevice->TxTriggerPktCnt >= 0xFFF)
     {
-        ALOGI(" BTDevice_Set Pkt Tx Update: Pkt Tx Re-Trigger.....");
+        //ALOGI(" BTDevice_Set Pkt Tx Update: Pkt Tx Re-Trigger.....");
         pBtDevice->TxTriggerPktCnt=0;
 
         if (pParam->mTxPacketCount == 0)
@@ -943,7 +941,7 @@ int BTDevice_SetPktTxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("-BTDevice_Set Pkt Tx Update: ERROR");
+    //ALOGI("-BTDevice_Set Pkt Tx Update: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -969,10 +967,10 @@ int BTDevice_SetHoppingMode(
     unsigned int *pkt_len = Arrary_Hopping_pkt_len;
     int Index = 0;
 
-    ALOGI("BTDevice_SetHoppingMode: ChannelNumber %d, PktType %d, PayloadType %d, TxGainValue %d, "
-          "WhiteningCoeffValue %d, TxGainIndex %d, TxDAC %d, HoppingFixChannel %d",
-          ChannelNumber, PktType, PayloadType, TxGainValue,
-          WhiteningCoeffValue, TxGainIndex, TxDAC, HoppingFixChannel);
+    //ALOGI("BTDevice_SetHoppingMode: ChannelNumber %d, PktType %d, PayloadType %d, TxGainValue %d, "
+    //      "WhiteningCoeffValue %d, TxGainIndex %d, TxDAC %d, HoppingFixChannel %d",
+    //      ChannelNumber, PktType, PayloadType, TxGainValue,
+    //      WhiteningCoeffValue, TxGainIndex, TxDAC, HoppingFixChannel);
 
     switch (PktType) {
     case BT_PKT_1DH1:
@@ -1111,7 +1109,7 @@ int BTDevice_SetContinueTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEV
         pBtReport->TotalTXBits=0;
         pBtReport->TotalTxCounts=0;
     }
-    ALOGI("+BTDevice_SetContinueTxBegin");
+    //ALOGI("+BTDevice_SetContinueTxBegin");
 
     //disable modem fix tx
     // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
@@ -1206,11 +1204,11 @@ int BTDevice_SetContinueTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEV
         pTxTime->beginTimeClockCnt=btClockTime;
     }
 
-    ALOGI("-BTDevice_SetContinueTxBegin");
+    //ALOGI("-BTDevice_SetContinueTxBegin");
     return BT_FUNCTION_SUCCESS;
 
 error:
-    ALOGI("-BTDevice_SetContinueTxBegin: ERROR");
+    //ALOGI("-BTDevice_SetContinueTxBegin: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -1320,7 +1318,7 @@ int BTDevice_CalculatedTxBits(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEV
     pkt_Len= Arrary_Hopping_pkt_len[PacketType];
     *txbits=pkt_cnt * pkt_Len *8;
 
-    ALOGI("BTDevice_CalculatedTxBits: time= %d, txpkt_cnt = %d, txbits=%d", use_uSec, *txpkt_cnt, *txbits);
+    //ALOGI("BTDevice_CalculatedTxBits: time= %d, txpkt_cnt = %d, txbits=%d", use_uSec, *txpkt_cnt, *txbits);
 
 exit:
     return rtn;
@@ -1328,7 +1326,7 @@ exit:
 
 int BTDevice_SetContinueTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport)
 {
-    ALOGI("+BTDevice_SetContinueTxStop");
+    //ALOGI("+BTDevice_SetContinueTxStop");
 #if 0
     if (pParam->mTestMode == BT_DUT_MODE)
     {
@@ -1360,11 +1358,11 @@ int BTDevice_SetContinueTxStop(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVI
         }
     }
 
-    ALOGI("-BTDevice_SetContinueTxStop");
+    //ALOGI("-BTDevice_SetContinueTxStop");
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("-BTDevice_SetContinueTxStop: ERROR");
+    //ALOGI("-BTDevice_SetContinueTxStop: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -1382,12 +1380,12 @@ int BTDevice_SetContinueTxUpdate(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_
 
     pBtReport->TotalTxCounts += TXPktUpdateCnts;
 
-    ALOGI("BTDevice_SetContinueTxUpdate");
+    //ALOGI("BTDevice_SetContinueTxUpdate");
 
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("BTDevice_SetContinueTxUpdate: ERROR");
+    //ALOGI("BTDevice_SetContinueTxUpdate: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -1406,8 +1404,8 @@ int BTDevice_LeTxTestCmd(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_R
         goto exit;
     }
 
-    ALOGI("BTDevice_LeTxTestCmd: Channel %d, Data length %d, Pkt Payload %d",
-            pPayload[0], pPayload[1], pPayload[2]);
+    //ALOGI("BTDevice_LeTxTestCmd: Channel %d, Data length %d, Pkt Payload %d",
+    //        pPayload[0], pPayload[1], pPayload[2]);
 
     if (pBtDevice->SendHciCommandWithEvent(pBtDevice, 0x201E, LEN_3_BYTE, pPayload, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
     {
@@ -1422,7 +1420,7 @@ int BTDevice_LeTxTestCmd(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_R
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("BTDevice_LeTxTestCmd: ERROR");
+    //ALOGI("BTDevice_LeTxTestCmd: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -1436,7 +1434,7 @@ int BTDevice_LeRxTestCmd(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_R
 
     if (pPayload[0] > 39)
     {
-        ALOGI("BTDevice_LeRxTestCmd: Channel error %d", pPayload[0]);
+        //ALOGI("BTDevice_LeRxTestCmd: Channel error %d", pPayload[0]);
         goto exit;
     }
 
@@ -1450,12 +1448,12 @@ int BTDevice_LeRxTestCmd(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_R
         goto exit;
     }
 
-    ALOGI("BTDevice_LeRxTestCmd");
+    //ALOGI("BTDevice_LeRxTestCmd");
 
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("BTDevice_LeRxTestCmd: ERROR");
+    //ALOGI("BTDevice_LeRxTestCmd: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -1478,12 +1476,12 @@ int BTDevice_LeTestEndCmd(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_
     // Rx: Number_Of_Packets
     pBtReport->TotalRxCounts = (*(pEvent + EVT_BYTE1) << 8) + *(pEvent + EVT_BYTE0);
 
-    ALOGI("BTDevice_LeTestEndCmd");
+    //ALOGI("BTDevice_LeTestEndCmd");
 
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    ALOGI("BTDevice_LeTestEndCmd: ERROR");
+    //ALOGI("BTDevice_LeTestEndCmd: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -2050,7 +2048,7 @@ BTDevice_SendHciCommandWithEvent(
 
     if (pBtDevice->SendHciCmd(pBtDevice, HCIIO_BTCMD, pWritingBuf, len) != BT_FUNCTION_SUCCESS)
     {
-        ALOGI("BTDevice_SendHciCommandWithEvent, ERROR: SendHciCmd");
+        //ALOGI("BTDevice_SendHciCommandWithEvent, ERROR: SendHciCmd");
         goto exit;
     }
 
@@ -2061,7 +2059,7 @@ BTDevice_SendHciCommandWithEvent(
 
     if (pBtDevice->RecvHciEvent(pBtDevice, HCIIO_BTEVT, pEvent, pEventLen) != BT_FUNCTION_SUCCESS)
     {
-        ALOGI("BTDevice_SendHciCommandWithEvent, ERROR: RecvHciEvent");
+        //ALOGI("BTDevice_SendHciCommandWithEvent, ERROR: RecvHciEvent");
         goto exit;
     }
 
@@ -2077,7 +2075,7 @@ BTDevice_SendHciCommandWithEvent(
 
     if (hci_rtn != 0x00)
     {
-        ALOGI("BTDevice_SendHciCommandWithEvent, ERROR: hci_rtn %d", hci_rtn);
+        //ALOGI("BTDevice_SendHciCommandWithEvent, ERROR: hci_rtn %d", hci_rtn);
         goto exit;
     }
 

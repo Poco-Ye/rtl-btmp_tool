@@ -27,12 +27,11 @@
 #define LOG_TAG "bt_hw"
 
 #include <dlfcn.h>
-#include <utils/Log.h>
 #include <pthread.h>
-#include "bt_vendor_lib.h"
-#include "bt_hci_bdroid.h"
 #include "hci.h"
 #include "userial.h"
+#include "bt_vendor_lib.h"
+#include "bt_hci_bdroid.h"
 
 #include <bluetoothmp.h>
 
@@ -195,7 +194,7 @@ void init_vnd_if(unsigned char *local_bdaddr, bt_hci_if_t hci_if, const char *de
         bt_vnd_if = USB_bt_vnd_if;
     } else {
         bt_vnd_if = NULL;
-        ALOGE("!!! Failed to get bt vendor interface !!!");
+        //ALOGE("!!! Failed to get bt vendor interface !!!");
         return;
     }
 

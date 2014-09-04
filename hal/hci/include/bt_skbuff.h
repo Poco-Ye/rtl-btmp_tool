@@ -101,7 +101,13 @@ struct BT_RTB_CONTEXT{
 /**
     Since RTBs are always used into/from list, so abstract this struct and provide APIs to easy process on RTBs
 */
-typedef struct _RTB_QUEUE_HEAD  RTB_QUEUE_HEAD;
+typedef struct _RTB_QUEUE_HEAD{
+    RT_LIST_HEAD List;
+    uint32_t QueueLen;
+    pthread_mutex_t Lock;
+    uint8_t Id[RTB_QUEUE_ID_LENGTH];
+} RTB_QUEUE_HEAD;
+
 /*----------------------------------------------------------------------------------
     EXTERNAL FUNCTION
 ----------------------------------------------------------------------------------*/

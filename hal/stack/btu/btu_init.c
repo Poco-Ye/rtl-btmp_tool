@@ -28,9 +28,7 @@
 #include "dyn_mem.h"
 
 #include "btu.h"
-#include "btm_int.h"
-#include "sdpint.h"
-#include "l2c_int.h"
+#include "hcidefs.h"
 
 #if (BLE_INCLUDED == TRUE)
 #include "gatt_api.h"
@@ -62,11 +60,11 @@ const BD_ADDR   BT_BD_ANY = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 void btu_init_core(void)
 {
     /* Initialize the mandatory core stack components */
-    btm_init();
+    //btm_init();
 
-    l2c_init();
+    //l2c_init();
 
-    sdp_init();
+    //sdp_init();
 
 #if BLE_INCLUDED == TRUE
     gatt_init();
