@@ -1021,7 +1021,7 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
             }
 
             if (params_count == 2) {
-                fd = open(config_path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+                fd = open(config_path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
                 if (fd < 0) {
                     SYSLOGI("Failed to open config file: %s", strerror(errno));
                     sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
