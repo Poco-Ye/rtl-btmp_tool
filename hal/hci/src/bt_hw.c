@@ -34,6 +34,7 @@
 #include "bt_hci_bdroid.h"
 
 #include <bluetoothmp.h>
+#include <bt_syslog.h>
 
 /******************************************************************************
 **  Externs
@@ -194,7 +195,7 @@ void init_vnd_if(unsigned char *local_bdaddr, bt_hci_if_t hci_if, const char *de
         bt_vnd_if = USB_bt_vnd_if;
     } else {
         bt_vnd_if = NULL;
-        //ALOGE("!!! Failed to get bt vendor interface !!!");
+        SYSLOGE("!!! Failed to get bt vendor interface !!!");
         return;
     }
 

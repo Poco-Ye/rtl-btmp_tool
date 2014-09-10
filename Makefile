@@ -28,7 +28,8 @@ MV := mv -f
 INSTALL := install
 CC := gcc
 CFLAGS := -O2 -g -D_GNU_SOURCE -Wall -Wundef -Wno-unused-result -Wno-unused-variable \
-          -Werror-implicit-function-declaration -Wno-error=uninitialized
+          -Wno-unused-but-set-variable -Werror-implicit-function-declaration \
+          -Wno-error=uninitialized -Wno-strict-aliasing
 LDFLAGS := -lpthread -lrt
 
 export SRCDIR OUTDIR MV CC CFLAGS

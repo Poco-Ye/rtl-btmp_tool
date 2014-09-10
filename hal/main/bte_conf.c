@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "bt_syslog.h"
 #include "bt_target.h"
 
 
@@ -59,9 +60,9 @@ DEV_CLASS local_device_default_class = {0x40, 0x02, 0x0C};
 **  Local type definitions
 ******************************************************************************/
 #define CONF_DBG          0
-#define info(format, ...) //ALOGI (format, ## __VA_ARGS__)
-#define debug(format, ...) if (CONF_DBG) //ALOGD (format, ## __VA_ARGS__)
-#define error(format, ...) //ALOGE (format, ## __VA_ARGS__)
+#define info(format, ...) SYSLOGI (format, ## __VA_ARGS__)
+#define debug(format, ...) if (CONF_DBG) SYSLOGD (format, ## __VA_ARGS__)
+#define error(format, ...) SYSLOGE (format, ## __VA_ARGS__)
 
 #define CONF_KEY_LEN   32
 #define CONF_VALUE_LEN 96
@@ -206,7 +207,7 @@ void bte_load_conf(const char *p_path)
     char    line[CONF_MAX_LINE_LEN+1]; /* add 1 for \0 char */
     BOOLEAN name_matched;
 
-    //ALOGI("Attempt to load stack conf from %s", p_path);
+    SYSLOGI("Attempt to load stack conf from %s", p_path);
 
     if ((p_file = fopen(p_path, "r")) != NULL)
     {
@@ -227,7 +228,7 @@ void bte_load_conf(const char *p_path)
 
             if (NULL == p_value)
             {
-                //ALOGW("bte_load_conf: missing value for name: %s", p_name);
+                SYSLOGW("bte_load_conf: missing value for name: %s", p_name);
                 continue;
             }
 
@@ -258,102 +259,6 @@ void bte_load_conf(const char *p_path)
     }
     else
     {
-        //ALOGI( "bte_load_conf file >%s< not found", p_path);
+        SYSLOGI( "bte_load_conf file >%s< not found", p_path);
     }
-}
-
-/*******************************************************************************
-**
-** Function        bte_parse_did_conf
-**
-** Description     Read conf entry from p_path file one by one and get
-**                 the corresponding config value
-**
-** Returns         TRUE if success, else FALSE
-**
-*******************************************************************************/
-static BOOLEAN bte_parse_did_conf (const char *p_path, UINT32 num,
-    tKEY_VALUE_PAIRS *conf_pairs, UINT32 conf_pairs_num)
-{
-    UINT32 i, param_num=0, count=0, start_count=0, end_count=0, conf_num=0;
-    BOOLEAN key=TRUE, conf_found=FALSE;
-
-    FILE    *p_file;
-    char    *p;
-    char    line[CONF_MAX_LINE_LEN+1]; /* add 1 for \0 char */
-
-    //ALOGI("Attempt to load did conf from %s", p_path);
-
-    if ((p_file = fopen(p_path, "r")) != NULL)
-    {
-        /* read line by line */
-        while (fgets(line, CONF_MAX_LINE_LEN+1, p_file) != NULL)
-        {
-            count++;
-            if (line[0] == CONF_COMMENT)
-                continue;
-
-            if (conf_found && (conf_num == num) && (*line == '[')) {
-                conf_found = FALSE;
-                end_count = count-1;
-                break;
-            }
-
-            p = strtok(line, CONF_DELIMITERS);
-            while (p != NULL) {
-                if (conf_num <= num) {
-                    if (key) {
-                        if (!strcmp(p, conf_pairs[0].key)) {
-                            if (++conf_num == num) {
-                                conf_found = TRUE;
-                                start_count = count;
-                                strncpy(conf_pairs[0].value, "1", CONF_VALUE_LEN);
-                            }
-                        } else {
-                            if (conf_num == num) {
-                                for (i=1; i<conf_pairs_num; i++) {
-                                    if (!strcmp(p, conf_pairs[i].key)) {
-                                        param_num = i;
-                                        break;
-                                    }
-                                }
-                                if (i == conf_pairs_num) {
-                                    error("Attribute %s does not belong to %s configuration",
-                                        p, conf_pairs[0].key);
-                                    fclose(p_file);
-                                    return FALSE;
-                                }
-                            }
-                            key = FALSE;
-                        }
-                    } else {
-                        if ((conf_num == num) && param_num) {
-                            strncpy(conf_pairs[param_num].value, p, CONF_VALUE_LEN-1);
-                            param_num = 0;
-                        }
-                        key = TRUE;
-                    }
-                }
-                p = strtok(NULL, CONF_DELIMITERS);
-            }
-        }
-
-        fclose(p_file);
-   }
-   else
-   {
-        //ALOGI( "bte_parse_did_conf file >%s< not found", p_path);
-   }
-   if (!end_count)
-       end_count = count;
-
-   if (start_count) {
-        debug("Read %s configuration #%u from lines %u to %u in file %s",
-            conf_pairs[0].key, (unsigned int)num, (unsigned int)start_count,
-            (unsigned int)end_count, p_path);
-        return TRUE;
-   }
-
-   error("%s configuration not found in file %s", conf_pairs[0].key, p_path);
-        return FALSE;
 }

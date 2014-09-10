@@ -24,16 +24,16 @@
  *
  ***********************************************************************************/
 
+#define LOG_TAG "bluedroid"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "bluetoothmp.h"
 
-#define LOG_NDDEBUG 0
-#define LOG_TAG "bluedroid"
+#include "bluetoothmp.h"
+#include "bt_syslog.h"
 
 #include "btif_api.h"
-
 #include "foundation.h"
 #include "bt_mp_base.h"
 #include "bt_mp_api.h"
@@ -78,7 +78,7 @@ uint8_t hal_interface_ready(void)
 
 int hal_init(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node)
 {
-    //ALOGI("init");
+    SYSLOGI("init");
 
     /* sanity check */
     if (hal_interface_ready() == TRUE)
@@ -102,7 +102,7 @@ int hal_init(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node
 
 int hal_enable(void)
 {
-    //ALOGI("enable");
+    SYSLOGI("enable");
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)
@@ -136,7 +136,7 @@ void hal_cleanup( void )
 
 int hal_dut_mode_configure(uint8_t enable)
 {
-    //ALOGI("hal_dut_mode_configure");
+    SYSLOGI("hal_dut_mode_configure");
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)
@@ -160,7 +160,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
     p = (char *)(p_buf + 1);
     memset(p, 0, 1024);
 
-    //ALOGI("hal_mp_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
+    SYSLOGI("hal_mp_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)
@@ -204,7 +204,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         break;
 
     default:
-        //ALOGW("hal_mp_op_send: undefined opcode[0x%02x]", opcode);
+        SYSLOGW("hal_mp_op_send: undefined opcode[0x%02x]", opcode);
         break;
     }
 
@@ -213,7 +213,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
     UINT8_TO_STREAM(p, opcode);
     UINT8_TO_STREAM(p, buf_len);
 
-    //ALOGI("buf_cb: %s, buf_len %d", buf_cb, buf_len);
+    SYSLOGI("buf_cb: %s, buf_len %d", buf_cb, buf_len);
 
     memcpy(p, buf_cb, buf_len);
 

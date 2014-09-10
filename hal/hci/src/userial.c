@@ -36,6 +36,7 @@
 #include <sys/prctl.h>
 #include <linux/sched.h>
 
+#include "bt_syslog.h"
 #include "bt_hci_bdroid.h"
 #include "userial.h"
 #include "utils.h"
@@ -50,7 +51,7 @@
 #endif
 
 #if (USERIAL_DBG == TRUE)
-#define USERIALDBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
+#define USERIALDBG(param, ...) {SYSLOGD(param, ## __VA_ARGS__);}
 #else
 #define USERIALDBG(param, ...) {}
 #endif
@@ -109,7 +110,7 @@ static inline int create_signal_fds(fd_set* set)
 {
     if(signal_fds[0]==0 && socketpair(AF_UNIX, SOCK_STREAM, 0, signal_fds)<0)
     {
-        //ALOGE("create_signal_sockets:socketpair failed, errno: %d", errno);
+        SYSLOGE("create_signal_sockets:socketpair failed, errno: %d", errno);
         return -1;
     }
     FD_SET(signal_fds[0], set);
@@ -189,15 +190,15 @@ static int select_read(int fd, uint8_t *pbuf, int len)
             {
                 ret = read(fd, pbuf, (size_t)len);
                 if (0 == ret)
-                    //ALOGW( "read() returned 0!" );
+                    SYSLOGW( "read() returned 0!" );
 
                 return ret;
             }
         }
         else if (n < 0)
-            ;//ALOGW( "select() Failed");
+            SYSLOGW( "select() Failed");
         else if (n == 0)
-            ;//ALOGW( "Got a select() TIMEOUT");
+            SYSLOGW( "Got a select() TIMEOUT");
 
     }
 
@@ -248,7 +249,7 @@ static void *userial_read_thread(void *arg)
         {
             rx_length = 0;
             utils_delay(100);
-            //ALOGW("userial_read_thread() failed to gain buffers");
+            SYSLOGW("userial_read_thread() failed to gain buffers");
             continue;
         }
 
@@ -261,8 +262,8 @@ static void *userial_read_thread(void *arg)
         }
         else /* either 0 or < 0 */
         {
-            //ALOGW("select_read return size <=0:%d, exiting userial_read_thread",
-            //     rx_length);
+            SYSLOGW("select_read return size <=0:%d, exiting userial_read_thread",
+                    rx_length);
             /* if we get here, we should have a buffer */
             bt_hc_cbacks->dealloc((TRANSAC) p_buf, (char *) (p_buf + 1));
             /* negative value means exit thread */
@@ -328,7 +329,7 @@ uint8_t userial_open(uint8_t port)
 
     if (port >= MAX_SERIAL_PORT)
     {
-        //ALOGE("Port > MAX_SERIAL_PORT");
+        SYSLOGE("Port > MAX_SERIAL_PORT");
         return FALSE;
     }
 
@@ -339,9 +340,9 @@ uint8_t userial_open(uint8_t port)
 
         if (result != 1)
         {
-            //ALOGE("userial_open: wrong numbers of open fd in vendor lib [%d]!",
-            //        result);
-            //ALOGE("userial_open: HCI UART expects only one open fd");
+            SYSLOGE("userial_open: wrong numbers of open fd in vendor lib [%d]!",
+                    result);
+            SYSLOGE("userial_open: HCI UART expects only one open fd");
             bt_vnd_if->op(BT_VND_OP_USERIAL_CLOSE, NULL);
             return FALSE;
         }
@@ -350,14 +351,14 @@ uint8_t userial_open(uint8_t port)
     }
     else
     {
-        //ALOGE("userial_open: missing vendor lib interface !!!");
-        //ALOGE("userial_open: unable to open UART port");
+        SYSLOGE("userial_open: missing vendor lib interface !!!");
+        SYSLOGE("userial_open: unable to open UART port");
         return FALSE;
     }
 
     if (userial_cb.fd == -1)
     {
-        //ALOGE("userial_open: failed to open UART port");
+        SYSLOGE("userial_open: failed to open UART port");
         return FALSE;
     }
 
@@ -370,7 +371,7 @@ uint8_t userial_open(uint8_t port)
     if (pthread_create(&(userial_cb.read_thread), &thread_attr, \
                        userial_read_thread, NULL) != 0 )
     {
-        //ALOGE("pthread_create failed!");
+        SYSLOGE("pthread_create failed!");
         return FALSE;
     }
 
@@ -383,8 +384,8 @@ uint8_t userial_open(uint8_t port)
         result = pthread_setschedparam(userial_cb.read_thread, policy, &param);
         if (result != 0)
         {
-            //ALOGW("userial_open: pthread_setschedparam failed (%s)",
-            //      strerror(result));
+            SYSLOGW("userial_open: pthread_setschedparam failed (%s)",
+                    strerror(result));
         }
     }
 
@@ -462,7 +463,7 @@ uint16_t userial_write(uint16_t msg_id, uint8_t *p_data, uint16_t len)
     while (len != 0) {
         ret = write(userial_cb.fd, p_data+total, len);
         if (ret == -1) {
-            //ALOGE("userial_write: fd %d, errno %d", userial_cb.fd, errno);
+            SYSLOGE("userial_write: fd %d, errno %d", userial_cb.fd, errno);
             break;
         }
 
@@ -493,7 +494,7 @@ void userial_close(void)
         send_wakeup_signal(USERIAL_RX_EXIT);
 
     if ((result=pthread_join(userial_cb.read_thread, NULL)) < 0)
-        //ALOGE( "pthread_join() FAILED result:%d", result);
+        SYSLOGE( "pthread_join() FAILED result:%d", result);
 
     /* Calling vendor-specific part */
     if (bt_vnd_if)

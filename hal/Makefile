@@ -64,7 +64,7 @@ OBJS += $(STACK_DIR)/btu/btu_hcif.o $(STACK_DIR)/btu/btu_init.o $(STACK_DIR)/btu
         $(STACK_DIR)/hcic/hcicmds.o $(STACK_DIR)/hcic/hciblecmds.o
 OBJS += $(LIBBT_DIR)/bt_vendor_uart.o $(LIBBT_DIR)/bt_vendor_usb.o $(LIBBT_DIR)/hardware.o \
         $(LIBBT_DIR)/userial_vendor.o $(LIBBT_DIR)/upio.o
-OBJS += $(UTILS_DIR)/bt_utils.o
+OBJS += $(UTILS_DIR)/bt_utils.o $(UTILS_DIR)/bt_syslog.o
 
 INCS = $(BTIF_INC)/btif_api.h $(BTIF)/btif_common.h $(BTIF)/btif_util.h
 INCS += $(MP_INC)/bluetoothmp.h $(MP_INC)/bt_mp_api.h $(MP_INC)/bt_mp_base.h \
@@ -81,14 +81,13 @@ INCS += $(STACK_INC)/bt_types.h $(STACK_INC)/btu.h $(STACK_INC)/dyn_mem.h $(STAC
         $(STACK_INC)/wcassert.h
 INCS += $(LIBBT_INC)/bt_vendor_uart.h $(LIBBT_INC)/bt_vendor_usb.h $(LIBBT_INC)/upio.h \
         $(LIBBT_INC)/userial_vendor.h $(LIBBT_INC)/vnd_generic.txt
-INCS += $(UTILS_INC)/bt_utils.h
+INCS += $(UTILS_INC)/bt_utils.h $(UTILS_INC)/bt_syslog.h
 INCS += $(HAL_INC)/bt_target.h $(HAL_INC)/bt_trace.h $(HAL_INC)/bte.h $(HAL_INC)/bte_appl.h \
         $(HAL_INC)/gki_target.h
 
 all: $(OBJS)
 
 $(OBJS): %.o: %.c
-	$(warning $(MV) $(OUTDIR))
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(MV) $@ $(OUTDIR)
 

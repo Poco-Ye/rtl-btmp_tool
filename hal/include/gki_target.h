@@ -18,6 +18,8 @@
 #ifndef GKI_TARGET_H
 #define GKI_TARGET_H
 
+#include "bt_syslog.h"
+
 /* Operating System Selection */
 #ifndef BTE_SIM_APP
 #define _GKI_ARM
@@ -45,7 +47,7 @@
 
 
 #if defined (GKI_DEBUG) && (GKI_DEBUG == TRUE)
-#define GKI_TRACE(fmt, ...)     ALOGI ("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
+#define GKI_TRACE(fmt, ...)     SYSLOGI("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
 #else
 #define GKI_TRACE(fmt, ...)
 #endif

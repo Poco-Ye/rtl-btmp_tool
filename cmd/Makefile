@@ -16,10 +16,10 @@
 #
 
 CMD_DIR := cmd
-CMD_INC := $(SRCDIR)/hal/mp/include/
+CMD_MP_INC := $(SRCDIR)/hal/mp/include/
+CMD_LOG_INC := $(SRCDIR)/hal/utils/include/
 
-CFLAGS += -I$(CMD_INC)
-#CC := gcc
+CFLAGS += -I$(CMD_MP_INC) -I$(CMD_LOG_INC)
 
 .PHONY: all
 
@@ -27,12 +27,6 @@ OBJS = bluetoothtest.o
 
 all: $(OBJS)
 
-#$(CMD_DIR)/%.o: $(CMD_DIR)/%.c $(CMD_INC)/bluetoothmp.h
-#	$(CC) $(CFLAGS) -c $< -o $@
-
-$(OBJS): %.o: %.c $(CMD_INC)/bluetoothmp.h
+$(OBJS): %.o: %.c $(CMD_MP_INC)/bluetoothmp.h $(CMD_LOG_INC)/bt_syslog.h
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(MV) $@ $(OUTDIR)
-
-#bluetoothtest.o: bluetoothtest.c ../$(CMD_INC)/bluetoothmp.h
-#	$(CC) $(CFLAGS) -c $< -o $@

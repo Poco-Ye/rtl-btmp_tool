@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "bt_syslog.h"
 #include "bluetoothmp.h"
 #include "bt_mp_base.h"
 
@@ -21,12 +22,12 @@ BTHCI_EvtReport(
 #if 0
     unsigned long i;
 
-    ALOGI("<-rev hci event : ");
+    SYSLOGI("<-rev hci event : ");
     for( i = 0; i < EvtCodeLen; i++)
     {
-        ALOGI("0x%x ", pEvtCode[i]);
+        SYSLOGI("0x%x ", pEvtCode[i]);
     }
-    ALOGI("\n");
+    SYSLOGI("\n");
 #endif
 }
 
@@ -450,7 +451,7 @@ bt_default_SetRFRegMaskBits(
                 Lsb,
                 &rUserValue
                 );
-        //ALOGI("[RF][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]",Addr,Msb,Lsb,rUserValue,UserValue);
+        SYSLOGI("[RF][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]",Addr,Msb,Lsb,rUserValue,UserValue);
 
     }
 #endif
@@ -559,7 +560,7 @@ bt_default_SetMDRegMaskBits(
                 Lsb,
                 &rUserValue
                 );
-        //ALOGI("[MD][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]",Addr,Msb,Lsb,rUserValue,UserValue);
+        SYSLOGI("[MD][Reg=0x%.2x][%2d:%2d][Data=0x%.2x <-- 0x%.2x]",Addr,Msb,Lsb,rUserValue,UserValue);
 
     }
 #endif
@@ -1216,7 +1217,7 @@ bt_default_BTDlFW(
             goto exit;
         }
 
-        //ALOGI("[%d][Len=%d][offset=%d][ret=%x](%d)",SegmentIndex,pPayload_Len,StartIndex,pEvent[5],LastSegment);
+        SYSLOGI("[%d][Len=%d][offset=%d][ret=%x](%d)",SegmentIndex,pPayload_Len,StartIndex,pEvent[5],LastSegment);
 
         if (pEvent[5] != 0)
         {
@@ -1316,7 +1317,7 @@ bt_default_BTDlMergerFW(
         goto exit;
     }
 
-    //ALOGI(">>Patch offset=%x Len=%d",Start_Offset,Patch_Code_Length);
+    SYSLOGI(">>Patch offset=%x Len=%d",Start_Offset,Patch_Code_Length);
 
     if (pBtDevice->BTDlFW(pBtDevice,&pPatchcode[Start_Offset],Patch_Code_Length) != BT_FUNCTION_SUCCESS)
     {

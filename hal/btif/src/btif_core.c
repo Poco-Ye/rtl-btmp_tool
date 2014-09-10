@@ -41,13 +41,10 @@
 
 #include "gki.h"
 #include "btu.h"
-//#include "bte.h"
-//#include "bd.h"
-
 #include "hcidefs.h"
 #include "hcimsgs.h"
 #include "btif_common.h"
-
+#include "bt_syslog.h"
 #include "foundation.h"
 #include "bt_mp_transport.h"
 
@@ -256,11 +253,11 @@ static void btif_mp_rx_data_ind(uint8_t evtcode, uint8_t *buf, uint8_t len)
 
     BaseInterfaceModuleMemory.evtLen = sizeof(evtcode) + sizeof(len) + len;
 
-    //ALOGI("<-- HCI EVENT event code: 0x%x %d", evtcode, len);
+    SYSLOGI("<-- HCI EVENT event code: 0x%x %d", evtcode, len);
 
     for( i = 0 ; i < len; i++ )
     {
-        //ALOGI("0x%x ",buf[i]);
+        SYSLOGI("0x%x ",buf[i]);
     }
 
     UINT8_TO_STREAM(pEvtBuf, evtcode);
@@ -282,7 +279,7 @@ static bt_status_t btif_mp_test_evt(void* msg)
     STREAM_TO_UINT8  (hci_evt_code, p);
     STREAM_TO_UINT8  (hci_evt_len, p);
 
-    //ALOGI("%s: evtcode[0x%02x]", __FUNCTION__, hci_evt_code);
+    SYSLOGI("%s: evtcode[0x%02x]", __FUNCTION__, hci_evt_code);
 
     if (btif_dut_mode)
     {
@@ -304,7 +301,7 @@ static bt_status_t btif_mp_notify_evt(void* msg)
 
     p[param_len] = '\0'; /* must allocate extra 1 byte */
 
-    //ALOGI("%s: opcode[0x%02x], params[%s]", __FUNCTION__, opcode, p);
+    SYSLOGI("%s: opcode[0x%02x], params[%s]", __FUNCTION__, opcode, p);
 
     HAL_CBACK(bt_hal_cbacks, dut_mode_recv_cb, opcode, p);
 
@@ -489,7 +486,7 @@ bt_status_t btif_enable_bluetooth(bt_hci_if_t hci_if, const char *dev_node)
 
     if (btif_core_state != BTIF_CORE_STATE_DISABLED)
     {
-        //ALOGD("not disabled");
+        SYSLOGW("not disabled");
         return BT_STATUS_DONE;
     }
 

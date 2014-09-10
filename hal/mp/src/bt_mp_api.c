@@ -10,7 +10,9 @@
 #include <math.h>
 #include <termios.h>
 #include <time.h>
+#include <inttypes.h>
 
+#include "bt_syslog.h"
 #include "bluetoothmp.h"
 #include "bt_mp_transport.h"
 #include "bt_mp_api.h"
@@ -244,7 +246,7 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
                 pBtModule->pBtParam->mHoppingFixChannel);
         break;
     case BT_PARAM_IDX11:
-        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%012llx",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%012"PRIx64"",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
@@ -315,16 +317,16 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
         break;
     case REPORT_PKT_TX:
     case REPORT_CONT_TX:
-        //ALOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
-        //        STR_BT_MP_REPORT,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        item,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        BT_FUNCTION_SUCCESS,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->TotalTXBits,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->TotalTxCounts);
+        SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x",
                 STR_BT_MP_REPORT,
@@ -338,20 +340,20 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->TotalTxCounts);
         break;
     case REPORT_PKT_RX:
-        //ALOGI("%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
-        //        STR_BT_MP_REPORT,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        item,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        BT_FUNCTION_SUCCESS,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->RxRssi,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->TotalRXBits,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->TotalRxCounts,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->TotalRxErrorBits);
+        SYSLOGI("%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->RxRssi,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRXBits,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxErrorBits);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
                 STR_BT_MP_REPORT,
@@ -369,26 +371,26 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->TotalRxErrorBits);
         break;
     case REPORT_TX_GAIN_TABLE:
-        //ALOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
-        //        STR_BT_MP_REPORT,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        item,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        BT_FUNCTION_SUCCESS,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXGainTable[0],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXGainTable[1],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXGainTable[2],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXGainTable[3],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXGainTable[4],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXGainTable[5],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXGainTable[6]);
+        SYSLOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[0],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[1],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[2],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[3],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[4],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[5],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[6]);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
                 STR_BT_MP_REPORT,
@@ -412,22 +414,22 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->CurrTXGainTable[6]);
         break;
     case REPORT_TX_DAC_TABLE:
-        //ALOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
-        //        STR_BT_MP_REPORT,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        item,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        BT_FUNCTION_SUCCESS,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXDACTable[0],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXDACTable[1],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXDACTable[2],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXDACTable[3],
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrTXDACTable[4]);
+        SYSLOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[0],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[1],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[2],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[3],
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[4]);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
                 STR_BT_MP_REPORT,
@@ -447,14 +449,14 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->CurrTXDACTable[4]);
         break;
     case REPORT_XTAL:
-        //ALOGI("%s%s%d%s0x%02x%s0x%08x",
-        //        STR_BT_MP_REPORT,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        item,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        BT_FUNCTION_SUCCESS,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrRtl8761Xtal);
+        SYSLOGI("%s%s%d%s0x%02x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrRtl8761Xtal);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x",
                 STR_BT_MP_REPORT,
@@ -466,14 +468,14 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->CurrRtl8761Xtal);
         break;
     case REPORT_THERMAL:
-        //ALOGI("%s%s%d%s0x%02x%s0x%02x",
-        //        STR_BT_MP_REPORT,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        item,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        BT_FUNCTION_SUCCESS,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrThermalValue);
+        SYSLOGI("%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrThermalValue);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_REPORT,
@@ -485,14 +487,14 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->CurrThermalValue);
         break;
     case REPORT_BT_STAGE:
-        //ALOGI("%s%s%d%s0x%02x%s0x%02x",
-        //        STR_BT_MP_REPORT,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        item,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        BT_FUNCTION_SUCCESS,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->CurrStage);
+        SYSLOGI("%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrStage);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_REPORT,
@@ -504,26 +506,26 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->CurrStage);
         break;
     case REPORT_CHIP:
-        //ALOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x",
-        //        STR_BT_MP_REPORT,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        item,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        BT_FUNCTION_SUCCESS,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->pBTInfo->ChipType,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->pBTInfo->HCI_SubVersion,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->pBTInfo->HCI_Version,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->pBTInfo->Is_After_PatchCode,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->pBTInfo->LMP_SubVersion,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->pBTInfo->LMP_Version,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtDeviceReport->pBTInfo->Version);
+        SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT,
+                STR_BT_MP_RESULT_DELIM,
+                item,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->ChipType,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_SubVersion,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_Version,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->Is_After_PatchCode,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_SubVersion,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_Version,
+                STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->Version);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x",
                 STR_BT_MP_REPORT,
@@ -565,7 +567,7 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *buf_cb)
     uint8_t params_count = 0;
     uint8_t i = 0;
 
-    //ALOGI("++%s: %s", STR_BT_MP_HCI_CMD, p);
+    SYSLOGI("++%s: %s", STR_BT_MP_HCI_CMD, p);
 
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
@@ -613,7 +615,7 @@ int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *buf_cb)
         goto exit;
     }
 
-    //ALOGI("--%s%s0x%02x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, ret);
+    SYSLOGI("--%s%s0x%02x", STR_BT_MP_HCI_CMD, STR_BT_MP_RESULT_DELIM, ret);
     return ret;
 
 exit:
@@ -628,7 +630,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
     int index = -1;
     int ret = BT_FUNCTION_SUCCESS;
 
-    //ALOGI("++%s: index %s", STR_BT_MP_GET_PARAM, p);
+    SYSLOGI("++%s: index %s", STR_BT_MP_GET_PARAM, p);
 
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
@@ -638,12 +640,12 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 index = -1;
             }
 
-            //ALOGI("%s%s%d%s0x%02x",
-            //        STR_BT_MP_GET_PARAM,
-            //        STR_BT_MP_RESULT_DELIM,
-            //        index,
-            //        STR_BT_MP_RESULT_DELIM,
-            //        FUNCTION_PARAMETER_ERROR);
+            SYSLOGI("%s%s%d%s0x%02x",
+                    STR_BT_MP_GET_PARAM,
+                    STR_BT_MP_RESULT_DELIM,
+                    index,
+                    STR_BT_MP_RESULT_DELIM,
+                    FUNCTION_PARAMETER_ERROR);
 
             sprintf(buf_cb, "%s%s%d%s0x%02x",
                     STR_BT_MP_GET_PARAM,
@@ -658,32 +660,32 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
         bt_index2print(pBtModule, index, buf_cb);
     } else {
         /* print all exposed params if not specified[Deprecated] */
-        //ALOGI("%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012llx",
-        //        STR_BT_MP_GET_PARAM,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mChannelNumber,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mPacketType,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mPayloadType,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mTxPacketCount,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mTxGainValue,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mWhiteningCoeffValue,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mTxGainIndex,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mTxDAC,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mPacketHeader,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mHoppingFixChannel,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        pBtModule->pBtParam->mHitTarget);
+        SYSLOGI("%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012llx",
+                STR_BT_MP_GET_PARAM,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mChannelNumber,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPacketType,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPayloadType,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxPacketCount,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxGainValue,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mWhiteningCoeffValue,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxGainIndex,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxDAC,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPacketHeader,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mHoppingFixChannel,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mHitTarget);
 
-        sprintf(buf_cb, "%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012llx",
+        sprintf(buf_cb, "%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012"PRIx64"",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mChannelNumber,
@@ -709,7 +711,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 pBtModule->pBtParam->mHitTarget);
     }
 
-    //ALOGI("--%s", STR_BT_MP_GET_PARAM);
+    SYSLOGI("--%s", STR_BT_MP_GET_PARAM);
     return ret;
 }
 
@@ -723,7 +725,7 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
     int var_pair;
     int64_t value = 0;
 
-    //ALOGI("++%s: %s", STR_BT_MP_SET_PARAM, p);
+    SYSLOGI("++%s: %s", STR_BT_MP_SET_PARAM, p);
 
     for (pairs_count = 0, pairs_buf = p; ; pairs_count++, pairs_buf = NULL) {
         pair_token = strtok_r(pairs_buf, STR_BT_MP_PAIR_DELIM, &save_pairs);
@@ -737,7 +739,7 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
             if (param_token && params_count == 0) {
                 index = strtol(param_token, NULL, 0);
                 if (index < 0 || index >= BT_PARAM_IDX_NUM) {
-                    //ALOGI("Invalid BT param index %d", index);
+                    SYSLOGI("Invalid BT param index %d", index);
                     sprintf(buf_cb, "%s%s%d%s0x%02x",
                             STR_BT_MP_SET_PARAM,
                             STR_BT_MP_RESULT_DELIM,
@@ -766,19 +768,19 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
             uint16_t i = 0;
             for (i = 0; i < params_count - 1; i++) {
                 if (index == 0) // variable pair format<index, cmd, len, data...>
-                    ;//ALOGI("PG raw data[%d]: 0x%02x", i, pBtModule->pBtParam->mPGRawData[i]);
+                    SYSLOGI("PG raw data[%d]: 0x%02x", i, pBtModule->pBtParam->mPGRawData[i]);
                 else if (index == 12)
-                    ;//ALOGI("TX gain table[%d]: 0x%02x", i, pBtModule->pBtParam->TXGainTable[i]);
+                    SYSLOGI("TX gain table[%d]: 0x%02x", i, pBtModule->pBtParam->TXGainTable[i]);
                 else if (index == 13)
-                    ;//ALOGI("TX dac table[%d]: 0x%02x", i, pBtModule->pBtParam->TXDACTable[i]);
+                    SYSLOGI("TX dac table[%d]: 0x%02x", i, pBtModule->pBtParam->TXDACTable[i]);
             }
         } else if (params_count == 2 && var_pair == 0) { // 2-param pair format<index, value>
-            //ALOGI("Pair index %d, pair value 0x%llx", index, value);
+            SYSLOGI("Pair index %d, pair value 0x%llx", index, value);
             bt_index2param(pBtModule, index, value);
         } else if (params_count == 0) { // null pair
             continue;
         } else { // wrong pair format
-            //ALOGI("Invalid BT pair format, params count %d", params_count);
+            SYSLOGI("Invalid BT pair format, params count %d", params_count);
             sprintf(buf_cb, "%s%s%d%s0x%02x",
                     STR_BT_MP_SET_PARAM,
                     STR_BT_MP_RESULT_DELIM,
@@ -789,7 +791,7 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
         }
     }
 
-    //ALOGI("--%s: pairs count %d", STR_BT_MP_SET_PARAM, pairs_count);
+    SYSLOGI("--%s: pairs count %d", STR_BT_MP_SET_PARAM, pairs_count);
 
     sprintf(buf_cb, "%s%s%d%s0x%02x",
             STR_BT_MP_SET_PARAM,
@@ -808,7 +810,7 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *buf_cb)
     uint8_t params_count = 0;
     int ret = BT_FUNCTION_SUCCESS;
 
-    //ALOGI("++%s: %s", STR_BT_MP_SET_PARAM1, p);
+    SYSLOGI("++%s: %s", STR_BT_MP_SET_PARAM1, p);
 
     // uint8_t mChannelNumber;
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
@@ -867,31 +869,31 @@ int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *buf_cb)
     //end of parameter
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
-        //ALOGI("BT_SetParam1: redundant token[%s]", token);
+        SYSLOGI("BT_SetParam1: redundant token[%s]", token);
         params_count++;
     }
 
 exit:
-    //ALOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM1, params_count);
+    SYSLOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM1, params_count);
 
     if (params_count != BT_PARAM1_COUNT) {
         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
         ret = FUNCTION_PARAMETER_ERROR;
     } else {
-        //ALOGI("mChannelNumber:0x%02x, mPacketType:0x%02x, mPayloadType:0x%02x, "
-        //      "mTxPacketCount:0x%04x, mTxGainValue:0x%x, mWhiteningCoeffValue:0x%02x",
-        //      pBtModule->pBtParam->mChannelNumber,
-        //      pBtModule->pBtParam->mPacketType,
-        //      pBtModule->pBtParam->mPayloadType,
-        //      pBtModule->pBtParam->mTxPacketCount,
-        //      pBtModule->pBtParam->mTxGainValue,
-        //      pBtModule->pBtParam->mWhiteningCoeffValue
-        //     );
+        SYSLOGI("mChannelNumber:0x%02x, mPacketType:0x%02x, mPayloadType:0x%02x, "
+              "mTxPacketCount:0x%04x, mTxGainValue:0x%x, mWhiteningCoeffValue:0x%02x",
+              pBtModule->pBtParam->mChannelNumber,
+              pBtModule->pBtParam->mPacketType,
+              pBtModule->pBtParam->mPayloadType,
+              pBtModule->pBtParam->mTxPacketCount,
+              pBtModule->pBtParam->mTxGainValue,
+              pBtModule->pBtParam->mWhiteningCoeffValue
+             );
 
         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
-    //ALOGI("--%s", STR_BT_MP_SET_PARAM1);
+    SYSLOGI("--%s", STR_BT_MP_SET_PARAM1);
     return ret;
 }
 
@@ -902,7 +904,7 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *buf_cb)
     uint8_t params_count = 0;
     int ret = BT_FUNCTION_SUCCESS;
 
-    //ALOGI("++%s: %s", STR_BT_MP_SET_PARAM2, p);
+    SYSLOGI("++%s: %s", STR_BT_MP_SET_PARAM2, p);
 
     // uint8_t mTxGainIndex;
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
@@ -952,29 +954,29 @@ int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *buf_cb)
     // end of parameter
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
-        //ALOGI("BT_SetParam2: redundant token[%s]", token);
+        SYSLOGI("BT_SetParam2: redundant token[%s]", token);
         params_count++;
     }
 
 exit:
-    //ALOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM2, params_count);
+    SYSLOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM2, params_count);
 
     if (params_count != BT_PARAM2_COUNT) {
         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
         ret = FUNCTION_PARAMETER_ERROR;
     } else {
-        //ALOGI("mTxGainIndex:0x%02x, mTxDAC:0x%02x, mPacketHeader:0x%08x, "
-        //        "mHoppingFixChannel:0x%02x, mHitTarget 0x%012llx",
-        //        pBtModule->pBtParam->mTxGainIndex,
-        //        pBtModule->pBtParam->mTxDAC,
-        //        pBtModule->pBtParam->mPacketHeader,
-        //        pBtModule->pBtParam->mHoppingFixChannel,
-        //        pBtModule->pBtParam->mHitTarget);
+        SYSLOGI("mTxGainIndex:0x%02x, mTxDAC:0x%02x, mPacketHeader:0x%08x, "
+                "mHoppingFixChannel:0x%02x, mHitTarget 0x%012llx",
+                pBtModule->pBtParam->mTxGainIndex,
+                pBtModule->pBtParam->mTxDAC,
+                pBtModule->pBtParam->mPacketHeader,
+                pBtModule->pBtParam->mHoppingFixChannel,
+                pBtModule->pBtParam->mHitTarget);
 
         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
     }
 
-    //ALOGI("--%s", STR_BT_MP_SET_PARAM2);
+    SYSLOGI("--%s", STR_BT_MP_SET_PARAM2);
 
     return ret;
 }
@@ -990,7 +992,7 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
     char buffer[128];
     int fd = -1;
 
-    //ALOGI("++%s: %s", STR_BT_MP_SET_CONFIG, p);
+    SYSLOGI("++%s: %s", STR_BT_MP_SET_CONFIG, p);
 
     for (pairs_count = 0, pairs_buf = p; ; pairs_count++, pairs_buf = NULL) {
         pair_token = strtok_r(pairs_buf, STR_BT_MP_PAIR_DELIM, &save_pairs);
@@ -1006,12 +1008,12 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 } else if (param_token && params_count == 1) {
                     mode = (int8_t)strtol(param_token, NULL, 0);
                     if (mode < 0 || mode > 3) {
-                        //ALOGI("Invalid file mode %d", mode);
+                        SYSLOGI("Invalid file mode %d", mode);
                         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
                         return FUNCTION_PARAMETER_ERROR;
                     }
                 } else if (param_token && params_count > 1) {
-                    //ALOGI("Invalid config pair format<%s>", pair_token);
+                    SYSLOGI("Invalid config pair format<%s>", pair_token);
                     sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
                     return FUNCTION_PARAMETER_ERROR;
                 } else if (param_token == NULL) // null token OR token parsing completed
@@ -1021,12 +1023,12 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
             if (params_count == 2) {
                 fd = open(config_path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
                 if (fd < 0) {
-                    //ALOGI("Failed to open config file: %s", strerror(errno));
+                    SYSLOGI("Failed to open config file: %s", strerror(errno));
                     sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
                     return FUNCTION_ERROR;
                 }
             } else {
-                //ALOGI("Invalid config pair format<%s>", pair_token);
+                SYSLOGI("Invalid config pair format<%s>", pair_token);
                 sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
                 return FUNCTION_PARAMETER_ERROR;
             }
@@ -1036,7 +1038,7 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 if (param_token) {
                     if (mode == 0) {
                         strcpy(buffer, param_token);
-                        //ALOGI("Write BT MAC address %s", buffer);
+                        SYSLOGI("Write BT MAC address %s", buffer);
                     } else {
                         buffer[params_count] = strtol(param_token, NULL, 0);
                     }
@@ -1050,7 +1052,7 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
             else
                 count = write(fd, buffer, params_count);
             if (count < 0) {
-                //ALOGI("Failed to write config file<%s>", strerror(errno));
+                SYSLOGI("Failed to write config file<%s>", strerror(errno));
                 sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
                 close(fd);
                 return FUNCTION_ERROR;
@@ -1060,7 +1062,7 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
 
     close(fd);
 
-    //ALOGI("--%s: pairs count %d", STR_BT_MP_SET_CONFIG, pairs_count);
+    SYSLOGI("--%s: pairs count %d", STR_BT_MP_SET_CONFIG, pairs_count);
 
     sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
 
@@ -1075,7 +1077,7 @@ int BT_Exec(BT_MODULE *pBtModule, char *p, char *buf_cb)
     BT_PARAMETER *pBtParam = NULL;
     int ret = BT_FUNCTION_SUCCESS;
 
-    //ALOGI("++%s: action index[%s]", STR_BT_MP_EXEC, p);
+    SYSLOGI("++%s: action index[%s]", STR_BT_MP_EXEC, p);
 
     // index
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
@@ -1097,7 +1099,7 @@ int BT_Exec(BT_MODULE *pBtModule, char *p, char *buf_cb)
     // end of parameter
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
-        //ALOGI("BT_Exec: redundant token[%s]", token);
+        SYSLOGI("BT_Exec: redundant token[%s]", token);
         ret = FUNCTION_PARAMETER_ERROR;
         goto exit;
     }
@@ -1107,12 +1109,12 @@ int BT_Exec(BT_MODULE *pBtModule, char *p, char *buf_cb)
 
     ret = pBtModule->ActionControlExcute(pBtModule);
     if (ret == BT_FUNCTION_SUCCESS) {
-        //ALOGI("%s%s%d%s0x%02x",
-        //        STR_BT_MP_EXEC,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        action_index,
-        //        STR_BT_MP_RESULT_DELIM,
-        //        ret);
+        SYSLOGI("%s%s%d%s0x%02x",
+                STR_BT_MP_EXEC,
+                STR_BT_MP_RESULT_DELIM,
+                action_index,
+                STR_BT_MP_RESULT_DELIM,
+                ret);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x",
                 STR_BT_MP_EXEC,
@@ -1124,16 +1126,16 @@ int BT_Exec(BT_MODULE *pBtModule, char *p, char *buf_cb)
         goto exit;
     }
 
-    //ALOGI("--%s: action index[%d]", STR_BT_MP_EXEC, action_index);
+    SYSLOGI("--%s: action index[%d]", STR_BT_MP_EXEC, action_index);
     return ret;
 
 exit:
-    //ALOGI("%s%s%d%s0x%02x",
-    //        STR_BT_MP_EXEC,
-    //        STR_BT_MP_RESULT_DELIM,
-    //        action_index,
-    //        STR_BT_MP_RESULT_DELIM,
-    //        ret);
+    SYSLOGI("%s%s%d%s0x%02x",
+            STR_BT_MP_EXEC,
+            STR_BT_MP_RESULT_DELIM,
+            action_index,
+            STR_BT_MP_RESULT_DELIM,
+            ret);
 
     sprintf(buf_cb, "%s%s%d%s0x%02x",
             STR_BT_MP_EXEC,
@@ -1153,7 +1155,7 @@ int BT_Report(BT_MODULE *pBtModule, char *p, char *buf_cb)
     int report_item = -1;
     int ret = BT_FUNCTION_SUCCESS;
 
-    //ALOGI("++%s: %s", STR_BT_MP_REPORT, p);
+    SYSLOGI("++%s: %s", STR_BT_MP_REPORT, p);
 
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
@@ -1177,16 +1179,16 @@ int BT_Report(BT_MODULE *pBtModule, char *p, char *buf_cb)
         goto exit;
     }
 
-    //ALOGI("--%s", STR_BT_MP_REPORT);
+    SYSLOGI("--%s", STR_BT_MP_REPORT);
     return ret;
 
 exit:
-    //ALOGI("%s%s%d%s0x%02x",
-    //        STR_BT_MP_REPORT,
-    //        STR_BT_MP_RESULT_DELIM,
-    //        report_item,
-    //        STR_BT_MP_RESULT_DELIM,
-    //        ret);
+    SYSLOGI("%s%s%d%s0x%02x",
+            STR_BT_MP_REPORT,
+            STR_BT_MP_RESULT_DELIM,
+            report_item,
+            STR_BT_MP_RESULT_DELIM,
+            ret);
 
     sprintf(buf_cb, "%s%s%d%s0x%02x",
             STR_BT_MP_REPORT,
@@ -1212,7 +1214,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *buf_cb)
     uint32_t data = 0;
     int ret = BT_FUNCTION_SUCCESS;
 
-    //ALOGI("++%s: %s", STR_BT_MP_REG_RW, p);
+    SYSLOGI("++%s: %s", STR_BT_MP_REG_RW, p);
 
     // uint8_t type;
     token = strtok(p, STR_BT_MP_PARAM_DELIM);
@@ -1286,14 +1288,14 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *buf_cb)
     // end of parameters
     token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
     if (token != NULL) {
-        //ALOGI("BT_RegRW: redundant token[%s]", token);
+        SYSLOGI("BT_RegRW: redundant token[%s]", token);
         params_count++;
     } else {
         goto exit;
     }
 
 exit:
-    //ALOGI("%s: params_count = %d", STR_BT_MP_REG_RW, params_count);
+    SYSLOGI("%s: params_count = %d", STR_BT_MP_REG_RW, params_count);
 
     if (rw == 1) REGRW_PARAM_COUNT++;
     if (type == BB_REG) REGRW_PARAM_COUNT++;
@@ -1301,8 +1303,8 @@ exit:
     if (params_count != REGRW_PARAM_COUNT) {
         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
     } else {
-        //ALOGI("BT_RegRW: type 0x%x, rw 0x%x, page 0x%x, address 0x%04x, msb 0x%x, lsb 0x%x, data 0x%08x",
-        //        type, rw, page, address, msb, lsb, data);
+        SYSLOGI("BT_RegRW: type 0x%x, rw 0x%x, page 0x%x, address 0x%04x, msb 0x%x, lsb 0x%x, data 0x%08x",
+                type, rw, page, address, msb, lsb, data);
 
         if (rw == 0) {
             ret = pBtModule->GetRegMaskBits(pBtModule, type, page, address, msb, lsb, &data);
@@ -1315,7 +1317,7 @@ exit:
 
     }
 
-    //ALOGI("--%s", STR_BT_MP_REG_RW);
+    SYSLOGI("--%s", STR_BT_MP_REG_RW);
     return ret;
 }
 
@@ -1324,7 +1326,7 @@ void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *p
     uint8_t pTxGainTable[7] = {0x49,0x4d,0x69,0x89,0x8d,0xa9,0xa9}; // RTL8761 Table
     uint8_t pTxDACTable[5] = {0x10,0x11,0x12,0x13,0x14};
 
-    //ALOGI("bt_mp_module_init, pBaseInterfaceModule %p, pBtModule %p", pBaseInterfaceModule, pBtModule);
+    SYSLOGI("bt_mp_module_init, pBaseInterfaceModule %p, pBtModule %p", pBaseInterfaceModule, pBtModule);
 
     BuildTransportInterface(
             pBaseInterfaceModule,

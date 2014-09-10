@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
+
+#include "bt_syslog.h"
 #include "bt_hci_bdroid.h"
 #include "hci.h"
 #include "userial.h"
@@ -43,7 +45,7 @@
 #endif
 
 #if (HCI_DBG == TRUE)
-#define HCIDBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
+#define HCIDBG(param, ...) {SYSLOGD(param, ## __VA_ARGS__);}
 #else
 #define HCIDBG(param, ...) {}
 #endif
@@ -227,7 +229,7 @@ void get_acl_data_length_cback(void *p_mem)
         if (bt_hc_cbacks)
         {
             bt_hc_cbacks->dealloc((TRANSAC) p_buf, (char *) (p_buf + 1));
-            //ALOGE("vendor lib postload completed");
+            SYSLOGE("vendor lib postload completed");
             bt_hc_cbacks->postload_cb(NULL, BT_HC_POSTLOAD_SUCCESS);
         }
     }
@@ -370,7 +372,7 @@ static HC_BT_HDR *acl_rx_frame_buffer_alloc (void)
          * Drop it. */
         if (p_return_buf)
         {
-            //ALOGW("H4 - dropping incomplete ACL frame");
+            SYSLOGW("H4 - dropping incomplete ACL frame");
 
             utils_remove_from_queue(&(p_cb->acl_rx_q), p_return_buf);
 
@@ -726,8 +728,6 @@ void hci_h4_send_msg(HC_BT_HDR *p_msg)
         }
     }
 
-
-
     return;
 }
 
@@ -769,7 +769,7 @@ uint16_t hci_h4_receive_msg(void)
             {
                 /* Unknown HCI message type */
                 /* Drop this byte */
-                //ALOGE("[h4] Unknown HCI message type drop this byte 0x%x", byte);
+                SYSLOGE("[h4] Unknown HCI message type drop this byte 0x%x", byte);
                 break;
             }
 
@@ -852,7 +852,7 @@ uint16_t hci_h4_receive_msg(void)
                 if (p_cb->p_rcv_msg == NULL)
                 {
                     /* Unable to acquire message buffer. */
-                    //ALOGE("H4: Unable to acquire buffer for incoming HCI message.");
+                    SYSLOGE("H4: Unable to acquire buffer for incoming HCI message.");
 
                     if (msg_len == 0)
                     {
@@ -982,8 +982,8 @@ uint8_t hci_h4_send_int_cmd(uint16_t opcode, HC_BT_HDR *p_buf, \
 {
     if (h4_cb.int_cmd_rsp_pending > INT_CMD_PKT_MAX_COUNT)
     {
-        //ALOGE("Allow only %d outstanding internal commands at a time [Reject 0x%04X]",
-        //        INT_CMD_PKT_MAX_COUNT, opcode);
+        SYSLOGE("Allow only %d outstanding internal commands at a time [Reject 0x%04X]",
+                INT_CMD_PKT_MAX_COUNT, opcode);
         return FALSE;
     }
 
@@ -1045,7 +1045,7 @@ void hci_h4_get_acl_data_length(void)
 
     if (bt_hc_cbacks)
     {
-        //ALOGE("vendor lib postload aborted");
+        SYSLOGE("vendor lib postload aborted");
         bt_hc_cbacks->postload_cb(NULL, BT_HC_POSTLOAD_FAIL);
     }
 }

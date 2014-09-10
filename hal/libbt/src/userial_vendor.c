@@ -23,7 +23,7 @@
  *  Description:   Contains vendor-specific userial functions
  *
  ******************************************************************************/
-#undef NDEBUG
+
 #define LOG_TAG "bt_userial_vendor"
 
 #include <stdio.h>
@@ -33,6 +33,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "bt_syslog.h"
 #include "bt_vendor_uart.h"
 #include "userial.h"
 #include "userial_vendor.h"
@@ -46,7 +47,7 @@
 #endif
 
 #if (VNDUSERIAL_DBG == TRUE)
-#define VNDUSERIALDBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
+#define VNDUSERIALDBG(param, ...) {SYSLOGD(param, ## __VA_ARGS__);}
 #else
 #define VNDUSERIALDBG(param, ...) {}
 #endif
@@ -123,7 +124,7 @@ uint8_t userial_to_tcio_baud(uint8_t cfg_baud, uint32_t *baud)
         *baud = B600;
     else
     {
-        //ALOGE( "userial vendor open: unsupported baud idx %i", cfg_baud);
+        SYSLOGE( "userial vendor open: unsupported baud idx %i", cfg_baud);
         *baud = B115200;
         return FALSE;
     }
@@ -212,7 +213,7 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
         data_bits = CS5;
     else
     {
-        //ALOGE("userial vendor open: unsupported data bits");
+        SYSLOGE("userial vendor open: unsupported data bits");
         return -1;
     }
 
@@ -224,7 +225,7 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
         parity = (PARENB | PARODD);
     else
     {
-        //ALOGE("userial vendor open: unsupported parity bit mode");
+        SYSLOGE("userial vendor open: unsupported parity bit mode");
         return -1;
     }
 
@@ -234,16 +235,16 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
         stop_bits = CSTOPB;
     else
     {
-        //ALOGE("userial vendor open: unsupported stop bits");
+        SYSLOGE("userial vendor open: unsupported stop bits");
         return -1;
     }
 
-    //ALOGI("userial vendor open: opening %s", vnd_userial.port_name);
+    SYSLOGI("userial vendor open: opening %s", vnd_userial.port_name);
 
     if ((vnd_userial.fd = open(vnd_userial.port_name, O_RDWR)) == -1)
     {
-        //ALOGE("userial vendor open: unable to open %s, %s (%d)",
-        //        vnd_userial.port_name, strerror(errno), errno);
+        SYSLOGE("userial vendor open: unable to open %s, %s (%d)",
+                vnd_userial.port_name, strerror(errno), errno);
         return -1;
     }
 
@@ -254,12 +255,12 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
 
     if(p_cfg->hw_fctrl == USERIAL_HW_FLOW_CTRL_ON)
     {
-        //ALOGI("userial vendor open: with HW flowctrl ON");
+        SYSLOGI("userial vendor open: with HW flowctrl ON");
         vnd_userial.termios.c_cflag |= (CRTSCTS | stop_bits| parity);
     }
     else
     {
-        //ALOGI("userial vendor open: with HW flowctrl OFF");
+        SYSLOGI("userial vendor open: with HW flowctrl OFF");
         vnd_userial.termios.c_cflag &= ~CRTSCTS;
         vnd_userial.termios.c_cflag |= (stop_bits| parity);
 
@@ -282,7 +283,7 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
     userial_ioctl_init_bt_wake(vnd_userial.fd);
 #endif
 
-    //ALOGI("device fd = %d open", vnd_userial.fd);
+    SYSLOGI("device fd = %d open", vnd_userial.fd);
 
     return vnd_userial.fd;
 }
@@ -308,10 +309,10 @@ void userial_vendor_close(void)
     ioctl(vnd_userial.fd, USERIAL_IOCTL_BT_WAKE_DEASSERT, NULL);
 #endif
 
-    //ALOGI("device fd = %d close", vnd_userial.fd);
+    SYSLOGI("device fd = %d close", vnd_userial.fd);
 
     if ((result = close(vnd_userial.fd)) < 0)
-        //ALOGE( "close(fd:%d) FAILED result:%d", vnd_userial.fd, result);
+        SYSLOGE( "close(fd:%d) FAILED result:%d", vnd_userial.fd, result);
 
     vnd_userial.fd = -1;
 }
@@ -328,21 +329,21 @@ void userial_vendor_close(void)
 void userial_vendor_set_baud(uint8_t userial_baud)
 {
     uint32_t tcio_baud;
-    //ALOGI("userial_vendor_set_baud++");
+    SYSLOGI("userial_vendor_set_baud++");
     userial_to_tcio_baud(userial_baud, &tcio_baud);
 
     if(cfsetospeed(&vnd_userial.termios, tcio_baud)<0)
-        //ALOGE("cfsetospeed fail");
+        SYSLOGE("cfsetospeed fail");
 
     if(cfsetispeed(&vnd_userial.termios, tcio_baud)<0)
-        //ALOGE("cfsetispeed fail");
+        SYSLOGE("cfsetispeed fail");
 
     if(tcsetattr(vnd_userial.fd, TCSANOW, &vnd_userial.termios)<0)
-        //ALOGE("tcsetattr fail ");
+        SYSLOGE("tcsetattr fail ");
 
     tcflush(vnd_userial.fd, TCIOFLUSH);
 
-    //ALOGI("userial_vendor_set_baud--");
+    SYSLOGI("userial_vendor_set_baud--");
 }
 
 /*******************************************************************************
@@ -411,29 +412,29 @@ void userial_vendor_set_hw_fctrl(uint8_t hw_fctrl)
 
     if (vnd_userial.fd == -1)
     {
-        //ALOGE("vnd_userial.fd is -1");
+        SYSLOGE("vnd_userial.fd is -1");
         return;
     }
 
     tcgetattr(vnd_userial.fd, &termios_old);
     if(hw_fctrl)
     {
-        //ALOGI("Set HW FlowControl On");
+        SYSLOGI("Set HW FlowControl On");
         if(termios_old.c_cflag & CRTSCTS)
         {
-            //ALOGI("userial_vendor_set_hw_fctrl already hw flowcontrol on");
+            SYSLOGI("userial_vendor_set_hw_fctrl already hw flowcontrol on");
             return;
         }
         else
         {
             termios_old.c_cflag |= CRTSCTS;
             tcsetattr(vnd_userial.fd, TCSANOW, &termios_old);
-            //ALOGI("userial_vendor_set_hw_fctrl set hw flowcontrol on");
+            SYSLOGI("userial_vendor_set_hw_fctrl set hw flowcontrol on");
         }
     }
     else
     {
-        //ALOGI("Set HW FlowControl Off");
+        SYSLOGI("Set HW FlowControl Off");
         if(termios_old.c_cflag & CRTSCTS)
         {
             termios_old.c_cflag &= ~CRTSCTS;
@@ -442,7 +443,7 @@ void userial_vendor_set_hw_fctrl(uint8_t hw_fctrl)
         }
         else
         {
-            //ALOGI("userial_vendor_set_hw_fctrl set hw flowcontrol off");
+            SYSLOGI("userial_vendor_set_hw_fctrl set hw flowcontrol off");
             return;
         }
     }

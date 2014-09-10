@@ -23,15 +23,16 @@
  *
  ******************************************************************************/
 
+#include <stddef.h>
+#include <string.h>
+
+#include "bt_syslog.h"
 #include "bt_target.h"
 #include "gki.h"
 #include "hcidefs.h"
 #include "hcimsgs.h"
 #include "hcidefs.h"
 #include "btu.h"
-
-#include <stddef.h>
-#include <string.h>
 
 BOOLEAN btsnd_hcic_inquiry(const LAP inq_lap, UINT8 duration, UINT8 response_cnt)
 {
@@ -3340,7 +3341,7 @@ BOOLEAN btsnd_hcic_nop (void)
 
 void btsnd_hcic_mp_test_cmd (void *buffer, UINT16 opcode, UINT8 len, UINT8 *p_data, void *p_cmd_cplt_cback)
 {
-    //ALOGE("btsnd_hcic_mp_test_cmd");
+    SYSLOGI("btsnd_hcic_mp_test_cmd");
     BT_HDR *p = (BT_HDR *)buffer;
     UINT8 *pp = (UINT8 *)(p + 1);
     p->len    = HCIC_PREAMBLE_SIZE + len;

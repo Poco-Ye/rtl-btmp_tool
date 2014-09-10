@@ -4,6 +4,7 @@
 #include <string.h>
 #include <pthread.h>
 
+#include "bt_syslog.h"
 #include "bluetoothmp.h"
 #include "bt_mp_transport.h"
 #include "btif_api.h"
@@ -60,8 +61,8 @@ int bt_transport_RecvHciEvt(
         if(events & MP_TRANSPORT_EVENT_RX_HCIEVT)
         {
             *pRetEvtLen = pBaseInterface->evtLen;
-            //ALOGI("pEvtBuffer %p, pBaseInterface->evtBuffer %p, pBaseInterface->evtLen %d",
-            //        pEvtBuffer, pBaseInterface->evtBuffer, pBaseInterface->evtLen);
+            SYSLOGI("pEvtBuffer %p, pBaseInterface->evtBuffer %p, pBaseInterface->evtLen %d",
+                    pEvtBuffer, pBaseInterface->evtBuffer, pBaseInterface->evtLen);
             memcpy(pEvtBuffer, pBaseInterface->evtBuffer, pBaseInterface->evtLen);
             break;
         }

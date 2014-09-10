@@ -24,9 +24,6 @@
 #endif
 #include "data_types.h"
 
-
-
-
 /* Include common GKI definitions used by this platform */
 #include "gki_target.h"
 

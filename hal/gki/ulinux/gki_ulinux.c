@@ -25,6 +25,8 @@
 **
 *****************************************************************************/
 
+#define LOG_TAG "GKI_LINUX"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -37,10 +39,9 @@
 #include <pthread.h>  /* must be 1st header defined  */
 #include <time.h>
 
+#include "bt_syslog.h"
 #include "gki_int.h"
 #include "bt_utils.h"
-
-#define LOG_TAG "GKI_LINUX"
 
 /*****************************************************************************
 **  Constants & Macros
@@ -50,13 +51,13 @@
 #define GKI_TICK_TIMER_DEBUG FALSE
 #endif
 
-#define GKI_INFO(fmt, ...) //ALOGI ("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
+#define GKI_INFO(fmt, ...) SYSLOGI("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
 
 /* always log errors */
-#define GKI_ERROR_LOG(fmt, ...)  //ALOGE ("##### ERROR : %s: " fmt "#####", __FUNCTION__, ## __VA_ARGS__)
+#define GKI_ERROR_LOG(fmt, ...)  SYSLOGE("##### ERROR : %s: " fmt "#####", __FUNCTION__, ## __VA_ARGS__)
 
 #if defined (GKI_TICK_TIMER_DEBUG) && (GKI_TICK_TIMER_DEBUG == TRUE)
-#define GKI_TIMER_TRACE(fmt, ...) //ALOGI ("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
+#define GKI_TIMER_TRACE(fmt, ...) SYSLOGI("%s: " fmt, __FUNCTION__, ## __VA_ARGS__)
 #else
 #define GKI_TIMER_TRACE(fmt, ...)
 #endif
@@ -496,7 +497,7 @@ void GKI_shutdown(void)
 
             if ( result < 0 )
             {
-                //ALOGE( "pthread_join() FAILED: result: %d", result );
+                SYSLOGE("pthread_join() FAILED: result: %d", result);
             }
 #endif
             // GKI_ERROR_LOG( "GKI_shutdown(): task %s dead\n", gki_cb.com.OSTName[task_id]);

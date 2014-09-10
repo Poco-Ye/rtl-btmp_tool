@@ -24,6 +24,8 @@
  *
  *
  ****************************************************************************/
+#define LOG_TAG "BTSNOOP-DISP"
+
 #include <stdio.h>
 #include <dlfcn.h>
 #include <stdlib.h>
@@ -51,8 +53,7 @@
 /* defines the O_* open parameters */
 #include <fcntl.h>
 
-#define LOG_TAG "BTSNOOP-DISP"
-
+#include "bt_syslog.h"
 #include "bt_hci_bdroid.h"
 #include "utils.h"
 
@@ -61,7 +62,7 @@
 #endif
 
 #if (BTSNOOP_DBG == TRUE)
-#define SNOOPDBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
+#define SNOOPDBG(param, ...) {SYSLOGD(param, ## __VA_ARGS__);}
 #else
 #define SNOOPDBG(param, ...) {}
 #endif
@@ -447,6 +448,7 @@ static int ext_parser_fd = -1;
 
 static void ext_parser_detached(void);
 
+#if defined(BTSNOOP_EXT_PARSER_INCLUDED) && (BTSNOOP_EXT_PARSER_INCLUDED == TRUE)
 static int ext_parser_accept(int port)
 {
     socklen_t           clilen;
@@ -456,13 +458,13 @@ static int ext_parser_accept(int port)
     int size_n;
     int result = 0;
 
-    //ALOGD("waiting for connection on port %d", port);
+    SYSLOGD("waiting for connection on port %d", port);
 
     s_listen = socket(AF_INET, SOCK_STREAM, 0);
 
     if (s_listen < 0)
     {
-        //ALOGE("listener not created: listen fd %d", s_listen);
+        SYSLOGE("listener not created: listen fd %d", s_listen);
         return -1;
     }
 
@@ -496,12 +498,12 @@ static int ext_parser_accept(int port)
     s = accept(s_listen, (struct sockaddr *) &cliaddr, &clilen);
 
     if (s < 0)
-{
+    {
         perror("accept");
         return -1;
     }
 
-    //ALOGD("connected (%d)", s);
+    SYSLOGD("connected (%d)", s);
 
     return s;
 }
@@ -525,10 +527,11 @@ static int send_ext_parser(char *p, int len)
 
     return n;
 }
+#endif
 
 static void ext_parser_detached(void)
 {
-    //ALOGD("ext parser detached");
+    SYSLOGD("ext parser detached");
 
     if (ext_parser_fd>0)
         close(ext_parser_fd);
@@ -540,9 +543,10 @@ static void ext_parser_detached(void)
     s_listen = -1;
 }
 
+#if defined(BTSNOOP_EXT_PARSER_INCLUDED) && (BTSNOOP_EXT_PARSER_INCLUDED == TRUE)
 static void interruptFn (int sig)
 {
-    //ALOGD("interruptFn");
+    SYSLOGD("interruptFn");
     pthread_exit(0);
 }
 
@@ -554,7 +558,7 @@ static void ext_parser_thread(void* param)
     sigemptyset (&sigSet);
     sigaddset (&sigSet, sig);
 
-    //ALOGD("ext_parser_thread");
+    SYSLOGD("ext_parser_thread");
 
     prctl(PR_SET_NAME, (unsigned long)"BtsnoopExtParser", 0, 0, 0);
 
@@ -570,20 +574,21 @@ static void ext_parser_thread(void* param)
 
         ext_parser_fd = fd;
 
-        //ALOGD("ext parser attached on fd %d\n", ext_parser_fd);
+        SYSLOGD("ext parser attached on fd %d\n", ext_parser_fd);
     } while (1);
 }
+#endif
 
 void btsnoop_stop_listener(void)
 {
-    //ALOGD("btsnoop_init");
+    SYSLOGD("btsnoop_init");
     ext_parser_detached();
 }
 
 void btsnoop_init(void)
 {
 #if defined(BTSNOOP_EXT_PARSER_INCLUDED) && (BTSNOOP_EXT_PARSER_INCLUDED == TRUE)
-    //ALOGD("btsnoop_init");
+    SYSLOGD("btsnoop_init");
 
     /* always setup ext listener port */
     if (pthread_create(&thread_id, NULL,
@@ -595,7 +600,7 @@ void btsnoop_init(void)
 void btsnoop_open(char *p_path)
 {
 #if defined(BTSNOOPDISP_INCLUDED) && (BTSNOOPDISP_INCLUDED == TRUE)
-    //ALOGD("btsnoop_open");
+    SYSLOGD("btsnoop_open");
     btsnoop_log_open(p_path);
 #endif // BTSNOOPDISP_INCLUDED
 }
@@ -603,7 +608,7 @@ void btsnoop_open(char *p_path)
 void btsnoop_close(void)
 {
 #if defined(BTSNOOPDISP_INCLUDED) && (BTSNOOPDISP_INCLUDED == TRUE)
-    //ALOGD("btsnoop_close");
+    SYSLOGD("btsnoop_close");
     btsnoop_log_close();
 #endif
 }
@@ -611,7 +616,7 @@ void btsnoop_close(void)
 void btsnoop_cleanup (void)
 {
 #if defined(BTSNOOP_EXT_PARSER_INCLUDED) && (BTSNOOP_EXT_PARSER_INCLUDED == TRUE)
-    //ALOGD("btsnoop_cleanup");
+    SYSLOGD("btsnoop_cleanup");
     pthread_kill(thread_id, SIGUSR2);
     pthread_join(thread_id, NULL);
     ext_parser_detached();

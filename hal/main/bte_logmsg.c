@@ -27,14 +27,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-
-#include "gki.h"
-
-#include "btu.h"
-
-
 #include <sys/time.h>
 #include <time.h>
+
+#include "bt_syslog.h"
+#include "gki.h"
+#include "btu.h"
+
 
 #if (defined(ANDROID_USE_LOGCAT) && (ANDROID_USE_LOGCAT==TRUE))
 const char * const bt_layer_tags[] = {
@@ -393,7 +392,7 @@ BT_API void BTE_InitTraceLevels( void )
 
         while (p_f_map->trc_name != NULL)
         {
-            //ALOGI("BTE_InitTraceLevels -- %s", p_f_map->trc_name);
+            SYSLOGI("BTE_InitTraceLevels -- %s", p_f_map->trc_name);
 
             if (p_f_map->p_f)
                 p_f_map->p_f(p_f_map->trace_level);
@@ -403,7 +402,7 @@ BT_API void BTE_InitTraceLevels( void )
     }
     else
     {
-        //ALOGI("[bttrc] using compile default trace settings");
+        SYSLOGI("[bttrc] using compile default trace settings");
     }
 #endif
 }

@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "bt_syslog.h"
 #include "gki.h"
 #include "bt_types.h"
 #include "hcimsgs.h"
@@ -412,7 +413,7 @@ void btu_hcif_send_cmd (UINT8 controller_id, BT_HDR *p_buf)
     UINT8 *pp;
     UINT16 code;
 #endif
-    //ALOGE("btu_hcif_send_cmd++");
+    SYSLOGE("btu_hcif_send_cmd++");
     /* If there are already commands in the queue, then enqueue this command */
     if ((p_buf) && (p_hci_cmd_cb->cmd_xmit_q.count))
     {
@@ -451,7 +452,7 @@ void btu_hcif_send_cmd (UINT8 controller_id, BT_HDR *p_buf)
 
             if (controller_id == LOCAL_BR_EDR_CONTROLLER_ID)
             {
-                //ALOGE("HCI_CMD_TO_LOWER");
+                SYSLOGE("HCI_CMD_TO_LOWER");
                 HCI_CMD_TO_LOWER(p_buf);
             }
             else
@@ -466,7 +467,7 @@ void btu_hcif_send_cmd (UINT8 controller_id, BT_HDR *p_buf)
         else
             break;
     }
-    //ALOGE("btu_hcif_send_cmd--");
+    SYSLOGE("btu_hcif_send_cmd--");
     if (p_buf)
         GKI_enqueue (&(p_hci_cmd_cb->cmd_xmit_q), p_buf);
 

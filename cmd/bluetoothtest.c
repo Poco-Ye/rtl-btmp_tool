@@ -42,8 +42,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-//#include <hardware/hardware.h>
 #include <bluetoothmp.h>
+#include <bt_syslog.h>
 
 /************************************************************************************
 **  Constants & Macros
@@ -109,22 +109,22 @@ static void config_permissions(void)
     //struct __user_cap_data_struct cap;
     //int ret;
 
-    //ALOGI("pre set_aid: pid %d, ppid %d, uid %d, euid %d, gid %d, egid %d",
-    //        getpid(), getppid(), getuid(), geteuid(), getgid(), getegid());
+    SYSLOGI("pre set_aid: pid %d, ppid %d, uid %d, euid %d, gid %d, egid %d",
+            getpid(), getppid(), getuid(), geteuid(), getgid(), getegid());
 #if 0
     prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
 
     ret = setgid(AID_NET_BT_STACK);
     if (ret < 0) {
-        ALOGI("setgid AID_NET_BT_STACK failed: %s(%d)", strerror(errno), errno);
+        SYSLOGI("setgid AID_NET_BT_STACK failed: %s(%d)", strerror(errno), errno);
     }
 
     ret = setuid(AID_BLUETOOTH);
     if (ret < 0) {
-        ALOGI("setuid AID_BLUETOOTH failed: %s(%d)", strerror(errno), errno);
+        SYSLOGI("setuid AID_BLUETOOTH failed: %s(%d)", strerror(errno), errno);
     }
 
-    ALOGI("post set_aid: pid %d, ppid %d, uid %d, euid %d, gid %d, egid %d",
+    SYSLOGI("post set_aid: pid %d, ppid %d, uid %d, euid %d, gid %d, egid %d",
             getpid(), getppid(), getuid(), geteuid(), getgid(), getegid());
 #endif
 #if 0
@@ -191,11 +191,11 @@ static void cmdjob_handler(void *param)
 {
     char *job_cmd = (char*)param;
 
-    //ALOGI("cmdjob starting (%s)", job_cmd);
+    SYSLOGI("cmdjob starting (%s)", job_cmd);
 
     process_cmd(job_cmd, 1);
 
-    //ALOGI("cmdjob terminating");
+    SYSLOGI("cmdjob terminating");
 
     free(job_cmd);
 }
@@ -223,21 +223,21 @@ static int HAL_load(void)
 {
     int err = 0;
 
-    //ALOGI("Loading HAL lib + extensions");
+    SYSLOGI("Loading HAL lib + extensions");
 
     err = open_bluetooth_stack(BT_HARDWARE_MODULE_ID, &bt_device);
     if (err == 0) {
         sBtInterface = bt_device->get_bluetooth_interface();
     }
 
-    //ALOGI("HAL library loaded (%s)", strerror(err));
+    SYSLOGI("HAL library loaded (%s)", strerror(err));
 
     return err;
 }
 
 static void HAL_unload(void)
 {
-    //ALOGI("Unloading HAL lib");
+    SYSLOGI("Unloading HAL lib");
 
     /* prevent abnormal exit */
     if (bt_enabled) {
@@ -249,7 +249,7 @@ static void HAL_unload(void)
 
     sBtInterface = NULL;
 
-    //ALOGI("HAL library unloaded");
+    SYSLOGI("HAL library unloaded");
 }
 
 /*******************************************************************************
@@ -270,7 +270,7 @@ static void adapter_state_changed(bt_state_t state)
     const char *bt_try_str;
     bt_status_t bt_status;
 
-    //ALOGI("ADAPTER STATE UPDATED : %s", (state == BT_STATE_OFF) ? "OFF" : "ON");
+    SYSLOGI("ADAPTER STATE UPDATED : %s", (state == BT_STATE_OFF) ? "OFF" : "ON");
 
     if (state == BT_STATE_ON) {
         bt_enabled = 1;
@@ -299,16 +299,16 @@ static bt_callbacks_t bt_callbacks = {
 
 static void bdt_shutdown(void)
 {
-    //ALOGI("shutdown bluetooth MP test tool");
+    SYSLOGI("shutdown bluetooth MP test tool");
     main_done = 1;
 }
 
 void bdt_enable(bt_hci_if_t hci_if, const char *dev_node)
 {
-    //ALOGI("ENABLE BT, hci_if[%d], dev_node[%s]", hci_if, dev_node);
+    SYSLOGI("ENABLE BT, hci_if[%d], dev_node[%s]", hci_if, dev_node);
 
     if (bt_enabled) {
-        //ALOGI("Bluetooth is already enabled");
+        SYSLOGI("Bluetooth is already enabled");
         bdt_log("Skip to execute %s[%s]", STR_BT_MP_ENABLE, STR_BT_HAS_ENABLED);
         return;
     }
@@ -322,10 +322,10 @@ void bdt_enable(bt_hci_if_t hci_if, const char *dev_node)
 
 void bdt_disable(void)
 {
-    //ALOGI("DISABLE BT");
+    SYSLOGI("DISABLE BT");
 
     if (!bt_enabled) {
-        //ALOGI("Bluetooth is already disabled");
+        SYSLOGI("Bluetooth is already disabled");
         bdt_log("Skip to execute %s[%s]", STR_BT_MP_DISABLE, STR_BT_HAS_DISABLED);
         return;
     }
@@ -340,7 +340,7 @@ void bdt_disable(void)
 void bdt_get_params(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_GET_PARAM);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_GET_PARAM);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_GET_PARAM, STR_BT_NOT_ENABLED);
         return;
     }
@@ -353,7 +353,7 @@ void bdt_get_params(char *p)
 void bdt_set_params(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARAM, STR_BT_NOT_ENABLED);
         return;
     }
@@ -366,7 +366,7 @@ void bdt_set_params(char *p)
 void bdt_set_param1(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM1);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM1);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARAM1, STR_BT_NOT_ENABLED);
         return;
     }
@@ -379,7 +379,7 @@ void bdt_set_param1(char *p)
 void bdt_set_param2(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM2);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM2);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARAM2, STR_BT_NOT_ENABLED);
         return;
     }
@@ -392,7 +392,7 @@ void bdt_set_param2(char *p)
 void bdt_set_config(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_CONFIG);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_CONFIG);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_CONFIG, STR_BT_NOT_ENABLED);
         return;
     }
@@ -405,7 +405,7 @@ void bdt_set_config(char *p)
 void bdt_exec(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_EXEC);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_EXEC);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_EXEC, STR_BT_NOT_ENABLED);
         return;
     }
@@ -418,7 +418,7 @@ void bdt_exec(char *p)
 void bdt_report(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_REPORT);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_REPORT, STR_BT_NOT_ENABLED);
         return;
     }
@@ -431,7 +431,7 @@ void bdt_report(char *p)
 void bdt_reg_rw(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_REG_RW);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_REG_RW);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_REG_RW, STR_BT_NOT_ENABLED);
         return;
     }
@@ -444,7 +444,7 @@ void bdt_reg_rw(char *p)
 void bdt_hci(char *p)
 {
     if (!bt_enabled) {
-        //ALOGI("Bluetooth must be enabled for %s", STR_BT_MP_HCI_CMD);
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_HCI_CMD);
         bdt_log("Failed to execute %s[%s]", STR_BT_MP_HCI_CMD, STR_BT_NOT_ENABLED);
         return;
     }
@@ -456,7 +456,7 @@ void bdt_hci(char *p)
 
 void bdt_cleanup(void)
 {
-    //ALOGI("CLEANUP");
+    SYSLOGI("CLEANUP");
     sBtInterface->cleanup();
 }
 
@@ -468,11 +468,9 @@ void do_help(char *p)
 {
     int i = 0;
     char line[128];
-    int pos = 0;
 
-    while (console_cmd_list[i].name != NULL)
-    {
-        pos = sprintf(line, "%s", (char*)console_cmd_list[i].name);
+    while (console_cmd_list[i].name != NULL) {
+        sprintf(line, "%s", (char*)console_cmd_list[i].name);
         bdt_log("%s %s", (char*)line, (char*)console_cmd_list[i].help);
         i++;
     }

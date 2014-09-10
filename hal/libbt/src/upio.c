@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "bt_syslog.h"
 #include "bt_vendor_uart.h"
 #include "upio.h"
 #include "userial_vendor.h"
@@ -47,7 +48,7 @@
 #endif
 
 #if (UPIO_DBG == TRUE)
-#define UPIODBG(param, ...) {/*ALOGD(param, ## __VA_ARGS__);*/}
+#define UPIODBG(param, ...) {SYSLOGD(param, ## __VA_ARGS__);}
 #else
 #define UPIODBG(param, ...) {}
 #endif
@@ -163,8 +164,8 @@ static int init_rfkill()
         fd = open(path, O_RDONLY);
         if (fd < 0)
         {
-            //ALOGE("init_rfkill : open(%s) failed: %s (%d)\n",
-            //     path, strerror(errno), errno);
+            SYSLOGE("init_rfkill : open(%s) failed: %s (%d)\n",
+                    path, strerror(errno), errno);
             return -1;
         }
 
@@ -298,16 +299,16 @@ int upio_set_bluetooth_power(int on)
 
     if (fd < 0)
     {
-        //ALOGE("set_bluetooth_power : open(%s) for write failed: %s (%d)",
-        //    rfkill_state_path, strerror(errno), errno);
+        SYSLOGE("set_bluetooth_power : open(%s) for write failed: %s (%d)",
+                rfkill_state_path, strerror(errno), errno);
         return ret;
     }
 
     sz = write(fd, &buffer, 1);
 
     if (sz < 0) {
-        //ALOGE("set_bluetooth_power : write(%s) failed: %s (%d)",
-        //    rfkill_state_path, strerror(errno),errno);
+        SYSLOGE("set_bluetooth_power : write(%s) failed: %s (%d)",
+                rfkill_state_path, strerror(errno),errno);
     }
     else
         ret = 0;
@@ -352,8 +353,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
 
             if (fd < 0)
             {
-                //ALOGE("upio_set : open(%s) for write failed: %s (%d)",
-                //        VENDOR_LPM_PROC_NODE, strerror(errno), errno);
+                SYSLOGE("upio_set : open(%s) for write failed: %s (%d)",
+                        VENDOR_LPM_PROC_NODE, strerror(errno), errno);
                 return;
             }
 
@@ -375,8 +376,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
 
             if (write(fd, &buffer, 1) < 0)
             {
-                //ALOGE("upio_set : write(%s) failed: %s (%d)",
-                //        VENDOR_LPM_PROC_NODE, strerror(errno),errno);
+                SYSLOGE("upio_set : write(%s) failed: %s (%d)",
+                        VENDOR_LPM_PROC_NODE, strerror(errno),errno);
             }
             else
             {
@@ -447,8 +448,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
 
             if (fd < 0)
             {
-                //ALOGE("upio_set : open(%s) for write failed: %s (%d)",
-                //        VENDOR_BTWRITE_PROC_NODE, strerror(errno), errno);
+                SYSLOGE("upio_set : open(%s) for write failed: %s (%d)",
+                        VENDOR_BTWRITE_PROC_NODE, strerror(errno), errno);
                 return;
             }
 
@@ -456,8 +457,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
 
             if (write(fd, &buffer, 1) < 0)
             {
-                //ALOGE("upio_set : write(%s) failed: %s (%d)",
-                //        VENDOR_BTWRITE_PROC_NODE, strerror(errno),errno);
+                SYSLOGE("upio_set : write(%s) failed: %s (%d)",
+                        VENDOR_BTWRITE_PROC_NODE, strerror(errno),errno);
             }
             else
             {

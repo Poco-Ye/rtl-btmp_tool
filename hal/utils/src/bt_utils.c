@@ -33,8 +33,8 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/resource.h>
-//#include <cutils/sched_policy.h>
 
+#include "bt_syslog.h"
 #include "data_types.h"
 #include "bt_utils.h"
 
@@ -129,10 +129,10 @@ void raise_priority_a2dp(tHIGH_PRIORITY_TASK high_task) {
     //pthread_mutex_unlock(&gIdxLock);
 
     //if (rc) {
-        //ALOGW("failed to change sched policy, tid %d, err: %d", tid, errno);
+        //SYSLOGW("failed to change sched policy, tid %d, err: %d", tid, errno);
     //}
 
     //if (setpriority(PRIO_PROCESS, tid, ANDROID_PRIORITY_AUDIO) < 0) {
-    //    //ALOGW("failed to change priority tid: %d to %d", tid, ANDROID_PRIORITY_AUDIO);
+    //    //SYSLOGW("failed to change priority tid: %d to %d", tid, ANDROID_PRIORITY_AUDIO);
     //}
 }
