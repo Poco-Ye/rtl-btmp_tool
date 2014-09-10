@@ -28,7 +28,8 @@ MV := mv -f
 INSTALL := install
 CC := gcc
 CFLAGS := -O2 -g -D_GNU_SOURCE -Wall -Wundef -Wno-unused-result -Wno-unused-variable \
-          -Werror-implicit-function-declaration -Wno-error=uninitialized -lpthread -lrt
+          -Werror-implicit-function-declaration -Wno-error=uninitialized
+LDFLAGS := -lpthread -lrt
 
 export SRCDIR OUTDIR MV CC CFLAGS
 
@@ -46,7 +47,7 @@ $(TARGET):
 	$(MKDIR) $(OUTDIR)
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir; done
-	$(CC) $(CFLAGS) $(OUTDIR)/*.o -o $(TARGET)
+	$(CC) $(CFLAGS) $(OUTDIR)/*.o -o $(TARGET) $(LDFLAGS)
 
 install: $(TARGET)
 	$(MKDIR) $(DESTDIR)$(SBINDIR)
