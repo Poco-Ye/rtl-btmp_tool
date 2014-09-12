@@ -593,7 +593,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
     }
 
     pBtReport->RxRssi = (int)(rxPin);
-    pBtReport->RxRssi = pBtReport->RxRssi * 2 - 90;
+    pBtReport->RxRssi = pBtReport->RxRssi * 2 - 96;
 
     //if (pBtReport->RxRssi > -89)
     {
