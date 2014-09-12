@@ -41,6 +41,7 @@
 #include "userial.h"
 #include "utils.h"
 #include "bt_vendor_lib.h"
+#include "bt_hci_bluez.h"
 
 /******************************************************************************
 **  Constants & Macros
@@ -188,7 +189,7 @@ static int select_read(int fd, uint8_t *pbuf, int len)
             /* We might have input */
             if (FD_ISSET(fd, &input))
             {
-                ret = read(fd, pbuf, (size_t)len);
+                ret = hci_bluez_read(fd, pbuf, (size_t)len);
                 if (0 == ret)
                     SYSLOGW( "read() returned 0!" );
 
@@ -460,18 +461,13 @@ uint16_t userial_write(uint16_t msg_id, uint8_t *p_data, uint16_t len)
 {
     int ret, total = 0;
 
-    while (len != 0) {
-        ret = write(userial_cb.fd, p_data+total, len);
-        if (ret == -1) {
-            SYSLOGE("userial_write: fd %d, errno %d", userial_cb.fd, errno);
-            break;
-        }
-
-        total += ret;
-        len -= ret;
+    ret = hci_bluez_write(userial_cb.fd, p_data, len);
+    if (ret == -1) {
+        SYSLOGE("userial_write: fd %d, errno %d", userial_cb.fd, errno);
+        return 0;
     }
 
-    return ((uint16_t)total);
+    return ((uint16_t)ret);
 }
 
 /*******************************************************************************

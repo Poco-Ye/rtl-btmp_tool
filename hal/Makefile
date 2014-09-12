@@ -57,7 +57,7 @@ OBJS += $(GKI_DIR)/ulinux/gki_ulinux.o $(GKI_DIR)/common/gki_debug.o $(GKI_DIR)/
         $(GKI_DIR)/common/gki_buffer.o
 OBJS += $(HCI_DIR)/hci_h4.o $(HCI_DIR)/hci_h5.o $(HCI_DIR)/userial.o $(HCI_DIR)/bt_skbuff.o \
         $(HCI_DIR)/bt_list.o $(HCI_DIR)/bt_hci_bdroid.o $(HCI_DIR)/bt_hw.o $(HCI_DIR)/btsnoop.o \
-        $(HCI_DIR)/utils.o
+        $(HCI_DIR)/utils.o $(HCI_DIR)/bt_hci_bluez.o
 OBJS += $(MAIN_DIR)/bte_conf.o $(MAIN_DIR)/bte_init.o $(MAIN_DIR)/bte_logmsg.o \
         $(MAIN_DIR)/bte_main.o $(MAIN_DIR)/bte_version.o
 OBJS += $(STACK_DIR)/btu/btu_hcif.o $(STACK_DIR)/btu/btu_init.o $(STACK_DIR)/btu/btu_task.o \
@@ -75,7 +75,7 @@ INCS += $(GKI_INC)/common/gki.h $(GKI_INC)/common/gki_common.h $(GKI_INC)/common
         $(GKI_INC)/ulinux/data_types.h $(GKI_INC)/ulinux/gki_int.h
 INCS += $(HCI_INC)/bt_hci_bdroid.h $(HCI_INC)/bt_hci_lib.h $(HCI_INC)/bt_list.h \
         $(HCI_INC)/bt_skbuff.h $(HCI_INC)/bt_vendor_lib.h $(HCI_INC)/hci.h $(HCI_INC)/userial.h \
-        $(HCI_INC)/utils.h
+        $(HCI_INC)/utils.h $(HCI_DIR)/bt_hci_bluez.h
 INCS += $(STACK_INC)/bt_types.h $(STACK_INC)/btu.h $(STACK_INC)/dyn_mem.h $(STACK_INC)/hcidefs.h \
         $(STACK_INC)/hcimsgs.h $(STACK_INC)/uipc_msg.h $(STACK_INC)/utfc.h $(STACK_INC)/wbt_api.h \
         $(STACK_INC)/wcassert.h

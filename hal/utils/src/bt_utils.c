@@ -104,35 +104,3 @@ void bt_utils_cleanup() {
     //    }
     //}
 //}
-
-/*****************************************************************************
-**
-** Function        raise_priority_a2dp
-**
-** Description     Raise task priority for A2DP streaming
-**
-** Returns         void
-**
-*******************************************************************************/
-void raise_priority_a2dp(tHIGH_PRIORITY_TASK high_task) {
-    //int rc = 0;
-    //int tid = gettid();
-
-    //pthread_mutex_lock(&gIdxLock);
-    //g_TaskIdx = high_task;
-
-    //pthread_once(&g_DoSchedulingGroupOnce[g_TaskIdx], check_do_scheduling_group);
-    //if (g_DoSchedulingGroup[g_TaskIdx]) {
-    //    // set_sched_policy does not support tid == 0
-    //    //rc = set_sched_policy(tid, SP_FOREGROUND);
-    //}
-    //pthread_mutex_unlock(&gIdxLock);
-
-    //if (rc) {
-        //SYSLOGW("failed to change sched policy, tid %d, err: %d", tid, errno);
-    //}
-
-    //if (setpriority(PRIO_PROCESS, tid, ANDROID_PRIORITY_AUDIO) < 0) {
-    //    //SYSLOGW("failed to change priority tid: %d to %d", tid, ANDROID_PRIORITY_AUDIO);
-    //}
-}

@@ -621,8 +621,6 @@ void* timer_thread(void *arg)
 
     prctl(PR_SET_NAME, (unsigned long)"gki timer", 0, 0, 0);
 
-    raise_priority_a2dp(TASK_HIGH_GKI_TIMER);
-
     while(!shutdown_timer)
     {
         /* If the timer has been stopped (no SW timer running) */

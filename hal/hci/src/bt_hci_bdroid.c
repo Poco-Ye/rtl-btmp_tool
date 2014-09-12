@@ -360,8 +360,6 @@ static void *bt_hc_worker_thread(void *arg)
     prctl(PR_SET_NAME, (unsigned long)"bt_hc_worker", 0, 0, 0);
     tx_cmd_pkts_pending = FALSE;
 
-    raise_priority_a2dp(TASK_HIGH_HCI_WORKER);
-
     while (lib_running)
     {
         pthread_mutex_lock(&hc_cb.mutex);

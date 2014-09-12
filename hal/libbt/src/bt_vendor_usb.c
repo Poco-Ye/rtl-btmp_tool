@@ -27,6 +27,7 @@
 
 #include "bt_syslog.h"
 #include "bt_vendor_usb.h"
+#include "bt_hci_bluez.h"
 
 #ifndef BTVND_DBG
 #define BTVND_DBG FALSE
@@ -69,12 +70,19 @@ static void usb_vendor_init(const char *dev_node)
 
 static int usb_vendor_open(void)
 {
+    int dev_id;
+
     SYSLOGI("usb vendor open: opening %s", vnd_usb.port_name);
 
-    if ((vnd_usb.fd = open(vnd_usb.port_name, O_RDWR)) == -1)
-    {
-        SYSLOGE("usb vendor open: unable to open %s(uid %d, gid %d): %s",
-                vnd_usb.port_name, getuid(), getgid(), strerror(errno));
+    /** USB port name is discarded, as bluez hci interfaces
+     *  use socket to communicate with HCI core.
+     */
+    dev_id = hci_devid(NULL);
+
+    vnd_usb.fd = hci_open_dev(dev_id);
+    if (vnd_usb.fd == -1) {
+        SYSLOGE("usb vendor open: unable to open dev_id %d(uid %d, gid %d): %s",
+                dev_id, getuid(), getgid(), strerror(errno));
         return -1;
     }
 
@@ -92,7 +100,7 @@ static void usb_vendor_close(void)
 
     SYSLOGI("device fd = %d close", vnd_usb.fd);
 
-    res = close(vnd_usb.fd);
+    res = hci_close_dev(vnd_usb.fd);
     if (res  < 0)
         SYSLOGE("Failed to close(fd %d): %s", vnd_usb.fd, strerror(res));
 

@@ -1341,7 +1341,7 @@ void hw_config_start(void)
         UINT16_TO_STREAM(p, HCI_VSC_H5_INIT);
 
         hw_cfg_cb.state = HW_CFG_START;
-        SYSLOGI("hw_config_start:Realtek version %s \n",RTK_VERSION);
+        SYSLOGI("hw_config_start:Realtek version %s",RTK_VERSION);
         //UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, hw_config_cback);
         UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, rtk_get_lmp);
     }
