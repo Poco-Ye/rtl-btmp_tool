@@ -113,7 +113,7 @@ static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
         pBtModule->pBtParam->TXDACTable[0] = (uint8_t)value;
         break;
     case BT_PARAM_IDX14:
-        pBtModule->pBtParam->Rtl8761Xtal = (uint32_t)value;
+        pBtModule->pBtParam->Rtl8761Xtal = (uint16_t)value;
         break;
     default:
         break;
@@ -296,7 +296,7 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
                 pBtModule->pBtParam->TXDACTable[4]);
         break;
     case BT_PARAM_IDX14:
-        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%04x",
                 STR_BT_MP_GET_PARAM,
                 STR_BT_MP_RESULT_DELIM,
                 index,
@@ -1211,7 +1211,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *buf_cb)
     uint8_t address = 0;
     uint8_t msb = 0;
     uint8_t lsb = 0;
-    uint32_t data = 0;
+    uint16_t data = 0;
     int ret = BT_FUNCTION_SUCCESS;
 
     SYSLOGI("++%s: %s", STR_BT_MP_REG_RW, p);
@@ -1274,7 +1274,7 @@ int BT_RegRW(BT_MODULE *pBtModule, char *p, char *buf_cb)
     }
 
     if (rw == 1) { //write
-        // uint32_t dataToWrite;
+        // uint16_t dataToWrite;
         token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
         if (token != NULL) {
             data = strtol(token, NULL, 0);
@@ -1303,12 +1303,12 @@ exit:
     if (params_count != REGRW_PARAM_COUNT) {
         sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
     } else {
-        SYSLOGI("BT_RegRW: type 0x%x, rw 0x%x, page 0x%x, address 0x%04x, msb 0x%x, lsb 0x%x, data 0x%08x",
+        SYSLOGI("BT_RegRW: type 0x%x, rw 0x%x, page 0x%x, address 0x%04x, msb 0x%x, lsb 0x%x, data 0x%04x",
                 type, rw, page, address, msb, lsb, data);
 
         if (rw == 0) {
             ret = pBtModule->GetRegMaskBits(pBtModule, type, page, address, msb, lsb, &data);
-            sprintf(buf_cb, "%s%s0x%02x%s0x%08x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, ret,
+            sprintf(buf_cb, "%s%s0x%02x%s0x%04x", STR_BT_MP_REG_RW, STR_BT_MP_RESULT_DELIM, ret,
                     STR_BT_MP_RESULT_DELIM, data);
         } else {
             ret = pBtModule->SetRegMaskBits(pBtModule, type, page, address, msb, lsb, data);

@@ -117,7 +117,7 @@ error:
 
 int BT_GetStage(BT_DEVICE *pBtDevice, uint8_t *pStage)
 {
-    uint32_t data;
+    uint16_t data;
 
     data = 5;
     if (BT_SetSysRegMaskBits(pBtDevice, 0xa3, 7, 0, data))
@@ -135,11 +135,11 @@ error:
     return FUNCTION_ERROR;
 }
 
-int BTDevice_SetRTL8761Xtal(BT_DEVICE *pBtDevice, uint32_t Value)
+int BTDevice_SetRTL8761Xtal(BT_DEVICE *pBtDevice, uint16_t Value)
 {
     uint32_t data_32=0;
-    uint32_t data_lsb=0, data_msb=0;
-    uint32_t x1=0, x2=0;
+    uint16_t data_lsb=0, data_msb=0;
+    uint16_t x1=0, x2=0;
     uint32_t ChipID;
 
     if (pBtDevice->GetChipId(pBtDevice) != BT_FUNCTION_SUCCESS)
@@ -157,7 +157,7 @@ int BTDevice_SetRTL8761Xtal(BT_DEVICE *pBtDevice, uint32_t Value)
     if (BT_GetSysRegMaskBits(pBtDevice, 0x2e, 15, 0, &data_msb))
         goto error;
 
-    data_32 = (data_msb << 16) | (data_lsb & 0xFFFF);
+    data_32 = (data_msb << 16) | data_lsb;
 
     data_32 &= 0xFF000FFF;
 
@@ -173,7 +173,7 @@ int BTDevice_SetRTL8761Xtal(BT_DEVICE *pBtDevice, uint32_t Value)
     if (BT_SetSysRegMaskBits(pBtDevice, 0x2e, 15, 0, x2))
         goto error;
 
-    SYSLOGI("BTDevice_SetRTL8761Xtal : 0x%08x", Value);
+    SYSLOGI("BTDevice_SetRTL8761Xtal : 0x%04x", Value);
 
     return BT_FUNCTION_SUCCESS;
 
@@ -181,9 +181,9 @@ error:
     return FUNCTION_ERROR;
 }
 
-int BTDevice_GetRTL8761Xtal(BT_DEVICE *pBtDevice, uint32_t *pValue)
+int BTDevice_GetRTL8761Xtal(BT_DEVICE *pBtDevice, uint16_t *pValue)
 {
-    uint32_t data=0;
+    uint16_t data=0;
     uint32_t ChipID;
 
     if (pBtDevice->GetChipId(pBtDevice) != BT_FUNCTION_SUCCESS)
@@ -199,7 +199,7 @@ int BTDevice_GetRTL8761Xtal(BT_DEVICE *pBtDevice, uint32_t *pValue)
 
     *pValue = data;
 
-    SYSLOGI("BTDevice_GetRTL8761Xtal : 0x%08x", *pValue);
+    SYSLOGI("BTDevice_GetRTL8761Xtal : 0x%04x", *pValue);
 
     return BT_FUNCTION_SUCCESS;
 
@@ -593,7 +593,7 @@ int BTDevice_SetPktRxUpdate(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_
     }
 
     pBtReport->RxRssi = (int)(rxPin);
-    pBtReport->RxRssi = ((pBtReport->RxRssi >> 2) *2) -90;
+    pBtReport->RxRssi = pBtReport->RxRssi * 2 - 90;
 
     //if (pBtReport->RxRssi > -89)
     {
@@ -1105,7 +1105,13 @@ int BTDevice_SetContinueTxBegin(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEV
         pBtReport->TotalTXBits=0;
         pBtReport->TotalTxCounts=0;
     }
-    SYSLOGI("+BTDevice_SetContinueTxBegin");
+
+    SYSLOGI("+BTDevice_SetContinueTxBegin: mChannelNumber 0x%02x, mPacketType 0x%02x, "
+          "mTxGainIndex 0x%02x, mTxGainValue 0x%02x, mTxPacketCount 0x%04x, mPayloadType 0x%02x, "
+          "mPacketHeader 0x%08x, mWhiteningCoeffValue 0x%02x, mTxDAC 0x%02x, mHitTarget 0x%012llx",
+          pParam->mChannelNumber, pParam->mPacketType, pParam->mTxGainIndex, pParam->mTxGainValue,
+          pParam->mTxPacketCount, pParam->mPayloadType, pParam->mPacketHeader,
+          pParam->mWhiteningCoeffValue, pParam->mTxDAC, pParam->mHitTarget);
 
     //disable modem fix tx
     // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);

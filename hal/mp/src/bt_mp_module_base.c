@@ -389,7 +389,7 @@ BTModule_SetMDRegMaskBits(
         uint8_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint16_t UserValue
+        uint16_t UserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
@@ -415,7 +415,7 @@ BTModule_SetRFRegMaskBits(
         uint8_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint16_t UserValue
+        uint16_t UserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
@@ -429,7 +429,7 @@ BTModule_GetSysRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
@@ -442,7 +442,7 @@ BTModule_SetSysRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint32_t UserValue
+        uint16_t UserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
@@ -457,7 +457,7 @@ BTModule_GetBBRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
@@ -471,7 +471,7 @@ BTModule_SetBBRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t UserValue
+        uint16_t UserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
@@ -487,17 +487,17 @@ BTModule_GetRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;
 
     switch (Type) {
     case MD_REG:
-        return pBtDevice->GetMdRegMaskBits(pBtDevice, Addr, Msb, Lsb, (uint16_t *)pUserValue);
+        return pBtDevice->GetMdRegMaskBits(pBtDevice, Addr, Msb, Lsb, pUserValue);
 
     case RF_REG:
-        return pBtDevice->GetRfRegMaskBits(pBtDevice, Addr, Msb, Lsb, (uint16_t *)pUserValue);
+        return pBtDevice->GetRfRegMaskBits(pBtDevice, Addr, Msb, Lsb, pUserValue);
 
     case SYS_REG:
         return pBtDevice->GetSysRegMaskBits(pBtDevice, Addr, Msb, Lsb, pUserValue);
@@ -520,7 +520,7 @@ BTModule_SetRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint32_t UserValue
+        uint16_t UserValue
         )
 {
     BT_DEVICE *pBtDevice = pBtModule->pBtDevice;

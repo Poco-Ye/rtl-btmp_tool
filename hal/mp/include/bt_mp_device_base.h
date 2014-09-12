@@ -6,26 +6,26 @@
 int
 BT_GetStage(
         BT_DEVICE *pBtDevice,
-        unsigned char *pStage
+        uint8_t *pStage
         );
 
 int
 BTDevice_SetRTL8761Xtal(
         BT_DEVICE *pBtDevice,
-        uint32_t Value
+        uint16_t Value
         );
 
 int
 BTDevice_GetRTL8761Xtal(
         BT_DEVICE *pBtDevice,
-        uint32_t *pValue
+        uint16_t *pValue
         );
 
 int
 BTDevice_ReadThermal(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,
-        unsigned char *pThermalValue
+        uint8_t *pThermalValue
         );
 
 int

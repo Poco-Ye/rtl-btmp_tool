@@ -1,11 +1,9 @@
-#ifndef BT_MP_BUILD_H
-#include "bt_mp_base.h"
-#include "bt_user_func.h"
-#include "bt_mp_device_general.h"
-#include "bt_mp_device_base.h"
-#include "bt_mp_module_base.h"
+#ifndef _BT_MP_BUILD_H
+#define _BT_MP_BUILD_H
 
-#include "foundation.h"
+#include "bt_mp_device_base.h"
+#include "bt_mp_device_general.h"
+#include "bt_mp_module_base.h"
 
 int
 BuildBluetoothModule(
@@ -25,6 +23,5 @@ BuildBluetoothDevice(
         uint8_t                  *pTxGainTable,
         uint8_t                  *pTxDACTable
         );
-
 
 #endif

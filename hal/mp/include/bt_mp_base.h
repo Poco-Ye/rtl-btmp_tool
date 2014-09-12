@@ -147,7 +147,7 @@ struct BT_PARAMETER_TAG {
     uint64_t mHitTarget;
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t TXDACTable[MAX_TXDAC_TABLE_SIZE];
-    uint32_t Rtl8761Xtal;
+    uint16_t Rtl8761Xtal;
 };
 
 struct BT_CHIPINFO_TAG {
@@ -177,8 +177,8 @@ struct BT_DEVICE_REPORT_TAG {
     uint8_t  CurrTXDACTable[MAX_TXDAC_TABLE_SIZE];
 
     uint8_t  CurrThermalValue;
-    uint32_t CurrRtl8761Xtal;
     uint8_t  CurrStage;
+    uint16_t CurrRtl8761Xtal;
 
     BT_CHIPINFO *pBTInfo;
     BT_CHIPINFO BTInfoMemory;
@@ -297,13 +297,13 @@ typedef int
 typedef int
 (*BT_FP_SET_RTL8761_XTAL)(
         BT_DEVICE *pBtDevice,
-        uint32_t Value
+        uint16_t Value
         );
 
 typedef int
 (*BT_FP_GET_RTL8761_XTAL)(
         BT_DEVICE *pBtDevice,
-        uint32_t *pValue
+        uint16_t *pValue
         );
 
 typedef int
@@ -325,7 +325,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t UserValue
+        uint16_t UserValue
         );
 
 typedef int
@@ -334,7 +334,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 typedef int
@@ -344,7 +344,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t UserValue
+        uint16_t UserValue
         );
 
 typedef int
@@ -354,7 +354,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 typedef int
@@ -731,7 +731,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t UserValue
+        uint16_t UserValue
         );
 
 typedef int
@@ -740,7 +740,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 typedef int
@@ -750,7 +750,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint32_t UserValue
+        uint16_t UserValue
         );
 
 typedef int
@@ -760,7 +760,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 typedef int
@@ -771,7 +771,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint32_t UserValue
+        uint16_t UserValue
         );
 
 typedef int
@@ -782,7 +782,7 @@ typedef int
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 struct BT_MODULE_TAG {
@@ -1019,7 +1019,7 @@ BT_SetSysRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t UserValue
+        uint16_t UserValue
         );
 
 int
@@ -1028,7 +1028,7 @@ BT_GetSysRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 int
@@ -1038,7 +1038,7 @@ BT_SetBBRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t UserValue
+        uint16_t UserValue
         );
 
 int
@@ -1048,7 +1048,7 @@ BT_GetBBRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 void

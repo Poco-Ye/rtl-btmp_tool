@@ -749,9 +749,9 @@ BT_SetBBRegBytes(
         case 9:   baseaddress= BT_BLUEWIZ9_15_ADDR; break;
     }
     Address = baseaddress | Address;
-    for ( i = 0 ; i < ByteNumber ; i++ )
+    for (i = 0 ; i < ByteNumber ; i += 2)
     {
-        if( BT_WriteHCIVendor(pBtDevice, BT_REGISTER_IO_ACCESS_MODE, LEN_1_BYTE, Address+i, &data[i]))
+        if( BT_WriteHCIVendor(pBtDevice, BT_REGISTER_IO_ACCESS_MODE, LEN_2_BYTE, Address+i, &data[i]))
             goto error;
     }
 
@@ -790,9 +790,9 @@ BT_GetBBRegBytes(
     }
     Address = baseaddress |Address;
 
-    for ( i = 0 ; i < ByteNumber ; i++ )
+    for (i = 0 ; i < ByteNumber ; i += 2)
     {
-        if( BT_ReadHCIVendor(pBtDevice, BT_REGISTER_IO_ACCESS_MODE, LEN_1_BYTE, Address+i, &data[i]))
+        if( BT_ReadHCIVendor(pBtDevice, BT_REGISTER_IO_ACCESS_MODE, LEN_2_BYTE, Address+i, &data[i]))
             goto error;
     }
 
@@ -853,28 +853,19 @@ BT_SetSysRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t UserValue
+        uint16_t UserValue
         )
 {
     uint8_t pBuf[LEN_4_BYTE];
-    uint32_t ReadingValue;
-    uint32_t WritingValue;
-    uint32_t Len;
+    uint16_t ReadingValue = 0;
+    uint16_t WritingValue;
+    uint16_t Mask = 0;
+    uint8_t Len = (Msb / 8) + 1;
+    uint8_t Shift = Lsb;
     uint8_t i;
-
-    uint32_t Mask;
-    uint8_t Shift;
-
-    ReadingValue = 0;
-
-    Mask = 0;
-
-    Len = (Msb/8)+1;
 
     for (i = Lsb; i < Msb + 1; i++)
         Mask |= 0x1 << i;
-
-    Shift = Lsb;
 
     if (BT_GetSysBytes(pBtDevice, Addr, Len, pBuf))
         goto error;
@@ -906,27 +897,18 @@ BT_GetSysRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         )
 {
     uint8_t pBuf[LEN_4_BYTE];
-    uint32_t ReadingValue;
-    uint32_t Len;
+    uint16_t ReadingValue = 0;
+    uint16_t Mask = 0;
+    uint8_t Len = (Msb / 8) + 1;
+    uint8_t Shift = Lsb;
     uint8_t i;
-
-    uint32_t Mask;
-    uint8_t Shift;
-
-    ReadingValue = 0;
-
-    Mask = 0;
-
-    Len = (Msb/8)+1;
 
     for (i = Lsb; i < Msb + 1; i++)
         Mask |= 0x1 << i;
-
-    Shift = Lsb;
 
     if (BT_GetSysBytes(pBtDevice, Addr, Len, pBuf))
         goto error;
@@ -951,45 +933,47 @@ BT_SetBBRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t UserValue
+        uint16_t UserValue
         )
 {
     uint8_t pBuf[LEN_4_BYTE];
-    uint32_t ReadingValue;
-    uint32_t WritingValue;
-    uint32_t Len;
+    uint16_t ReadingValue = 0;
+    uint16_t WritingValue;
+    uint16_t Mask = 0;
+    uint8_t Shift = Lsb;
     uint8_t i;
 
-    uint32_t Mask;
-    uint8_t Shift;
+    if (Addr & 0x1)
+    {
+        SYSLOGE("BT_SetBBRegMaskBits: Addr should be 2-byte align");
+        goto error;
+    }
 
-    ReadingValue = 0;
-
-    Mask = 0;
-
-    Len = (Msb/8)+1;
+    if ((Msb < Lsb) || (Msb > 15))
+    {
+        SYSLOGE("BT_SetBBRegMaskBits: ERROR: Msb %d, Lsb %d", Msb, Lsb);
+        goto error;
+    }
 
     for (i = Lsb; i < Msb + 1; i++)
         Mask |= 0x1 << i;
 
-    Shift = Lsb;
-
-    if (BT_GetBBRegBytes(pBtDevice, Page, Addr, Len, pBuf))
+    if (BT_GetBBRegBytes(pBtDevice, Page, Addr, LEN_2_BYTE, pBuf))
         goto error;
 
-    for (i = 0; i < Len; i++)
+    for (i = 0; i < LEN_2_BYTE; i++)
     {
         ReadingValue += (pBuf[i]<<(i*8)) ;
     }
 
-    WritingValue = (((ReadingValue) & (~Mask)) | (UserValue << Shift));
+    WritingValue = (((ReadingValue) & (~Mask)) | ((UserValue << Shift) & Mask));
 
-    for (i = 0; i < Len; i++)
+    for (i = 0; i < LEN_2_BYTE; i++)
     {
         pBuf[i] = (WritingValue>>(i*8))&0xff;
     }
 
-    if (BT_SetBBRegBytes(pBtDevice, Page, Addr, Len, pBuf))
+    if (BT_SetBBRegBytes(pBtDevice, Page, Addr, LEN_2_BYTE, pBuf))
         goto error;
 
     return BT_FUNCTION_SUCCESS;
@@ -1005,32 +989,34 @@ BT_GetBBRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         )
 {
     uint8_t pBuf[LEN_4_BYTE];
-    uint32_t ReadingValue;
-    uint32_t Len;
+    uint16_t ReadingValue = 0;
+    uint16_t Mask = 0;
+    uint8_t Shift = Lsb;
     uint8_t i;
 
-    uint32_t Mask;
-    uint8_t Shift;
+    if (Addr & 0x1)
+    {
+        SYSLOGE("BT_SetBBRegMaskBits: Addr should be 2-byte align");
+        goto error;
+    }
 
-    ReadingValue = 0;
-
-    Mask = 0;
-
-    Len = (Msb/8)+1;
+    if ((Msb < Lsb) || (Msb > 15))
+    {
+        SYSLOGE("BT_SetBBRegMaskBits: ERROR: Msb %d, Lsb %d", Msb, Lsb);
+        goto error;
+    }
 
     for (i = Lsb; i < Msb + 1; i++)
         Mask |= 0x1 << i;
 
-    Shift = Lsb;
-
-    if (BT_GetBBRegBytes(pBtDevice, Page, Addr, Len, pBuf))
+    if (BT_GetBBRegBytes(pBtDevice, Page, Addr, LEN_2_BYTE, pBuf))
         goto error;
 
-    for (i = 0; i < Len; i++)
+    for (i = 0; i < LEN_2_BYTE; i++)
     {
         ReadingValue += (pBuf[i]<<(i*8)) ;
     }

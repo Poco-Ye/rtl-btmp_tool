@@ -77,7 +77,7 @@ BTModule_SetMDRegMaskBits(
         uint8_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint16_t UserValue
+        uint16_t UserValue
         );
 
 int
@@ -95,7 +95,7 @@ BTModule_SetRFRegMaskBits(
         uint8_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint16_t UserValue
+        uint16_t UserValue
         );
 
 int
@@ -104,7 +104,7 @@ BTModule_GetSysRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 int
@@ -113,7 +113,7 @@ BTModule_SetSysRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint32_t UserValue
+        uint16_t UserValue
         );
 
 int
@@ -123,7 +123,7 @@ BTModule_GetBBRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 int
@@ -133,7 +133,7 @@ BTModule_SetBBRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint32_t UserValue
+        uint16_t UserValue
         );
 
 int
@@ -144,7 +144,7 @@ BTModule_GetRegMaskBits(
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
-        uint32_t *pUserValue
+        uint16_t *pUserValue
         );
 
 int
@@ -155,7 +155,7 @@ BTModule_SetRegMaskBits(
         uint16_t RegStartAddr,
         uint8_t Msb,
         uint8_t Lsb,
-        const uint32_t UserValue
+        uint16_t UserValue
         );
 
 #endif
