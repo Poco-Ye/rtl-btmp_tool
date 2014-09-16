@@ -185,6 +185,7 @@ int hci_devid(const char *str)
 int hci_open_dev(int dev_id)
 {
     struct sockaddr_hci a;
+    struct hci_filter flt;
     int dd;
 
     /* Create HCI socket */
@@ -196,8 +197,19 @@ int hci_open_dev(int dev_id)
     memset(&a, 0, sizeof(a));
     a.hci_family = AF_BLUETOOTH;
     a.hci_dev = dev_id;
-    if (bind(dd, (struct sockaddr *) &a, sizeof(a)) < 0)
+    if (bind(dd, (struct sockaddr *) &a, sizeof(a)) < 0) {
+        SYSLOGE("HCI bind failed");
         goto failed;
+    }
+
+    /* Setup filter */
+    hci_filter_clear(&flt);
+    hci_filter_set_ptype(HCI_EVENT_PKT, &flt);
+    hci_filter_all_events(&flt);
+    if (setsockopt(dd, SOL_HCI, HCI_FILTER, &flt, sizeof(flt)) < 0) {
+        SYSLOGE("HCI filter setup failed");
+        goto failed;
+    }
 
     return dd;
 

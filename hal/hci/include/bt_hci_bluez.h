@@ -63,6 +63,17 @@ struct sockaddr_hci {
     unsigned short  hci_channel;
 };
 
+struct hci_filter {
+    uint32_t type_mask;
+    uint32_t event_mask[2];
+    uint16_t opcode;
+};
+
+#define HCI_FLT_TYPE_BITS   31
+#define HCI_FLT_EVENT_BITS  63
+#define HCI_FLT_OGF_BITS    63
+#define HCI_FLT_OCF_BITS    127
+
 #define HCI_MAX_DEV 16
 
 /* HCI device flags */
@@ -148,6 +159,10 @@ typedef union {
     hci_sco_hdr     sco_hdr;
 } __attribute__ ((packed)) hci_pkt_hdr;
 
+/* HCI Socket options */
+#define HCI_DATA_DIR    1
+#define HCI_FILTER      2
+#define HCI_TIME_STAMP  3
 
 /* BD Address */
 typedef struct {
@@ -208,11 +223,38 @@ static inline int bacmp(const bdaddr_t *ba1, const bdaddr_t *ba2)
     return memcmp(ba1, ba2, sizeof(bdaddr_t));
 }
 
+static inline void hci_set_bit(int nr, void *addr)
+{
+    *((uint32_t *) addr + (nr >> 5)) |= (1 << (nr & 31));
+}
+
+static inline void hci_clear_bit(int nr, void *addr)
+{
+    *((uint32_t *) addr + (nr >> 5)) &= ~(1 << (nr & 31));
+}
+
 static inline int hci_test_bit(int nr, void *addr)
 {
     return *((uint32_t *) addr + (nr >> 5)) & (1 << (nr & 31));
 }
 
+/* HCI filter tools */
+static inline void hci_filter_clear(struct hci_filter *f)
+{
+    memset(f, 0, sizeof(*f));
+}
+
+static inline void hci_filter_set_ptype(int t, struct hci_filter *f)
+{
+    hci_set_bit((t == HCI_VENDOR_PKT) ? 0 : (t & HCI_FLT_TYPE_BITS), &f->type_mask);
+}
+
+static inline void hci_filter_all_events(struct hci_filter *f)
+{
+    memset((void *) f->event_mask, 0xff, sizeof(f->event_mask));
+}
+
+/* Exposed bluez hci interfaces */
 int hci_devid(const char *str);
 int hci_open_dev(int dev_id);
 int hci_close_dev(int dd);
