@@ -5,72 +5,48 @@
 
 int
 BuildBluetoothDevice(
-        BASE_INTERFACE_MODULE   *pBaseInterface,
-        BT_DEVICE               **ppBtDeviceBase,
-        BT_DEVICE               *pDeviceBasememory,
-        void                    *pExtra,
-        uint8_t                 *pTxGainTable,
-        uint8_t                 *pTxDACTable
+        BASE_INTERFACE_MODULE *pBaseInterface,
+        BT_DEVICE             **ppBtDeviceBase,
+        BT_DEVICE             *pDeviceBasememory
         )
 {
     BT_DEVICE *pBtDevice = pDeviceBasememory;
     *ppBtDeviceBase = pDeviceBasememory;
 
-    pBtDevice->pExtra = pExtra;
     pBtDevice->InterfaceType = pBaseInterface->InterfaceType;
     pBtDevice->pBaseInterface = pBaseInterface;
 
     pBtDevice->pBTInfo = &pBtDevice->BaseBTInfoMemory ;
 
-    pBtDevice->SetTxGainTable       =       BTDevice_SetTxGainTable;
-    pBtDevice->SetTxDACTable        =       BTDevice_SetTxDACTable;
-    pBtDevice->GetPayloadLenTable   =       BTDevice_GetPayloadLenTable;
-
-    //-->Register Read/Write
-    pBtDevice->SetMdRegMaskBits = bt_default_SetMDRegMaskBits;
-    pBtDevice->GetMdRegMaskBits = bt_default_GetMDRegMaskBits;
-    pBtDevice->SetRfRegMaskBits = bt_default_SetRFRegMaskBits;;
-    pBtDevice->GetRfRegMaskBits = bt_default_GetRFRegMaskBits;
-    //-->HCI command raw data
-    pBtDevice->SendHciCmd = bt_default_SendHCICmd;
-    pBtDevice->RecvHciEvent = bt_default_RecvHCIEvent;
-    //-->HCI Command & Event
+    pBtDevice->SetTxGainTable = BTDevice_SetTxGainTable;
+    pBtDevice->SetTxDACTable  = BTDevice_SetTxDACTable;
+    // Register Read/Write
+    pBtDevice->SetMdRegMaskBits = BTDevice_SetMDRegMaskBits;
+    pBtDevice->GetMdRegMaskBits = BTDevice_GetMDRegMaskBits;
+    pBtDevice->SetRfRegMaskBits = BTDevice_SetRFRegMaskBits;;
+    pBtDevice->GetRfRegMaskBits = BTDevice_GetRFRegMaskBits;
+    pBtDevice->SetSysRegMaskBits = BTDevice_SetSysRegMaskBits;
+    pBtDevice->GetSysRegMaskBits = BTDevice_GetSysRegMaskBits;
+    pBtDevice->SetBBRegMaskBits = BTDevice_SetBBRegMaskBits;
+    pBtDevice->GetBBRegMaskBits = BTDevice_GetBBRegMaskBits;
+    // HCI Command & Event
     pBtDevice->SendHciCommandWithEvent = BTDevice_SendHciCommandWithEvent;
     pBtDevice->RecvAnyHciEvent = BTDevice_RecvAnyHciEvent;
-
-    //Device member
-    //-->Register Control
-    pBtDevice->SetTxChannel = BTDevice_SetTxChannel;
-    pBtDevice->SetLETxChannel = BTDevice_SetLETxChannel;
-    pBtDevice->SetRxChannel = BTDevice_SetRxChannel;
+    // Register Control
     pBtDevice->SetPowerGainIndex = BTDevice_SetPowerGainIndex;
     pBtDevice->SetPowerGain = BTDevice_SetPowerGain;
     pBtDevice->SetPowerDac = BTDevice_SetPowerDac;
-    pBtDevice->SetPayloadType = BTDevice_SetPayloadType;
-    pBtDevice->SetWhiteningCoeff = BTDevice_SetWhiteningCoeff;
-    pBtDevice->SetPacketType = BTDevice_SetPacketType;
-    pBtDevice->SetHitTarget = BTDevice_SetHitTarget;
-    pBtDevice->SetTestMode = BTDevice_SetTestMode;
-    pBtDevice->SetMutiRxEnable = BTDevice_SetMutiRxEnable;
     pBtDevice->SetRestMDCount = BTDevice_SetResetMDCount;
-    pBtDevice->SetPacketHeader = BTDevice_SetPacketHeader;
 
     pBtDevice->TestModeEnable = BTDevice_TestModeEnable;
     pBtDevice->SetRtl8761Xtal = BTDevice_SetRTL8761Xtal;
     pBtDevice->GetRtl8761Xtal = BTDevice_GetRTL8761Xtal;
     pBtDevice->ReadThermal = BTDevice_ReadThermal;
 
-    pBtDevice->GetStage = BT_GetStage;
-    pBtDevice->SetSysRegMaskBits = BT_SetSysRegMaskBits;
-    pBtDevice->GetSysRegMaskBits = BT_GetSysRegMaskBits;
-    pBtDevice->SetBBRegMaskBits = BT_SetBBRegMaskBits;
-    pBtDevice->GetBBRegMaskBits = BT_GetBBRegMaskBits;
-
-    //-->Vendor HCI Command Control
-    pBtDevice->SetFWPowerTrackEnable =      BTDevice_SetFWPowerTrackEnable;
+    pBtDevice->GetStage = BTDevice_GetStage;
+    // Vendor HCI Command Control
     pBtDevice->SetHoppingMode        =      BTDevice_SetHoppingMode;
     pBtDevice->SetHciReset           =      BTDevice_SetHciReset;
-    pBtDevice->GetBTClockTime        =      BTDevice_GetBTClockTime;
 
     pBtDevice->TxTriggerPktCnt = 0;
 
@@ -91,19 +67,11 @@ BuildBluetoothDevice(
     pBtDevice->SetPktRxStop         =       BTDevice_SetPktRxStop;
     pBtDevice->SetPktRxUpdate       =       BTDevice_SetPktRxUpdate;
     //Base Function
-    pBtDevice->GetPayLoadTypeValidFlag =    BTBASE_GetPayLoadTypeValidFlag;
-    pBtDevice->HitTargetAccessCodeGen  =    BTBASE_HitTargetAccessCodeGen;
-
-    pBtDevice->GetChipId            =       bt_default_GetChipId;
-    pBtDevice->GetECOVersion        =       bt_default_GetECOVersion;
-    pBtDevice->GetChipVersionInfo   =       bt_default_GetBTChipVersionInfo;
-    pBtDevice->BTDlFW               =       bt_default_BTDlFW;
-    pBtDevice->BTDlMERGERFW         =       bt_default_BTDlMergerFW;
+    pBtDevice->GetChipVersionInfo   =       BTDevice_GetBTChipVersionInfo;
+    pBtDevice->BTDlFW               =       BTDevice_BTDlFW;
+    pBtDevice->BTDlMERGERFW         =       BTDevice_BTDlMergerFW;
     //PG Efuse
     pBtDevice->BT_PGEfuseRawData    =       BTDevice_PGEfuseRawData;
-    //Table
-    pBtDevice->SetTxGainTable(pBtDevice,pTxGainTable);
-    pBtDevice->SetTxDACTable(pBtDevice,pTxDACTable);
 
     return 0;
 }
@@ -111,11 +79,8 @@ BuildBluetoothDevice(
 // Base Module interface builder
 int
 BuildBluetoothModule(
-        BASE_INTERFACE_MODULE   *pBaseInterfaceModule,
-        BT_MODULE               *pBtModule,
-        void                    *pExtra,
-        uint8_t                 *pTxGainTable,
-        uint8_t                 *pTxDACTable
+        BASE_INTERFACE_MODULE *pBaseInterfaceModule,
+        BT_MODULE             *pBtModule
         )
 {
     int rtn = BT_FUNCTION_SUCCESS;
@@ -146,10 +111,7 @@ BuildBluetoothModule(
 
     BuildBluetoothDevice(pBaseInterfaceModule,
             &pBtModule->pBtDevice,
-            &pBtModule->BaseBtDeviceMemory,
-            pExtra,
-            pTxGainTable,
-            pTxDACTable
+            &pBtModule->BaseBtDeviceMemory
             );
 
     return  rtn;

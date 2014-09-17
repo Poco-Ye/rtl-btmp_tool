@@ -1,6 +1,7 @@
 #define LOG_TAG "bt_mp_transport"
 
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 #include <pthread.h>
 
@@ -8,6 +9,14 @@
 #include "bluetoothmp.h"
 #include "bt_mp_transport.h"
 #include "btif_api.h"
+
+void bt_transport_WaitMs(
+        BASE_INTERFACE_MODULE *pBaseInterface,
+        unsigned long WaitTimeMs
+        )
+{
+    usleep(WaitTimeMs * 1000);
+}
 
 int bt_transport_SendHciCmd(
     BASE_INTERFACE_MODULE *pBaseInterface,

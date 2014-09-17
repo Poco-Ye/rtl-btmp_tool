@@ -18,8 +18,6 @@
 #include "bt_mp_api.h"
 #include "bt_mp_base.h"
 #include "bt_mp_build.h"
-#include "bt_user_func.h"
-#include "bt_mp_device_general.h"
 #include "bt_mp_device_base.h"
 #include "bt_mp_module_base.h"
 #include "foundation.h"
@@ -1323,9 +1321,6 @@ exit:
 
 void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *pBtModule)
 {
-    uint8_t pTxGainTable[7] = {0x49,0x4d,0x69,0x89,0x8d,0xa9,0xa9}; // RTL8761 Table
-    uint8_t pTxDACTable[5] = {0x10,0x11,0x12,0x13,0x14};
-
     SYSLOGI("bt_mp_module_init, pBaseInterfaceModule %p, pBtModule %p", pBaseInterfaceModule, pBtModule);
 
     BuildTransportInterface(
@@ -1336,15 +1331,12 @@ void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *p
             bt_transport_SendHciCmd,
             bt_transport_RecvHciEvt,
             NULL,//close
-            UserDefinedWaitMs
+            bt_transport_WaitMs
             );
 
     BuildBluetoothModule(
             pBaseInterfaceModule,
-            pBtModule,
-            NULL,
-            pTxGainTable,
-            pTxDACTable
+            pBtModule
             );
 
     pBtModule->pBtParam->mPGRawData[0] = 0;

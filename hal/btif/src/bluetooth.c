@@ -102,13 +102,21 @@ int hal_init(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node
 
 int hal_enable(void)
 {
+    int ret = BT_STATUS_SUCCESS;
+
     SYSLOGI("enable");
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)
         return BT_STATUS_NOT_READY;
 
-    return btif_enable_bluetooth(bt_hci_if, bt_dev_node);
+    ret = btif_enable_bluetooth(bt_hci_if, bt_dev_node);
+    if (ret == BT_STATUS_SUCCESS) {
+        BtModuleMemory.pBtDevice->SetTxGainTable(BtModuleMemory.pBtDevice, NULL);
+        BtModuleMemory.pBtDevice->SetTxDACTable(BtModuleMemory.pBtDevice, NULL);
+    }
+
+    return ret;
 }
 
 int hal_disable(void)

@@ -5,14 +5,6 @@
 
 #define BLUETOOTH_MP_CODE_VERSION   "24,07,2014,1"
 
-enum EXEC_RAWDATA_TAG {
-    EXEC_NOTTNING,          //0
-    PG_BTMAP_RAWDATA,       //1
-    PG_SYAMAP_RAWDATA,      //2
-
-    NUMBEROFEXEC_RAWDATA_TAG
-};
-
 int
 BTModule_ActionControlExcute(
         BT_MODULE *pBtModule
@@ -37,12 +29,6 @@ BTModule_DownloadPatchCode(
         uint8_t *pPatchcode,
         int patchLength,
         int Mode
-        );
-
-int
-BTModule_ExecRawData(
-        BT_MODULE *pBtModule,
-        BT_PARAMETER *pParam
         );
 
 int

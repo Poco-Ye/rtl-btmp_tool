@@ -4,7 +4,116 @@
 #include "bt_mp_base.h"
 
 int
-BT_GetStage(
+BTDevice_SetMDRegMaskBits(
+        BT_DEVICE *pBtDevice,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t UserValue
+        );
+
+int
+BTDevice_GetMDRegMaskBits(
+        BT_DEVICE *pBt,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        );
+
+int
+BTDevice_SetRFRegMaskBits(
+        BT_DEVICE *pBt,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t UserValue
+        );
+
+int
+BTDevice_GetRFRegMaskBits(
+        BT_DEVICE *pBt,
+        uint8_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        );
+
+int
+BTDevice_SetSysRegMaskBits(
+        BT_DEVICE *pBtDevice,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t UserValue
+        );
+
+int
+BTDevice_GetSysRegMaskBits(
+        BT_DEVICE *pBtDevice,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        );
+
+int
+BTDevice_SetBBRegMaskBits(
+        BT_DEVICE *pBtDevice,
+        int Page,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t UserValue
+        );
+
+int
+BTDevice_GetBBRegMaskBits(
+        BT_DEVICE *pBtDevice,
+        int Page,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+        );
+
+int
+BTDevice_SendHciCommandWithEvent(
+        BT_DEVICE *pBtDevice,
+        uint16_t  OpCode,
+        uint8_t PayLoadLength,
+        uint8_t *pPayLoad,
+        uint8_t  EventType,
+        uint8_t  *pEvent,
+        uint32_t *pEventLen
+        );
+
+int
+BTDevice_RecvAnyHciEvent(
+        BT_DEVICE *pBtDevice,
+        uint8_t *pEvent
+        );
+
+int
+BTDevice_SetPowerGainIndex(
+        BT_DEVICE *pBtDevice,
+        int Index
+        );
+
+int
+BTDevice_SetPowerGain(
+        BT_DEVICE *pBtDevice,
+        uint8_t PowerGainValue
+        );
+
+int
+BTDevice_SetPowerDac(
+        BT_DEVICE *pBtDevice,
+        uint8_t DacValue
+        );
+
+int
+BTDevice_GetStage(
         BT_DEVICE *pBtDevice,
         uint8_t *pStage
         );
@@ -34,28 +143,6 @@ BTDevice_TestModeEnable(
         );
 
 int
-BTBASE_HitTargetAccessCodeGen(
-        BT_DEVICE *pBtDevice,
-        uint64_t HitTarget,
-        unsigned long *pAccessCode
-        );
-
-int
-BTBASE_GetPayLoadTypeValidFlag(
-        BT_DEVICE *pBtDevice,
-        BT_TEST_MODE TestMode,
-        BT_PKT_TYPE PKT_TYPE,
-        unsigned int *ValidFlag
-        );
-
-//Device BASE Function
-int
-BTDevice_SetMutiRxEnable(
-        BT_DEVICE *pBtDevice,
-        int IsMultiPktRx
-        );
-
-int
 BTDevice_SetTxGainTable(
         BT_DEVICE *pBtDevice,
         uint8_t *pTable
@@ -68,45 +155,9 @@ BTDevice_SetTxDACTable(
         );
 
 int
-BTDevice_SetWhiteningCoeff(
-        BT_DEVICE *pBtDevice,
-        uint8_t WhiteningCoeffValue
-        );
-
-int
-BTDevice_SetTxChannel(
-        BT_DEVICE *pBtDevice,
-        uint8_t ChannelNumber
-        );
-
-int
-BTDevice_SetPacketType(
-        BT_DEVICE *pBtDevice,
-        BT_PKT_TYPE PktType
-        );
-
-int
-BTDevice_SetFWPowerTrackEnable(
-        BT_DEVICE *pBtDevice,
-        uint8_t FWPowerTrackEnable
-        );
-
-int
-BTDevice_SetHitTarget(
-        BT_DEVICE *pBtDevice,
-        uint64_t HitTarget
-        );
-
-int
 BTDevice_SetHciReset(
         BT_DEVICE *pBtDevice,
         int Delay_mSec
-        );
-
-int
-BTDevice_GetBTClockTime(
-        BT_DEVICE *pBtDevice,
-        unsigned long *btClockTime
         );
 
 int BTDevice_SetHoppingMode(
@@ -124,52 +175,6 @@ int BTDevice_SetHoppingMode(
 int
 BTDevice_SetResetMDCount(
         BT_DEVICE *pBtDevice
-        );
-
-int
-BTDevice_SetLETxChannel(
-        BT_DEVICE *pBtDevice,
-        uint8_t ChannelNumber
-        );
-
-int
-BTDevice_SetPacketHeader(
-        BT_DEVICE *pBtDevice,
-        uint32_t pktHeader
-        );
-
-int
-BTDevice_CalculatedTxBits(
-        BT_DEVICE *pBtDevice,
-        BT_PARAMETER *pParam,
-        BT_DEVICE_REPORT *pBtReport,
-        int pktTx_conTx,
-        uint32_t *txbits,
-        uint32_t *txpkt_cnt
-        );
-
-int
-BTDevice_RecvAnyHciEvent(
-        BT_DEVICE *pBtDevice,
-        uint8_t *pEvent
-        );
-
-int
-BTDevice_SendHciCommandWithEvent(
-        BT_DEVICE *pBtDevice,
-        uint16_t OpCode,
-        uint8_t PayLoadLength,
-        uint8_t *pPayLoad,
-        uint8_t EventType,
-        uint8_t *pEvent,
-        uint32_t *pEventLen
-        );
-
-int
-BTDevice_GetPayloadLenTable(
-        BT_DEVICE *pBtDevice,
-        uint8_t *pTable,
-        int length
         );
 
 int
@@ -222,21 +227,7 @@ BTDevice_SetPktTxBegin(
         );
 
 int
-BTDevice_SetPktTxBegin_Channel_PacketType(
-        BT_DEVICE *pBtDevice,
-        BT_PARAMETER *pParam,
-        BT_DEVICE_REPORT *pBtReport
-        );
-
-int
 BTDevice_SetPktTxUpdate(
-        BT_DEVICE *pBtDevice,
-        BT_PARAMETER *pParam,
-        BT_DEVICE_REPORT *pBtReport
-        );
-
-int
-BTDevice_SetPktTxSendOne(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,
         BT_DEVICE_REPORT *pBtReport
@@ -257,13 +248,6 @@ BTDevice_SetPktRxBegin(
         );
 
 int
-BTDevice_SetPktRxBegin_Channel_PacketType(
-        BT_DEVICE *pBtDevice,
-        BT_PARAMETER *pParam,
-        BT_DEVICE_REPORT *pBtReport
-        );
-
-int
 BTDevice_SetPktRxUpdate(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,
@@ -275,6 +259,31 @@ BTDevice_SetPktRxStop(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,
         BT_DEVICE_REPORT *pBtReport
+        );
+
+int
+BTDevice_GetBTChipVersionInfo(
+        BT_DEVICE *pBtDevice
+        );
+
+int
+BTDevice_BTDlFW(
+        BT_DEVICE *pBtDevice,
+        uint8_t *pPatchcode,
+        int patchLength
+        );
+
+int
+BTDevice_BTDlMergerFW(
+        BT_DEVICE *pBtDevice,
+        uint8_t *pPatchcode,
+        int patchLength
+        );
+
+int
+BTDevice_PGEfuseRawData(
+        BT_DEVICE *pBtDevice,
+        BT_PARAMETER *pParam
         );
 
 #endif

@@ -6,20 +6,6 @@
 
 #include "foundation.h"
 
-#define USE_CHAR_STR
-
-//#define BUILDER_C
-
-//-----------------------------------------------------------------------------------------------------------------
-//  Base  define
-//-----------------------------------------------------------------------------------------------------------------
-#ifdef BUILDER_C
-
-typedef
-enum _bool{ false, true }bool;
-
-#endif
-
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -39,7 +25,12 @@ enum _bool{ false, true }bool;
 #define MAX_HCI_EVENT_BUF_SIZ   256
 #define MAX_TXGAIN_TABLE_SIZE   7
 #define MAX_TXDAC_TABLE_SIZE    5
-#define SEC_CLOCK_NUMBER        3200  // 1 clock =312.5u sec  1sec = 3200 
+
+#define EVT_HCI_VERSION         6
+#define EVT_HCI_SUBVERSION      7
+#define EVT_HCI_LMPVERSION      9
+#define EVT_HCI_LMPSUBVERSION   12
+#define EVT_CHIP_ECO_VERSION    6
 
 typedef enum {
     MD_REG = 0,
@@ -195,14 +186,9 @@ enum RTK_BT_CHIP_ID_GROUP {
     NumOfRTKCHID
 };
 
-//-----------------------------------------------------------------------------------------------------------------
-//  Device
-//-----------------------------------------------------------------------------------------------------------------
-//Device Level::member Funcion
-//-----------------------------------------------------------------------------------------------------------------
-typedef struct BT_DEVICE_TAG   BT_DEVICE;
+typedef struct BT_DEVICE_TAG BT_DEVICE;
 
-//-->Table
+// Table
 typedef int
 (*BT_FP_SET_TXGAINTABLE)(
         BT_DEVICE *pBtDevice,
@@ -215,14 +201,7 @@ typedef int
         uint8_t *pTable
         );
 
-typedef int
-(*BT_FP_GET_PAYLOADLENTABLE)(
-        BT_DEVICE *pBtDevice,
-        uint8_t *pTable,
-        int length
-        );
-
-//-->HCI Command & Event
+// HCI Command & Event
 typedef int
 (*BT_FP_SEND_HCICOMMANDWITHEVENT)(
         BT_DEVICE *pBtDevice,
@@ -240,23 +219,7 @@ typedef int
         uint8_t *pEvent
         );
 
-typedef int
-(*BT_FB_SEND_HCI_CMD)(
-        BT_DEVICE *pBt,
-        uint8_t PktType,
-        uint8_t *pWritingBuf,
-        uint32_t Len
-        );
-
-typedef int
-(*BT_FB_RECV_HCI_EVENT)(
-        BT_DEVICE *pBt,
-        uint8_t PktType,
-        uint8_t *pReadingBuf,
-        uint32_t *pLen
-        );
-
-//-->Vendor HCI Command Control
+// Vendor HCI Command Control
 typedef int
 (*BT_FP_SET_HOPPINGMODE)(
         BT_DEVICE *pBtDevice,
@@ -271,24 +234,12 @@ typedef int
         );
 
 typedef int
-(*BT_FP_SET_FWPOWERTRACKENABLE)(
-        BT_DEVICE *pBtDevice,
-        uint8_t FWPowerTrackEnable
-        );
-
-typedef int
 (*BT_FP_SET_HCIRESET)(
         BT_DEVICE *pBtDevice,
         int Delay_mSec
         );
 
-typedef int
-(*BT_FP_GET_BT_CLOCK_TIME)(
-        BT_DEVICE *pBtDevice,
-        unsigned long *btClockTime
-        );
 
-//----------------------------------------------------------------
 typedef int
 (*BT_FP_SET_TEST_MODE_ENABLE)(
         BT_DEVICE *pBtDevice
@@ -358,12 +309,6 @@ typedef int
         );
 
 typedef int
-(*BT_FP_SET_SETPACKETHEADER)(
-        BT_DEVICE *pBtDevice,
-        uint32_t pktHeader
-        );
-
-typedef int
 (*BT_FP_SET_SETRESETMDCOUNT)(
         BT_DEVICE *pBtDevice
         );
@@ -372,54 +317,6 @@ typedef int
 (*BT_FP_SET_POWERGAININDEX)(
         BT_DEVICE *pBtDevice,
         int Index
-        );
-
-typedef int
-(*BT_FP_SET_MUTIRXENABLE)(
-        BT_DEVICE *pBtDevice,
-        int IsMultiPktRx
-        );
-
-typedef int
-(*BT_FP_SET_TESTMODE)(
-        BT_DEVICE *pBtDevice,
-        BT_TEST_MODE TestMode
-        );
-
-typedef int
-(*BT_FP_SET_HITTARGET)(
-        BT_DEVICE *pBtDevice,
-        uint64_t HitTarget
-        );
-
-typedef int
-(*BT_FP_SET_PACKETTYPE)(
-        BT_DEVICE *pBtDevice,
-        BT_PKT_TYPE PktType
-        );
-
-typedef int
-(*BT_FP_SET_WHITENINGCOFF)(
-        BT_DEVICE *pBtDevice,
-        uint8_t WhiteningCoeffValue
-        );
-
-typedef int
-(*BT_FP_SET_PAYLOADTYPE)(
-        BT_DEVICE *pBtDevice,
-        BT_PAYLOAD_TYPE PayloadType
-        );
-
-typedef int
-(*BT_FP_SET_TXCHANNEL)(
-        BT_DEVICE *pBtDevice,
-        uint8_t ChannelNumber
-        );
-
-typedef int
-(*BT_FP_SET_RXCHANNEL)(
-        BT_DEVICE *pBtDevice,
-        uint8_t ChannelNumber
         );
 
 typedef int
@@ -434,7 +331,7 @@ typedef int
         uint8_t DacValue
         );
 
-//-->Register Read/Write
+// Register Read/Write
 typedef int
 (*BT_FP_SET_MD_REG_MASK_BITS)(
         BT_DEVICE *pBtDevice,
@@ -471,42 +368,24 @@ typedef int
         uint16_t *pReadingValue
         );
 
-//-->BASE
-typedef int
-(*BT_BASE_FP_HITTARGETACCRESSCODEGEN)(
-        BT_DEVICE *pBtDevice,
-        uint64_t HitTarget,
-        unsigned long *pAccessCode
-        );
-
-typedef int
-(*BT_BASE_FP_GETPAYLOADTYPEVAILDFLAG)(
-        BT_DEVICE *pBtDevice,
-        BT_TEST_MODE TestMode,
-        BT_PKT_TYPE PKT_TYPE,
-        unsigned int *ValidFlag
-        );
-
-//-->Control Flow
+// CON TX
 typedef int(*BT_FP_SET_CONTINUETX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_CONTINUETX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_CONTINUETX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-//-->PKT TX Flow
+// PKT TX
 typedef int(*BT_FP_SET_PKTTX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_PKTTX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_PKTTX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-//-->PKT RX Flow
+// PKT RX
 typedef int(*BT_FP_SET_PKTRX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_PKTRX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 typedef int(*BT_FP_SET_PKTRX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
 
-typedef int(*BT_FP_GET_CHIPID)(BT_DEVICE *pBtDevice);
-typedef int(*BT_FP_GET_ECOVERSION)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_GET_CHIPVERSIONINFO)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_BT_DL_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 // PG efuse
-typedef int(*BT_FP_SF_PGEFUSE_RAWDATA)(BT_DEVICE *pBtDevice, int MapType, uint8_t *PGData, uint32_t PGDataLength);
+typedef int(*BT_FP_SF_PGEFUSE_RAWDATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam);
 // LE
 typedef int(*BT_FP_LE_TEST)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport);
 
@@ -516,7 +395,7 @@ typedef enum {
         TRX_TIME_STOP =0,
         TX_TIME_RUNING ,
         RX_TIME_RUNING,
-        //////////////
+
         NUMOFTRXTIME_TAG
 } TRXTIME_TAG;
 
@@ -528,44 +407,28 @@ struct BT_TRX_TIME_TAG {
 
 struct BT_DEVICE_TAG
 {
-    //-->Table is base function
+    // Table is base function
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t TXDACTable[MAX_TXDAC_TABLE_SIZE];
     BT_FP_SET_TXGAINTABLE       SetTxGainTable;
     BT_FP_SET_TXDACTABLE        SetTxDACTable;
-    BT_FP_GET_PAYLOADLENTABLE   GetPayloadLenTable;
 
-    //-->Register Read/Write
+    // Register Read/Write
     BT_FP_SET_MD_REG_MASK_BITS  SetMdRegMaskBits;
     BT_FP_GET_MD_REG_MASK_BITS  GetMdRegMaskBits;
 
     BT_FP_SET_RF_REG_MASK_BITS  SetRfRegMaskBits;
     BT_FP_GET_RF_REG_MASK_BITS  GetRfRegMaskBits;
 
-    //-->HCI Command & Event
+    // HCI Command & Event
     BT_FP_SEND_HCICOMMANDWITHEVENT  SendHciCommandWithEvent;
     BT_FP_RECV_ANYEVENT RecvAnyHciEvent;
 
-    //-->HCI command raw data
-    BT_FB_SEND_HCI_CMD      SendHciCmd;
-    BT_FB_RECV_HCI_EVENT    RecvHciEvent;
-
-    //Device member
-    //-->Register Control
-    BT_FP_SET_TXCHANNEL     SetTxChannel;
-    BT_FP_SET_TXCHANNEL     SetLETxChannel;
-    BT_FP_SET_RXCHANNEL     SetRxChannel;
+    // Register Control
     BT_FP_SET_POWERGAININDEX    SetPowerGainIndex;
     BT_FP_SET_POWERGAIN         SetPowerGain;
     BT_FP_SET_POWERDAC          SetPowerDac;
-    BT_FP_SET_PAYLOADTYPE       SetPayloadType;
-    BT_FP_SET_WHITENINGCOFF     SetWhiteningCoeff;
-    BT_FP_SET_PACKETTYPE        SetPacketType;
-    BT_FP_SET_HITTARGET         SetHitTarget;
-    BT_FP_SET_TESTMODE          SetTestMode;
-    BT_FP_SET_MUTIRXENABLE      SetMutiRxEnable;
     BT_FP_SET_SETRESETMDCOUNT   SetRestMDCount;
-    BT_FP_SET_SETPACKETHEADER     SetPacketHeader;
     BT_FP_SET_TEST_MODE_ENABLE TestModeEnable;
 
     BT_FP_SET_RTL8761_XTAL SetRtl8761Xtal;
@@ -578,24 +441,21 @@ struct BT_DEVICE_TAG
     BT_FP_SET_BB_REG_MASK_BITS      SetBBRegMaskBits;
     BT_FP_GET_BB_REG_MASK_BITS      GetBBRegMaskBits;
 
-    //-->Vendor HCI Command Control
-    BT_FP_SET_FWPOWERTRACKENABLE    SetFWPowerTrackEnable;
+    // Vendor HCI Command Control
     BT_FP_SET_HOPPINGMODE   SetHoppingMode;
     BT_FP_SET_HCIRESET  SetHciReset;
-    BT_FP_GET_BT_CLOCK_TIME GetBTClockTime;
 
     unsigned long TxTriggerPktCnt;
 
-    //0:TRX STOP  1 : is TX 2: IS rx
     //Con-TX
     BT_TRX_TIME                     TRxTime[NUMOFTRXTIME_TAG];
     BT_FP_SET_CONTINUETX_BEGIN      SetContinueTxBegin;
     BT_FP_SET_CONTINUETX_STOP       SetContinueTxStop;
     BT_FP_SET_CONTINUETX_UPDATE     SetContinueTxUpdate;
     // LE
-    BT_FP_LE_TEST LeTxTestCmd;
-    BT_FP_LE_TEST LeRxTestCmd;
-    BT_FP_LE_TEST LeTestEndCmd;
+    BT_FP_LE_TEST                   LeTxTestCmd;
+    BT_FP_LE_TEST                   LeRxTestCmd;
+    BT_FP_LE_TEST                   LeTestEndCmd;
     //PKT-TX
     BT_FP_SET_PKTTX_BEGIN           SetPktTxBegin;
     BT_FP_SET_PKTTX_STOP            SetPktTxStop;
@@ -604,23 +464,19 @@ struct BT_DEVICE_TAG
     BT_FP_SET_PKTRX_BEGIN           SetPktRxBegin;
     BT_FP_SET_PKTRX_STOP            SetPktRxStop;
     BT_FP_SET_PKTRX_UPDATE          SetPktRxUpdate;
-    //Base Function
-    BT_BASE_FP_GETPAYLOADTYPEVAILDFLAG  GetPayLoadTypeValidFlag;
-    BT_BASE_FP_HITTARGETACCRESSCODEGEN  HitTargetAccessCodeGen;
 
     //interface
-    void *pExtra;
     uint8_t InterfaceType;
 
     BASE_INTERFACE_MODULE *pBaseInterface;
 
     BT_CHIPINFO *pBTInfo;
     BT_CHIPINFO BaseBTInfoMemory;
-    BT_FP_GET_CHIPID            GetChipId;
-    BT_FP_GET_ECOVERSION        GetECOVersion;
-    BT_FP_GET_CHIPVERSIONINFO   GetChipVersionInfo;
-    BT_FP_BT_DL_FW              BTDlFW;
-    BT_FP_BT_DL_MERGER_FW       BTDlMERGERFW;
+
+    BT_FP_GET_CHIPVERSIONINFO       GetChipVersionInfo;
+    BT_FP_BT_DL_FW                  BTDlFW;
+    BT_FP_BT_DL_MERGER_FW           BTDlMERGERFW;
+
     // Efuse settting
     BT_FP_SF_PGEFUSE_RAWDATA    BT_PGEfuseRawData;
 };
@@ -643,7 +499,6 @@ typedef enum _BT_REPORT_TAG {
 
 typedef struct  BT_MODULE_TAG BT_MODULE;
 
-//-->module
 typedef int
 (*BT_MODULE_FP_ACTION_REPORT)(
         BT_MODULE *pBtModule,
@@ -821,10 +676,6 @@ struct BT_MODULE_TAG {
     BT_MODULE_FP_SEND_HCICOMMANDWITHEVENT   SendHciCommandWithEvent;
     BT_MODULE_FP_RECV_ANYEVENT              RecvAnyHciEvent;
 };
-
-//-----------------------------------------------------------------------------------------------------
-//  Base Function
-//-----------------------------------------------------------------------------------------------------
 
 // Constants
 #define INVALID_POINTER_VALUE       0
@@ -1013,8 +864,26 @@ bt_Send(
         uint32_t Len
         );
 
+
 int
-BT_SetSysRegMaskBits(
+bt_default_RecvAnyHciEvent(
+        BT_DEVICE *pBtDevice,
+        uint8_t *pEvent
+        );
+
+int
+bt_default_SendHciCommandWithEvent(
+        BT_DEVICE *pBtDevice,
+        uint16_t  OpCode,
+        uint8_t PayLoadLength,
+        uint8_t *pPayLoad,
+        uint8_t  EventType,
+        uint8_t  *pEvent,
+        uint32_t *pEventLen
+        );
+
+int
+bt_default_SetSysRegMaskBits(
         BT_DEVICE *pBtDevice,
         uint16_t Addr,
         uint8_t Msb,
@@ -1023,7 +892,7 @@ BT_SetSysRegMaskBits(
         );
 
 int
-BT_GetSysRegMaskBits(
+bt_default_GetSysRegMaskBits(
         BT_DEVICE *pBtDevice,
         uint16_t Addr,
         uint8_t Msb,
@@ -1032,7 +901,7 @@ BT_GetSysRegMaskBits(
         );
 
 int
-BT_SetBBRegMaskBits(
+bt_default_SetBBRegMaskBits(
         BT_DEVICE *pBtDevice,
         int Page,
         uint16_t Addr,
@@ -1042,19 +911,13 @@ BT_SetBBRegMaskBits(
         );
 
 int
-BT_GetBBRegMaskBits(
+bt_default_GetBBRegMaskBits(
         BT_DEVICE *pBtDevice,
         int Page,
         uint16_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
         uint16_t *pUserValue
-        );
-
-void
-BTHCI_EvtReport(
-        uint8_t *pEvtCode,
-        uint32_t EvtCodeLen
         );
 
 int
@@ -1065,25 +928,6 @@ bt_default_GetChipId(
 int
 bt_default_GetECOVersion(
         BT_DEVICE *pBtDevice
-        );
-
-int
-bt_default_GetBTChipVersionInfo(
-        BT_DEVICE *pBtDevice
-        );
-
-int
-bt_default_BTDlFW(
-        BT_DEVICE *pBtDevice,
-        uint8_t *pPatchcode,
-        int patchLength
-        );
-
-int
-bt_default_BTDlMergerFW(
-        BT_DEVICE *pBtDevice,
-        uint8_t *pPatchcode,
-        int patchLength
         );
 
 #endif

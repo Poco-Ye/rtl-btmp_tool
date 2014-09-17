@@ -194,7 +194,7 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case PG_EFUSE_RAWDATA:
-        rtn = BTModule_ExecRawData(pBtModule, pModuleBtParam);
+        rtn = pModuleBtDevice->BT_PGEfuseRawData(pModuleBtDevice, pModuleBtParam);
         break;
 
     case SET_TX_GAIN_TABLE:
@@ -543,29 +543,4 @@ BTModule_SetRegMaskBits(
     }
 
     return BT_FUNCTION_SUCCESS;
-}
-
-int
-BTModule_ExecRawData(
-        BT_MODULE *pBtModule,
-        BT_PARAMETER *pParam
-        )
-{
-    int rtn = BT_FUNCTION_SUCCESS;
-    BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
-    uint8_t Command = pParam->mPGRawData[0];
-
-    switch (Command) {
-    case PG_BTMAP_RAWDATA:
-        rtn = pModuleBtDevice->BT_PGEfuseRawData(pModuleBtDevice,BT_EFUSE,&pParam->mPGRawData[2],pParam->mPGRawData[1]);
-        break;
-    case PG_SYAMAP_RAWDATA:
-        rtn = pModuleBtDevice->BT_PGEfuseRawData(pModuleBtDevice,SYS_EFUSE,&pParam->mPGRawData[2],pParam->mPGRawData[1]);
-        break;
-    case EXEC_NOTTNING:
-    default:
-        break;
-    }
-
-    return rtn;
 }
