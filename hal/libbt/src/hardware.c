@@ -70,11 +70,10 @@
 #define HCI_UART_3WIRE  2
 
 
-#define FIRMWARE_DIRECTORY  "/system/etc/firmware/%s"
-#define BT_CONFIG_DIRECTORY "/system/etc/firmware/%s"
+#define FIRMWARE_DIRECTORY  "/lib/firmware/%s"
+#define BT_CONFIG_DIRECTORY "/lib/firmware/%s"
 #define PATCH_DATA_FIELD_MAX_SIZE     252
 
-#define BT_CAL_DIRECTORY "/data/misc/bluedroid/"
 
 struct patch_struct {
     int nTxIndex;   // current sending pkt number
@@ -103,7 +102,6 @@ int gHwFlowControlEnable = 1;
 int gNeedToSetHWFlowControl = 0;
 int gFinalSpeed = 0;
 
-#define FW_PATCHFILE_EXTENSION      ".hcd"
 #define FW_PATCHFILE_EXTENSION_LEN  4
 #define FW_PATCHFILE_PATH_MAXLEN    248 /* Local_Name length of return of
                                            HCI_Read_Local_Name */
