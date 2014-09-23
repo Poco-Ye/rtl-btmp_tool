@@ -1192,7 +1192,7 @@ BTDevice_SetPktRxUpdate(
 
     pBtReport->RxRssi = (int)(rxPin);
     pBtReport->RxRssi = pBtReport->RxRssi * 2 - 96;
-#if 0
+
     //Header Quality
     if (bt_default_GetMDRegMaskBits(pBtDevice, 0x6c, 15, 9, &data_lsb))
         goto exit;
@@ -1205,8 +1205,9 @@ BTDevice_SetPktRxUpdate(
 
     value = (data_msb << 7) + data_lsb;
 
-    HeaderQuality = 20*log10(value) - 20*log10(data);
-#endif
+    if (value && data)
+        HeaderQuality = 20*log10f((float)value) - 20*log10f((float)data);
+
     //if (pBtReport->RxRssi > -89)
     {
         //rx Count
