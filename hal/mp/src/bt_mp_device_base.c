@@ -1984,9 +1984,9 @@ BTDevice_LeTxTestCmd(
     uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint32_t EventLen = 0;
 
-    pPayload[0] = pParam->mParamData[0]; // channel: 0~39
-    pPayload[1] = pParam->mParamData[1]; // Length_Of_Test_Data: 0x00~0x25
-    pPayload[2] = pParam->mParamData[2]; // Packet_Payload
+    pPayload[0] = pParam->mChannelNumber; // channel: 0~39
+    pPayload[1] = pParam->mParamData[0]; // Length_Of_Test_Data: 0x00~0x25
+    pPayload[2] = pParam->mPayloadType; // Packet_Payload
 
     if (pPayload[0] > 39 || pPayload[1] > 0x25 || pPayload[2] > 7)
     {
@@ -2024,7 +2024,7 @@ BTDevice_LeRxTestCmd(
     uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
     uint32_t EventLen = 0;
 
-    pPayload[0] = pParam->mParamData[0]; // channel: 0~39
+    pPayload[0] = pParam->mChannelNumber; // channel: 0~39
 
     if (pPayload[0] > 39)
     {
