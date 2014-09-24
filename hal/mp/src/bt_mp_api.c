@@ -63,7 +63,8 @@
 #define BT_PARAM_IDX12   12  //TXGainTable
 #define BT_PARAM_IDX13   13  //TXDACTable
 #define BT_PARAM_IDX14   14  //Xtal
-#define BT_PARAM_IDX_NUM 15
+#define BT_PARAM_IDX15   15  //mLEDataLen
+#define BT_PARAM_IDX_NUM 16
 
 static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
 {
@@ -112,6 +113,9 @@ static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
         break;
     case BT_PARAM_IDX14:
         pBtModule->pBtParam->Rtl8761Xtal = (uint16_t)value;
+        break;
+    case BT_PARAM_IDX15:
+        pBtModule->pBtParam->mParamData[0] = (uint8_t)value; //mLEDataLen
         break;
     default:
         break;
@@ -302,6 +306,16 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
                 BT_FUNCTION_SUCCESS,
                 STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->Rtl8761Xtal);
+        break;
+    case BT_PARAM_IDX15:
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_GET_PARAM,
+                STR_BT_MP_RESULT_DELIM,
+                index,
+                STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS,
+                STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mParamData[0]);
         break;
     default:
         break;
