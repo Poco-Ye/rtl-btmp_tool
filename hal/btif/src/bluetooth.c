@@ -179,14 +179,6 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         ret = BT_SetParam(&BtModuleMemory, buf, buf_cb);
         break;
 
-    case BT_MP_OP_USER_DEF_SetParam1:
-        ret = BT_SetParam1(&BtModuleMemory, buf, buf_cb);
-        break;
-
-    case BT_MP_OP_USER_DEF_SetParam2:
-        ret = BT_SetParam2(&BtModuleMemory, buf, buf_cb);
-        break;
-
     case BT_MP_OP_USER_DEF_SetConfig:
         ret = BT_SetConfig(&BtModuleMemory, buf, buf_cb);
         break;

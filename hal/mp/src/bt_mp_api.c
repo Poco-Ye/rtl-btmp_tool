@@ -132,14 +132,10 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
         len = pBtModule->pBtParam->mPGRawData[1];
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mPGRawData[0],
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPGRawData[0], STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPGRawData[1]);
 
         for (i = 0; i < len; i++) {
@@ -149,172 +145,117 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
         break;
     case BT_PARAM_IDX1:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mChannelNumber);
         break;
     case BT_PARAM_IDX2:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPacketType);
         break;
     case BT_PARAM_IDX3:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPayloadType);
         break;
     case BT_PARAM_IDX4:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%04x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxPacketCount);
         break;
     case BT_PARAM_IDX5:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxGainValue);
         break;
     case BT_PARAM_IDX6:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mWhiteningCoeffValue);
         break;
     case BT_PARAM_IDX7:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxGainIndex);
         break;
     case BT_PARAM_IDX8:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxDAC);
         break;
     case BT_PARAM_IDX9:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPacketHeader);
         break;
     case BT_PARAM_IDX10:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHoppingFixChannel);
         break;
     case BT_PARAM_IDX11:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%012"PRIx64"",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHitTarget);
         break;
     case BT_PARAM_IDX12:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXGainTable[0],
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXGainTable[1],
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXGainTable[2],
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXGainTable[3],
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXGainTable[4],
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXGainTable[5],
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXGainTable[0], STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXGainTable[1], STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXGainTable[2], STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXGainTable[3], STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXGainTable[4], STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXGainTable[5], STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->TXGainTable[6]);
         break;
     case BT_PARAM_IDX13:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXDACTable[0],
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXDACTable[1],
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXDACTable[2],
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->TXDACTable[3],
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXDACTable[0], STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXDACTable[1], STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXDACTable[2], STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->TXDACTable[3], STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->TXDACTable[4]);
         break;
     case BT_PARAM_IDX14:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%04x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->Rtl8761Xtal);
         break;
     case BT_PARAM_IDX15:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                index,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                index, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mParamData[0]);
         break;
     default:
@@ -330,234 +271,146 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
     case REPORT_PKT_TX:
     case REPORT_CONT_TX:
         SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->TotalTXBits,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->TotalTxCounts);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->TotalTXBits,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->TotalTxCounts);
         break;
     case REPORT_PKT_RX:
         SYSLOGI("%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->RxRssi,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->TotalRXBits,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->TotalRxCounts,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->RxRssi, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->TotalRxErrorBits);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->RxRssi,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->TotalRXBits,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->TotalRxCounts,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->RxRssi, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->TotalRxErrorBits);
         break;
     case REPORT_TX_GAIN_TABLE:
         SYSLOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[0],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[1],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[2],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[3],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[4],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[5],
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[0], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[1], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[2], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[3], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[4], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[5], STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrTXGainTable[6]);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[0],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[1],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[2],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[3],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[4],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXGainTable[5],
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[0], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[1], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[2], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[3], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[4], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXGainTable[5], STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrTXGainTable[6]);
         break;
     case REPORT_TX_DAC_TABLE:
         SYSLOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXDACTable[0],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXDACTable[1],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXDACTable[2],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXDACTable[3],
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[0], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[1], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[2], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[3], STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrTXDACTable[4]);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXDACTable[0],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXDACTable[1],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXDACTable[2],
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->CurrTXDACTable[3],
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[0], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[1], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[2], STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->CurrTXDACTable[3], STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrTXDACTable[4]);
         break;
     case REPORT_XTAL:
         SYSLOGI("%s%s%d%s0x%02x%s0x%08x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrRtl8761Xtal);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrRtl8761Xtal);
         break;
     case REPORT_THERMAL:
         SYSLOGI("%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrThermalValue);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrThermalValue);
         break;
     case REPORT_BT_STAGE:
         SYSLOGI("%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrStage);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrStage);
         break;
     case REPORT_CHIP:
         SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->ChipType,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->HCI_SubVersion,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->HCI_Version,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->Is_After_PatchCode,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->LMP_SubVersion,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->LMP_Version,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->ChipType, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_SubVersion, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_Version, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->Is_After_PatchCode, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_SubVersion, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_Version, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->pBTInfo->Version);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x",
-                STR_BT_MP_REPORT,
-                STR_BT_MP_RESULT_DELIM,
-                item,
-                STR_BT_MP_RESULT_DELIM,
-                BT_FUNCTION_SUCCESS,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->ChipType,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->HCI_SubVersion,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->HCI_Version,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->Is_After_PatchCode,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->LMP_SubVersion,
-                STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->pBTInfo->LMP_Version,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->ChipType, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_SubVersion, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->HCI_Version, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->Is_After_PatchCode, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_SubVersion, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->pBTInfo->LMP_Version, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->pBTInfo->Version);
         break;
     default:
@@ -653,17 +506,13 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
             }
 
             SYSLOGI("%s%s%d%s0x%02x",
-                    STR_BT_MP_GET_PARAM,
-                    STR_BT_MP_RESULT_DELIM,
-                    index,
-                    STR_BT_MP_RESULT_DELIM,
+                    STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                    index, STR_BT_MP_RESULT_DELIM,
                     FUNCTION_PARAMETER_ERROR);
 
             sprintf(buf_cb, "%s%s%d%s0x%02x",
-                    STR_BT_MP_GET_PARAM,
-                    STR_BT_MP_RESULT_DELIM,
-                    index,
-                    STR_BT_MP_RESULT_DELIM,
+                    STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                    index, STR_BT_MP_RESULT_DELIM,
                     FUNCTION_PARAMETER_ERROR);
 
             return FUNCTION_PARAMETER_ERROR;
@@ -671,56 +520,38 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
 
         bt_index2print(pBtModule, index, buf_cb);
     } else {
-        /* print all exposed params if not specified[Deprecated] */
-        SYSLOGI("%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012llx",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mChannelNumber,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mPacketType,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mPayloadType,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mTxPacketCount,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mTxGainValue,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mWhiteningCoeffValue,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mTxGainIndex,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mTxDAC,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mPacketHeader,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mHoppingFixChannel,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mHitTarget);
+        SYSLOGW("%s: Param index not specified", STR_BT_MP_GET_PARAM);
 
-        sprintf(buf_cb, "%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012"PRIx64"",
-                STR_BT_MP_GET_PARAM,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mChannelNumber,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mPacketType,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mPayloadType,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mTxPacketCount,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mTxGainValue,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mWhiteningCoeffValue,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mTxGainIndex,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mTxDAC,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mPacketHeader,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mHoppingFixChannel,
-                STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mHitTarget);
+        SYSLOGI("%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012"PRIx64"%s0x%02x",
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mChannelNumber, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPacketType, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPayloadType, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxPacketCount, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxGainValue, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mWhiteningCoeffValue, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxGainIndex, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxDAC, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPacketHeader, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mHoppingFixChannel, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mHitTarget, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mParamData[0]);
+
+        sprintf(buf_cb,
+                "%s%s0x%02x%s0x%02x%s0x%02x%s0x%04x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%08x%s0x%02x%s0x%012"PRIx64"%s0x%02x",
+                STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mChannelNumber, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPacketType, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPayloadType, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxPacketCount, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxGainValue, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mWhiteningCoeffValue, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxGainIndex, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mTxDAC, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mPacketHeader, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mHoppingFixChannel, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mHitTarget, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->mParamData[0]);
     }
 
     SYSLOGI("--%s", STR_BT_MP_GET_PARAM);
@@ -753,10 +584,8 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 if (index < 0 || index >= BT_PARAM_IDX_NUM) {
                     SYSLOGI("Invalid BT param index %d", index);
                     sprintf(buf_cb, "%s%s%d%s0x%02x",
-                            STR_BT_MP_SET_PARAM,
-                            STR_BT_MP_RESULT_DELIM,
-                            index,
-                            STR_BT_MP_RESULT_DELIM,
+                            STR_BT_MP_SET_PARAM, STR_BT_MP_RESULT_DELIM,
+                            index, STR_BT_MP_RESULT_DELIM,
                             FUNCTION_PARAMETER_ERROR);
                     return FUNCTION_PARAMETER_ERROR;
                 } else if (index == 0 || index == 12 || index == 13) {
@@ -794,10 +623,8 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
         } else { // wrong pair format
             SYSLOGI("Invalid BT pair format, params count %d", params_count);
             sprintf(buf_cb, "%s%s%d%s0x%02x",
-                    STR_BT_MP_SET_PARAM,
-                    STR_BT_MP_RESULT_DELIM,
-                    index,
-                    STR_BT_MP_RESULT_DELIM,
+                    STR_BT_MP_SET_PARAM, STR_BT_MP_RESULT_DELIM,
+                    index, STR_BT_MP_RESULT_DELIM,
                     FUNCTION_PARAMETER_ERROR);
             return FUNCTION_PARAMETER_ERROR;
         }
@@ -806,191 +633,11 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
     SYSLOGI("--%s: pairs count %d", STR_BT_MP_SET_PARAM, pairs_count);
 
     sprintf(buf_cb, "%s%s%d%s0x%02x",
-            STR_BT_MP_SET_PARAM,
-            STR_BT_MP_RESULT_DELIM,
-            index,
-            STR_BT_MP_RESULT_DELIM,
+            STR_BT_MP_SET_PARAM, STR_BT_MP_RESULT_DELIM,
+            index, STR_BT_MP_RESULT_DELIM,
             BT_FUNCTION_SUCCESS);
 
     return BT_FUNCTION_SUCCESS;
-}
-
-int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *buf_cb)
-{
-    char *token = NULL;
-    const uint8_t BT_PARAM1_COUNT = 6;
-    uint8_t params_count = 0;
-    int ret = BT_FUNCTION_SUCCESS;
-
-    SYSLOGI("++%s: %s", STR_BT_MP_SET_PARAM1, p);
-
-    // uint8_t mChannelNumber;
-    token = strtok(p, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mChannelNumber = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // BT_PKT_TYPE mPacketType;
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mPacketType = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // BT_PAYLOAD_TYPE mPayloadType;
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mPayloadType = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // uint16_t mTxPacketCount;
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mTxPacketCount = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // uint8_t mTxGainValue;
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mTxGainValue = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // uint8_t mWhiteningCoeffValue;
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mWhiteningCoeffValue = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    //end of parameter
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        SYSLOGI("BT_SetParam1: redundant token[%s]", token);
-        params_count++;
-    }
-
-exit:
-    SYSLOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM1, params_count);
-
-    if (params_count != BT_PARAM1_COUNT) {
-        sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-        ret = FUNCTION_PARAMETER_ERROR;
-    } else {
-        SYSLOGI("mChannelNumber:0x%02x, mPacketType:0x%02x, mPayloadType:0x%02x, "
-              "mTxPacketCount:0x%04x, mTxGainValue:0x%x, mWhiteningCoeffValue:0x%02x",
-              pBtModule->pBtParam->mChannelNumber,
-              pBtModule->pBtParam->mPacketType,
-              pBtModule->pBtParam->mPayloadType,
-              pBtModule->pBtParam->mTxPacketCount,
-              pBtModule->pBtParam->mTxGainValue,
-              pBtModule->pBtParam->mWhiteningCoeffValue
-             );
-
-        sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM1, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-    }
-
-    SYSLOGI("--%s", STR_BT_MP_SET_PARAM1);
-    return ret;
-}
-
-int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *buf_cb)
-{
-    char *token = NULL;
-    const uint8_t BT_PARAM2_COUNT = 5;
-    uint8_t params_count = 0;
-    int ret = BT_FUNCTION_SUCCESS;
-
-    SYSLOGI("++%s: %s", STR_BT_MP_SET_PARAM2, p);
-
-    // uint8_t mTxGainIndex;
-    token = strtok(p, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mTxGainIndex = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // uint8_t mTxDAC;
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mTxDAC = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // uint32_t mPacketHeader;
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mPacketHeader = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // uint8_t mHoppingFixChannel
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mHoppingFixChannel = strtol(token, NULL, 0);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // uint64_t(6 Bytes) mHitTarget
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        pBtModule->pBtParam->mHitTarget = strtoull(token, NULL, 16);
-        params_count++;
-    } else {
-        goto exit;
-    }
-
-    // end of parameter
-    token = strtok(NULL, STR_BT_MP_PARAM_DELIM);
-    if (token != NULL) {
-        SYSLOGI("BT_SetParam2: redundant token[%s]", token);
-        params_count++;
-    }
-
-exit:
-    SYSLOGI("%s: params_count = %d", STR_BT_MP_SET_PARAM2, params_count);
-
-    if (params_count != BT_PARAM2_COUNT) {
-        sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-        ret = FUNCTION_PARAMETER_ERROR;
-    } else {
-        SYSLOGI("mTxGainIndex:0x%02x, mTxDAC:0x%02x, mPacketHeader:0x%08x, "
-                "mHoppingFixChannel:0x%02x, mHitTarget 0x%012llx",
-                pBtModule->pBtParam->mTxGainIndex,
-                pBtModule->pBtParam->mTxDAC,
-                pBtModule->pBtParam->mPacketHeader,
-                pBtModule->pBtParam->mHoppingFixChannel,
-                pBtModule->pBtParam->mHitTarget);
-
-        sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_PARAM2, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
-    }
-
-    SYSLOGI("--%s", STR_BT_MP_SET_PARAM2);
-
-    return ret;
 }
 
 int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
@@ -1122,17 +769,13 @@ int BT_Exec(BT_MODULE *pBtModule, char *p, char *buf_cb)
     ret = pBtModule->ActionControlExcute(pBtModule);
     if (ret == BT_FUNCTION_SUCCESS) {
         SYSLOGI("%s%s%d%s0x%02x",
-                STR_BT_MP_EXEC,
-                STR_BT_MP_RESULT_DELIM,
-                action_index,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_EXEC, STR_BT_MP_RESULT_DELIM,
+                action_index, STR_BT_MP_RESULT_DELIM,
                 ret);
 
         sprintf(buf_cb, "%s%s%d%s0x%02x",
-                STR_BT_MP_EXEC,
-                STR_BT_MP_RESULT_DELIM,
-                action_index,
-                STR_BT_MP_RESULT_DELIM,
+                STR_BT_MP_EXEC, STR_BT_MP_RESULT_DELIM,
+                action_index, STR_BT_MP_RESULT_DELIM,
                 ret);
     } else {
         goto exit;
@@ -1143,17 +786,13 @@ int BT_Exec(BT_MODULE *pBtModule, char *p, char *buf_cb)
 
 exit:
     SYSLOGI("%s%s%d%s0x%02x",
-            STR_BT_MP_EXEC,
-            STR_BT_MP_RESULT_DELIM,
-            action_index,
-            STR_BT_MP_RESULT_DELIM,
+            STR_BT_MP_EXEC, STR_BT_MP_RESULT_DELIM,
+            action_index, STR_BT_MP_RESULT_DELIM,
             ret);
 
     sprintf(buf_cb, "%s%s%d%s0x%02x",
-            STR_BT_MP_EXEC,
-            STR_BT_MP_RESULT_DELIM,
-            action_index,
-            STR_BT_MP_RESULT_DELIM,
+            STR_BT_MP_EXEC, STR_BT_MP_RESULT_DELIM,
+            action_index, STR_BT_MP_RESULT_DELIM,
             ret);
 
     return ret;
@@ -1196,17 +835,13 @@ int BT_Report(BT_MODULE *pBtModule, char *p, char *buf_cb)
 
 exit:
     SYSLOGI("%s%s%d%s0x%02x",
-            STR_BT_MP_REPORT,
-            STR_BT_MP_RESULT_DELIM,
-            report_item,
-            STR_BT_MP_RESULT_DELIM,
+            STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+            report_item, STR_BT_MP_RESULT_DELIM,
             ret);
 
     sprintf(buf_cb, "%s%s%d%s0x%02x",
-            STR_BT_MP_REPORT,
-            STR_BT_MP_RESULT_DELIM,
-            report_item,
-            STR_BT_MP_RESULT_DELIM,
+            STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+            report_item, STR_BT_MP_RESULT_DELIM,
             ret);
 
     return ret;

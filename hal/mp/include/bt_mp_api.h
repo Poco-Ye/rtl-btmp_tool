@@ -5,8 +5,6 @@
 
 int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb);
 int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb);
-int BT_SetParam1(BT_MODULE *pBtModule, char *p, char *buf_cb);
-int BT_SetParam2(BT_MODULE *pBtModule, char *p, char *buf_cb);
 int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb);
 int BT_Exec(BT_MODULE *pBtModule, char *p, char *buf_cb);
 int BT_Report(BT_MODULE *pBtModule, char *p, char *buf_cb);

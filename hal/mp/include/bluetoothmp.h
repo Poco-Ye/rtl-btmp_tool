@@ -37,12 +37,10 @@ enum BT_MP_OPCODE {
 
     BT_MP_OP_USER_DEF_GetParam = 0x10,
     BT_MP_OP_USER_DEF_SetParam = 0x11,
-    BT_MP_OP_USER_DEF_SetParam1 = 0x12,
-    BT_MP_OP_USER_DEF_SetParam2 = 0x13,
-    BT_MP_OP_USER_DEF_SetConfig = 0x14,
-    BT_MP_OP_USER_DEF_Exec = 0x15,
-    BT_MP_OP_USER_DEF_Report = 0x16,
-    BT_MP_OP_USER_DEF_RegRW = 0x17,
+    BT_MP_OP_USER_DEF_SetConfig = 0x12,
+    BT_MP_OP_USER_DEF_Exec = 0x13,
+    BT_MP_OP_USER_DEF_Report = 0x14,
+    BT_MP_OP_USER_DEF_RegRW = 0x15,
 
 };
 
@@ -53,8 +51,6 @@ enum BT_MP_OPCODE {
 #define STR_BT_MP_HCI_CMD           "bt_mp_HciCmd"
 #define STR_BT_MP_GET_PARAM         "bt_mp_GetParam"
 #define STR_BT_MP_SET_PARAM         "bt_mp_SetParam"
-#define STR_BT_MP_SET_PARAM1        "bt_mp_SetParam1"
-#define STR_BT_MP_SET_PARAM2        "bt_mp_SetParam2"
 #define STR_BT_MP_SET_CONFIG        "bt_mp_SetConfig"
 #define STR_BT_MP_EXEC              "bt_mp_Exec"
 #define STR_BT_MP_REPORT            "bt_mp_Report"

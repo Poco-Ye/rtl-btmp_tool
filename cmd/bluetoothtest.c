@@ -337,7 +337,7 @@ void bdt_disable(void)
     sBtInterface->cleanup();
 }
 
-void bdt_get_params(char *p)
+void bdt_get_param(char *p)
 {
     if (!bt_enabled) {
         SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_GET_PARAM);
@@ -350,7 +350,7 @@ void bdt_get_params(char *p)
     check_return_status(STR_BT_MP_GET_PARAM, status);
 }
 
-void bdt_set_params(char *p)
+void bdt_set_param(char *p)
 {
     if (!bt_enabled) {
         SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM);
@@ -361,32 +361,6 @@ void bdt_set_params(char *p)
     status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetParam, p);
 
     check_return_status(STR_BT_MP_SET_PARAM, status);
-}
-
-void bdt_set_param1(char *p)
-{
-    if (!bt_enabled) {
-        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM1);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARAM1, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetParam1, p);
-
-    check_return_status(STR_BT_MP_SET_PARAM1, status);
-}
-
-void bdt_set_param2(char *p)
-{
-    if (!bt_enabled) {
-        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SET_PARAM2);
-        bdt_log("Failed to execute %s[%s]", STR_BT_MP_SET_PARAM2, STR_BT_NOT_ENABLED);
-        return;
-    }
-
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetParam2, p);
-
-    check_return_status(STR_BT_MP_SET_PARAM2, status);
 }
 
 void bdt_set_config(char *p)
@@ -441,7 +415,7 @@ void bdt_reg_rw(char *p)
     check_return_status(STR_BT_MP_REG_RW, status);
 }
 
-void bdt_hci(char *p)
+void bdt_hci_cmd(char *p)
 {
     if (!bt_enabled) {
         SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_HCI_CMD);
@@ -515,49 +489,39 @@ void do_disable(char *p)
     bdt_disable();
 }
 
-void do_GetParam(char *p)
+void do_get_param(char *p)
 {
-    bdt_get_params(p);
+    bdt_get_param(p);
 }
 
-void do_SetParam(char *p)
+void do_set_param(char *p)
 {
-    bdt_set_params(p);
+    bdt_set_param(p);
 }
 
-void do_SetParam1(char *p)
-{
-    bdt_set_param1(p);
-}
-
-void do_SetParam2(char *p)
-{
-    bdt_set_param2(p);
-}
-
-void do_SetConfig(char *p)
+void do_set_config(char *p)
 {
     bdt_set_config(p);
 }
 
-void do_Exec(char *p)
+void do_exec(char *p)
 {
     bdt_exec(p);
 }
 
-void do_Report(char *p)
+void do_report(char *p)
 {
     bdt_report(p);
 }
 
-void do_RegRW(char *p)
+void do_reg_RW(char *p)
 {
     bdt_reg_rw(p);
 }
 
-void do_hci(char *p)
+void do_hci_cmd(char *p)
 {
-    bdt_hci(p);
+    bdt_hci_cmd(p);
 }
 
 void do_cleanup(char *p)
@@ -584,20 +548,18 @@ const t_cmd console_cmd_list[] =
     { STR_BT_MP_ENABLE, do_enable, ":: Enable bluetooth", 0 },
     { STR_BT_MP_DISABLE, do_disable, ":: Disable bluetooth", 0 },
 
-    { STR_BT_MP_HCI_CMD, do_hci, ":: Send HCI Commands", 0 },
+    { STR_BT_MP_HCI_CMD, do_hci_cmd, ":: Send HCI Commands", 0 },
 
-    { STR_BT_MP_GET_PARAM, do_GetParam, ":: Get all/individual exposed parameters", 0 },
-    { STR_BT_MP_SET_PARAM, do_SetParam, ":: Set specific parameters<index,value>", 0 },
-    { STR_BT_MP_SET_PARAM1, do_SetParam1, ":: Set series 1 parameters", 0 },
-    { STR_BT_MP_SET_PARAM2, do_SetParam2, ":: Set series 2 parameters", 0 },
+    { STR_BT_MP_GET_PARAM, do_get_param, ":: Get all/individual exposed parameters", 0 },
+    { STR_BT_MP_SET_PARAM, do_set_param, ":: Set specific parameters<index,value>", 0 },
 
-    { STR_BT_MP_SET_CONFIG, do_SetConfig, ":: Set configurations to the specific file", 0 },
+    { STR_BT_MP_SET_CONFIG, do_set_config, ":: Set configurations to the specific file", 0 },
 
-    { STR_BT_MP_EXEC, do_Exec, ":: Execute specific action<action id>", 0 },
+    { STR_BT_MP_EXEC, do_exec, ":: Execute specific action<action id>", 0 },
 
-    { STR_BT_MP_REPORT, do_Report, ":: Report specific info according to item selected", 0 },
+    { STR_BT_MP_REPORT, do_report, ":: Report specific info according to item selected", 0 },
 
-    { STR_BT_MP_REG_RW, do_RegRW, ":: R/W Modem, RF, SYS & BB registers", 0 },
+    { STR_BT_MP_REG_RW, do_reg_RW, ":: R/W Modem, RF, SYS & BB registers", 0 },
 
     /* add here */
 
