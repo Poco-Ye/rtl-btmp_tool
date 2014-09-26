@@ -238,67 +238,13 @@ int hci_bluez_read(int dd, void *pbuf, size_t plen)
 
 int hci_bluez_write(int dd, void *pbuf, uint16_t plen)
 {
-    uint8_t type;
-    hci_command_hdr hc;
-    hci_event_hdr he;
-    hci_acl_hdr ha;
-    hci_sco_hdr hs;
-    uint8_t hdr_size;
-    struct iovec iv[3];
-    int ivn;
-    uint8_t *p;
     int ret;
 
-    p = (uint8_t *)pbuf;
-
-    type = *p++;
-
-    switch (type) {
-    case HCI_COMMAND_PKT:
-    case HCI_VENDOR_PKT:
-        STREAM_TO_UINT16(hc.opcode, p);
-        STREAM_TO_UINT8(hc.plen, p);
-        hdr_size = HCI_COMMAND_HDR_SIZE;
-        break;
-    case HCI_ACLDATA_PKT:
-        STREAM_TO_UINT16(ha.handle, p);
-        STREAM_TO_UINT8(ha.dlen, p);
-        hdr_size = HCI_ACL_HDR_SIZE;
-        break;
-    case HCI_SCODATA_PKT:
-        STREAM_TO_UINT16(hs.handle, p);
-        STREAM_TO_UINT8(hs.dlen, p);
-        hdr_size = HCI_ACL_HDR_SIZE;
-        break;
-    default:
-        SYSLOGE("Unknow packet type %d", type);
-        return -1;
-    }
-
-    if (plen < hdr_size + HCI_TYPE_LEN) {
-        SYSLOGE("Invalid len %d for packet type %d", plen, type);
-        return -1;
-    } else
-        plen -= hdr_size + HCI_TYPE_LEN;
-
-    iv[0].iov_base = &type;
-    iv[0].iov_len  = 1;
-    iv[1].iov_base = &hc;
-    iv[1].iov_len  = hdr_size;
-    ivn = 2;
-
-    if (plen) {
-        iv[2].iov_base = p;
-        iv[2].iov_len  = plen;
-        ivn = 3;
-    }
-
-    while ((ret = writev(dd, iv, ivn)) < 0) {
+    while ((ret = write(dd, pbuf, plen)) < 0) {
         if (errno == EAGAIN || errno == EINTR)
             continue;
-        return -1;
+        break;
     }
 
     return ret;
 }
-
