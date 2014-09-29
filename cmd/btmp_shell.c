@@ -18,9 +18,9 @@
 
 /************************************************************************************
  *
- *  Filename:      bluetoothtest.c
+ *  Filename:      btmp_shell.c
  *
- *  Description:   Bluetooth MP Test application
+ *  Description:   Bluetooth MP Shell Test application
  *
  ***********************************************************************************/
 #define LOG_TAG "rtlmp_test"
