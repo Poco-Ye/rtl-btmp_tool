@@ -21,6 +21,7 @@ SBINDIR ?= $(PREFIX)/sbin
 SRCDIR := $(PWD)
 OUTDIR := $(SRCDIR)/out
 TARGET := rtlbtmp
+TARGET_SKT := rtlbtmp_skt
 
 MKDIR := mkdir -p
 RM := rm -f
@@ -37,27 +38,34 @@ export SRCDIR OUTDIR MV CC CFLAGS
 
 .PHONY: all rtlbtmp install uninstall clean
 
-all: $(TARGET)
+all: $(TARGET) $(TARGET_SKT)
 
 CMD_DIR := cmd
 HAL_DIR := hal
 SUBDIRS := $(CMD_DIR) $(HAL_DIR)
 
-#include $(SUBDIRS:%=%/Makefile.mk)
-
 $(TARGET):
 	$(MKDIR) $(OUTDIR)
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir; done
-	$(CC) $(CFLAGS) $(OUTDIR)/*.o -o $(TARGET) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(filter-out $(OUTDIR)/btmp_socket.o,$(wildcard $(OUTDIR)/*.o)) -o $(TARGET) $(LDFLAGS)
 
-install: $(TARGET)
+$(TARGET_SKT):
+	$(MKDIR) $(OUTDIR)
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir; done
+	$(CC) $(CFLAGS) $(filter-out $(OUTDIR)/btmp_shell.o,$(wildcard $(OUTDIR)/*.o)) -o $(TARGET_SKT) $(LDFLAGS)
+
+install: $(TARGET) $(TARGET_SKT)
 	$(MKDIR) $(DESTDIR)$(SBINDIR)
 	$(INSTALL) -m 755 -t $(DESTDIR)$(SBINDIR) $(TARGET)
+	$(INSTALL) -m 755 -t $(DESTDIR)$(SBINDIR) $(TARGET_SKT)
 
 uninstall:
 	$(RM) $(DESTDIR)$(SBINDIR)/$(TARGET)
+	$(RM) $(DESTDIR)$(SBINDIR)/$(TARGET_SKT)
 
 clean:
 	$(RM) $(TARGET)
+	$(RM) $(TARGET_SKT)
 	$(RM) -r $(OUTDIR)

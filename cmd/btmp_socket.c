@@ -18,9 +18,9 @@
 
 /************************************************************************************
  *
- *  Filename:      btmp_shell.c
+ *  Filename:      btmp_socket.c
  *
- *  Description:   Bluetooth MP Shell Test application
+ *  Description:   Bluetooth MP Socket Test Application
  *
  ***********************************************************************************/
 #define LOG_TAG "rtlmp_test"
@@ -38,6 +38,8 @@
 #include <sys/prctl.h>
 #include <linux/capability.h>
 
+#include <sys/socket.h>
+#include <sys/select.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -86,10 +88,10 @@ static void process_cmd(char *p, unsigned char is_job);
 /*****************************************************************************
 **   Logger API
 *****************************************************************************/
+static char buffer[1024];
 
 static void bdt_log(const char *fmt_str, ...)
 {
-    static char buffer[1024];
     va_list ap;
 
     va_start(ap, fmt_str);
@@ -97,6 +99,19 @@ static void bdt_log(const char *fmt_str, ...)
     va_end(ap);
 
     fprintf(stdout, "%s\n", buffer);
+}
+
+static int recv_fd;
+
+static void bdt_log_skt(const char *fmt_str, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt_str);
+    vsnprintf(buffer, 1024, fmt_str, ap);
+    va_end(ap);
+
+    write(recv_fd, buffer, strlen(buffer));
 }
 
 /*****************************************************************************
@@ -285,7 +300,7 @@ static void adapter_state_changed(bt_state_t state)
 
 static void dut_mode_recv(uint8_t evtcode, char *buf)
 {
-    bdt_log(buf);
+    bdt_log_skt(buf);
 }
 
 static bt_callbacks_t bt_callbacks = {
@@ -605,9 +620,86 @@ static void process_cmd(char *p, unsigned char is_job)
     do_help(NULL);
 }
 
+static int init_net_socket(int *net_fd)
+{
+    int sk_fd;
+    struct sockaddr_in serv_addr;
+    int ret;
+    int sock_opt = 1;
+
+    sk_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sk_fd == -1) {
+        SYSLOGE("failed to create socket: %s(%d)", strerror(errno), errno);
+        return -1;
+    }
+
+    memset(&serv_addr, 0x00, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_port = htons(6666);
+
+    ret = setsockopt(sk_fd, SOL_SOCKET, SO_REUSEADDR, (void*)&sock_opt, sizeof(sock_opt));
+    if (ret == -1) {
+        SYSLOGE("failed to set socket opt: %s(%d)", strerror(errno), errno);
+        return -1;
+    }
+
+    ret = bind(sk_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+    if (ret == -1) {
+        SYSLOGE("failed to bind socket: %s(%d)", strerror(errno), errno);
+        return -1;
+    }
+
+    ret = listen(sk_fd, 3);
+    if (ret == -1) {
+        SYSLOGE("failed to listen socket: %s(%d)", strerror(errno), errno);
+        return -1;
+    }
+
+    *net_fd = accept(sk_fd, (struct sockaddr*)NULL, NULL);
+    if (*net_fd == -1) {
+        SYSLOGE("failed to accept socket: %s(%d)", strerror(errno), errno);
+        return -1;
+    }
+
+    return 0;
+}
+
+static int init_evt_sockpair(int *evt_fds)
+{
+    int ret;
+
+    ret = socketpair(AF_UNIX, SOCK_STREAM, 0, evt_fds);
+    if (ret == -1) {
+        SYSLOGE("failed to create socket pair: %s(%d)", strerror(errno), errno);
+        return -1;
+    }
+
+    recv_fd = evt_fds[1];
+
+    return 0;
+}
+
+static void close_net_socket(int net_fd)
+{
+    close(net_fd);
+}
+
+static void close_evt_sockpair(int *evt_fds)
+{
+    close(evt_fds[0]);
+    close(evt_fds[1]);
+}
+
 int main(int argc, char *argv[])
 {
     char cmdline[128];
+    char evtline[128];
+    int net_fd, evt_fds[2];
+    fd_set input, output;
+    int fd_max, fd_num;
+    int output_ready = 0;
+    int ret;
 
     config_permissions();
     bdt_log("\n:::::::::::::::::::::::::::::::::::::::::::::::::");
@@ -618,18 +710,55 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
+    ret = init_net_socket(&net_fd);
+    if (ret < 0) {
+        SYSLOGE("failed to init socket, exit");
+        return -1;
+    }
+
+    ret = init_evt_sockpair(evt_fds);
+    if (ret < 0) {
+        SYSLOGE("failed to init evt socket pair, exit");
+        return -1;
+    }
+
+    fd_max = net_fd > evt_fds[0] ? net_fd : evt_fds[0];
+
     while (!main_done) {
-        /* command prompt */
-        printf("> ");
-        fflush(stdout);
+        /* socket prompt */
+        FD_ZERO(&input);
+        FD_ZERO(&output);
+        FD_SET(net_fd, &input);
+        FD_SET(evt_fds[0], &input);
+        if (!output_ready)
+            FD_SET(net_fd, &output);
 
-        fgets(cmdline, 128, stdin);
+        fd_num = select(fd_max + 1, &input, &output, NULL, NULL);
+        if (fd_num > 0) {
+            /* check if client is ready to receive */
+            if (FD_ISSET(net_fd, &output))
+                output_ready = 1;
 
-        if (cmdline[0] != '\0') {
-            process_cmd(cmdline, 0);
-            memset(cmdline, '\0', 128);
+            if (FD_ISSET(net_fd, &input)) {
+                memset(cmdline, '\0', 128);
+                ret = read(net_fd, cmdline, 128);
+                if (ret > 0 && cmdline[0] != '\0')
+                    process_cmd(cmdline, 0);
+            }
+
+            if (FD_ISSET(evt_fds[0], &input)) {
+                memset(evtline, '\0', 128);
+                ret = read(evt_fds[0], evtline, 128);
+                if (ret > 0 && output_ready) {
+                    write(net_fd, evtline, ret);
+                    output_ready = 0;
+                }
+            }
         }
     }
+
+    close_evt_sockpair(evt_fds);
+    close_net_socket(net_fd);
 
     HAL_unload();
 

@@ -23,7 +23,7 @@ CFLAGS += -I$(CMD_MP_INC) -I$(CMD_LOG_INC)
 
 .PHONY: all
 
-OBJS = btmp_shell.o
+OBJS = btmp_shell.o btmp_socket.o
 
 all: $(OBJS)
 
