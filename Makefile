@@ -44,17 +44,16 @@ CMD_DIR := cmd
 HAL_DIR := hal
 SUBDIRS := $(CMD_DIR) $(HAL_DIR)
 
-$(TARGET):
-	$(MKDIR) $(OUTDIR)
-	for dir in $(SUBDIRS); do \
-		$(MAKE) -C $$dir; done
-	$(CC) $(CFLAGS) $(filter-out $(OUTDIR)/btmp_socket.o,$(wildcard $(OUTDIR)/*.o)) -o $(TARGET) $(LDFLAGS)
+$(TARGET): $(OUTDIR)
+	$(CC) $(CFLAGS) $(filter-out $(OUTDIR)/btmp_socket.o,$(shell ls $(OUTDIR)/*.o)) -o $(TARGET) $(LDFLAGS)
 
-$(TARGET_SKT):
+$(TARGET_SKT): $(OUTDIR)
+	$(CC) $(CFLAGS) $(filter-out $(OUTDIR)/btmp_shell.o,$(shell ls $(OUTDIR)/*.o)) -o $(TARGET_SKT) $(LDFLAGS)
+
+$(OUTDIR):
 	$(MKDIR) $(OUTDIR)
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir; done
-	$(CC) $(CFLAGS) $(filter-out $(OUTDIR)/btmp_shell.o,$(wildcard $(OUTDIR)/*.o)) -o $(TARGET_SKT) $(LDFLAGS)
 
 install: $(TARGET) $(TARGET_SKT)
 	$(MKDIR) $(DESTDIR)$(SBINDIR)

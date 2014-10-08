@@ -27,6 +27,6 @@ OBJS = btmp_shell.o btmp_socket.o
 
 all: $(OBJS)
 
-$(OBJS): %.o: %.c $(CMD_MP_INC)/bluetoothmp.h $(CMD_LOG_INC)/bt_syslog.h
+$(OBJS): %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(MV) $@ $(OUTDIR)
