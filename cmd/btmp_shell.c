@@ -577,8 +577,12 @@ static void process_cmd(char *p, unsigned char is_job)
     int i = 0;
 
     /* no cmd to process for single linefeed */
-    if (*p == '\0')
+    if (*p == '\0' || *p == '\n')
         return;
+
+    /* remove trailing linefeed */
+    if (p[strlen(p)-1] == '\n')
+        p[strlen(p)-1] = '\0';
 
     get_str(&p, cmd);
 
@@ -624,9 +628,6 @@ int main(int argc, char *argv[])
         fgets(cmdline, 128, stdin);
 
         if (cmdline[0] != '\0') {
-            /* remove linefeed */
-            cmdline[strlen(cmdline)-1] = 0;
-
             process_cmd(cmdline, 0);
             memset(cmdline, '\0', 128);
         }
