@@ -15,15 +15,16 @@
 # limitations under the License.
 #
 
-CMD_DIR := cmd
-CMD_MP_INC := $(SRCDIR)/hal/mp/include/
-CMD_LOG_INC := $(SRCDIR)/hal/utils/include/
+CMD_DIR := src
+CMD_INC := include
+CMD_MP_INC := $(SRCDIR)/hal/mp/include
+CMD_LOG_INC := $(SRCDIR)/hal/utils/include
 
-CFLAGS += -I$(CMD_MP_INC) -I$(CMD_LOG_INC)
+CFLAGS += -I$(CMD_INC) -I$(CMD_MP_INC) -I$(CMD_LOG_INC)
 
 .PHONY: all
 
-OBJS = btmp_shell.o btmp_socket.o
+OBJS = $(CMD_DIR)/btmp_if.o $(CMD_DIR)/btmp_shell.o $(CMD_DIR)/btmp_socket.o
 
 all: $(OBJS)
 
