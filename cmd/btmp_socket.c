@@ -114,10 +114,6 @@ static void bdt_log_skt(const char *fmt_str, ...)
     write(recv_fd, buffer, strlen(buffer));
 }
 
-/*****************************************************************************
-** Android's init.rc does not yet support applying linux capabilities
-*****************************************************************************/
-
 static void config_permissions(void)
 {
     //struct __user_cap_header_struct header;
@@ -620,12 +616,53 @@ static void process_cmd(char *p, unsigned char is_job)
     do_help(NULL);
 }
 
-static int init_net_socket(int *net_fd)
+static int init_evt_sockpair(int *evt_fds)
 {
-    int sk_fd;
-    struct sockaddr_in serv_addr;
     int ret;
+
+    ret = socketpair(AF_UNIX, SOCK_STREAM, 0, evt_fds);
+    if (ret == -1) {
+        SYSLOGE("failed to create socket pair: %s(%d)", strerror(errno), errno);
+        return -1;
+    }
+
+    recv_fd = evt_fds[1];
+
+    return 0;
+}
+
+static void close_evt_sockpair(int *evt_fds)
+{
+    close(evt_fds[0]);
+    close(evt_fds[1]);
+}
+
+int main(int argc, char *argv[])
+{
+    char cmdline[128], evtline[128];
+    int sk_fd, net_fd, evt_fds[2];
+    struct sockaddr_in serv_addr;
     int sock_opt = 1;
+    fd_set input, output;
+    int fd_max, fd_num;
+    int output_ready = 0;
+    int ret;
+
+    bdt_log(":::::::::::::::::::::::::::::::::::::::::::::::::");
+    bdt_log(":::::::: Bluetooth MP Test Tool Starting ::::::::");
+
+    config_permissions();
+
+    if (HAL_load() < 0) {
+        perror("HAL failed to initialize, exit\n");
+        exit(0);
+    }
+
+    ret = init_evt_sockpair(evt_fds);
+    if (ret < 0) {
+        SYSLOGE("failed to init evt socket pair, exit");
+        return -1;
+    }
 
     sk_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sk_fd == -1) {
@@ -656,73 +693,18 @@ static int init_net_socket(int *net_fd)
         return -1;
     }
 
-    *net_fd = accept(sk_fd, (struct sockaddr*)NULL, NULL);
-    if (*net_fd == -1) {
+re_accept:
+    net_fd = accept(sk_fd, (struct sockaddr*)NULL, NULL);
+    if (net_fd == -1) {
         SYSLOGE("failed to accept socket: %s(%d)", strerror(errno), errno);
-        return -1;
-    }
-
-    return 0;
-}
-
-static int init_evt_sockpair(int *evt_fds)
-{
-    int ret;
-
-    ret = socketpair(AF_UNIX, SOCK_STREAM, 0, evt_fds);
-    if (ret == -1) {
-        SYSLOGE("failed to create socket pair: %s(%d)", strerror(errno), errno);
-        return -1;
-    }
-
-    recv_fd = evt_fds[1];
-
-    return 0;
-}
-
-static void close_net_socket(int net_fd)
-{
-    close(net_fd);
-}
-
-static void close_evt_sockpair(int *evt_fds)
-{
-    close(evt_fds[0]);
-    close(evt_fds[1]);
-}
-
-int main(int argc, char *argv[])
-{
-    char cmdline[128];
-    char evtline[128];
-    int net_fd, evt_fds[2];
-    fd_set input, output;
-    int fd_max, fd_num;
-    int output_ready = 0;
-    int ret;
-
-    config_permissions();
-    bdt_log("\n:::::::::::::::::::::::::::::::::::::::::::::::::");
-    bdt_log(":::::::: Bluetooth MP Test Tool Starting ::::::::");
-
-    if (HAL_load() < 0) {
-        perror("HAL failed to initialize, exit\n");
-        exit(0);
-    }
-
-    ret = init_net_socket(&net_fd);
-    if (ret < 0) {
-        SYSLOGE("failed to init socket, exit");
-        return -1;
-    }
-
-    ret = init_evt_sockpair(evt_fds);
-    if (ret < 0) {
-        SYSLOGE("failed to init evt socket pair, exit");
-        return -1;
+        if (errno == EINTR)
+            goto re_accept;
+        else
+            return -1;
     }
 
     fd_max = net_fd > evt_fds[0] ? net_fd : evt_fds[0];
+    output_ready = 0;
 
     while (!main_done) {
         /* socket prompt */
@@ -742,23 +724,42 @@ int main(int argc, char *argv[])
             if (FD_ISSET(net_fd, &input)) {
                 memset(cmdline, '\0', 128);
                 ret = read(net_fd, cmdline, 128);
-                if (ret > 0 && cmdline[0] != '\0')
+                if (ret > 0)
                     process_cmd(cmdline, 0);
+                else if (ret == 0) {
+                    SYSLOGW("failed to read: %s(%d)", strerror(errno), errno);
+                    goto re_accept;
+                } else if (ret == -1 && errno == EINTR)
+                    continue;
+                else {
+                    SYSLOGE("failed to read: %s(%d)", strerror(errno), errno);
+                    exit(0);
+                }
             }
 
             if (FD_ISSET(evt_fds[0], &input)) {
                 memset(evtline, '\0', 128);
                 ret = read(evt_fds[0], evtline, 128);
                 if (ret > 0 && output_ready) {
-                    write(net_fd, evtline, ret);
-                    output_ready = 0;
+                    ret = write(net_fd, evtline, ret);
+                    if (ret > 0)
+                        output_ready = 0;
+                    else if (ret == 0) {
+                        SYSLOGW("failed to write: %s(%d)", strerror(errno), errno);
+                        goto re_accept;
+                    }  else if (ret == -1 && errno == EINTR)
+                        continue;
+                    else {
+                        SYSLOGE("failed to write: %s(%d)", strerror(errno), errno);
+                        exit(0);
+                    }
                 }
             }
         }
     }
 
     close_evt_sockpair(evt_fds);
-    close_net_socket(net_fd);
+    close(net_fd);
 
     HAL_unload();
 
