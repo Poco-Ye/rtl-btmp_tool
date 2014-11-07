@@ -265,6 +265,10 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
 
 static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf_cb)
 {
+    uint8_t efuse_len = pBtDeviceReport->ReportData[3] + 4;
+    char efuse_str[6] = {0};
+    uint8_t i;
+
     switch (item) {
     case REPORT_ALL:
         break;
@@ -412,6 +416,19 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->pBTInfo->LMP_SubVersion, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->pBTInfo->LMP_Version, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->pBTInfo->Version);
+        break;
+    case REPORT_LOGICAL_EFUSE:
+        sprintf(buf_cb, "%s%s%d%s0x%02x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS);
+
+        for (i = 0; i < efuse_len; i++) {
+            sprintf(efuse_str, "%s0x%02x", STR_BT_MP_RESULT_DELIM, pBtDeviceReport->ReportData[i]);
+            strcat(buf_cb, efuse_str);
+        }
+
+        SYSLOGI("%s", buf_cb);
         break;
     default:
         break;

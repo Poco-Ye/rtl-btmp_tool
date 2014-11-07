@@ -83,15 +83,9 @@ enum INTERFACE_TYPE {
     TYPE_UART,
     TYPE_FILTER_UART,
     TYPE_ADB_UART,
-    TYPE_ADB_USB
-};
-#endif
-
-#ifndef ADB_TYPE
-#define ADB_TYPE
-enum ADB_TYPE_TAG{
-    ADB=0,
-    ADB_SHELL
+    TYPE_ADB_USB,
+    TYPE_SOCKET_DEVICE_UART,
+    TYPE_SOCKET_DEVICE_USB
 };
 #endif
 
@@ -146,16 +140,6 @@ typedef void
         int *pUserDefinedData
         );
 
-// for adb
-typedef int
-(*BASE_FP_ADB_SEND_WITH_RSP_BY_STRING)(
-        BASE_INTERFACE_MODULE *pBaseInterface,
-        int TYPE,
-        uint8_t *pSendBuf,
-        uint8_t *pRspBuf,
-        int RspTimeOut
-        );
-
 #define MP_TRANSPORT_EVENT_RX_HCIEVT              0x0001
 #define MP_TRANSPORT_EVENT_RX_ACL                    0x0002
 #define MP_TRANSPORT_EVENT_RX_EXIT                  0x8000
@@ -182,10 +166,6 @@ struct BASE_INTERFACE_MODULE_TAG
 
     //for uart
     uint32_t Baudrate;
-
-    //for adb
-    uint32_t Adb_TimeOut;
-    BASE_FP_ADB_SEND_WITH_RSP_BY_STRING ADBSendWithRspByString;
 
     uint16_t rx_ready_events;
     pthread_mutex_t mutex;

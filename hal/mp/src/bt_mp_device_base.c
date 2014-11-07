@@ -4,6 +4,7 @@
 
 #include "bt_syslog.h"
 #include "bluetoothmp.h"
+#include "bt_mp_device_efuse_base.h"
 #include "bt_mp_device_base.h"
 
 #ifndef BOOL
@@ -1159,8 +1160,9 @@ BTDevice_SetPktRxUpdate(
     uint32_t rxBits=0;
     uint16_t rxErrbits=0;
     uint16_t rxPin=0;
-    float HeaderQuality = 20;
-    uint16_t data, data_lsb, data_msb;
+    //float HeaderQuality = 20;
+    float snr = 0;
+    uint16_t data;
     int32_t value;
 
     int pktType = pParam->mPacketType;
@@ -1192,7 +1194,7 @@ BTDevice_SetPktRxUpdate(
 
     pBtReport->RxRssi = (int)(rxPin);
     pBtReport->RxRssi = pBtReport->RxRssi * 2 - 96;
-
+#if 0
     //Header Quality
     if (bt_default_GetMDRegMaskBits(pBtDevice, 0x6c, 15, 9, &data_lsb))
         goto exit;
@@ -1207,6 +1209,29 @@ BTDevice_SetPktRxUpdate(
 
     if (value && data)
         HeaderQuality = 20*log10f((float)value) - 20*log10f((float)data);
+#endif
+
+#if 1
+    // set page2 reg62 = 0x15d7, enable mse
+    if (bt_default_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 2))
+        goto exit;
+    if (bt_default_SetMDRegMaskBits(pBtDevice, 0x62, 15, 0, 0x15d7))
+        goto exit;
+
+    // set page0 reg18[12:13]=2'b11, enable mse report reg
+    if (bt_default_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0))
+        goto exit;
+    if (bt_default_SetMDRegMaskBits(pBtDevice, 0x18, 13, 12, 3))
+        goto exit;
+
+    // payload mse: read  page0 reg68
+    if (bt_default_GetMDRegMaskBits(pBtDevice, 0x68, 15, 0, &data))
+        goto exit;
+
+    if (data)
+        snr = 10.0*log10(65536.0) - 10.0*log10((float)data);
+
+#endif
 
     //if (pBtReport->RxRssi > -89)
     {
@@ -1254,8 +1279,8 @@ BTDevice_SetPktRxUpdate(
         }
     }
 
-    SYSLOGI("-BTDevice_Set Pkt Rx Update: RxRssi= %d, rxCount = %d, ber=%f, HeaderQuality = %f",
-            pBtReport->RxRssi, rxCount, pBtReport->ber, HeaderQuality);
+    SYSLOGI("-BTDevice_Set Pkt Rx Update: RxRssi= %d, rxCount = %d, ber=%f, snr = %f",
+            pBtReport->RxRssi, rxCount, pBtReport->ber, snr);
     return BT_FUNCTION_SUCCESS;
 
 exit:
@@ -2709,4 +2734,54 @@ BTDevice_PGEfuseRawData(
     }
 
     return rtn;
+}
+
+int
+BTDevice_ReadEfuseLogicalData(
+        BT_DEVICE *pBtDevice,
+        BT_PARAMETER *pParam,
+        BT_DEVICE_REPORT *pBtReport
+        )
+{
+    int rtn = BT_FUNCTION_SUCCESS;
+
+    uint8_t Command;
+    uint32_t EfuseLogicalAddr;
+    EFUSE_MODULE *pEfuse;
+    uint8_t i, Len;
+
+    Command = pParam->mPGRawData[0];
+    EfuseLogicalAddr = (pParam->mPGRawData[2]<<8) | pParam->mPGRawData[1];
+    Len = pParam->mPGRawData[3];
+
+    switch (Command) {
+    case BT_EFUSE:
+        pEfuse = pBtDevice->pBtEfuse;
+        break;
+
+    case SYS_EFUSE:
+        pEfuse = pBtDevice->pSysEfuse;
+        break;
+
+    default:
+        goto error;
+        break;
+    }
+
+    if (BTDevice_Efuse_ReadData(pEfuse))
+        goto error;
+
+    if (BTDevice_Efuse_PhysicalToLogicalData(pEfuse))
+        goto error;
+
+    memcpy(pBtReport->ReportData, pParam->mPGRawData, LEN_4_BYTE);
+
+    for (i = 0; i < Len; i++) {
+        pBtReport->ReportData[i+LEN_4_BYTE] = pEfuse->pEfuseLogMem[i+EfuseLogicalAddr].Value;
+    }
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+    return FUNCTION_ERROR;
 }

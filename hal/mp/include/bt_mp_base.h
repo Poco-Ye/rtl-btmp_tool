@@ -77,6 +77,8 @@ typedef enum {
     LE_RX_DUT_TEST_CMD,             //23
     LE_DUT_TEST_END_CMD,            //24
 
+    READ_EFUSE_DATA,                //25
+
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
 
@@ -131,6 +133,14 @@ typedef enum {
 typedef struct BT_PARAMETER_TAG   BT_PARAMETER;
 typedef struct BT_DEVICE_REPORT_TAG BT_DEVICE_REPORT;
 typedef struct BT_CHIPINFO_TAG   BT_CHIPINFO;
+
+enum {
+    SET_INDEX_BT_ADDR = 0,
+    SET_INDEX_THERMAL,
+    SET_INDEX_TX_POWER_DAC,
+    SET_INDEX_XTAL,
+    SET_INDEX_USB_VID_PID,
+};
 
 struct BT_PARAMETER_TAG {
     int ParameterIndex;
@@ -397,18 +407,19 @@ typedef int(*BT_FP_GET_CHIPVERSIONINFO)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_BT_DL_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 // PG efuse
-typedef int(*BT_FP_SF_PGEFUSE_RAWDATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam);
+typedef int(*BT_FP_PG_EFUSE_DATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam);
+typedef int(*BT_FP_READ_EFUSE_DATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport);
 // LE
 typedef int(*BT_FP_LE_TEST)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport);
 
 typedef struct BT_TRX_TIME_TAG BT_TRX_TIME;
 
 typedef enum {
-        TRX_TIME_STOP =0,
-        TX_TIME_RUNING ,
-        RX_TIME_RUNING,
+    TRX_TIME_STOP =0,
+    TX_TIME_RUNING ,
+    RX_TIME_RUNING,
 
-        NUMOFTRXTIME_TAG
+    NUMOFTRXTIME_TAG
 } TRXTIME_TAG;
 
 struct BT_TRX_TIME_TAG {
@@ -417,11 +428,39 @@ struct BT_TRX_TIME_TAG {
     unsigned long endTimeClockCnt;
 };
 
-struct BT_DEVICE_TAG
-{
+#define MAX_EFUSE_PHY_LEN 512
+#define MAX_EFUSE_LOG_LEN 1024
+#define MAX_EFUSE_BANK_NUM 4
+
+typedef struct {
+    uint8_t bMark;
+    uint8_t Value;
+} EFUSE_LOGIC;
+
+typedef struct {
+    BT_DEVICE *pBtDevice;
+    uint8_t pEfusePhyMem[MAX_EFUSE_BANK_NUM*MAX_EFUSE_PHY_LEN];
+    EFUSE_LOGIC pEfuseLogMem[MAX_EFUSE_LOG_LEN];
+    uint32_t pEfusePhyDataLen[MAX_EFUSE_BANK_NUM];
+
+    uint32_t EfusePhySize;
+    uint32_t EfuseLogSize;
+
+    uint8_t StartBank;
+    uint8_t BankNum;
+} EFUSE_MODULE;
+
+struct BT_DEVICE_TAG {
     // Table is base function
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t TXDACTable[MAX_TXDAC_TABLE_SIZE];
+
+    EFUSE_MODULE *pSysEfuse;
+    EFUSE_MODULE SysEfuseMemory;
+
+    EFUSE_MODULE *pBtEfuse;
+    EFUSE_MODULE BtEfuseMemory;
+
     BT_FP_SET_TXGAINTABLE       SetTxGainTable;
     BT_FP_SET_TXDACTABLE        SetTxDACTable;
 
@@ -490,13 +529,11 @@ struct BT_DEVICE_TAG
     BT_FP_BT_DL_MERGER_FW           BTDlMERGERFW;
 
     // Efuse settting
-    BT_FP_SF_PGEFUSE_RAWDATA    BT_PGEfuseRawData;
+    BT_FP_PG_EFUSE_DATA             BT_PGEfuseRawData;
+    BT_FP_READ_EFUSE_DATA           BT_ReadEfuseLogicalData;
 };
 
-//-----------------------------------------------------------------------------------------------------------------
-//  Module
-//-----------------------------------------------------------------------------------------------------------------
-typedef enum _BT_REPORT_TAG {
+typedef enum {
     REPORT_ALL = 0,
     REPORT_PKT_TX,
     REPORT_CONT_TX,
@@ -507,6 +544,7 @@ typedef enum _BT_REPORT_TAG {
     REPORT_THERMAL,
     REPORT_BT_STAGE,
     REPORT_CHIP,
+    REPORT_LOGICAL_EFUSE,
 } BT_REPORT_TAG;
 
 typedef struct  BT_MODULE_TAG BT_MODULE;
@@ -724,14 +762,6 @@ struct BT_MODULE_TAG {
 
 #define BIT_7_SHIFT                 7
 #define BIT_8_SHIFT                 8
-
-#ifndef TRUE
-#define TRUE    1
-#endif
-
-#ifndef FALSE
-#define FALSE   0
-#endif
 
 //  Define UART HCI Packet Indicator
 #define IF_UART_CMD     0x01

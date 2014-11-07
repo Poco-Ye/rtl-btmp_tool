@@ -108,6 +108,12 @@ int BTModule_ActionReport(
         rtn = pModuleBtDevice->GetStage(pModuleBtDevice, &pReport->CurrStage);
         break;
 
+    case REPORT_LOGICAL_EFUSE:
+        for (i=0 ; i < MAX_USERAWDATA_SIZE; i++) {
+            pReport->ReportData[i] = pModuleBtReport->ReportData[i];
+        }
+        break;
+
     default:
         rtn = FUNCTION_ERROR;
         break;
@@ -302,6 +308,10 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
 
     case LE_DUT_TEST_END_CMD:
         rtn = pModuleBtDevice->LeTestEndCmd(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        break;
+
+    case READ_EFUSE_DATA:
+        rtn = pModuleBtDevice->BT_ReadEfuseLogicalData(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         break;
 
     default:

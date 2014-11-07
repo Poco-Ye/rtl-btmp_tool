@@ -51,7 +51,7 @@ CFLAGS += -I$(HAL_DIR)/$(MP_INC) -I$(HAL_DIR)/$(BTIF_INC) -I$(HAL_DIR)/$(GKI_INC
 OBJS = $(BTIF_DIR)/btif_core.o $(BTIF_DIR)/bluetooth.o
 OBJS += $(MP_DIR)/bt_mp_base.o $(MP_DIR)/bt_mp_build.o $(MP_DIR)/bt_mp_device_base.o \
         $(MP_DIR)/bt_mp_module_base.o $(MP_DIR)/foundation.o $(MP_DIR)/bt_mp_api.o \
-        $(MP_DIR)/bt_mp_transport.o
+        $(MP_DIR)/bt_mp_transport.o $(MP_DIR)/bt_mp_device_efuse_base.o
 OBJS += $(GKI_DIR)/ulinux/gki_ulinux.o $(GKI_DIR)/common/gki_debug.o $(GKI_DIR)/common/gki_time.o \
         $(GKI_DIR)/common/gki_buffer.o
 OBJS += $(HCI_DIR)/hci_h4.o $(HCI_DIR)/hci_h5.o $(HCI_DIR)/userial.o $(HCI_DIR)/bt_skbuff.o \
@@ -69,7 +69,7 @@ INCS = $(BTIF_INC)/btif_api.h $(BTIF)/btif_common.h $(BTIF)/btif_util.h
 INCS += $(MP_INC)/bluetoothmp.h $(MP_INC)/bt_mp_api.h $(MP_INC)/bt_mp_base.h \
         $(MP_INC)/bt_mp_build.h $(MP_INC)/bt_mp_device_base.h \
         $(MP_INC)/bt_mp_module_base.h $(MP_INC)/bt_mp_transport.h \
-        $(MP_INC)/foundation.h
+        $(MP_INC)/foundation.h $(MP_INC)/bt_mp_device_efuse_base.h
 INCS += $(GKI_INC)/common/gki.h $(GKI_INC)/common/gki_common.h $(GKI_INC)/common/gki_inet.h \
         $(GKI_INC)/ulinux/data_types.h $(GKI_INC)/ulinux/gki_int.h
 INCS += $(HCI_INC)/bt_hci_bdroid.h $(HCI_INC)/bt_hci_lib.h $(HCI_INC)/bt_list.h \

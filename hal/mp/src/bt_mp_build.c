@@ -1,6 +1,7 @@
 #define LOG_TAG "btif_mp_build"
 
 #include "bluetoothmp.h"
+#include "bt_mp_device_efuse_base.h"
 #include "bt_mp_build.h"
 
 int
@@ -72,6 +73,10 @@ BuildBluetoothDevice(
     pBtDevice->BTDlMERGERFW         =       BTDevice_BTDlMergerFW;
     //PG Efuse
     pBtDevice->BT_PGEfuseRawData    =       BTDevice_PGEfuseRawData;
+    pBtDevice->BT_ReadEfuseLogicalData = BTDevice_ReadEfuseLogicalData;
+
+    BuildEfuseLogicModule(pBtDevice, &(pBtDevice->pSysEfuse), &(pBtDevice->SysEfuseMemory), 128, 128, 0, 1);
+    BuildEfuseLogicModule(pBtDevice, &(pBtDevice->pBtEfuse), &(pBtDevice->BtEfuseMemory), 1024, 512, 1, 2);
 
     return 0;
 }
