@@ -345,17 +345,17 @@ error:
 
 
 int
-BuildEfuseLogicModule(
+BuildEfuseLogicUnit(
         BT_DEVICE *pBtDevice,
-        EFUSE_MODULE **ppEfuseModule,
-        EFUSE_MODULE *pEfuseModuleMemory,
+        EFUSE_UNIT **ppEfuseModule,
+        EFUSE_UNIT *pEfuseModuleMemory,
         unsigned int EfuseLogSize,
         unsigned int EfusePhySize,
         unsigned char StartBank,
         unsigned char BankNum
         )
 {
-    EFUSE_MODULE *pEfuse;
+    EFUSE_UNIT *pEfuse;
     unsigned i;
 
     *ppEfuseModule = pEfuseModuleMemory;
@@ -393,7 +393,7 @@ error:
 
 int
 BTDevice_Efuse_ReadData(
-        EFUSE_MODULE *pEfuse
+        EFUSE_UNIT *pEfuse
         )
 {
     unsigned char Bank;
@@ -421,7 +421,7 @@ error:
 
 int
 BTDevice_Efuse_WriteData(
-        EFUSE_MODULE *pEfuse
+        EFUSE_UNIT *pEfuse
         )
 {
     unsigned int i, j;
@@ -478,7 +478,7 @@ error:
 
 int
 BTDevice_Efuse_PhysicalToLogicalData(
-        EFUSE_MODULE *pEfuse
+        EFUSE_UNIT *pEfuse
         )
 {
     unsigned int i, j;
@@ -550,7 +550,7 @@ BTDevice_Efuse_PhysicalToLogicalData(
 
 int
 BTDevice_Efuse_SetValueToLogicalData(
-        EFUSE_MODULE *pEfuse,
+        EFUSE_UNIT *pEfuse,
         unsigned int Addr,
         unsigned char Value
         )
@@ -568,7 +568,7 @@ BTDevice_Efuse_SetValueToLogicalData(
 
 int
 BTDevice_Efuse_LogicDataToWritingEntry(
-        EFUSE_MODULE *pEfuse,
+        EFUSE_UNIT *pEfuse,
         unsigned int StartLogAddr,
         unsigned char *pWritingEntry,
         unsigned int *Len

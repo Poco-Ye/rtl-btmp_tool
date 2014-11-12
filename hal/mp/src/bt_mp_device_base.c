@@ -1160,8 +1160,6 @@ BTDevice_SetPktRxUpdate(
     uint32_t rxBits=0;
     uint16_t rxErrbits=0;
     uint16_t rxPin=0;
-    //float HeaderQuality = 20;
-    float snr = 0;
     uint16_t data;
     int32_t value;
 
@@ -1194,44 +1192,6 @@ BTDevice_SetPktRxUpdate(
 
     pBtReport->RxRssi = (int)(rxPin);
     pBtReport->RxRssi = pBtReport->RxRssi * 2 - 96;
-#if 0
-    //Header Quality
-    if (bt_default_GetMDRegMaskBits(pBtDevice, 0x6c, 15, 9, &data_lsb))
-        goto exit;
-
-    if (bt_default_GetMDRegMaskBits(pBtDevice, 0x6e, 3, 0, &data_msb))
-        goto exit;
-
-    if (bt_default_GetMDRegMaskBits(pBtDevice, 0x6e, 14, 4, &data))
-        goto exit;
-
-    value = (data_msb << 7) + data_lsb;
-
-    if (value && data)
-        HeaderQuality = 20*log10f((float)value) - 20*log10f((float)data);
-#endif
-
-#if 1
-    // set page2 reg62 = 0x15d7, enable mse
-    if (bt_default_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 2))
-        goto exit;
-    if (bt_default_SetMDRegMaskBits(pBtDevice, 0x62, 15, 0, 0x15d7))
-        goto exit;
-
-    // set page0 reg18[12:13]=2'b11, enable mse report reg
-    if (bt_default_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0))
-        goto exit;
-    if (bt_default_SetMDRegMaskBits(pBtDevice, 0x18, 13, 12, 3))
-        goto exit;
-
-    // payload mse: read  page0 reg68
-    if (bt_default_GetMDRegMaskBits(pBtDevice, 0x68, 15, 0, &data))
-        goto exit;
-
-    if (data)
-        snr = 10.0*log10(65536.0) - 10.0*log10((float)data);
-
-#endif
 
     //if (pBtReport->RxRssi > -89)
     {
@@ -1279,8 +1239,8 @@ BTDevice_SetPktRxUpdate(
         }
     }
 
-    SYSLOGI("-BTDevice_Set Pkt Rx Update: RxRssi= %d, rxCount = %d, ber=%f, snr = %f",
-            pBtReport->RxRssi, rxCount, pBtReport->ber, snr);
+    SYSLOGI("-BTDevice_Set Pkt Rx Update: RxRssi= %d, rxCount = %d, ber=%f",
+            pBtReport->RxRssi, rxCount, pBtReport->ber);
     return BT_FUNCTION_SUCCESS;
 
 exit:
@@ -2747,7 +2707,7 @@ BTDevice_ReadEfuseLogicalData(
 
     uint8_t Command;
     uint32_t EfuseLogicalAddr;
-    EFUSE_MODULE *pEfuse;
+    EFUSE_UNIT *pEfuse;
     uint8_t i, Len;
 
     Command = pParam->mPGRawData[0];

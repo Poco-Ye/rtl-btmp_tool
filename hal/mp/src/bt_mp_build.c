@@ -75,8 +75,8 @@ BuildBluetoothDevice(
     pBtDevice->BT_PGEfuseRawData    =       BTDevice_PGEfuseRawData;
     pBtDevice->BT_ReadEfuseLogicalData = BTDevice_ReadEfuseLogicalData;
 
-    BuildEfuseLogicModule(pBtDevice, &(pBtDevice->pSysEfuse), &(pBtDevice->SysEfuseMemory), 128, 128, 0, 1);
-    BuildEfuseLogicModule(pBtDevice, &(pBtDevice->pBtEfuse), &(pBtDevice->BtEfuseMemory), 1024, 512, 1, 2);
+    BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pSysEfuse), &(pBtDevice->SysEfuseMemory), 128, 128, 0, 1);
+    BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pBtEfuse), &(pBtDevice->BtEfuseMemory), 1024, 512, 1, 2);
 
     return 0;
 }

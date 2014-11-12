@@ -448,18 +448,18 @@ typedef struct {
 
     uint8_t StartBank;
     uint8_t BankNum;
-} EFUSE_MODULE;
+} EFUSE_UNIT;
 
 struct BT_DEVICE_TAG {
     // Table is base function
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t TXDACTable[MAX_TXDAC_TABLE_SIZE];
 
-    EFUSE_MODULE *pSysEfuse;
-    EFUSE_MODULE SysEfuseMemory;
+    EFUSE_UNIT *pSysEfuse;
+    EFUSE_UNIT SysEfuseMemory;
 
-    EFUSE_MODULE *pBtEfuse;
-    EFUSE_MODULE BtEfuseMemory;
+    EFUSE_UNIT *pBtEfuse;
+    EFUSE_UNIT BtEfuseMemory;
 
     BT_FP_SET_TXGAINTABLE       SetTxGainTable;
     BT_FP_SET_TXDACTABLE        SetTxDACTable;

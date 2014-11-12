@@ -18,7 +18,7 @@ int BTModule_ActionReport(
     BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
     BT_PARAMETER *pModuleBtParam = pBtModule->pBtParam;
     BT_DEVICE_REPORT *pModuleBtReport = pBtModule->pModuleBtReport;
-    uint32_t i;
+    uint8_t i;
 
     switch (ActiceItem) {
     case REPORT_PKT_TX:
@@ -74,25 +74,25 @@ int BTModule_ActionReport(
         pReport->RxRssi = pModuleBtReport->RxRssi;
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
         pReport->Cfo=pModuleBtReport->Cfo;
-        for( i = 0 ; i <MAX_TXGAIN_TABLE_SIZE; i++)
-        {
+
+        for (i = 0; i < MAX_TXGAIN_TABLE_SIZE; i++) {
             pReport->CurrTXGainTable[i] = pModuleBtDevice->TXGainTable[i];
         }
-        for(i = 0 ; i <MAX_TXDAC_TABLE_SIZE; i++)
-        {
-            pReport->CurrTXDACTable[i]= pModuleBtDevice->TXDACTable[i];
+
+        for (i = 0; i < MAX_TXDAC_TABLE_SIZE; i++) {
+            pReport->CurrTXDACTable[i] = pModuleBtDevice->TXDACTable[i];
         }
         break;
 
     case REPORT_TX_GAIN_TABLE:
-        for( i = 0 ; i <MAX_TXGAIN_TABLE_SIZE; i++) {
+        for (i = 0; i < MAX_TXGAIN_TABLE_SIZE; i++) {
             pReport->CurrTXGainTable[i] = pModuleBtDevice->TXGainTable[i];
         }
         break;
 
     case REPORT_TX_DAC_TABLE:
-        for(i = 0 ; i <MAX_TXDAC_TABLE_SIZE; i++) {
-            pReport->CurrTXDACTable[i]= pModuleBtDevice->TXDACTable[i];
+        for (i = 0; i < MAX_TXDAC_TABLE_SIZE; i++) {
+            pReport->CurrTXDACTable[i] = pModuleBtDevice->TXDACTable[i];
         }
         break;
 
@@ -109,7 +109,7 @@ int BTModule_ActionReport(
         break;
 
     case REPORT_LOGICAL_EFUSE:
-        for (i=0 ; i < MAX_USERAWDATA_SIZE; i++) {
+        for (i = 0; i < pModuleBtReport->ReportData[3] + LEN_4_BYTE; i++) {
             pReport->ReportData[i] = pModuleBtReport->ReportData[i];
         }
         break;

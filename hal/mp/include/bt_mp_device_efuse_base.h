@@ -20,10 +20,10 @@
 #define DUMMY_EFUSE_LEN 16
 
 int
-BuildEfuseLogicModule(
+BuildEfuseLogicUnit(
         BT_DEVICE *pBtDevice,
-        EFUSE_MODULE **ppEfuseModule,
-        EFUSE_MODULE *pEfuseModuleMemory,
+        EFUSE_UNIT **ppEfuseModule,
+        EFUSE_UNIT *pEfuseModuleMemory,
         unsigned int EfuseLogSize,
         unsigned int EfusePhySize,
         uint8_t StartBank,
@@ -32,29 +32,29 @@ BuildEfuseLogicModule(
 
 int
 BTDevice_Efuse_ReadData(
-        EFUSE_MODULE *pEfuse
+        EFUSE_UNIT *pEfuse
         );
 
 int
 BTDevice_Efuse_WriteData(
-        EFUSE_MODULE *pEfuse
+        EFUSE_UNIT *pEfuse
         );
 
 int
 BTDevice_Efuse_PhysicalToLogicalData(
-        EFUSE_MODULE *pEfuse
+        EFUSE_UNIT *pEfuse
         );
 
 int
 Efuse_SetValueToLogMem(
-        EFUSE_MODULE *pEfuse,
+        EFUSE_UNIT *pEfuse,
         unsigned int Addr,
         uint8_t Value
         );
 
 int
 BTDevice_Efuse_LogicDataToWritingEntry(
-        EFUSE_MODULE *pEfuse,
+        EFUSE_UNIT *pEfuse,
         unsigned int StartLogAddr,
         uint8_t *pWritingEntry,
         unsigned int *Len
