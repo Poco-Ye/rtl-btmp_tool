@@ -115,6 +115,7 @@ int gFinalSpeed = 0;
 #define HCI_VENDOR_READ_RTK_ROM_VERISION        0xFC6D
 #define HCI_READ_LMP                            0x1001
 
+#define ROM_LMP_NONE                0x0000
 #define ROM_LMP_8723a               0x1200
 #define ROM_LMP_8723b               0x8723
 #define ROM_LMP_8821a               0X8821
@@ -234,7 +235,8 @@ uint16_t project_id[]=
     ROM_LMP_8723a,
     ROM_LMP_8723b,
     ROM_LMP_8821a,
-    ROM_LMP_8761a
+    ROM_LMP_8761a,
+    ROM_LMP_NONE
 };
 
 typedef struct {
@@ -245,9 +247,12 @@ typedef struct {
 
 static patch_info patch_table[] = {
     { ROM_LMP_8723a, "mp_rtl8723a_fw", "mp_rtl8723a_config" },    //Rtl8723AS
-    { ROM_LMP_8723b, "mp_rtl8723b_fw", "mp_rtl8723b_config"},     //Rtl8723BS
-    { ROM_LMP_8821a, "mp_rtl8821a_fw", "mp_rtl8821a_config"},     //Rtl8821AS
-    { ROM_LMP_8761a, "mp_rtl8761a_fw", "mp_rtl8761a_config"}      //Rtl8761AW
+    { ROM_LMP_8723b, "mp_rtl8723b_fw", "mp_rtl8723b_config" },    //Rtl8723BS
+    { ROM_LMP_8821a, "mp_rtl8821a_fw", "mp_rtl8821a_config" },    //Rtl8821AS
+    { ROM_LMP_8761a, "mp_rtl8761a_fw", "mp_rtl8761a_config" },    //Rtl8761AW
+    /* add entries here*/
+
+    { ROM_LMP_NONE,  "mp_none_fw",     "mp_none_config" }
 };
 
 struct rtk_epatch_entry{
@@ -285,17 +290,17 @@ extern tHCI_IF *p_hci_if;
 
 /*********************************add for multi patch end**************************/
 
-patch_info* get_patch_entry(uint16_t    prod_id)
+patch_info *get_patch_entry(uint16_t prod_id)
 {
-    patch_info  *patch_entry = NULL;
-    patch_entry = patch_table;
-    while (prod_id != patch_entry->prod_id)
-    {
+    patch_info *patch_entry = patch_table;
+
+    while (prod_id != patch_entry->prod_id) {
         if (0 == patch_entry->prod_id)
             break;
 
         patch_entry++;
     }
+
     return patch_entry;
 }
 
