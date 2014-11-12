@@ -1120,12 +1120,11 @@ void hw_config_cback(void *p_mem)
 
             case HW_CFG_SET_UART_BAUD_CONTROLLER:
 
-
                 SYSLOGI("bt vendor lib: set CONTROLLER UART baud %x", baudrate);
-
 
                 is_proceeding = hw_config_set_controller_baudrate(p_buf, baudrate);
 
+                ms_delay(100);
 
                 break;
 
@@ -1133,17 +1132,25 @@ void hw_config_cback(void *p_mem)
             {
                 uint32_t HostBaudRate = 0;
 
-                SYSLOGI("========add delay 100 ms");
-                ms_delay(100);
-
                 /* update baud rate of host's UART port */
                 rtk_speed_to_uart_speed(baudrate, &HostBaudRate);
                 SYSLOGI("bt vendor lib: set HOST UART baud %i", HostBaudRate);
                 userial_vendor_set_baud( \
                     line_speed_to_userial_baud(HostBaudRate) \
                 );
+
+                SYSLOGI("Change HW flowcontrol setting");
+                if (gNeedToSetHWFlowControl) {
+                    if (gHwFlowControlEnable) {
+                        userial_vendor_set_hw_fctrl(1);
+                    } else {
+                        userial_vendor_set_hw_fctrl(0);
+                    }
+                }
+
                 ms_delay(100);
             }
+
              //fall through
 DOWNLOAD_FW:
             case HW_CFG_DL_FW_PATCH:
@@ -1162,7 +1169,8 @@ DOWNLOAD_FW:
                     iCurIndex ++;
                 }
 
-                 if( (opcode ==HCI_VSC_DOWNLOAD_FW_PATCH)&&( iIndexRx&0x80 || iIndexRx == iTotalIndex) ){
+                if ((opcode == HCI_VSC_DOWNLOAD_FW_PATCH) &&
+                    (iIndexRx & 0x80 || iIndexRx == iTotalIndex)) {
                     SYSLOGI("vendor lib fwcfg completed");
                     if(buf) {
                         free(buf);
@@ -1181,60 +1189,38 @@ DOWNLOAD_FW:
                     is_proceeding = TRUE;
 
                     break;
-                 }
+                }
 
-                    if (iCurIndex < iEndIndex) {
-                            iCurIndex = iCurIndex&0x7F;
-                            iCurLen = PATCH_DATA_FIELD_MAX_SIZE;
-                    }
-                    else if (iCurIndex == iEndIndex) {  //send last data packet
-                        if (iCurIndex == iTotalIndex)
-                            iCurIndex = iCurIndex | 0x80;
-                        else
-                            iCurIndex = iCurIndex&0x7F;
-                        iCurLen = iLastPacketLen;
-                    }
-                    else if (iCurIndex < iTotalIndex) {
-                            iCurIndex = iCurIndex&0x7F;
-                            bufpatch = NULL;
-                            iCurLen = 0;
-                            //printf("addtional packet index:%d  iCurIndex:%d\n", i, iCurIndex);
-                    }
-                    else {          //send end packet
-                        bufpatch = NULL;
-                        iCurLen = 0;
-                        iCurIndex = iCurIndex|0x80;
-                        //printf("end packet index:%d iCurIndex:%d\n", i, iCurIndex);
-                    }
+                if (iCurIndex < iEndIndex) {
+                    iCurIndex = iCurIndex&0x7F;
+                    iCurLen = PATCH_DATA_FIELD_MAX_SIZE;
+                } else if (iCurIndex == iEndIndex) {  //send last data packet
+                    if (iCurIndex == iTotalIndex)
+                        iCurIndex = iCurIndex | 0x80;
+                    else
+                        iCurIndex = iCurIndex&0x7F;
+                    iCurLen = iLastPacketLen;
+                } else if (iCurIndex < iTotalIndex) {
+                    iCurIndex = iCurIndex&0x7F;
+                    bufpatch = NULL;
+                    iCurLen = 0;
+                } else {          //send end packet
+                    bufpatch = NULL;
+                    iCurLen = 0;
+                    iCurIndex = iCurIndex|0x80;
+                }
 
-                    if (iCurIndex & 0x80)
-                        SYSLOGI("Send FW last command");
+                if (iCurIndex & 0x80)
+                    SYSLOGI("Send FW last command");
 
-                    SYSLOGI("iCurIndex = %i, iCurLen = %i", iCurIndex, iCurLen);
+                SYSLOGI("iCurIndex = %i, iCurLen = %i", iCurIndex, iCurLen);
 
-                    is_proceeding = hci_download_patch_h4(p_buf, iCurIndex, bufpatch, iCurLen);
-                    if (iCurIndex & 0x80) {
-                        SYSLOGI("Change HW flowcontrol setting");
-                        if (gNeedToSetHWFlowControl)
-                        {
-                            if (gHwFlowControlEnable)
-                            {
-                                userial_vendor_set_hw_fctrl(1);
-                            }
-                            else
-                            {
-                                userial_vendor_set_hw_fctrl(0);
-                            }
-
-                        }
-                    }
-
-
+                is_proceeding = hci_download_patch_h4(p_buf, iCurIndex, bufpatch, iCurLen);
 
                 break;
 
-                default:
-                    break;
+            default:
+                break;
         } // switch(hw_cfg_cb.state)
     } // if (p_buf != NULL)
 
