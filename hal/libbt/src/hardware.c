@@ -1125,6 +1125,8 @@ void hw_config_cback(void *p_mem)
 
             case HW_CFG_SET_UART_BAUD_CONTROLLER:
 
+                baudrate = baudrate != 0 ? baudrate : 0x0000701d;
+
                 SYSLOGI("bt vendor lib: set CONTROLLER UART baud %x", baudrate);
 
                 is_proceeding = hw_config_set_controller_baudrate(p_buf, baudrate);
