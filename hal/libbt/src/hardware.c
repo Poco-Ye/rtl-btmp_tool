@@ -1131,8 +1131,6 @@ void hw_config_cback(void *p_mem)
 
                 is_proceeding = hw_config_set_controller_baudrate(p_buf, baudrate);
 
-                ms_delay(100);
-
                 break;
 
             case HW_CFG_SET_UART_BAUD_HOST:

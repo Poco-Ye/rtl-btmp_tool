@@ -3375,20 +3375,14 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
             h5_stop_conf_retrans_timer();
         }
     }
-    else
-    if (signo == TIMER_H5_WAIT_CT_BAUDRATE_READY)
-    {
-        LogMsg("No Controller retransfer, baudrate of controller ready");
-        if (rtk_h5.cback_h5sync!= NULL)
-        {
+    else if (signo == TIMER_H5_WAIT_CT_BAUDRATE_READY) {
+        SYSLOGI("No Controller retransfer, baudrate of controller ready");
+        if (rtk_h5.cback_h5sync) {
             rtk_h5.cback_h5sync(rtk_h5.p_rcv_msg);
-        }
-        else
-        {
+        } else {
             // Missing cback function!
             // Release the p_rcv_msg buffer.
-            if (bt_hc_cbacks)
-            {
+            if (bt_hc_cbacks) {
                 bt_hc_cbacks->dealloc((TRANSAC) rtk_h5.p_rcv_msg, \
                                       (char *) (rtk_h5.p_rcv_msg + 1));
             }
