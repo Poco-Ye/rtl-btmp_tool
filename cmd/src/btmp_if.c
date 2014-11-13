@@ -62,7 +62,7 @@ const t_cmd console_cmd_list[] =
     /*
      * API CONSOLE COMMANDS
      */
-    { "help", btmp_help, ":: Lists all available console commands" },
+    { "help", btmp_help, ":: Lists all available console commands("MP_TOOL_VERSION")" },
     { "quit", btmp_quit, ":: Abort the MP tool test app" },
 
     { STR_BT_MP_ENABLE, btmp_enable, ":: Enable bluetooth" },
