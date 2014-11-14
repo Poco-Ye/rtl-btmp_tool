@@ -39,6 +39,8 @@
 #define BTVNDDBG(param, ...) {}
 #endif
 
+void USB_hw_config_start(void);
+
 /******************************************************************************
 **  Local type definitions
 ******************************************************************************/
@@ -151,7 +153,7 @@ static int USB_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 
         case BT_VND_OP_FW_CFG:
             {
-                USB_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
+                USB_hw_config_start();
             }
             break;
 

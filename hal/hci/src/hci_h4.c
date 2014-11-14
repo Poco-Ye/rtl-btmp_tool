@@ -108,6 +108,8 @@ static const uint16_t msg_evt_table[] =
 #define HCI_READ_BUFFER_SIZE        0x1005
 #define HCI_LE_READ_BUFFER_SIZE     0x2002
 
+#define HCI_VSC_FIRMWARE_RESET      0xFC66
+
 /******************************************************************************
 **  Local type definitions
 ******************************************************************************/
@@ -987,10 +989,18 @@ uint8_t hci_h4_send_int_cmd(uint16_t opcode, HC_BT_HDR *p_buf, \
         return FALSE;
     }
 
-    h4_cb.int_cmd_rsp_pending++;
-    h4_cb.int_cmd[h4_cb.int_cmd_wrt_idx].opcode = opcode;
-    h4_cb.int_cmd[h4_cb.int_cmd_wrt_idx].cback = p_cback;
-    h4_cb.int_cmd_wrt_idx = ((h4_cb.int_cmd_wrt_idx+1) & INT_CMD_PKT_IDX_MASK);
+    if (opcode == HCI_VSC_FIRMWARE_RESET) {
+        /* As firmware reset vendor cmd has not event acked, it needs
+         * increased one credit to allow following cmds to be sent to
+         * controller.
+         */
+        H4_num_hci_cmd_pkts++;
+    } else {
+        h4_cb.int_cmd_rsp_pending++;
+        h4_cb.int_cmd[h4_cb.int_cmd_wrt_idx].opcode = opcode;
+        h4_cb.int_cmd[h4_cb.int_cmd_wrt_idx].cback = p_cback;
+        h4_cb.int_cmd_wrt_idx = ((h4_cb.int_cmd_wrt_idx+1) & INT_CMD_PKT_IDX_MASK);
+    }
 
     /* stamp signature to indicate an internal command */
     p_buf->layer_specific = opcode;
