@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright (C) 2009-2012 Realtek Corporation
+ *  Copyright (C) 2014 Realtek Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,15 +18,14 @@
 
 /******************************************************************************
  *
- *  Filename:      hardware.c
+ *  Filename:      bt_hwcfg_uart.c
  *
- *  Description:   Contains controller-specific functions, like
- *                      firmware patch download
- *                      low power mode operations
+ *  Description:   Contains controller-specific functions, like firmware patch
+ *                 download, uart interface configure.
  *
  ******************************************************************************/
 
-#define LOG_TAG "bt_hwcfg"
+#define LOG_TAG "bt_hwcfg_uart"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,15 +64,12 @@
 #define BTHWDBG(param, ...) {}
 #endif
 
-
 #define HCI_UART_H4 0
 #define HCI_UART_3WIRE  2
 
-
-#define FIRMWARE_DIRECTORY  "/lib/firmware/%s"
-#define BT_CONFIG_DIRECTORY "/lib/firmware/%s"
+#define BT_FIRMWARE_DIRECTORY   "/lib/firmware/%s"
+#define BT_CONFIG_DIRECTORY     "/lib/firmware/%s"
 #define PATCH_DATA_FIELD_MAX_SIZE     252
-
 
 struct patch_struct {
     int nTxIndex;   // current sending pkt number
@@ -83,16 +79,15 @@ struct patch_struct {
 };
 static struct patch_struct rtk_patch;
 
-
 #define RTK_VENDOR_CONFIG_MAGIC 0x8723ab55
-struct rtk_bt_vendor_config_entry{
+struct rtk_bt_vendor_config_entry {
     uint16_t offset;
     uint8_t entry_len;
     uint8_t entry_data[0];
 } __attribute__ ((packed));
 
 
-struct rtk_bt_vendor_config{
+struct rtk_bt_vendor_config {
     uint32_t signature;
     uint16_t data_len;
     struct rtk_bt_vendor_config_entry entry[0];
@@ -101,10 +96,6 @@ struct rtk_bt_vendor_config{
 int gHwFlowControlEnable = 1;
 int gNeedToSetHWFlowControl = 0;
 int gFinalSpeed = 0;
-
-#define FW_PATCHFILE_EXTENSION_LEN  4
-#define FW_PATCHFILE_PATH_MAXLEN    248 /* Local_Name length of return of
-                                           HCI_Read_Local_Name */
 
 #define HCI_CMD_MAX_LEN             258
 
@@ -121,9 +112,7 @@ int gFinalSpeed = 0;
 #define ROM_LMP_8821a               0X8821
 #define ROM_LMP_8761a               0X8761
 
-
 #define HCI_VSC_H5_INIT                0xFCEE
-
 
 #define HCI_EVT_CMD_CMPL_STATUS_RET_BYTE        5
 #define HCI_EVT_CMD_CMPL_LOCAL_NAME_STRING      6
@@ -136,7 +125,6 @@ int gFinalSpeed = 0;
 #define BD_ADDR_LEN                             6
 #define LOCAL_NAME_BUFFER_LEN                   32
 #define LOCAL_BDADDR_PATH_BUFFER_LEN            256
-
 
 #define H5_SYNC_REQ_SIZE 2
 #define H5_SYNC_RESP_SIZE 2
@@ -161,31 +149,12 @@ enum {
 };
 
 /* h/w config control block */
-typedef struct
-{
+typedef struct {
     uint8_t state;                          /* Hardware configuration state */
     int     fw_fd;                          /* FW patch file fd */
     uint8_t f_set_baud_2;                   /* Baud rate switch state */
     char    local_chip_name[LOCAL_NAME_BUFFER_LEN];
 } bt_hw_cfg_cb_t;
-
-/* low power mode parameters */
-typedef struct
-{
-    uint8_t sleep_mode;                     /* 0(disable),1(UART),9(H5) */
-    uint8_t host_stack_idle_threshold;      /* Unit scale 300ms/25ms */
-    uint8_t host_controller_idle_threshold; /* Unit scale 300ms/25ms */
-    uint8_t bt_wake_polarity;               /* 0=Active Low, 1= Active High */
-    uint8_t host_wake_polarity;             /* 0=Active Low, 1= Active High */
-    uint8_t allow_host_sleep_during_sco;
-    uint8_t combine_sleep_mode_and_lpm;
-    uint8_t enable_uart_txd_tri_state;      /* UART_TXD Tri-State */
-    uint8_t sleep_guard_time;               /* sleep guard time in 12.5ms */
-    uint8_t wakeup_guard_time;              /* wakeup guard time in 12.5ms */
-    uint8_t txd_config;                     /* TXD is high in sleep state */
-    uint8_t pulsed_host_wake;               /* pulsed host wake if mode = 1 */
-} bt_lpm_param_t;
-
 
 /******************************************************************************
 **  Externs
@@ -204,26 +173,7 @@ extern uint8_t vnd_local_bd_addr[BD_ADDR_LEN];
 static char fw_patchfile_path[256] = FW_PATCHFILE_LOCATION;
 static char fw_patchfile_name[128] = { 0 };
 
-
 static bt_hw_cfg_cb_t hw_cfg_cb;
-
-static bt_lpm_param_t lpm_param =
-{
-    LPM_SLEEP_MODE,
-    LPM_IDLE_THRESHOLD,
-    LPM_HC_IDLE_THRESHOLD,
-    LPM_BT_WAKE_POLARITY,
-    LPM_HOST_WAKE_POLARITY,
-    LPM_ALLOW_HOST_SLEEP_DURING_SCO,
-    LPM_COMBINE_SLEEP_MODE_AND_LPM,
-    LPM_ENABLE_UART_TXD_TRI_STATE,
-    0,  /* not applicable */
-    0,  /* not applicable */
-    0,  /* not applicable */
-    LPM_PULSED_HOST_WAKE
-};
-
-/*********************************add for multi patch start**************************/
 
 //signature: Realtech
 const uint8_t RTK_EPATCH_SIGNATURE[8]={0x52,0x65,0x61,0x6C,0x74,0x65,0x63,0x68};
@@ -632,9 +582,9 @@ int rtk_get_bt_firmware(uint8_t** fw_buf, size_t addi_len, char* fw_short_name)
     struct stat st;
     int fd = -1;
     size_t fwsize = 0;
-       size_t buf_size = 0;
+    size_t buf_size = 0;
 
-    sprintf(filename, FIRMWARE_DIRECTORY, fw_short_name);
+    sprintf(filename, BT_FIRMWARE_DIRECTORY, fw_short_name);
     SYSLOGI("BT fw file: %s", (char*)filename);
 
     if (stat(filename, &st) < 0) {
@@ -707,10 +657,9 @@ void rtk_get_eversion_timeout(int sig)
 */
 void rtk_get_eversion(void)
 {
-    HC_BT_HDR  *p_buf=NULL;
+    HC_BT_HDR  *p_buf = NULL;
 
-    p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
-                                                    HCI_CMD_MAX_LEN);
+    p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + HCI_CMD_MAX_LEN);
     p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
     p_buf->offset = 0;
     p_buf->len = 0;
@@ -718,7 +667,7 @@ void rtk_get_eversion(void)
 
     SYSLOGI("bt vendor lib: Get eversion");
     struct sigaction sa;
-    uint8_t *p = (uint8_t *) (p_buf + 1);
+    uint8_t *p = (uint8_t *)(p_buf + 1);
 
     UINT16_TO_STREAM(p, HCI_VENDOR_READ_RTK_ROM_VERISION);
 
@@ -726,8 +675,7 @@ void rtk_get_eversion(void)
 
     p_buf->len = HCI_CMD_PREAMBLE_SIZE;
 
-    UART_bt_vendor_cbacks->xmit_cb(HCI_VENDOR_READ_RTK_ROM_VERISION, p_buf, \
-                                 hw_config_cback);
+    UART_bt_vendor_cbacks->xmit_cb(HCI_VENDOR_READ_RTK_ROM_VERISION, p_buf, hw_config_cback);
 
     gRom_version_cmd_state = cmd_has_sent;
     SYSLOGI("RTK send HCI_VENDOR_READ_RTK_ROM_VERISION_Command\n");
@@ -738,7 +686,6 @@ void rtk_get_eversion(void)
     sa.sa_handler = rtk_get_eversion_timeout;
     sigaction(SIGALRM, &sa, NULL);
     alarm(1);
-
 }
 
 void rtk_get_lmp_timeout(int sig)
@@ -750,11 +697,10 @@ void rtk_get_lmp_timeout(int sig)
 
 void rtk_get_lmp()
 {
-    HC_BT_HDR  *p_buf=NULL;
+    HC_BT_HDR *p_buf = NULL;
     struct sigaction sa;
 
-    p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
-                                                        HCI_CMD_MAX_LEN);
+    p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + HCI_CMD_MAX_LEN);
     p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
     p_buf->offset = 0;
     p_buf->len = 0;
@@ -780,50 +726,36 @@ void rtk_get_lmp()
     sa.sa_handler = rtk_get_lmp_timeout;
     sigaction(SIGALRM, &sa, NULL);
     alarm(1);
-
 }
 
 void rtk_get_lmp_cback(void *p_mem)
 {
-    HC_BT_HDR *p_evt_buf = (HC_BT_HDR *) p_mem;
+    HC_BT_HDR *p_evt_buf = (HC_BT_HDR *)p_mem;
     uint8_t   *p, status;
     gRom_version_cmd_state = event_received;
     alarm(0);
 
     status = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE);
 
-    if (status == 0)
-    {
+    if (status == 0) {
         p = (uint8_t *)(p_evt_buf + 1) + LPM_CMD_PARAM_SIZE;
         STREAM_TO_UINT16(lmp_version,p);
         SYSLOGI("lmp_version = %x", lmp_version);
-        if(lmp_version == ROM_LMP_8723a)
+        if (lmp_version == ROM_LMP_8723a)
         {
             hw_config_cback(NULL);
-        }
-        else
-        {
+        } else {
             rtk_get_eversion();
         }
     }
 
-    if (UART_bt_vendor_cbacks)
-    {
+    if (UART_bt_vendor_cbacks) {
         UART_bt_vendor_cbacks->lpm_cb(status);
         UART_bt_vendor_cbacks->dealloc(p_evt_buf);
     }
-
 }
 
-/*******************************************************************************
-**
-** Function         hw_config_cback
-**
-** Description      Callback function for controller configuration
-**
-** Returns          None
-**
-*******************************************************************************/
+/** Callback function for controller configurationn */
 void hw_config_cback(void *p_mem)
 {
     HC_BT_HDR   *p_evt_buf = NULL;
@@ -853,7 +785,6 @@ void hw_config_cback(void *p_mem)
     uint8_t     *ph5_ctrl_pkt = NULL;
     uint16_t     h5_ctrl_pkt = 0;
 
-//add for multi epatch
     uint8_t is_multi_epatch = 0;
     uint8_t* epatch_buf = NULL;
     int epatch_length = -1;
@@ -865,8 +796,7 @@ void hw_config_cback(void *p_mem)
     const uint8_t null_bdaddr[BD_ADDR_LEN] = {0,0,0,0,0,0};
 #endif
 
-    if(p_mem != NULL)
-    {
+    if (p_mem != NULL) {
         p_evt_buf = (HC_BT_HDR *) p_mem;
         status = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE);
         p = (uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_OPCODE;
@@ -878,18 +808,16 @@ void hw_config_cback(void *p_mem)
     //if ((status == 0) && UART_bt_vendor_cbacks)
     if (UART_bt_vendor_cbacks) //a fc6d status==1
     {
-        p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
-                                                       HCI_CMD_MAX_LEN);
+        p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + HCI_CMD_MAX_LEN);
     }
 
-    if (p_buf != NULL)
-    {
+    if (p_buf != NULL) {
         p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
         p_buf->offset = 0;
         p_buf->len = 0;
         p_buf->layer_specific = 0;
 
-        p = (uint8_t *) (p_buf + 1);
+        p = (uint8_t *)(p_buf + 1);
 
         SYSLOGI("hw_cfg_cb.state = %i", hw_cfg_cb.state);
         switch (hw_cfg_cb.state)
@@ -1082,12 +1010,11 @@ void hw_config_cback(void *p_mem)
                 }
 
                 if (config_file_buf)
-                free(config_file_buf);
+                    free(config_file_buf);
 
                 SYSLOGI("Fw:%s exists, config file:%s exists", (buf_len > 0) ? "":"not", (config_len>0)?"":"not");
 
-                if((buf_len > 0)&&(need_download_fw))
-                {
+                if ((buf_len > 0) && (need_download_fw)) {
                     iEndIndex = (uint8_t)((buf_len-1)/PATCH_DATA_FIELD_MAX_SIZE);
                     iLastPacketLen = (buf_len)%PATCH_DATA_FIELD_MAX_SIZE;
 
@@ -1108,15 +1035,12 @@ void hw_config_cback(void *p_mem)
                         iLastPacketLen = PATCH_DATA_FIELD_MAX_SIZE;
 
                     bufpatch = buf;
-                }
-                else
-                {
+                } else {
                     is_proceeding = FALSE;
                     break;
                 }
 
-                if ((buf_len>0) && (config_len == 0))
-                {
+                if ((buf_len>0) && (config_len == 0)) {
                     goto DOWNLOAD_FW;
                 }
 
@@ -1186,8 +1110,7 @@ DOWNLOAD_FW:
 
                     hw_cfg_cb.state = 0;
 
-                    if (hw_cfg_cb.fw_fd != -1)
-                    {
+                    if (hw_cfg_cb.fw_fd != -1) {
                         close(hw_cfg_cb.fw_fd);
                         hw_cfg_cb.fw_fd = -1;
                     }
@@ -1233,19 +1156,16 @@ DOWNLOAD_FW:
     if (UART_bt_vendor_cbacks && (p_mem != NULL))
         UART_bt_vendor_cbacks->dealloc(p_evt_buf);
 
-    if (is_proceeding == FALSE)
-    {
+    if (is_proceeding == FALSE) {
         SYSLOGE("vendor lib fwcfg aborted!!!");
-        if (UART_bt_vendor_cbacks)
-        {
+        if (UART_bt_vendor_cbacks) {
             if (p_buf != NULL)
                 UART_bt_vendor_cbacks->dealloc(p_buf);
 
             UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
         }
 
-        if (hw_cfg_cb.fw_fd != -1)
-        {
+        if (hw_cfg_cb.fw_fd != -1) {
             close(hw_cfg_cb.fw_fd);
             hw_cfg_cb.fw_fd = -1;
         }
@@ -1254,73 +1174,22 @@ DOWNLOAD_FW:
     }
 }
 
-/******************************************************************************
-**   LPM Static Functions
-******************************************************************************/
-
-/*******************************************************************************
-**
-** Function         hw_lpm_ctrl_cback
-**
-** Description      Callback function for lpm enable/disable rquest
-**
-** Returns          None
-**
-*******************************************************************************/
-void hw_lpm_ctrl_cback(void *p_mem)
-{
-    HC_BT_HDR *p_evt_buf = (HC_BT_HDR *) p_mem;
-    bt_vendor_op_result_t status = BT_VND_OP_RESULT_FAIL;
-
-    if (*((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE) == 0)
-    {
-        status = BT_VND_OP_RESULT_SUCCESS;
-    }
-
-    if (UART_bt_vendor_cbacks)
-    {
-        UART_bt_vendor_cbacks->lpm_cb(status);
-        UART_bt_vendor_cbacks->dealloc(p_evt_buf);
-    }
-}
-
-
-
-
-/*****************************************************************************
-**   Hardware Configuration Interface Functions
-*****************************************************************************/
-
-
-/*******************************************************************************
-**
-** Function        hw_config_start
-**
-** Description     Kick off controller initialization process
-**
-** Returns         None
-**
-*******************************************************************************/
+/** Kick off controller initialization process */
 void hw_config_start(void)
 {
-    HC_BT_HDR  *p_buf = NULL;
-    uint8_t     *p;
+    HC_BT_HDR *p_buf = NULL;
+    uint8_t *p;
 
     hw_cfg_cb.state = 0;
     hw_cfg_cb.fw_fd = -1;
     hw_cfg_cb.f_set_baud_2 = FALSE;
 
-
     /* Start from sending H5 SYNC */
-
-    if (UART_bt_vendor_cbacks)
-    {
-        p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + \
-                                                       2);
+    if (UART_bt_vendor_cbacks) {
+        p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + 2);
     }
 
-    if (p_buf)
-    {
+    if (p_buf) {
         p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
         p_buf->offset = 0;
         p_buf->layer_specific = 0;
@@ -1333,11 +1202,8 @@ void hw_config_start(void)
         SYSLOGI("hw_config_start:Realtek version %s",RTK_VERSION);
         //UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, hw_config_cback);
         UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, rtk_get_lmp);
-    }
-    else
-    {
-        if (UART_bt_vendor_cbacks)
-        {
+    } else {
+        if (UART_bt_vendor_cbacks) {
             SYSLOGE("vendor lib fw conf aborted [no buffer]");
             UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
         }
