@@ -41,7 +41,7 @@
 **  Externs
 ******************************************************************************/
 
-void hw_config_start(void);
+void UART_hw_config_start(void);
 
 
 /******************************************************************************
@@ -130,7 +130,7 @@ static int UART_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 
         case BT_VND_OP_FW_CFG:
             {
-                hw_config_start();
+                UART_hw_config_start();
             }
             break;
 

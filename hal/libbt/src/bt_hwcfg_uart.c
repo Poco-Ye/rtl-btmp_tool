@@ -37,260 +37,23 @@
 #include <time.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <dirent.h>
-#include <ctype.h>
 
 #include "bt_syslog.h"
+#include "bt_hwcfg_if.h"
+#include "bt_vendor_lib.h"
 #include "bt_hci_bdroid.h"
 #include "bt_vendor_uart.h"
 #include "userial.h"
 #include "userial_vendor.h"
 #include "upio.h"
-#include "bt_vendor_lib.h"
-#include "hci.h"
 
-/******************************************************************************
-**  Constants & Macros
-******************************************************************************/
-#define RTK_VERSION "2.11"
+extern uint8_t UART_vnd_local_bd_addr[BD_ADDR_LEN];
 
-#ifndef BTHW_DBG
-#define BTHW_DBG FALSE
-#endif
+void UART_hw_config_cback(void *p_evt_buf);
 
-#if (BTHW_DBG == TRUE)
-#define BTHWDBG(param, ...) {SYSLOGD(param, ## __VA_ARGS__);}
-#else
-#define BTHWDBG(param, ...) {}
-#endif
+static bt_hw_cfg_cb_t UART_hw_cfg_cb;
 
-#define HCI_UART_H4 0
-#define HCI_UART_3WIRE  2
-
-#define BT_FIRMWARE_DIRECTORY   "/lib/firmware/%s"
-#define BT_CONFIG_DIRECTORY     "/lib/firmware/%s"
-#define PATCH_DATA_FIELD_MAX_SIZE     252
-
-struct patch_struct {
-    int nTxIndex;   // current sending pkt number
-    int nTotal;     // total pkt number
-    int nRxIndex;   // ack index from board
-    int nNeedRetry; // if no response from board
-};
-static struct patch_struct rtk_patch;
-
-#define RTK_VENDOR_CONFIG_MAGIC 0x8723ab55
-struct rtk_bt_vendor_config_entry {
-    uint16_t offset;
-    uint8_t entry_len;
-    uint8_t entry_data[0];
-} __attribute__ ((packed));
-
-
-struct rtk_bt_vendor_config {
-    uint32_t signature;
-    uint16_t data_len;
-    struct rtk_bt_vendor_config_entry entry[0];
-} __attribute__ ((packed));
-
-int gHwFlowControlEnable = 1;
-int gNeedToSetHWFlowControl = 0;
-int gFinalSpeed = 0;
-
-#define HCI_CMD_MAX_LEN             258
-
-#define HCI_RESET                               0x0C03
-
-#define HCI_VSC_UPDATE_BAUDRATE                 0xFC17
-#define HCI_VSC_DOWNLOAD_FW_PATCH               0xFC20
-#define HCI_VENDOR_READ_RTK_ROM_VERISION        0xFC6D
-#define HCI_READ_LMP                            0x1001
-
-#define ROM_LMP_NONE                0x0000
-#define ROM_LMP_8723a               0x1200
-#define ROM_LMP_8723b               0x8723
-#define ROM_LMP_8821a               0X8821
-#define ROM_LMP_8761a               0X8761
-
-#define HCI_VSC_H5_INIT                0xFCEE
-
-#define HCI_EVT_CMD_CMPL_STATUS_RET_BYTE        5
-#define HCI_EVT_CMD_CMPL_LOCAL_NAME_STRING      6
-#define HCI_EVT_CMD_CMPL_LOCAL_BDADDR_ARRAY     6
-#define HCI_EVT_CMD_CMPL_OPCODE                 3
-#define LPM_CMD_PARAM_SIZE                      12
-#define UPDATE_BAUDRATE_CMD_PARAM_SIZE          6
-#define HCI_CMD_PREAMBLE_SIZE                   3
-#define HCD_REC_PAYLOAD_LEN_BYTE                2
-#define BD_ADDR_LEN                             6
-#define LOCAL_NAME_BUFFER_LEN                   32
-#define LOCAL_BDADDR_PATH_BUFFER_LEN            256
-
-#define H5_SYNC_REQ_SIZE 2
-#define H5_SYNC_RESP_SIZE 2
-#define H5_CONF_REQ_SIZE 3
-#define H5_CONF_RESP_SIZE 2
-
-#define STREAM_TO_UINT16(u16, p) {u16 = ((uint16_t)(*(p)) + (((uint16_t)(*((p) + 1))) << 8)); (p) += 2;}
-#define UINT16_TO_STREAM(p, u16) {*(p)++ = (uint8_t)(u16); *(p)++ = (uint8_t)((u16) >> 8);}
-#define UINT32_TO_STREAM(p, u32) {*(p)++ = (uint8_t)(u32); *(p)++ = (uint8_t)((u32) >> 8); *(p)++ = (uint8_t)((u32) >> 16); *(p)++ = (uint8_t)((u32) >> 24);}
-
-/******************************************************************************
-**  Local type definitions
-******************************************************************************/
-
-/* Hardware Configuration State */
-enum {
-    HW_CFG_H5_INIT = 1,
-    HW_CFG_START,
-    HW_CFG_SET_UART_BAUD_HOST,//change FW baudrate
-    HW_CFG_SET_UART_BAUD_CONTROLLER,//change Host baudrate
-    HW_CFG_DL_FW_PATCH
-};
-
-/* h/w config control block */
-typedef struct {
-    uint8_t state;                          /* Hardware configuration state */
-    int     fw_fd;                          /* FW patch file fd */
-    uint8_t f_set_baud_2;                   /* Baud rate switch state */
-    char    local_chip_name[LOCAL_NAME_BUFFER_LEN];
-} bt_hw_cfg_cb_t;
-
-/******************************************************************************
-**  Externs
-******************************************************************************/
-
-void hw_config_cback(void *p_evt_buf);
-void rtk_get_lmp_cback(void *p_evt_buf);
-
-extern uint8_t vnd_local_bd_addr[BD_ADDR_LEN];
-
-
-/******************************************************************************
-**  Static variables
-******************************************************************************/
-
-static char fw_patchfile_path[256] = FW_PATCHFILE_LOCATION;
-static char fw_patchfile_name[128] = { 0 };
-
-static bt_hw_cfg_cb_t hw_cfg_cb;
-
-//signature: Realtech
-const uint8_t RTK_EPATCH_SIGNATURE[8]={0x52,0x65,0x61,0x6C,0x74,0x65,0x63,0x68};
-//Extension Section IGNATURE:0x77FD0451
-const uint8_t Extension_Section_SIGNATURE[4]={0x51,0x04,0xFD,0x77};
-
-uint16_t project_id[]=
-{
-    ROM_LMP_8723a,
-    ROM_LMP_8723b,
-    ROM_LMP_8821a,
-    ROM_LMP_8761a,
-    ROM_LMP_NONE
-};
-
-typedef struct {
-    uint16_t    prod_id;
-    char        *patch_name;
-    char        *config_name;
-} patch_info;
-
-static patch_info patch_table[] = {
-    { ROM_LMP_8723a, "mp_rtl8723a_fw", "mp_rtl8723a_config" },    //Rtl8723AS
-    { ROM_LMP_8723b, "mp_rtl8723b_fw", "mp_rtl8723b_config" },    //Rtl8723BS
-    { ROM_LMP_8821a, "mp_rtl8821a_fw", "mp_rtl8821a_config" },    //Rtl8821AS
-    { ROM_LMP_8761a, "mp_rtl8761a_fw", "mp_rtl8761a_config" },    //Rtl8761AW
-    /* add entries here*/
-
-    { ROM_LMP_NONE,  "mp_none_fw",     "mp_none_config" }
-};
-
-struct rtk_epatch_entry{
-    uint16_t chipID;
-    uint16_t patch_length;
-    uint32_t start_offset;
-} __attribute__ ((packed));
-
-struct rtk_epatch{
-    uint8_t signature[8];
-    uint32_t fm_version;
-    uint16_t number_of_total_patch;
-    struct rtk_epatch_entry entry[0];
-} __attribute__ ((packed));
-
-struct rtk_extension_entry{
-    uint8_t opcode;
-    uint8_t length;
-    uint8_t *data;
-} __attribute__ ((packed));
-
-typedef enum _RTK_ROM_VERSION_CMD_STATE
-{
-    cmd_not_send,
-    cmd_has_sent,
-    cmd_sent_event_timeout,
-    event_received
-} RTK_ROM_VERSION_CMD_STATE;
-
-uint8_t gEVersion = 0;
-uint8_t need_download_fw = 1;
-uint16_t  lmp_version = 0;
-uint8_t gRom_version_cmd_state = cmd_not_send;
-extern tHCI_IF *p_hci_if;
-
-/*********************************add for multi patch end**************************/
-
-patch_info *get_patch_entry(uint16_t prod_id)
-{
-    patch_info *patch_entry = patch_table;
-
-    while (prod_id != patch_entry->prod_id) {
-        if (0 == patch_entry->prod_id)
-            break;
-
-        patch_entry++;
-    }
-
-    return patch_entry;
-}
-
-
-/*******************************************************************************
-**
-** Function        ms_delay
-**
-** Description     sleep unconditionally for timeout milliseconds
-**
-** Returns         None
-**
-*******************************************************************************/
-void ms_delay (uint32_t timeout)
-{
-    struct timespec delay;
-    int err;
-
-    if (timeout == 0)
-        return;
-
-    delay.tv_sec = timeout / 1000;
-    delay.tv_nsec = 1000 * 1000 * (timeout%1000);
-
-    /* [u]sleep can't be used because it uses SIGALRM */
-    do {
-        err = nanosleep(&delay, &delay);
-    } while (err < 0 && errno ==EINTR);
-}
-
-/*******************************************************************************
-**
-** Function        line_speed_to_userial_baud
-**
-** Description     helper function converts line speed number into USERIAL baud
-**                 rate symbol
-**
-** Returns         unit8_t (USERIAL baud symbol)
-**
-*******************************************************************************/
+/** helper function converts line speed number into USERIAL baud symbol */
 uint8_t line_speed_to_userial_baud(uint32_t line_speed)
 {
     uint8_t baud;
@@ -323,23 +86,20 @@ uint8_t line_speed_to_userial_baud(uint32_t line_speed)
         baud = USERIAL_BAUD_1200;
     else if (line_speed == 600)
         baud = USERIAL_BAUD_600;
-    else
-    {
-        SYSLOGE( "userial vendor: unsupported baud speed %d", line_speed);
+    else {
+        SYSLOGE("userial vendor: unsupported baud speed %d", line_speed);
         baud = USERIAL_BAUD_115200;
     }
 
     return baud;
 }
 
-typedef struct _baudrate_ex
-{
-    uint32_t rtk_speed;
+typedef struct {
+    uint32_t bt_speed;
     uint32_t uart_speed;
-}baudrate_ex;
+} baudrate_map;
 
-baudrate_ex baudrates[] =
-{
+baudrate_map baudrates[] = {
 
     {0x00006004, 921600},
     {0x05F75004, 921600},//RTL8723BS
@@ -356,458 +116,70 @@ baudrate_ex baudrates[] =
 };
 
 /**
-* Change realtek Bluetooth speed to uart speed. It is matching in the struct baudrates:
-*
-* @code
-* baudrate_ex baudrates[] =
-* {
-*   {0x7001, 3500000},
-*   {0x6004, 921600},
-*   {0x4003, 1500000},
-*   {0x5001, 4000000},
-*   {0x5002, 2000000},
-*   {0x8001, 3000000},
-*   {0x701d, 115200}
-* };
-* @endcode
-*
-* If there is no match in baudrates, uart speed will be set as #115200.
-*
-* @param rtk_speed realtek Bluetooth speed
-* @param uart_speed uart speed
-*
-*/
-static void rtk_speed_to_uart_speed(uint32_t rtk_speed, uint32_t* uart_speed)
+ * Change bluetooth uart speed to uart speed.
+ * If there is no match in baudrates, uart speed will be set as #115200.
+ */
+static void bt_speed_to_uart_speed(uint32_t bt_speed, uint32_t *uart_speed)
 {
+    uint8_t i;
+
     *uart_speed = 115200;
 
-    uint8_t i;
-    for (i=0; i< sizeof(baudrates)/sizeof(baudrate_ex); i++)
-    {
-        if (baudrates[i].rtk_speed == rtk_speed){
+    for (i = 0; i < sizeof(baudrates)/sizeof(baudrate_map); i++) {
+        if (baudrates[i].bt_speed == bt_speed) {
             *uart_speed = baudrates[i].uart_speed;
-        return;
+            return;
         }
     }
     return;
 }
 
-/**
-* Change uart speed to realtek Bluetooth speed. It is matching in the struct baudrates:
-*
-* @code
-* baudrate_ex baudrates[] =
-* {
-*   {0x7001, 3500000},
-*   {0x6004, 921600},
-*   {0x4003, 1500000},
-*   {0x5001, 4000000},
-*   {0x5002, 2000000},
-*   {0x8001, 3000000},
-*   {0x701d, 115200}
-* };
-* @endcode
-*
-* If there is no match in baudrates, realtek Bluetooth speed will be set as #0x701D.
-*
-* @param uart_speed uart speed
-* @param rtk_speed realtek Bluetooth speed
-*
-*/
-static inline void uart_speed_to_rtk_speed(uint32_t uart_speed, uint32_t *rtk_speed)
-{
-    *rtk_speed = 0x701D;
-
-    unsigned int i;
-    for (i=0; i< sizeof(baudrates)/sizeof(baudrate_ex); i++)
-    {
-      if (baudrates[i].uart_speed == uart_speed){
-          *rtk_speed = baudrates[i].rtk_speed;
-          return;
-      }
-    }
-    return;
-}
-
-
-/*******************************************************************************
-**
-** Function         hw_config_set_bdaddr
-**
-** Description      Program controller's Bluetooth Device Address
-**
-** Returns          TRUE, if valid address is sent
-**                  FALSE, otherwise
-**
-*******************************************************************************/
+/** Set bluetooth controller's uart interface baudrate */
 static uint8_t hw_config_set_controller_baudrate(HC_BT_HDR *p_buf, uint32_t baudrate)
 {
-    uint8_t retval = FALSE;
-    uint8_t *p = (uint8_t *) (p_buf + 1);
+    uint8_t ret = FALSE;
+    uint8_t *p = (uint8_t *)(p_buf + 1);
 
     UINT16_TO_STREAM(p, HCI_VSC_UPDATE_BAUDRATE);
     *p++ = 4; /* parameter length */
     UINT32_TO_STREAM(p, baudrate);
 
-
     p_buf->len = HCI_CMD_PREAMBLE_SIZE + 4;
-    hw_cfg_cb.state = HW_CFG_SET_UART_BAUD_HOST;
+    UART_hw_cfg_cb.state = HW_CFG_SET_HOST_BAUDRATE;
 
-    retval = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_UPDATE_BAUDRATE, p_buf, \
-                                 hw_config_cback);
-
-    return (retval);
-}
-
-uint32_t rtk_parse_config_file(unsigned char* config_buf, size_t filelen, char bt_addr[6])
-{
-    struct rtk_bt_vendor_config* config = (struct rtk_bt_vendor_config*) config_buf;
-    uint16_t config_len = config->data_len, temp = 0;
-    struct rtk_bt_vendor_config_entry* entry = config->entry;
-    unsigned int i = 0;
-    uint32_t baudrate = 0;
-
-    bt_addr[0] = 0; //reset bd addr byte 0 to zero
-
-    if (config->signature != RTK_VENDOR_CONFIG_MAGIC)
-    {
-        SYSLOGE("config signature magic number(%x) is not set to RTK_VENDOR_CONFIG_MAGIC", config->signature);
-        return 0;
-    }
-
-    if (config_len != filelen - sizeof(struct rtk_bt_vendor_config))
-    {
-        SYSLOGE("config len(%x) is not right(%x)", config_len, filelen-sizeof(struct rtk_bt_vendor_config));
-        return 0;
-    }
-
-    for (i=0; i<config_len;)
-    {
-
-        switch(entry->offset)
-        {
-            //20130621 morgan modify for bt_addr cannot change issue
-            /*
-            case 0x3c:
-            {
-                int j=0;
-                for (j=0; j<entry->entry_len; j++)
-                    entry->entry_data[j] = bt_addr[entry->entry_len - 1 - j];
-                break;
-            }
-            */
-            case 0xc:
-            {
-                baudrate = *(uint32_t*)entry->entry_data;
-                if (entry->entry_len >= 12) //0ffset 0x18 - 0xc
-                {
-                    gNeedToSetHWFlowControl =1;
-                    gHwFlowControlEnable = (entry->entry_data[12] & 0x4) ? 1:0; //0x18 byte bit2
-                }
-                else
-                {
-                    gNeedToSetHWFlowControl = 0;
-                }
-                SYSLOGI("config baud rate to :%08x, hwflowcontrol:%x, %x", baudrate, entry->entry_data[12], gHwFlowControlEnable);
-                break;
-            }
-            default:
-                SYSLOGI("config offset(%x),length(%x)", entry->offset, entry->entry_len);
-                break;
-        }
-        temp = entry->entry_len + sizeof(struct rtk_bt_vendor_config_entry);
-        i += temp;
-        entry = (struct rtk_bt_vendor_config_entry*)((uint8_t*)entry + temp);
-    }
-
-
-    return baudrate;
-}
-
-uint32_t rtk_get_bt_config(unsigned char** config_buf,
-        uint32_t* config_baud_rate, char * config_file_short_name)
-{
-    char bt_config_file_name[PATH_MAX] = {0};
-    uint8_t* bt_addr_temp = NULL;
-    char bt_addr[6]={0x00, 0xe0, 0x4c, 0x88, 0x88, 0x88};
-    struct stat st;
-    size_t filelen;
-    int fd;
-    FILE* file = NULL;
-
-    sprintf(bt_config_file_name, BT_CONFIG_DIRECTORY, config_file_short_name);
-    SYSLOGI("BT config file: %s", bt_config_file_name);
-
-    if (stat(bt_config_file_name, &st) < 0)
-    {
-        SYSLOGE("can't access bt config file:%s, errno:%d\n", bt_config_file_name, errno);
-        return -1;
-    }
-
-    filelen = st.st_size;
-
-    if ((fd = open(bt_config_file_name, O_RDONLY)) < 0)
-    {
-        SYSLOGE("Can't open bt config file");
-        return -1;
-    }
-
-    if ((*config_buf = malloc(filelen)) == NULL)
-    {
-        SYSLOGE("malloc buffer for config file fail(%x)\n", filelen);
-        return -1;
-    }
-
-    //
-    //we may need to parse this config file.
-    //for easy debug, only get need data.
-
-    if (read(fd, *config_buf, filelen) < (ssize_t)filelen) {
-        SYSLOGE("Can't load bt config file");
-        free(*config_buf);
-        close(fd);
-        return -1;
-    }
-
-    *config_baud_rate = rtk_parse_config_file(*config_buf, filelen, bt_addr);
-    SYSLOGI("Get config baud rate from config file:%x", *config_baud_rate);
-
-    close(fd);
-    return filelen;
-}
-
-int rtk_get_bt_firmware(uint8_t** fw_buf, size_t addi_len, char* fw_short_name)
-{
-    char filename[PATH_MAX] = {0};
-    struct stat st;
-    int fd = -1;
-    size_t fwsize = 0;
-    size_t buf_size = 0;
-
-    sprintf(filename, BT_FIRMWARE_DIRECTORY, fw_short_name);
-    SYSLOGI("BT fw file: %s", (char*)filename);
-
-    if (stat(filename, &st) < 0) {
-        SYSLOGE("Can't access firmware, errno:%d", errno);
-        return -1;
-    }
-
-    fwsize = st.st_size;
-    buf_size = fwsize + addi_len;
-
-    if ((fd = open(filename, O_RDONLY)) < 0) {
-        SYSLOGE("Can't open firmware, errno:%d", errno);
-        return -1;
-    }
-
-    if (!(*fw_buf = malloc(buf_size))) {
-        SYSLOGE("Can't alloc memory for fw&config, errno:%d", errno);
-        if (fd >= 0)
-        close(fd);
-        return -1;
-    }
-
-    if (read(fd, *fw_buf, fwsize) < (ssize_t) fwsize) {
-        free(*fw_buf);
-        *fw_buf = NULL;
-        if (fd >= 0)
-        close(fd);
-        return -1;
-    }
-
-    if (fd >= 0)
-        close(fd);
-
-    SYSLOGI("Load FW OK");
-    return buf_size;
-}
-
-
-static int hci_download_patch_h4(HC_BT_HDR *p_buf, int index, uint8_t *data, int len)
-{
-    uint8_t retval = FALSE;
-    uint8_t *p = (uint8_t *) (p_buf + 1);
-
-    UINT16_TO_STREAM(p, HCI_VSC_DOWNLOAD_FW_PATCH);
-    *p++ = 1 + len;  /* parameter length */
-    *p++ = index;
-    memcpy(p, data, len);
-
-
-    p_buf->len = HCI_CMD_PREAMBLE_SIZE + 1+len;
-
-    hw_cfg_cb.state = HW_CFG_DL_FW_PATCH;
-
-    retval = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_DOWNLOAD_FW_PATCH, p_buf, \
-                                 hw_config_cback);
-    return retval;
-}
-
-void rtk_get_eversion_timeout(int sig)
-{
-    SYSLOGE("RTK get eversion timeout\n");
-    need_download_fw = 0;
-    UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
-}
-
-
-/**
-* Send vendor cmd to get eversion: 0xfc6d
-* If Rom code does not support this cmd, use default a.
-*/
-void rtk_get_eversion(void)
-{
-    HC_BT_HDR  *p_buf = NULL;
-
-    p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + HCI_CMD_MAX_LEN);
-    p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
-    p_buf->offset = 0;
-    p_buf->len = 0;
-    p_buf->layer_specific = 0;
-
-    SYSLOGI("bt vendor lib: Get eversion");
-    struct sigaction sa;
-    uint8_t *p = (uint8_t *)(p_buf + 1);
-
-    UINT16_TO_STREAM(p, HCI_VENDOR_READ_RTK_ROM_VERISION);
-
-    *p++ = 0; /* parameter length */
-
-    p_buf->len = HCI_CMD_PREAMBLE_SIZE;
-
-    UART_bt_vendor_cbacks->xmit_cb(HCI_VENDOR_READ_RTK_ROM_VERISION, p_buf, hw_config_cback);
-
-    gRom_version_cmd_state = cmd_has_sent;
-    SYSLOGI("RTK send HCI_VENDOR_READ_RTK_ROM_VERISION_Command\n");
-
-    alarm(0);
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_flags = SA_NOCLDSTOP;
-    sa.sa_handler = rtk_get_eversion_timeout;
-    sigaction(SIGALRM, &sa, NULL);
-    alarm(1);
-}
-
-void rtk_get_lmp_timeout(int sig)
-{
-    SYSLOGE("RTK get lmp timeout\n");
-    need_download_fw = 0;
-    UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
-}
-
-void rtk_get_lmp()
-{
-    HC_BT_HDR *p_buf = NULL;
-    struct sigaction sa;
-
-    p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + HCI_CMD_MAX_LEN);
-    p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
-    p_buf->offset = 0;
-    p_buf->len = 0;
-    p_buf->layer_specific = 0;
-
-    SYSLOGI("bt vendor lib: Get lmp");
-    uint8_t *p = (uint8_t *) (p_buf + 1);
-
-    UINT16_TO_STREAM(p, HCI_READ_LMP);
-
-    *p++ = 0; /* parameter length */
-
-    p_buf->len = HCI_CMD_PREAMBLE_SIZE;
-
-    UART_bt_vendor_cbacks->xmit_cb(HCI_READ_LMP, p_buf, rtk_get_lmp_cback);
-
-    gRom_version_cmd_state = cmd_has_sent;
-    SYSLOGI("RTK send HCI_READ_LMP_Command \n");
-
-    alarm(0);
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_flags = SA_NOCLDSTOP;
-    sa.sa_handler = rtk_get_lmp_timeout;
-    sigaction(SIGALRM, &sa, NULL);
-    alarm(1);
-}
-
-void rtk_get_lmp_cback(void *p_mem)
-{
-    HC_BT_HDR *p_evt_buf = (HC_BT_HDR *)p_mem;
-    uint8_t   *p, status;
-    gRom_version_cmd_state = event_received;
-    alarm(0);
-
-    status = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE);
-
-    if (status == 0) {
-        p = (uint8_t *)(p_evt_buf + 1) + LPM_CMD_PARAM_SIZE;
-        STREAM_TO_UINT16(lmp_version,p);
-        SYSLOGI("lmp_version = %x", lmp_version);
-        if (lmp_version == ROM_LMP_8723a)
-        {
-            hw_config_cback(NULL);
-        } else {
-            rtk_get_eversion();
-        }
-    }
-
-    if (UART_bt_vendor_cbacks) {
-        UART_bt_vendor_cbacks->lpm_cb(status);
-        UART_bt_vendor_cbacks->dealloc(p_evt_buf);
-    }
+    ret = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_UPDATE_BAUDRATE, p_buf,
+                                 UART_hw_config_cback);
+    return ret;
 }
 
 /** Callback function for controller configurationn */
-void hw_config_cback(void *p_mem)
+void UART_hw_config_cback(void *p_mem)
 {
-    HC_BT_HDR   *p_evt_buf = NULL;
-    char    *p_name = NULL;
-    char    *p_tmp = NULL;
-    uint8_t     *p = NULL;
-    uint8_t     status = 0;
-    uint16_t    opcode = 0;
-    HC_BT_HDR  *p_buf=NULL;
-    uint8_t     is_proceeding = FALSE;
-    int         i = 0;
-
-    static int buf_len = 0;
-    static uint8_t* buf = NULL;
-    static uint32_t baudrate = 0;
-
-    static uint8_t iCurIndex = 0;
-    static uint8_t iCurLen = 0;
-    static uint8_t iEndIndex = 0;
-    static uint8_t iLastPacketLen = 0;
-    static uint8_t iAdditionPkt = 0;
-    static uint8_t iTotalIndex = 0;
-    static unsigned char *bufpatch = NULL;
-
-    static uint8_t iIndexRx = 0;
-
-    uint8_t     *ph5_ctrl_pkt = NULL;
-    uint16_t     h5_ctrl_pkt = 0;
-
-    uint8_t is_multi_epatch = 0;
-    uint8_t* epatch_buf = NULL;
-    int epatch_length = -1;
-    struct rtk_epatch* epatch_info = NULL;
-    struct rtk_epatch_entry current_entry = {0, 0, 0};
-    patch_info* prtk_patch_file_info = NULL;
+    HC_BT_HDR *p_evt_buf = NULL;
+    HC_BT_HDR *p_buf = NULL;
+    uint8_t   *p = NULL;
+    uint8_t   *p_frag = NULL;
+    uint8_t   status = 0;
+    uint16_t  opcode = 0;
+    uint8_t   is_proceeding = FALSE;
+    patch_item *entry = NULL;
+    uint8_t index = 0;
 
 #if (USE_CONTROLLER_BDADDR == TRUE)
     const uint8_t null_bdaddr[BD_ADDR_LEN] = {0,0,0,0,0,0};
 #endif
 
     if (p_mem != NULL) {
-        p_evt_buf = (HC_BT_HDR *) p_mem;
+        p_evt_buf = (HC_BT_HDR *)p_mem;
         status = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE);
         p = (uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_OPCODE;
-        STREAM_TO_UINT16(opcode,p);
+        STREAM_TO_UINT16(opcode, p);
     }
 
-
-    /* Ask a new buffer big enough to hold any HCI commands sent in here */
-    //if ((status == 0) && UART_bt_vendor_cbacks)
-    if (UART_bt_vendor_cbacks) //a fc6d status==1
-    {
+    /* Ask a new buffer big enough to hold any HCI cmd sent here */
+    /* Vendor cmd 0xFC6D may have a status 1. */
+    if (((status == 0) || (opcode == HCI_VSC_READ_ROM_VERSION)) &&
+        UART_bt_vendor_cbacks) {
         p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + HCI_CMD_MAX_LEN);
     }
 
@@ -819,338 +191,203 @@ void hw_config_cback(void *p_mem)
 
         p = (uint8_t *)(p_buf + 1);
 
-        SYSLOGI("hw_cfg_cb.state = %i", hw_cfg_cb.state);
-        switch (hw_cfg_cb.state)
-        {
-            case HW_CFG_START:
-            {
-                if((lmp_version != ROM_LMP_8723a)&&(p_mem != NULL))
-                {
-                    HC_BT_HDR   *p_evt_buf = (HC_BT_HDR *) p_mem;
-                    status = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE);
-                    gRom_version_cmd_state = event_received;
-                    alarm(0);
+        SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
 
-                    if(status == 0)
-                    {
-                        gEVersion = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE + 1);
-                    }
-                    else if(1 == status)
-                    {
-                        gEVersion = 0;  //default a
-                    }
-                    else
-                    {
-                        SYSLOGE("READ_RTK_ROM_VERISION return status error!");
-                        //Need to do more
-                    }
-                    SYSLOGI("bt vendor lib: READ_RTK_ROM_VERISION status:%i, gEVersion:%i", status, gEVersion);
-                }
+        switch (UART_hw_cfg_cb.state) {
+        case HW_CFG_H5_SYNC:
+            p = (uint8_t *)(p_buf + 1);
+            /* read local version information, here we care LMP sub version. */
+            UINT16_TO_STREAM(p, HCI_READ_LOCAL_VERSION_INFO);
+            *p = 0; /* parameter length */
+            p_buf->len = HCI_CMD_PREAMBLE_SIZE;
 
-                uint8_t*config_file_buf = NULL;
-                int config_len = -1;
+            UART_hw_cfg_cb.state = HW_CFG_READ_LMP_SUB_VER;
 
-                SYSLOGI("bt vendor lib:HW_CFG_START");
-                //reset all static variable here
-                buf_len = -1;
-                buf = NULL;
-                baudrate = 0;
+            is_proceeding = UART_bt_vendor_cbacks->xmit_cb(HCI_READ_LOCAL_VERSION_INFO,
+                                                    p_buf, UART_hw_config_cback);
+            break;
 
-                iCurIndex = 0;
-                iCurLen = 0;
-                iEndIndex = 0;
-                iLastPacketLen = 0;
-                iAdditionPkt = 0;
-                iTotalIndex = 0;
-                bufpatch = NULL;
+        case HW_CFG_READ_LMP_SUB_VER:
+            if (opcode != HCI_READ_LOCAL_VERSION_INFO) {
+                SYSLOGE("ERROR! UART_hw_config_cback state: %d, received opcode 0x%04x",
+                        UART_hw_cfg_cb.state, opcode);
+                break;
+            }
 
-                iIndexRx = 0;
-                gNeedToSetHWFlowControl = 0;
+            p = (uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_LMP_SUB_VERSION;
+            STREAM_TO_UINT16(UART_hw_cfg_cb.lmp_subver, p);
 
-                //download patch
+            SYSLOGI("LMP sub version 0x%04x", UART_hw_cfg_cb.lmp_subver);
+            if (UART_hw_cfg_cb.lmp_subver == ROM_LMP_8723a) {
+                UART_hw_cfg_cb.state = HW_CFG_START;
+                goto CFG_START;
+            } else {
+                p = (uint8_t *)(p_buf + 1);
+                UINT16_TO_STREAM(p, HCI_VSC_READ_ROM_VERSION);
+                *p = 0; /* parameter length */
+                p_buf->len = HCI_CMD_PREAMBLE_SIZE;
 
-                //get efuse config file and patch code file
+                UART_hw_cfg_cb.state = HW_CFG_READ_ROM_VER;
+                is_proceeding = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_READ_ROM_VERSION,
+                                                        p_buf, UART_hw_config_cback);
+            }
+            break;
 
-                prtk_patch_file_info = get_patch_entry(lmp_version);
+        case HW_CFG_READ_ROM_VER:
+            if (opcode != HCI_VSC_READ_ROM_VERSION) {
+                SYSLOGE("ERROR! UART_hw_config_cback state: %d, received opcode 0x%04x",
+                        UART_hw_cfg_cb.state, opcode);
+                break;
+            }
 
-                if(prtk_patch_file_info != NULL)
-                {
-                    config_len = rtk_get_bt_config(&config_file_buf, &baudrate, prtk_patch_file_info->config_name);
-                }
-                if (config_len < 0)
-                {
-                    SYSLOGE("Get Config file error, just use efuse settings");
-                    config_len = 0;
-                }
+            p = (uint8_t *)(p_evt_buf + 1);
 
-                if(prtk_patch_file_info != NULL)
-                {
-                    buf_len = rtk_get_bt_firmware(&epatch_buf, config_len, prtk_patch_file_info->patch_name);
-                }
+            if (status == 0) {
+                UART_hw_cfg_cb.rom_ver = *(p + HCI_EVT_CMD_CMPL_ROM_VERSION);
+            } else if (status == 1) {
+                UART_hw_cfg_cb.rom_ver = 0; /* default a-cut */
+            } else {
+                is_proceeding = FALSE;
+                SYSLOGE("read ROM version status error!");
+                break;
+            }
 
-                if (buf_len < 0)
-                {
-                    SYSLOGE("Get BT firmware error, continue without bt firmware");
-                }
-                else
-                {
-                    if(lmp_version == ROM_LMP_8723a)
-                    {
-                        if(memcmp(epatch_buf, RTK_EPATCH_SIGNATURE, 8) == 0)
-                        {
-                            SYSLOGE("8723as Check signature error!");
-                            need_download_fw = 0;
-                        }
-                        else
-                        {
-                            if (!(buf = malloc(buf_len))) {
-                                SYSLOGE("Can't alloc memory for fw&config, errno:%d", errno);
-                                buf_len = -1;
-                            }
-                            else
-                            {
-                                SYSLOGI("8723as, fw copy direct");
-                                memcpy(buf,epatch_buf,buf_len);
-                                free(epatch_buf);
-                                epatch_buf = NULL;
-                                if (config_len)
-                                {
-                                    memcpy(&buf[buf_len - config_len], config_file_buf, config_len);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        struct rtk_extension_entry patch_lmp = {0, 0, NULL};
-                        //check Extension Section Field
-                        if(memcmp(epatch_buf + buf_len-config_len-4 ,Extension_Section_SIGNATURE,4) != 0)
-                        {
-                            SYSLOGE("Check Extension_Section_SIGNATURE error! do not download fw");
-                            need_download_fw = 0;
-                        }
-                        else
-                        {
-                            uint8_t *temp;
-                            temp = epatch_buf+buf_len-config_len-5;
-                            do{
-                                if(*temp == 0x00)
-                                {
-                                    patch_lmp.opcode = *temp;
-                                    patch_lmp.length = *(temp-1);
-                                    if ((patch_lmp.data = malloc(patch_lmp.length)))
-                                    {
-                                        memcpy(patch_lmp.data,temp-2,patch_lmp.length);
-                                    }
-                                    SYSLOGI("opcode = 0x%x",patch_lmp.opcode);
-                                    SYSLOGI("length = 0x%x",patch_lmp.length);
-                                    SYSLOGI("data = 0x%x",*(patch_lmp.data));
-                                    break;
-                                }
-                                temp -= *(temp-1)+2;
-                            }while(*temp != 0xFF);
+            UART_hw_cfg_cb.state = HW_CFG_START;
 
-                            if(lmp_version != project_id[*(patch_lmp.data)])
-                            {
-                                SYSLOGE("lmp_version is %x, project_id is %x, does not match!!!",lmp_version,project_id[*(patch_lmp.data)]);
-                                need_download_fw = 0;
-                            }
-                            else
-                            {
-                                SYSLOGI("lmp_version is %x, project_id is %x, match!",lmp_version, project_id[*(patch_lmp.data)]);
+            SYSLOGI("read ROM version status: %d, echo version: %d", status, UART_hw_cfg_cb.rom_ver);
+            /* fall through intentionally */
+CFG_START:
+        case HW_CFG_START:
+            SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
 
-                                if(memcmp(epatch_buf, RTK_EPATCH_SIGNATURE, 8) != 0)
-                                {
-                                    SYSLOGI("Check signature error!");
-                                    need_download_fw = 0;
-                                }
-                                else
-                                {
-                                    int i;
-                                    epatch_info = (struct rtk_epatch*)epatch_buf;
-                                    SYSLOGI("fm_version = 0x%x",epatch_info->fm_version);
-                                    SYSLOGI("number_of_total_patch = %d",epatch_info->number_of_total_patch);
-
-                                    //get right epatch entry
-                                    for(i = 0; i < epatch_info->number_of_total_patch; i++) {
-                                        if(*(uint16_t*)(epatch_buf+14+2*i) == gEVersion + 1) {
-                                            current_entry.chipID = gEVersion + 1;
-                                            current_entry.patch_length = *(uint16_t*)(epatch_buf+14+2*epatch_info->number_of_total_patch+2*i);
-                                            current_entry.start_offset = *(uint32_t*)(epatch_buf+14+4*epatch_info->number_of_total_patch+4*i);
-                                            SYSLOGI("chipID %d, patch_length 0x%x, start_offset 0x%x",
-                                                    current_entry.chipID, current_entry.patch_length, current_entry.start_offset);
-                                            break;
-                                        }
-                                    }
-
-                                    //get right eversion patch: buf, buf_len
-                                    buf_len = current_entry.patch_length + config_len;
-                                    SYSLOGI("buf_len = 0x%x",buf_len);
-
-                                    if (!(buf = malloc(buf_len))) {
-                                        SYSLOGE("Can't alloc memory for multi fw&config, errno:%d", errno);
-                                        buf_len = -1;
-                                    }
-                                    else
-                                    {
-                                        memcpy(buf,&epatch_buf[current_entry.start_offset],current_entry.patch_length);
-                                        memcpy(&buf[current_entry.patch_length-4],&epatch_info->fm_version,4);
-                                    }
-                                    free(epatch_buf);
-                                    epatch_buf = NULL;
-
-                                    if (config_len)
-                                    {
-                                        memcpy(&buf[buf_len - config_len], config_file_buf, config_len);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (config_file_buf)
-                    free(config_file_buf);
-
-                SYSLOGI("Fw:%s exists, config file:%s exists", (buf_len > 0) ? "":"not", (config_len>0)?"":"not");
-
-                if ((buf_len > 0) && (need_download_fw)) {
-                    iEndIndex = (uint8_t)((buf_len-1)/PATCH_DATA_FIELD_MAX_SIZE);
-                    iLastPacketLen = (buf_len)%PATCH_DATA_FIELD_MAX_SIZE;
-
-
-                    if (baudrate && (lmp_version != ROM_LMP_8723a))
-                        iAdditionPkt = (iEndIndex+4)%8?(8-(iEndIndex+4)%8):0;
-                    else if((baudrate && (lmp_version == ROM_LMP_8723a))||(!baudrate && (lmp_version != ROM_LMP_8723a)))
-                        iAdditionPkt = (iEndIndex+3)%8?(8-(iEndIndex+3)%8):0;
-                    else
-                        iAdditionPkt = (iEndIndex+2)%8?(8-(iEndIndex+2)%8):0;
-
-                    iTotalIndex = iAdditionPkt + iEndIndex;
-                    rtk_patch.nTotal = iTotalIndex; //init TotalIndex
-
-                    SYSLOGI("iEndIndex:%d  iLastPacketLen:%d iAdditionpkt:%d\n", iEndIndex, iLastPacketLen, iAdditionPkt);
-
-                    if (iLastPacketLen == 0)
-                        iLastPacketLen = PATCH_DATA_FIELD_MAX_SIZE;
-
-                    bufpatch = buf;
+            /* load fw & config files according to patch item */
+            entry = bt_hw_get_patch_item(UART_hw_cfg_cb.lmp_subver);
+            if (entry) {
+                UART_hw_cfg_cb.config_len = bt_hw_load_file(&UART_hw_cfg_cb.config_buf,
+                                                entry->config_name);
+                if (UART_hw_cfg_cb.config_len < 0) {
+                    UART_hw_cfg_cb.config_len = 0;
                 } else {
-                    is_proceeding = FALSE;
-                    break;
+                    bt_hw_parse_config(&UART_hw_cfg_cb, UART_vnd_local_bd_addr);
                 }
 
-                if ((buf_len>0) && (config_len == 0)) {
-                    goto DOWNLOAD_FW;
+                UART_hw_cfg_cb.fw_len = bt_hw_load_file(&UART_hw_cfg_cb.fw_buf,
+                                                entry->fw_name);
+                if (UART_hw_cfg_cb.fw_len < 0) {
+                    UART_hw_cfg_cb.fw_len = 0;
+                    /* release config file buffer */
+                    if (UART_hw_cfg_cb.config_len > 0) {
+                        UART_hw_cfg_cb.config_len = 0;
+                        free(UART_hw_cfg_cb.config_buf);
+                    }
+                } else {
+                    bt_hw_extract_firmware(&UART_hw_cfg_cb);
+                }
+            }
+
+            if (UART_hw_cfg_cb.total_len > 0 && UART_hw_cfg_cb.dl_fw_flag) {
+                UART_hw_cfg_cb.patch_frag_cnt = UART_hw_cfg_cb.total_len / PATCH_FRAGMENT_MAX_SIZE;
+                UART_hw_cfg_cb.patch_frag_tail = UART_hw_cfg_cb.total_len % PATCH_FRAGMENT_MAX_SIZE;
+                if (UART_hw_cfg_cb.patch_frag_tail) {
+                    UART_hw_cfg_cb.patch_frag_cnt += 1;
+                } else {
+                    UART_hw_cfg_cb.patch_frag_tail = PATCH_FRAGMENT_MAX_SIZE;
                 }
 
+                SYSLOGI("patch fragment count %d, tail len %d",
+                        UART_hw_cfg_cb.patch_frag_cnt, UART_hw_cfg_cb.patch_frag_tail);
+            } else {
+                is_proceeding = FALSE;
+                break;
             }
             /* fall through intentionally */
 
-            case HW_CFG_SET_UART_BAUD_CONTROLLER:
-
-                baudrate = baudrate != 0 ? baudrate : 0x0000701d;
-
-                SYSLOGI("bt vendor lib: set CONTROLLER UART baud %x", baudrate);
-
-                is_proceeding = hw_config_set_controller_baudrate(p_buf, baudrate);
-
-                break;
-
-            case HW_CFG_SET_UART_BAUD_HOST:
-            {
-                uint32_t HostBaudRate = 0;
-
-                /* update baud rate of host's UART port */
-                rtk_speed_to_uart_speed(baudrate, &HostBaudRate);
-                SYSLOGI("bt vendor lib: set HOST UART baud %i", HostBaudRate);
-                userial_vendor_set_baud( \
-                    line_speed_to_userial_baud(HostBaudRate) \
-                );
-
-                SYSLOGI("Change HW flowcontrol setting");
-                if (gNeedToSetHWFlowControl) {
-                    if (gHwFlowControlEnable) {
-                        userial_vendor_set_hw_fctrl(1);
-                    } else {
-                        userial_vendor_set_hw_fctrl(0);
-                    }
-                }
-
-                ms_delay(100);
+        case HW_CFG_SET_CNTRL_BAUDRATE:
+            if (UART_hw_cfg_cb.baudrate[1] == 0) {
+                UART_hw_cfg_cb.baudrate[1] = 0x0000701d;
             }
 
-             //fall through
-DOWNLOAD_FW:
-            case HW_CFG_DL_FW_PATCH:
+            SYSLOGI("bt hw config: set CONTROLLER UART baud 0x%08x", UART_hw_cfg_cb.baudrate[1]);
+            is_proceeding = hw_config_set_controller_baudrate(p_buf, UART_hw_cfg_cb.baudrate[1]);
+            break;
 
-                status = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE);
-                SYSLOGI("bt vendor lib: HW_CFG_DL_FW_PATCH status:%i, opcode:%x", status, opcode);
+        case HW_CFG_SET_HOST_BAUDRATE:
+            /* update baudrate of host's UART port */
+            bt_speed_to_uart_speed(UART_hw_cfg_cb.baudrate[1], &UART_hw_cfg_cb.baudrate[0]);
+            SYSLOGI("bt vendor lib: set HOST UART baud %i", UART_hw_cfg_cb.baudrate[0]);
+            userial_vendor_set_baud(line_speed_to_userial_baud(UART_hw_cfg_cb.baudrate[0]));
 
-                //recv command complete event for patch code download command
-                if(opcode == HCI_VSC_DOWNLOAD_FW_PATCH){
-                     iIndexRx = *((uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_STATUS_RET_BYTE + 1);
-                     SYSLOGI("bt vendor lib: HW_CFG_DL_FW_PATCH status:%i, iIndexRx:%i", status, iIndexRx);
-                    //update buf of patch and index.
-                    if (iCurIndex < iEndIndex) {
-                        bufpatch += PATCH_DATA_FIELD_MAX_SIZE;
-                    }
-                    iCurIndex ++;
+            if (UART_hw_cfg_cb.hw_flow_cntrl & 0x80) {
+                SYSLOGI("bt hw config: change host hw flow control settings");
+                if (UART_hw_cfg_cb.hw_flow_cntrl & 0x01) {
+                    userial_vendor_set_hw_fctrl(1);
+                } else {
+                    userial_vendor_set_hw_fctrl(0);
                 }
+            }
 
-                if ((opcode == HCI_VSC_DOWNLOAD_FW_PATCH) &&
-                    (iIndexRx & 0x80 || iIndexRx == iTotalIndex)) {
-                    SYSLOGI("vendor lib fwcfg completed");
-                    if(buf) {
-                        free(buf);
-                        buf = NULL;
-                    }
+            ms_delay(100);
+
+            /* fall through intentionally */
+DOWNLOAD_FW:
+        case HW_CFG_DL_FW_PATCH:
+            SYSLOGI("HW_CFG_DL_FW_PATCH status: %d, opcode 0x%04x", status, opcode);
+
+            p = (uint8_t *)(p_evt_buf + 1);
+
+            if (opcode == HCI_VSC_DOWNLOAD_FW_PATCH) {
+                index = *(p + HCI_EVT_CMD_CMPL_DL_FW_PATCH_INDEX);
+                SYSLOGI("HW_CFG_DL_FW_PATCH: index %d", index);
+                if (index & 0x80) {
+                    SYSLOGI("bt hw config completed");
+
+                    free(UART_hw_cfg_cb.total_buf);
                     UART_bt_vendor_cbacks->dealloc(p_buf);
                     UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
 
-                    hw_cfg_cb.state = 0;
-
-                    if (hw_cfg_cb.fw_fd != -1) {
-                        close(hw_cfg_cb.fw_fd);
-                        hw_cfg_cb.fw_fd = -1;
-                    }
+                    UART_hw_cfg_cb.state = HW_CFG_UNINIT;
                     is_proceeding = TRUE;
-
                     break;
                 }
 
-                if (iCurIndex < iEndIndex) {
-                    iCurIndex = iCurIndex&0x7F;
-                    iCurLen = PATCH_DATA_FIELD_MAX_SIZE;
-                } else if (iCurIndex == iEndIndex) {  //send last data packet
-                    if (iCurIndex == iTotalIndex)
-                        iCurIndex = iCurIndex | 0x80;
-                    else
-                        iCurIndex = iCurIndex&0x7F;
-                    iCurLen = iLastPacketLen;
-                } else if (iCurIndex < iTotalIndex) {
-                    iCurIndex = iCurIndex&0x7F;
-                    bufpatch = NULL;
-                    iCurLen = 0;
-                } else {          //send end packet
-                    bufpatch = NULL;
-                    iCurLen = 0;
-                    iCurIndex = iCurIndex|0x80;
+                UART_hw_cfg_cb.patch_frag_idx++;
+            }
+
+            if (UART_hw_cfg_cb.patch_frag_idx < UART_hw_cfg_cb.patch_frag_cnt) {
+                if (UART_hw_cfg_cb.patch_frag_idx == UART_hw_cfg_cb.patch_frag_cnt - 1) {
+                    SYSLOGI("HW_CFG_DL_FW_PATCH: send last fw fragment");
+                    UART_hw_cfg_cb.patch_frag_idx |= 0x80;
+                    UART_hw_cfg_cb.patch_frag_len = UART_hw_cfg_cb.patch_frag_tail;
+                } else {
+                    UART_hw_cfg_cb.patch_frag_len = PATCH_FRAGMENT_MAX_SIZE;
                 }
+            }
 
-                if (iCurIndex & 0x80)
-                    SYSLOGI("Send FW last command");
+            SYSLOGI("patch fragement index %d, len %d",
+                    UART_hw_cfg_cb.patch_frag_idx, UART_hw_cfg_cb.patch_frag_len);
 
-                SYSLOGI("iCurIndex = %i, iCurLen = %i", iCurIndex, iCurLen);
+            /* download firmware patch in fragment unit */
+            p = (uint8_t *)(p_buf + 1);
+            UINT16_TO_STREAM(p, HCI_VSC_DOWNLOAD_FW_PATCH);
+            *p++ = 1 +  UART_hw_cfg_cb.patch_frag_len; /* parameter length */
+            *p++ = UART_hw_cfg_cb.patch_frag_idx;
 
-                is_proceeding = hci_download_patch_h4(p_buf, iCurIndex, bufpatch, iCurLen);
+            p_frag = UART_hw_cfg_cb.total_buf +
+                (UART_hw_cfg_cb.patch_frag_idx & 0x7F) * PATCH_FRAGMENT_MAX_SIZE;
+            memcpy(p, p_frag, UART_hw_cfg_cb.patch_frag_len);
 
-                break;
+            p_buf->len = HCI_CMD_PREAMBLE_SIZE + 1 + UART_hw_cfg_cb.patch_frag_len;
+
+            UART_hw_cfg_cb.state = HW_CFG_DL_FW_PATCH;
+
+            is_proceeding = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_DOWNLOAD_FW_PATCH,
+                                                    p_buf, UART_hw_config_cback);
+            break;
 
             default:
                 break;
-        } // switch(hw_cfg_cb.state)
-    } // if (p_buf != NULL)
+        } /* switch(UART_hw_cfg_cb.state) */
+    } /* if (p_buf != NULL) */
 
     /* Free the RX event buffer */
     if (UART_bt_vendor_cbacks && (p_mem != NULL))
@@ -1165,24 +402,21 @@ DOWNLOAD_FW:
             UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
         }
 
-        if (hw_cfg_cb.fw_fd != -1) {
-            close(hw_cfg_cb.fw_fd);
-            hw_cfg_cb.fw_fd = -1;
-        }
-
-        hw_cfg_cb.state = 0;
+        UART_hw_cfg_cb.state = 0;
     }
 }
 
 /** Kick off controller initialization process */
-void hw_config_start(void)
+void UART_hw_config_start(void)
 {
     HC_BT_HDR *p_buf = NULL;
     uint8_t *p;
 
-    hw_cfg_cb.state = 0;
-    hw_cfg_cb.fw_fd = -1;
-    hw_cfg_cb.f_set_baud_2 = FALSE;
+    memset(&UART_hw_cfg_cb, 0, sizeof(bt_hw_cfg_cb_t));
+    UART_hw_cfg_cb.state = HW_CFG_UNINIT;
+    UART_hw_cfg_cb.dl_fw_flag = 1;
+
+    SYSLOGI("UART_hw_config_start: version %s", BT_CFG_VERSION);
 
     /* Start from sending H5 SYNC */
     if (UART_bt_vendor_cbacks) {
@@ -1198,13 +432,11 @@ void hw_config_start(void)
         p = (uint8_t *) (p_buf + 1);
         UINT16_TO_STREAM(p, HCI_VSC_H5_INIT);
 
-        hw_cfg_cb.state = HW_CFG_START;
-        SYSLOGI("hw_config_start:Realtek version %s",RTK_VERSION);
-        //UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, hw_config_cback);
-        UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, rtk_get_lmp);
+        UART_hw_cfg_cb.state = HW_CFG_H5_SYNC;
+        UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, UART_hw_config_cback);
     } else {
         if (UART_bt_vendor_cbacks) {
-            SYSLOGE("vendor lib fw conf aborted [no buffer]");
+            SYSLOGE("bt hw config aborted[no buffer]");
             UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
         }
     }
