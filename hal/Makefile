@@ -61,7 +61,7 @@ OBJS += $(MAIN_DIR)/bte_conf.o $(MAIN_DIR)/bte_init.o $(MAIN_DIR)/bte_logmsg.o \
         $(MAIN_DIR)/bte_main.o $(MAIN_DIR)/bte_version.o
 OBJS += $(STACK_DIR)/btu/btu_hcif.o $(STACK_DIR)/btu/btu_init.o $(STACK_DIR)/btu/btu_task.o \
         $(STACK_DIR)/hcic/hcicmds.o $(STACK_DIR)/hcic/hciblecmds.o
-OBJS += $(LIBBT_DIR)/bt_vendor_uart.o $(LIBBT_DIR)/bt_vendor_usb.o $(LIBBT_DIR)/hardware.o \
+OBJS += $(LIBBT_DIR)/bt_vendor_uart.o $(LIBBT_DIR)/bt_vendor_usb.o $(LIBBT_DIR)/bt_hwcfg_uart.o \
         $(LIBBT_DIR)/bt_hwcfg_usb.o $(LIBBT_DIR)/userial_vendor.o $(LIBBT_DIR)/upio.o
 OBJS += $(UTILS_DIR)/bt_utils.o $(UTILS_DIR)/bt_syslog.o
 
