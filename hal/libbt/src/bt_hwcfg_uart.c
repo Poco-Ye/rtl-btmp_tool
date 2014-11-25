@@ -145,7 +145,6 @@ static uint8_t hw_config_set_controller_baudrate(HC_BT_HDR *p_buf, uint32_t baud
     UINT32_TO_STREAM(p, baudrate);
 
     p_buf->len = HCI_CMD_PREAMBLE_SIZE + 4;
-    UART_hw_cfg_cb.state = HW_CFG_SET_HOST_BAUDRATE;
 
     ret = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_UPDATE_BAUDRATE, p_buf,
                                  UART_hw_config_cback);
@@ -256,6 +255,7 @@ void UART_hw_config_cback(void *p_mem)
 
             SYSLOGI("read ROM version status: %d, echo version: %d", status, UART_hw_cfg_cb.rom_ver);
             /* fall through intentionally */
+
 CFG_START:
         case HW_CFG_START:
             SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
@@ -300,21 +300,28 @@ CFG_START:
                 is_proceeding = FALSE;
                 break;
             }
+
+            UART_hw_cfg_cb.state = HW_CFG_SET_CNTRL_BAUDRATE;
             /* fall through intentionally */
 
         case HW_CFG_SET_CNTRL_BAUDRATE:
+            SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
+
             if (UART_hw_cfg_cb.baudrate[1] == 0) {
                 UART_hw_cfg_cb.baudrate[1] = 0x0000701d;
             }
 
-            SYSLOGI("bt hw config: set CONTROLLER UART baud 0x%08x", UART_hw_cfg_cb.baudrate[1]);
+            SYSLOGI("bt hw config: set controller uart baud 0x%08x", UART_hw_cfg_cb.baudrate[1]);
             is_proceeding = hw_config_set_controller_baudrate(p_buf, UART_hw_cfg_cb.baudrate[1]);
+            UART_hw_cfg_cb.state = HW_CFG_SET_HOST_BAUDRATE;
             break;
 
         case HW_CFG_SET_HOST_BAUDRATE:
+            SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
+
             /* update baudrate of host's UART port */
             bt_speed_to_uart_speed(UART_hw_cfg_cb.baudrate[1], &UART_hw_cfg_cb.baudrate[0]);
-            SYSLOGI("bt vendor lib: set HOST UART baud %i", UART_hw_cfg_cb.baudrate[0]);
+            SYSLOGI("bt hw config: set host uart baud %d", UART_hw_cfg_cb.baudrate[0]);
             userial_vendor_set_baud(line_speed_to_userial_baud(UART_hw_cfg_cb.baudrate[0]));
 
             if (UART_hw_cfg_cb.hw_flow_cntrl & 0x80) {
@@ -326,10 +333,10 @@ CFG_START:
                 }
             }
 
+            UART_hw_cfg_cb.state = HW_CFG_DL_FW_PATCH;
             ms_delay(100);
-
             /* fall through intentionally */
-DOWNLOAD_FW:
+
         case HW_CFG_DL_FW_PATCH:
             SYSLOGI("HW_CFG_DL_FW_PATCH status: %d, opcode 0x%04x", status, opcode);
 
@@ -377,8 +384,6 @@ DOWNLOAD_FW:
             memcpy(p, p_frag, UART_hw_cfg_cb.patch_frag_len);
 
             p_buf->len = HCI_CMD_PREAMBLE_SIZE + 1 + UART_hw_cfg_cb.patch_frag_len;
-
-            UART_hw_cfg_cb.state = HW_CFG_DL_FW_PATCH;
 
             is_proceeding = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_DOWNLOAD_FW_PATCH,
                                                     p_buf, UART_hw_config_cback);

@@ -104,7 +104,6 @@ void USB_hw_config_cback(void *p_mem)
             p_buf->len = HCI_CMD_PREAMBLE_SIZE;
 
             USB_hw_cfg_cb.state = HW_CFG_READ_LMP_SUB_VER;
-
             is_proceeding = USB_bt_vendor_cbacks->xmit_cb(HCI_READ_LOCAL_VERSION_INFO,
                                                     p_buf, USB_hw_config_cback);
             break;
@@ -159,6 +158,7 @@ void USB_hw_config_cback(void *p_mem)
             SYSLOGI("read ROM version status: %d, echo version: %d",
                     status, USB_hw_cfg_cb.rom_ver);
             /* fall through intentionally */
+
 CFG_START:
         case HW_CFG_START:
             SYSLOGI("USB_hw_config_cback state: %d", USB_hw_cfg_cb.state);
@@ -203,7 +203,9 @@ CFG_START:
                 is_proceeding = FALSE;
                 break;
             }
-        /* fall through intentionally */
+
+            USB_hw_cfg_cb.state = HW_CFG_DL_FW_PATCH;
+            /* fall through intentionally */
 
         case HW_CFG_DL_FW_PATCH:
             SYSLOGI("HW_CFG_DL_FW_PATCH status: %d, opcode 0x%04x", status, opcode);
@@ -252,8 +254,6 @@ CFG_START:
             memcpy(p, p_frag, USB_hw_cfg_cb.patch_frag_len);
 
             p_buf->len = HCI_CMD_PREAMBLE_SIZE + 1 + USB_hw_cfg_cb.patch_frag_len;
-
-            USB_hw_cfg_cb.state = HW_CFG_DL_FW_PATCH;
 
             is_proceeding = USB_bt_vendor_cbacks->xmit_cb(HCI_VSC_DOWNLOAD_FW_PATCH,
                                                     p_buf, USB_hw_config_cback);

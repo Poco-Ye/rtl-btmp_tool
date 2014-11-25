@@ -329,7 +329,9 @@ void userial_vendor_close(void)
 void userial_vendor_set_baud(uint8_t userial_baud)
 {
     uint32_t tcio_baud;
-    SYSLOGI("userial_vendor_set_baud++");
+
+    SYSLOGI("userial_vendor_set_baud: userial_baud 0x%02x", userial_baud);
+
     userial_to_tcio_baud(userial_baud, &tcio_baud);
 
     if(cfsetospeed(&vnd_userial.termios, tcio_baud)<0)
@@ -342,8 +344,6 @@ void userial_vendor_set_baud(uint8_t userial_baud)
         SYSLOGE("tcsetattr fail ");
 
     tcflush(vnd_userial.fd, TCIOFLUSH);
-
-    SYSLOGI("userial_vendor_set_baud--");
 }
 
 /*******************************************************************************
@@ -378,23 +378,6 @@ void userial_vendor_ioctl(userial_vendor_ioctl_op_t op, void *p_data)
         default:
             break;
     }
-}
-
-/*******************************************************************************
-**
-** Function        userial_set_port
-**
-** Description     Configure UART port name
-**
-** Returns         0 : Success
-**                 Otherwise : Fail
-**
-*******************************************************************************/
-int userial_set_port(char *p_conf_name, char *p_conf_value, int param)
-{
-    strcpy(vnd_userial.port_name, p_conf_value);
-
-    return 0;
 }
 
 /*******************************************************************************
