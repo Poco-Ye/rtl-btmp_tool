@@ -657,82 +657,225 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
     return BT_FUNCTION_SUCCESS;
 }
 
+/**
+ * Set Config I/F has two pairs.
+ * First pair: file_path,flag,type,option.
+ *  file_path: a string to file system directory.
+ *  flag: 0 for APPEND, 1 for TRUNC, 2 for DELETE.
+ *  type: 0 for stream/raw data, 1 for formatted data.
+ *  option: 0 for reserved(default), 1 for random mac address,
+ *          and others to be defined.
+ * Second pair: char string for stream/raw data.
+ *              byte sequence for formatted data.
+ */
 int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
 {
     uint16_t pairs_count, params_count;
     char *pair_token, *param_token;
     char *pairs_buf, *params_buf;
     char *save_pairs, *save_params;
-    int8_t mode = 0;
-    char config_path[128];
-    char buffer[128];
+    char file_path[128];
+    char *buffer = file_path;
+    uint8_t flag;
+    uint8_t type;
+    uint8_t option;
     int fd = -1;
+    ssize_t count;
+    uint16_t append_bytes = 0;
 
     SYSLOGI("++%s: %s", STR_BT_MP_SET_CONFIG, p);
 
     for (pairs_count = 0, pairs_buf = p; ; pairs_count++, pairs_buf = NULL) {
         pair_token = strtok_r(pairs_buf, STR_BT_MP_PAIR_DELIM, &save_pairs);
-        if (pair_token == NULL)
-            break;
+        if (!pair_token) {
+            if (pairs_count == 0) {
+                SYSLOGE("Invalid config pair format<%s>", pair_token);
+                goto param_err;
+            } else
+                break;
+        }
 
-        // First pair must be <config_path, mode>
+        // First pair must be <file_path,flag,type,option>
         if (pairs_count == 0) {
             for (params_count = 0, params_buf = pair_token; ; params_count++, params_buf = NULL) {
                 param_token = strtok_r(params_buf, STR_BT_MP_PARAM_DELIM, &save_params);
-                if (param_token && params_count == 0) {
-                    strcpy(config_path, param_token);
-                } else if (param_token && params_count == 1) {
-                    mode = (int8_t)strtol(param_token, NULL, 0);
-                    if (mode < 0 || mode > 3) {
-                        SYSLOGI("Invalid file mode %d", mode);
-                        sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-                        return FUNCTION_PARAMETER_ERROR;
-                    }
-                } else if (param_token && params_count > 1) {
-                    SYSLOGI("Invalid config pair format<%s>", pair_token);
-                    sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-                    return FUNCTION_PARAMETER_ERROR;
-                } else if (param_token == NULL) // null token OR token parsing completed
+                if (!param_token) // null token OR token parsing completed
                     break;
+
+                switch (params_count) {
+                case 0: // file_path
+                    strncpy(file_path, param_token, 127);
+                    file_path[127] = '\0';
+                    break;
+                case 1: // flag
+                    flag = (uint8_t)strtoul(param_token, NULL, 0);
+                    if (flag > 2) {
+                        SYSLOGE("Invalid file flag %d", flag);
+                        goto param_err;
+                    }
+                    break;
+                case 2: // type
+                    type = (uint8_t)strtoul(param_token, NULL, 0);
+                    if (type > 1) {
+                        SYSLOGE("Invalid file type %d", type);
+                        goto param_err;
+                    }
+                    break;
+                case 3: // option
+                    option = (uint8_t)strtoul(param_token, NULL, 0);
+                    if (option > 1) {
+                        SYSLOGE("Invalid file option %d", option);
+                        goto param_err;
+                    }
+                    break;
+                default:
+                    SYSLOGE("Invalid config pair format<%s>", pair_token);
+                    goto param_err;
+                }
             }
 
-            if (params_count == 2) {
-                fd = open(config_path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-                if (fd < 0) {
-                    SYSLOGI("Failed to open config file: %s", strerror(errno));
-                    sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
-                    return FUNCTION_ERROR;
+            if (params_count == 4) {
+                int file_flags = O_RDWR | O_CREAT;
+                int file_exist;
+
+                // as we may use lseek & write, O_APPEND shouldn't be set
+                // when flag equals 0 or 2.
+                if (flag == 1)
+                    file_flags |= O_TRUNC;
+
+                file_exist = access(file_path, F_OK);
+                if (file_exist < 0 && flag == 2) {
+                    SYSLOGE("Failed to delete contents: %s", strerror(errno));
+                    goto op_err;
+                }
+
+                fd = open(file_path, file_flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                if (fd >= 0) {
+                    if (flag == 0) {
+                        count = lseek(fd, 0, SEEK_END);
+                        if (count < 0) {
+                            SYSLOGE("Failed to seek config file<%s>", strerror(errno));
+                            close(fd);
+                            goto op_err;
+                        }
+                    }
+
+                    if ((file_exist < 0 || flag == 1) && type == 1) {
+                        // set config file header
+                        uint8_t header[] = {0x55,0xab,0x23,0x87,0x00,0x00};
+
+                        count = write(fd, header, sizeof(header));
+                        if (count < 0) {
+                            SYSLOGE("Failed to write config file<%s>", strerror(errno));
+                            close(fd);
+                            goto op_err;
+                        }
+                    }
+                } else {
+                    SYSLOGE("Failed to open config file: %s", strerror(errno));
+                    goto op_err;
                 }
             } else {
-                SYSLOGI("Invalid config pair format<%s>", pair_token);
-                sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_PARAMETER_ERROR);
-                return FUNCTION_PARAMETER_ERROR;
+                SYSLOGE("Invalid config pair format<%s>", pair_token);
+                goto param_err;
             }
         } else {
-            for (params_count = 0, params_buf = pair_token; ; params_count++, params_buf = NULL) {
-                param_token = strtok_r(params_buf, STR_BT_MP_PARAM_DELIM, &save_params);
-                if (param_token) {
-                    if (mode == 0) {
-                        strcpy(buffer, param_token);
-                        SYSLOGI("Write BT MAC address %s", buffer);
-                    } else {
+            if (type == 0) {
+                // we treat all data following first pair delim as stream
+                count = write(fd, pair_token, strlen(pair_token));
+                if (count < 0) {
+                    SYSLOGE("Failed to write config file<%s>", strerror(errno));
+                    close(fd);
+                    goto op_err;
+                }
+            } else if (type == 1) {
+                for (params_count = 0, params_buf = pair_token; ; params_count++, params_buf = NULL) {
+                    param_token = strtok_r(params_buf, STR_BT_MP_PARAM_DELIM, &save_params);
+                    if (param_token)
                         buffer[params_count] = strtol(param_token, NULL, 0);
-                    }
-                } else if (param_token == NULL) // null token OR token parsing completed
-                    break;
-            }
+                    else
+                        break;
+                }
 
-            ssize_t count;
-            if (mode == 0)
-                count = write(fd, buffer, 17);
-            else
                 count = write(fd, buffer, params_count);
-            if (count < 0) {
-                SYSLOGI("Failed to write config file<%s>", strerror(errno));
-                sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, FUNCTION_ERROR);
-                close(fd);
-                return FUNCTION_ERROR;
+                if (count < 0) {
+                    SYSLOGE("Failed to write config file<%s>", strerror(errno));
+                    close(fd);
+                    goto op_err;
+                } else
+                    append_bytes = (uint16_t)count;
             }
+        }
+    }
+
+    // generate random mac address
+    if (option == 1) {
+        int i;
+        uint8_t btaddr[9]; // 3 btyes for offset & len
+mac_gen:
+        for (i = 0; i < 6; i++) {
+            srand((unsigned int)time(NULL) * getpid() + random());
+            btaddr[i+3] = (uint8_t)rand();
+        }
+        // reserve LAP addr from 0x9e8b00 to 0x9e8b3f
+        if (btaddr[5] == 0x9e && btaddr[4] == 0x8b && (btaddr[3] <= 0x3f))
+            goto mac_gen;
+
+        if (type == 0) {
+            char btaddr_str[18];
+            sprintf(btaddr_str, "%02X:%02X:%02X:%02X:%02X:%02X",
+                    btaddr[3], btaddr[4], btaddr[5], btaddr[6], btaddr[7], btaddr[8]);
+            count = write(fd, btaddr_str, 17);
+            if (count < 0) {
+                SYSLOGE("Failed to write config file<%s>", strerror(errno));
+                close(fd);
+                goto op_err;
+            }
+        } else if (type == 1) {
+            btaddr[0] = 0x3c;
+            btaddr[1] = 0x00;
+            btaddr[2] = 0x06;
+            count = write(fd, btaddr, 9);
+            if (count < 0) {
+                SYSLOGE("Failed to write config file<%s>", strerror(errno));
+                close(fd);
+                goto op_err;
+            } else
+                append_bytes += (uint16_t)count;
+        }
+    }
+
+    // update config file len
+    if (type == 1) {
+        uint16_t cfg_len;
+        count = lseek(fd, 4, SEEK_SET);
+        if (count >= 0) {
+            count = read(fd, &cfg_len, 2);
+            if (count > 0)
+                cfg_len += append_bytes;
+            else {
+                SYSLOGE("Failed to read config file<%s>", strerror(errno));
+                close(fd);
+                goto op_err;
+            }
+        } else {
+            SYSLOGE("Failed to seek config file<%s>", strerror(errno));
+            close(fd);
+            goto op_err;
+        }
+
+        count = lseek(fd, 4, SEEK_SET);
+        if (count >= 0) {
+            count = write(fd, &cfg_len, 2);
+            if (count < 0) {
+                SYSLOGE("Failed to write config file<%s>", strerror(errno));
+                close(fd);
+                goto op_err;
+            }
+        } else {
+            SYSLOGE("Failed to seek config file<%s>", strerror(errno));
+            close(fd);
+            goto op_err;
         }
     }
 
@@ -740,9 +883,25 @@ int BT_SetConfig(BT_MODULE *pBtModule, char *p, char *buf_cb)
 
     SYSLOGI("--%s: pairs count %d", STR_BT_MP_SET_CONFIG, pairs_count);
 
-    sprintf(buf_cb, "%s%s0x%02x", STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM, BT_FUNCTION_SUCCESS);
+    sprintf(buf_cb, "%s%s0x%02x",
+            STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM,
+            BT_FUNCTION_SUCCESS);
 
     return BT_FUNCTION_SUCCESS;
+
+param_err:
+    sprintf(buf_cb, "%s%s0x%02x",
+            STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM,
+            FUNCTION_PARAMETER_ERROR);
+
+    return FUNCTION_PARAMETER_ERROR;
+
+op_err:
+    sprintf(buf_cb, "%s%s0x%02x",
+            STR_BT_MP_SET_CONFIG, STR_BT_MP_RESULT_DELIM,
+            FUNCTION_ERROR);
+
+    return FUNCTION_ERROR;
 }
 
 int BT_Exec(BT_MODULE *pBtModule, char *p, char *buf_cb)
