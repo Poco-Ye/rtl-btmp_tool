@@ -53,20 +53,7 @@
 
 #define H5_TRACE_DATA_ENABLE 1//if you want to see data tx and rx, set H5_TRACE_DATA_ENABLE 1
 
-
 uint8_t h5_log_enable = 0;
-
-#ifndef H5_LOG_BUF_SIZE
-#define H5_LOG_BUF_SIZE  1024
-#endif
-#define H5_LOG_MAX_SIZE  (H5_LOG_BUF_SIZE - 12)
-
-
-#ifndef H5_LOG_BUF_SIZE
-#define H5_LOG_BUF_SIZE  1024
-#endif
-#define H5_LOG_MAX_SIZE  (H5_LOG_BUF_SIZE - 12)
-
 
 #define TIMER_H5_DATA_RETRANS (SIGRTMAX)
 #define TIMER_H5_SYNC_RETRANS (SIGRTMAX -1)
@@ -400,31 +387,8 @@ const uint8_t byte_rev_table[256] = {
     0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
     0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
-#ifndef H5_LOG_BUF_SIZE
-#define H5_LOG_BUF_SIZE  1024
-#endif
-#define H5_LOG_MAX_SIZE  (H5_LOG_BUF_SIZE - 12)
 
-//#define LOGI0(t,s) __android_log_write(ANDROID_LOG_INFO, t, s)
-
-void
-LogMsg(const char *fmt_str, ...)
-{
-    static char buffer[H5_LOG_BUF_SIZE];
-    if(h5_log_enable == 1)
-    {
-        //va_list ap;
-        //va_start(ap, fmt_str);
-        //vsnprintf(&buffer[0], H5_LOG_MAX_SIZE, fmt_str, ap);
-        //va_end(ap);
-
-        //LOGI0("H5: ", buffer);
-     }
-     else
-     {
-        return;
-     }
-}
+#define LogMsg(param, ...) { if (h5_log_enable == 1) SYSLOGD(param, ## __VA_ARGS__); }
 
 /* Copy, swap, convert BD Address */
 static inline int bacmp(bdaddr_t *ba1, bdaddr_t *ba2)
@@ -2036,23 +2000,19 @@ uint8_t hci_rx_dispatch_by_handle(sk_buff* rx_skb)
     rx_skb_data_len = skb_get_data_length(rx_skb);
 
     //print snoop log
-    if(h5_log_enable == 1)
+    HC_BT_HDR *p_rcv_msg = NULL;          /* Buffer to hold current rx HCI message */
+    p_rcv_msg = (HC_BT_HDR *) bt_hc_cbacks->alloc(BT_HC_HDR_SIZE + rx_skb_data_len);
+    if (p_rcv_msg != NULL)
     {
-        HC_BT_HDR *p_rcv_msg = NULL;          /* Buffer to hold current rx HCI message */
-        p_rcv_msg = (HC_BT_HDR *) bt_hc_cbacks->alloc(BT_HC_HDR_SIZE + rx_skb_data_len);
-        if (p_rcv_msg != NULL)
-        {
-            /* Initialize buffer with received h5 data */
-            p_rcv_msg->offset = 0;
-            p_rcv_msg->layer_specific = 0;
-            p_rcv_msg->event = MSG_HC_TO_STACK_HCI_ACL;
-            p_rcv_msg->len = rx_skb_data_len;
-            memcpy((uint8_t *)(p_rcv_msg + 1), rx_skb_data, rx_skb_data_len);
-            btsnoop_capture(p_rcv_msg, TRUE);
-            bt_hc_cbacks->dealloc((TRANSAC) p_rcv_msg, (char *) (p_rcv_msg + 1));
-        }
+        /* Initialize buffer with received h5 data */
+        p_rcv_msg->offset = 0;
+        p_rcv_msg->layer_specific = 0;
+        p_rcv_msg->event = MSG_HC_TO_STACK_HCI_ACL;
+        p_rcv_msg->len = rx_skb_data_len;
+        memcpy((uint8_t *)(p_rcv_msg + 1), rx_skb_data, rx_skb_data_len);
+        btsnoop_capture(p_rcv_msg, TRUE);
+        bt_hc_cbacks->dealloc((TRANSAC) p_rcv_msg, (char *) (p_rcv_msg + 1));
     }
-    //end print snoop log
 
     STREAM_TO_UINT16 (handle, rx_skb_data);
     //get acl handle, 12bit only.
@@ -2672,7 +2632,7 @@ void hci_h5_init(void)
     /* Give an initial values of Host Controller's ACL data packet length
      * Will update with an internal HCI(_LE)_Read_Buffer_Size request
      */
-    rtk_h5.hc_acl_data_size = 820;//default value for 8723
+    rtk_h5.hc_acl_data_size = 820;
     rtk_h5.hc_ble_acl_data_size = 27;
     rtk_h5.hc_cur_acl_total_num = 8;
 
