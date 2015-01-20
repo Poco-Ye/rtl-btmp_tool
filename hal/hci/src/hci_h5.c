@@ -147,17 +147,6 @@ uint8_t h5_log_enable = 0;
 #define H5_VDRSPEC_PKT          0x0E
 #define H5_LINK_CTL_PKT         0x0F
 
-//#define BT_FW_CAL_ENABLE
-
-#ifdef BT_FW_CAL_ENABLE
-#define CAL_INQUIRY_SUCCESS     0
-#define CAL_INQUIRY_UNKNOWN     1
-#define CAL_INQUIRY_FAIL        2
-#define IS_LAST_INQUIRY_SUCCESS     0x0010
-#define BT_CAL_DIRECTORY "/data/misc/bluedroid/"
-uint32_t rtk_set_bt_cal_inqury_result(uint8_t result);
-#endif
-
 /* BD Address */
 typedef struct {
     uint8_t b[6];
@@ -176,8 +165,7 @@ static const uint16_t msg_evt_table[] =
     MSG_HC_TO_STACK_HCI_EVT        /* H4_TYPE_EVENT */
 };
 
-typedef struct
-{
+typedef struct {
     uint16_t opcode;        /* OPCODE of outstanding internal commands */
     tINT_CMD_CBACK cback;   /* Callback function when return of internal
                              * command is received */
@@ -185,134 +173,24 @@ typedef struct
 
 typedef RTK_BUFFER sk_buff;
 
-/* Skb helpers */
-struct bt_skb_cb
-{
-    uint8_t pkt_type;
-    uint8_t incoming;
-    uint8_t expect;
-    uint8_t tx_seq;
-    uint8_t retries;
-    uint8_t sar;
-    unsigned short channel;
-};
-
-typedef struct {
-    uint8_t index;
-    uint8_t data[252];
-} __attribute__ ((packed)) download_vendor_patch_cp;
-
-
-#define HCI_COMMAND_HDR_SIZE 3
-#define HCI_EVENT_HDR_SIZE   2
-
-struct hci_command_hdr {
- uint16_t opcode;     /* OCF & OGF */
- uint8_t    plen;
-} __attribute__ ((packed));
-
-struct hci_event_hdr {
- uint8_t    evt;
- uint8_t    plen;
- } __attribute__ ((packed));
-
-struct hci_ev_cmd_complete {
-uint8_t     ncmd;
-uint16_t   opcode;
-} __attribute__ ((packed));
-
-#define HCI_CMD_READ_BD_ADDR 0x1009
-#define HCI_VENDOR_CHANGE_BDRATE 0xfc17
-
-#define RTK_VENDOR_CONFIG_MAGIC 0x8723ab55
-struct rtk_bt_vendor_config_entry{
-    uint16_t offset;
-    uint8_t entry_len;
-    uint8_t entry_data[0];
-} __attribute__ ((packed));
-
-struct rtk_bt_vendor_config{
-    uint32_t signature;
-    uint16_t data_len;
-    struct rtk_bt_vendor_config_entry entry[0];
-} __attribute__ ((packed));
-
-#pragma pack(1)
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-typedef struct _H5_PKT_HEADER
-{
-    uint8_t SeqNumber:3;
-    uint8_t AckNumber:3;
-    uint8_t DicPresent:1; // Data Integrity Check Present
-    uint8_t ReliablePkt:1;
-
-    uint16_t PktType:4;
-    uint16_t PayloadLen:12;
-
-    uint8_t HdrChecksum;
-}H5_PKT_HEADER;
-
-typedef struct _H5_CONFIG_FIELD
-{
-    uint8_t SlidingWindowSize:3;
-    uint8_t OofFlowControl:1;
-    uint8_t DicType:1;
-    uint8_t VersionNumber:3;
-} H5_CONFIG_FIELD;
-
-#else
-typedef struct _H5_PKT_HEADER
-{
-    uint8_t ReliablePkt:1;
-    uint8_t DicPresent:1; // Data Integrity Check Present
-    uint8_t AckNumber:3;
-    uint8_t SeqNumber:3;
-
-    uint16_t PayloadLen:12;
-    uint16_t PktType:4;
-
-    uint8_t HdrChecksum;
-}H5_PKT_HEADER;
-
-typedef struct _H5_CONFIG_FIELD
-{
-    uint8_t VersionNumber:3;
-    uint8_t DicType:1;
-    uint8_t OofFlowControl:1;
-    uint8_t SlidingWindowSize:3;
-} H5_CONFIG_FIELD;
-
-#endif
-
-
-typedef enum _H5_RX_STATE
-{
+typedef enum H5_RX_STATE {
     H5_W4_PKT_DELIMITER,
     H5_W4_PKT_START,
     H5_W4_HDR,
     H5_W4_DATA,
     H5_W4_CRC
-} H5_RX_STATE;
+} tH5_RX_STATE;
 
-typedef enum _H5_RX_ESC_STATE
-{
+typedef enum H5_RX_ESC_STATE {
     H5_ESCSTATE_NOESC,
     H5_ESCSTATE_ESC
-} H5_RX_ESC_STATE;
+} tH5_RX_ESC_STATE;
 
-typedef enum _H5_LINK_STATE
-{
+typedef enum H5_LINK_STATE {
     H5_UNINITIALIZED,
     H5_INITIALIZED,
     H5_ACTIVE
-} H5_LINK_STATE;
-
-typedef enum _PATCH_PROTOCOL
-{
-    PATCH_PROTOCAL_H4,
-    PATCH_PROTOCAL_H5
-} PATCH_PROTOCOL;
-
+} tH5_LINK_STATE;
 
 typedef struct _HCI_CONN {
     RT_LIST_ENTRY List;
@@ -332,9 +210,22 @@ typedef struct _HCI_CONN {
 static volatile uint8_t h5_retransfer_running = 0;
 static volatile uint16_t h5_ready_events = 0;
 
+#define H5_HDR_SEQ(hdr)         ((hdr)[0] & 0x07)
+#define H5_HDR_ACK(hdr)         (((hdr)[0] >> 3) & 0x07)
+#define H5_HDR_CRC(hdr)         (((hdr)[0] >> 6) & 0x01)
+#define H5_HDR_RELIABLE(hdr)    (((hdr)[0] >> 7) & 0x01)
+#define H5_HDR_PKT_TYPE(hdr)    ((hdr)[1] & 0x0f)
+#define H5_HDR_LEN(hdr)         ((((hdr)[1] >> 4) & 0xff) + ((hdr)[2] << 4))
+#define H5_HDR_SIZE             4
+
+#define H5_CFG_SLID_WIN(cfg)    ((cfg) & 0x07)
+#define H5_CFG_OOF_CNTRL(cfg)   (((cfg) >> 3) & 0x01)
+#define H5_CFG_DIC_TYPE(cfg)    (((cfg) >> 4) & 0x01)
+#define H5_CFG_VER_NUM(cfg)     (((cfg) >> 5) & 0x07)
+#define H5_CFG_SIZE             1
 
 /* Control block for HCISU_H5 */
-struct tHCI_H5_CB
+typedef struct HCI_H5_CB
 {
     HC_BT_HDR *p_rcv_msg;          /* Buffer to hold current rx HCI message */
     uint16_t rcv_len;               /* Size of current incoming message */
@@ -377,9 +268,9 @@ struct tHCI_H5_CB
     uint16_t    message_crc;
     uint32_t    rx_count;       //expected pkts to recv
 
-    H5_RX_STATE rx_state;
-    H5_RX_ESC_STATE rx_esc_state;
-    H5_LINK_STATE link_estab_state;
+    tH5_RX_STATE rx_state;
+    tH5_RX_ESC_STATE rx_esc_state;
+    tH5_LINK_STATE link_estab_state;
 
     sk_buff *rx_skb;
     sk_buff* host_last_cmd;
@@ -403,13 +294,9 @@ struct tHCI_H5_CB
 
     uint16_t hc_cur_acl_total_num;
     uint8_t   cleanuping;
+} tHCI_H5_CB;
 
-#ifdef BT_FW_CAL_ENABLE
-    uint8_t  bHasUpdateCalInquiryState;
-#endif
-} __attribute__((aligned(4),packed));
-
-static struct tHCI_H5_CB rtk_h5;
+static tHCI_H5_CB rtk_h5;
 static pthread_mutex_t h5_wakeup_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /******************************************************************************
@@ -854,13 +741,13 @@ HciConnFree(
     HCI connection related APIs.
 
 */
-void ConnHashInit( struct tHCI_H5_CB* h5)
+void ConnHashInit(tHCI_H5_CB* h5)
 {
     RT_LIST_HEAD* Head = &h5->HciConnHash;
     ListInitializeHeader(Head);
 }
 
-void ConnHashFlush(struct tHCI_H5_CB* h5)
+void ConnHashFlush(tHCI_H5_CB *h5)
 {
     RT_LIST_HEAD* Head = &h5->HciConnHash;
     RT_LIST_ENTRY* Iter = NULL, *Temp = NULL;
@@ -878,7 +765,7 @@ void ConnHashFlush(struct tHCI_H5_CB* h5)
     ListInitializeHeader(Head);
 }
 
-void ConnHashAdd(struct tHCI_H5_CB* h5, HCI_CONN* Desc)
+void ConnHashAdd(tHCI_H5_CB *h5, HCI_CONN *Desc)
 {
     RT_LIST_HEAD* Head = &h5->HciConnHash;
     ListAddToTail(&Desc->List, Head);
@@ -891,7 +778,7 @@ void ConnHashDelete(HCI_CONN* Desc)
         ListDeleteNode(&Desc->List);
 }
 
-HCI_CONN* ConnHashLookupByHandle(struct tHCI_H5_CB* h5, uint16_t Handle)
+HCI_CONN* ConnHashLookupByHandle(tHCI_H5_CB *h5, uint16_t Handle)
 {
     RT_LIST_HEAD* Head = &h5->HciConnHash;
     RT_LIST_ENTRY* Iter = NULL;
@@ -945,7 +832,7 @@ static __inline uint16_t get_unaligned_be16(const void *p)
 * @param h5 realtek h5 struct
 * @return crc data
 */
-static uint16_t h5_get_crc(struct tHCI_H5_CB *h5)
+static uint16_t h5_get_crc(tHCI_H5_CB *h5)
 {
    uint16_t crc = 0;
    uint8_t * data = skb_get_data(h5->rx_skb) + skb_get_data_length(h5->rx_skb) - 2;
@@ -1034,11 +921,11 @@ static void h5_slip_one_byte(sk_buff *skb, uint8_t c)
 * @param h5 realtek h5 struct
 * @byte pure data in the one byte
 */
-static void h5_unslip_one_byte(struct tHCI_H5_CB *h5, unsigned char byte)
+static void h5_unslip_one_byte(tHCI_H5_CB *h5, unsigned char byte)
 {
     const uint8_t c0 = 0xc0, db = 0xdb;
     const uint8_t oof1 = 0x11, oof2 = 0x13;
-    H5_PKT_HEADER * hdr = (H5_PKT_HEADER *)skb_get_data(h5->rx_skb);
+    uint8_t *hdr = (uint8_t *)skb_get_data(h5->rx_skb);
 
     if (H5_ESCSTATE_NOESC == h5->rx_esc_state)
     {
@@ -1050,7 +937,7 @@ static void h5_unslip_one_byte(struct tHCI_H5_CB *h5, unsigned char byte)
         {
             memcpy(skb_put(h5->rx_skb, 1), &byte, 1);
             //Check Pkt Header's CRC enable bit
-            if (hdr->DicPresent && h5->rx_state != H5_W4_CRC)
+            if (H5_HDR_CRC(hdr) && h5->rx_state != H5_W4_CRC)
             {
                 h5_crc_update(&h5->message_crc, byte);
             }
@@ -1063,28 +950,28 @@ static void h5_unslip_one_byte(struct tHCI_H5_CB *h5, unsigned char byte)
         {
         case 0xdc:
             memcpy(skb_put(h5->rx_skb, 1), &c0, 1);
-            if (hdr->DicPresent && h5->rx_state != H5_W4_CRC)
+            if (H5_HDR_CRC(hdr) && h5->rx_state != H5_W4_CRC)
                 h5_crc_update(&h5-> message_crc, 0xc0);
             h5->rx_esc_state = H5_ESCSTATE_NOESC;
             h5->rx_count--;
             break;
         case 0xdd:
             memcpy(skb_put(h5->rx_skb, 1), &db, 1);
-             if (hdr->DicPresent && h5->rx_state != H5_W4_CRC)
+             if (H5_HDR_CRC(hdr) && h5->rx_state != H5_W4_CRC)
                 h5_crc_update(&h5-> message_crc, 0xdb);
             h5->rx_esc_state = H5_ESCSTATE_NOESC;
             h5->rx_count--;
             break;
         case 0xde:
             memcpy(skb_put(h5->rx_skb, 1), &oof1, 1);
-            if (hdr->DicPresent && h5->rx_state != H5_W4_CRC)
+            if (H5_HDR_CRC(hdr) && h5->rx_state != H5_W4_CRC)
                 h5_crc_update(&h5-> message_crc, oof1);
             h5->rx_esc_state = H5_ESCSTATE_NOESC;
             h5->rx_count--;
             break;
         case 0xdf:
             memcpy(skb_put(h5->rx_skb, 1), &oof2, 1);
-            if (hdr->DicPresent && h5->rx_state != H5_W4_CRC)
+            if (H5_HDR_CRC(hdr) && h5->rx_state != H5_W4_CRC)
                 h5_crc_update(&h5-> message_crc, oof2);
             h5->rx_esc_state = H5_ESCSTATE_NOESC;
             h5->rx_count--;
@@ -1116,7 +1003,7 @@ static void h5_unslip_one_byte(struct tHCI_H5_CB *h5, unsigned char byte)
 * @param pkt_type packet type
 * @return socket buff after prepare in h5 proto
 */
-static sk_buff * h5_prepare_pkt(struct tHCI_H5_CB *h5, uint8_t *data, signed long len, signed long pkt_type)
+static sk_buff * h5_prepare_pkt(tHCI_H5_CB *h5, uint8_t *data, signed long len, signed long pkt_type)
 {
     sk_buff *nskb;
     uint8_t hdr[4];
@@ -1215,7 +1102,7 @@ static sk_buff * h5_prepare_pkt(struct tHCI_H5_CB *h5, uint8_t *data, signed lon
 *
 * @param h5 realtek h5 struct
 */
-static void h5_remove_acked_pkt(struct tHCI_H5_CB *h5)
+static void h5_remove_acked_pkt(tHCI_H5_CB *h5)
 {
     RT_LIST_HEAD* Head = NULL;
     RT_LIST_ENTRY* Iter = NULL, *Temp = NULL;
@@ -1661,9 +1548,9 @@ void h5_process_ctl_pkts(void)
 {
     //process h5 link establish
     int len;
-    H5_CONFIG_FIELD f = {0,0,0,0};
+    uint8_t cfg;
 
-    struct  tHCI_H5_CB  *p_cb=&rtk_h5;
+    tHCI_H5_CB *p_cb = &rtk_h5;
     sk_buff * skb = rtk_h5.rx_skb;
 
     unsigned char    h5sync[2]     = {0x01, 0x7E},
@@ -1708,10 +1595,10 @@ void h5_process_ctl_pkts(void)
 
             rtk_h5.link_estab_state = H5_ACTIVE;
             //notify hw to download patch
-            memcpy(&f, skb_get_data(skb)+2, sizeof(f));
-            rtk_h5.sliding_window_size = f.SlidingWindowSize;
-            rtk_h5.oof_flow_control = f.OofFlowControl;
-            rtk_h5.dic_type = f.DicType;
+            memcpy(&cfg, skb_get_data(skb)+2, H5_CFG_SIZE);
+            rtk_h5.sliding_window_size = H5_CFG_SLID_WIN(cfg);
+            rtk_h5.oof_flow_control = H5_CFG_OOF_CNTRL(cfg);
+            rtk_h5.dic_type = H5_CFG_DIC_TYPE(cfg);
             LogMsg("rtk_h5.sliding_window_size(%d), oof_flow_control(%d), dic_type(%d)",
             rtk_h5.sliding_window_size, rtk_h5.oof_flow_control, rtk_h5.dic_type);
          if(rtk_h5.dic_type)
@@ -1778,7 +1665,7 @@ uint8_t isRtkInternalCommand(uint16_t opcode)
 uint8_t internal_event_intercept_h5(void)
 {
     uint8_t internal_command = 0;//if it is internal event, you need to set internal_command = 1;
-    struct  tHCI_H5_CB  *p_cb=&rtk_h5;
+    tHCI_H5_CB *p_cb = &rtk_h5;
     sk_buff * skb = rtk_h5.rx_skb;
 
     //process fw change baudrate and patch download
@@ -2076,22 +1963,7 @@ uint8_t internal_event_intercept_h5(void)
         }
     }
 
-#ifdef BT_FW_CAL_ENABLE
-   else if(event_code == 0x02||
-        event_code == 0x22||
-        event_code == 0x2f)
-    {
-        if(rtk_h5.bHasUpdateCalInquiryState == FALSE)
-        {
-            LogMsg("H5: Update CAL Inquiry success info to cal file");
-            rtk_set_bt_cal_inqury_result(CAL_INQUIRY_SUCCESS);
-            rtk_h5.bHasUpdateCalInquiryState = TRUE;
-        }
-    }
-#endif
-
     return internal_command;
-
 }
 
 
@@ -2279,32 +2151,32 @@ uint8_t hci_rx_dispatch_by_handle(sk_buff* rx_skb)
 * @param h5 realtek h5 struct
 *
 */
-static void h5_complete_rx_pkt(struct tHCI_H5_CB *h5)
+static void h5_complete_rx_pkt(tHCI_H5_CB *h5)
 {
     int pass_up = 1;
     uint16_t eventtype = 0;
-    H5_PKT_HEADER* h5_hdr = NULL;
+    uint8_t *h5_hdr = NULL;
     uint8_t complete_pkt = TRUE;
     uint8_t pkt_type = 0;
-    struct tHCI_H5_CB *p_cb=&rtk_h5;
+    tHCI_H5_CB *p_cb=&rtk_h5;
 
     //LogMsg("HCI 3wire h5_complete_rx_pkt");
-    h5_hdr = (H5_PKT_HEADER * )skb_get_data(h5->rx_skb);
-    LogMsg("SeqNumber(%d), AckNumber(%d)", h5_hdr->SeqNumber, h5_hdr->AckNumber);
+    h5_hdr = (uint8_t *)skb_get_data(h5->rx_skb);
+    LogMsg("SeqNumber(%d), AckNumber(%d)", H5_HDR_SEQ(h5_hdr), H5_HDR_ACK(h5_hdr));
 
-    if (h5_hdr->ReliablePkt)
+    if (H5_HDR_RELIABLE(h5_hdr))
     {
         LogMsg("Received reliable seqno %u from card", h5->rxseq_txack);
-        h5->rxseq_txack = h5_hdr->SeqNumber + 1;
+        h5->rxseq_txack = H5_HDR_SEQ(h5_hdr) + 1;
         h5->rxseq_txack %= 8;
         h5->is_txack_req = 1;
     // send down an empty ack if needed.
         h5_wake_up();
     }
 
-    h5->rxack = h5_hdr->AckNumber;
-    pkt_type = h5_hdr->PktType;
-    switch (h5_hdr->PktType)
+    h5->rxack = H5_HDR_ACK(h5_hdr);
+    pkt_type = H5_HDR_PKT_TYPE(h5_hdr);
+    switch (pkt_type)
     {
         case HCI_ACLDATA_PKT:
             pass_up = 1;
@@ -2334,7 +2206,7 @@ static void h5_complete_rx_pkt(struct tHCI_H5_CB *h5)
             break;
 
         default:
-          SYSLOGE("Unknown pkt type(%d)", h5_hdr->PktType);
+          SYSLOGE("Unknown pkt type(%d)", H5_HDR_PKT_TYPE(h5_hdr));
           eventtype = MSG_HC_TO_STACK_HCI_ERR;
           pass_up = 0;
           break;
@@ -2343,9 +2215,9 @@ static void h5_complete_rx_pkt(struct tHCI_H5_CB *h5)
     // remove h5 header and send packet to hci
     h5_remove_acked_pkt(h5);
 
-    if(h5_hdr->PktType == H5_LINK_CTL_PKT)
+    if(H5_HDR_PKT_TYPE(h5_hdr) == H5_LINK_CTL_PKT)
     {
-        skb_pull(h5->rx_skb, sizeof(H5_PKT_HEADER));
+        skb_pull(h5->rx_skb, sizeof(H5_HDR_SIZE));
         h5_process_ctl_pkts();
     }
 
@@ -2353,7 +2225,7 @@ static void h5_complete_rx_pkt(struct tHCI_H5_CB *h5)
     if (pass_up)
     {
 
-        skb_pull(h5->rx_skb, sizeof(H5_PKT_HEADER));
+        skb_pull(h5->rx_skb, sizeof(H5_HDR_SIZE));
 
         if(eventtype == MSG_HC_TO_STACK_HCI_ACL)
         {
@@ -2408,11 +2280,11 @@ static void h5_complete_rx_pkt(struct tHCI_H5_CB *h5)
 * @param count num of data
 * @return reserved count
 */
-static int h5_recv(struct tHCI_H5_CB *h5, void *data, int count)
+static int h5_recv(tHCI_H5_CB *h5, void *data, int count)
 {
     unsigned char *ptr;
     uint8_t * skb_data = NULL;
-    H5_PKT_HEADER * hdr = NULL;
+    uint8_t *hdr = NULL;
 
     //LogMsg("count %d rx_state %d rx_count %ld", count, h5->rx_state, h5->rx_count);
     ptr = (unsigned char *)data;
@@ -2439,7 +2311,7 @@ static int h5_recv(struct tHCI_H5_CB *h5, void *data, int count)
         case H5_W4_HDR:
             // check header checksum. see Core Spec V4 "3-wire uart" page 67
             skb_data = skb_get_data(h5->rx_skb);
-            hdr = (H5_PKT_HEADER *)skb_data;
+            hdr = (uint8_t *)skb_data;
 
             if ((0xff & (uint8_t) ~ (skb_data[0] + skb_data[1] +
                                    skb_data[2])) != skb_data[3])
@@ -2451,11 +2323,11 @@ static int h5_recv(struct tHCI_H5_CB *h5, void *data, int count)
                 continue;
             }
 
-              if (hdr->ReliablePkt
-                && (hdr->SeqNumber!= h5->rxseq_txack))
+            if (H5_HDR_RELIABLE(hdr)
+                && (H5_HDR_SEQ(hdr) != h5->rxseq_txack))
             {
                 SYSLOGE("Out-of-order packet arrived, got(%u)expected(%u)",
-                   hdr->SeqNumber, h5->rxseq_txack);
+                   H5_HDR_SEQ(hdr), h5->rxseq_txack);
                 h5->is_txack_req = 1;
                 h5_wake_up();
 
@@ -2467,11 +2339,11 @@ static int h5_recv(struct tHCI_H5_CB *h5, void *data, int count)
             }
             h5->rx_state = H5_W4_DATA;
             //payload length: May be 0
-            h5->rx_count = hdr->PayloadLen;
+            h5->rx_count = H5_HDR_LEN(hdr);
             continue;
         case H5_W4_DATA:
-            hdr = (H5_PKT_HEADER *)skb_get_data(h5->rx_skb);
-            if (hdr->DicPresent)
+            hdr = (uint8_t *)skb_get_data(h5->rx_skb);
+            if (H5_HDR_CRC(hdr))
             {   // pkt with crc /
                 h5->rx_state = H5_W4_CRC;
                 h5->rx_count = 2;
@@ -2791,7 +2663,7 @@ void hci_h5_init(void)
 {
     SYSLOGI("hci_h5_init");
 
-    memset(&rtk_h5, 0, sizeof(struct tHCI_H5_CB));
+    memset(&rtk_h5, 0, sizeof(tHCI_H5_CB));
     utils_queue_init(&(rtk_h5.acl_rx_q));
 
     /* Per HCI spec., always starts with 1 */
@@ -2825,10 +2697,6 @@ void hci_h5_init(void)
 
     rtk_h5.rx_state = H5_W4_PKT_DELIMITER;
     rtk_h5.rx_esc_state = H5_ESCSTATE_NOESC;
-
-#ifdef BT_FW_CAL_ENABLE
-    rtk_h5.bHasUpdateCalInquiryState = FALSE;
-#endif
 
     btsnoop_init();
 }

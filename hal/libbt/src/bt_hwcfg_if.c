@@ -187,7 +187,7 @@ int bt_hw_parse_config(bt_hw_cfg_cb_t *cfg_cb, uint8_t *bt_addr)
 
     config = (struct bt_config_info *)cfg_cb->config_buf;
     if (config) {
-        config_len = config->data_len;
+        config_len = le16_to_cpu(config->data_len);
         entry = config->entry;
     } else {
         SYSLOGE("failed to get config file buf");
@@ -195,7 +195,7 @@ int bt_hw_parse_config(bt_hw_cfg_cb_t *cfg_cb, uint8_t *bt_addr)
     }
 
 
-    if (config->signature != BT_CONFIG_SIGNATURE) {
+    if (le32_to_cpu(config->signature) != BT_CONFIG_SIGNATURE) {
         SYSLOGE("failed to check config file signature 0x%08x", config->signature);
         return -1;
     }
@@ -208,7 +208,7 @@ int bt_hw_parse_config(bt_hw_cfg_cb_t *cfg_cb, uint8_t *bt_addr)
 
     for (i = 0; i < config_len; ) {
 
-        switch (entry->offset) {
+        switch (le16_to_cpu(entry->offset)) {
             /*
             case 0x3c:
             {
@@ -279,22 +279,35 @@ struct bt_patch_entry *bt_hw_get_patch_entry(bt_hw_cfg_cb_t *cfg_cb)
     uint16_t i;
     struct bt_patch_info *patch;
     struct bt_patch_entry *entry;
+    uint32_t fw_ver;
+    uint16_t patch_num;
     uint8_t *p;
     uint16_t chip_id;
 
     patch = (struct bt_patch_info *)cfg_cb->fw_buf;
+    if (patch) {
+        fw_ver = le32_to_cpu(patch->fw_ver);
+        patch_num = le16_to_cpu(patch->patch_num);
+        SYSLOGI("bt_hw_get_patch_entry: fw_ver 0x%08x, patch_num %d", fw_ver, patch_num);
+    } else {
+        SYSLOGE("bt_hw_get_patch_entry: No BT patch info found");
+        return NULL;
+    }
+
     entry = (struct bt_patch_entry *)malloc(sizeof(*entry));
+    if (!entry) {
+        SYSLOGE("bt_hw_get_patch_entry: failed to allocate mem for BT patch entry");
+        return NULL;
+    }
 
-    SYSLOGI("bt_hw_get_patch_entry: fw_ver 0x%08x, patch_num %d", patch->fw_ver, patch->patch_num);
-
-    for (i = 0; i < patch->patch_num; i++) {
+    for (i = 0; i < patch_num; i++) {
         p = cfg_cb->fw_buf + 14 + 2*i;
         STREAM_TO_UINT16(chip_id, p);
         if (chip_id == cfg_cb->rom_ver + 1) {
             entry->chip_id = chip_id;
-            p = cfg_cb->fw_buf + 14 + 2*patch->patch_num + 2*i;
+            p = cfg_cb->fw_buf + 14 + 2*patch_num + 2*i;
             STREAM_TO_UINT16(entry->patch_len, p);
-            p = cfg_cb->fw_buf + 14 + 4*patch->patch_num + 4*i;
+            p = cfg_cb->fw_buf + 14 + 4*patch_num + 4*i;
             STREAM_TO_UINT32(entry->patch_offset, p);
             SYSLOGI("bt_hw_get_patch_entry: chip_id %d, patch_len 0x%x, patch_offset 0x%x",
                     entry->chip_id, entry->patch_len, entry->patch_offset);
@@ -302,7 +315,7 @@ struct bt_patch_entry *bt_hw_get_patch_entry(bt_hw_cfg_cb_t *cfg_cb)
         }
     }
 
-    if (i == patch->patch_num) {
+    if (i == patch_num) {
         SYSLOGE("bt_hw_get_patch_entry: failed to get etnry");
         free(entry);
         entry = NULL;

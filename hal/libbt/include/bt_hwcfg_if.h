@@ -77,6 +77,18 @@
 #define UINT16_TO_STREAM(p, u16) {*(p)++ = (uint8_t)(u16); *(p)++ = (uint8_t)((u16) >> 8);}
 #define UINT32_TO_STREAM(p, u32) {*(p)++ = (uint8_t)(u32); *(p)++ = (uint8_t)((u32) >> 8); *(p)++ = (uint8_t)((u32) >> 16); *(p)++ = (uint8_t)((u32) >> 24);}
 
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define cpu_to_le16(d)  (d)
+#define cpu_to_le32(d)  (d)
+#define le16_to_cpu(d)  (d)
+#define le32_to_cpu(d)  (d)
+#else
+#define cpu_to_le16(d)  bswap_16(d)
+#define cpu_to_le32(d)  bswap_32(d)
+#define le16_to_cpu(d)  bswap_16(d)
+#define le32_to_cpu(d)  bswap_32(d)
+#endif
+
 struct bt_config_entry {
     uint16_t offset;
     uint8_t entry_len;
