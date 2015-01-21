@@ -100,19 +100,16 @@ typedef struct {
 } baudrate_map;
 
 baudrate_map baudrates[] = {
-
-    {0x00006004, 921600},
-    {0x05F75004, 921600},//RTL8723BS
-    {0x00004003, 1500000},
-    {0x04928002, 1500000},//RTL8723BS
-    {0x00005002, 2000000},//same as RTL8723AS
-    {0x00008001, 3000000},
-    {0x04928001, 3000000},//RTL8723BS
-    {0x00007001, 3500000},
-    {0x052A6001, 3500000},//RTL8723BS
-    {0x00005001, 4000000},//same as RTL8723AS
-    {0x0000701d, 115200},
-    {0x0252C002, 115200}//RTL8723BS
+    {0x0252C014, 115200},
+    {0x0252C00A, 230400},
+    {0x05F75004, 921600},
+    {0x00005004, 1000000},
+    {0x04928002, 1500000},
+    {0x00005002, 2000000},
+    {0x0000B001, 2500000},
+    {0x04928001, 3000000},
+    {0x052A6001, 3500000},
+    {0x00005001, 4000000},
 };
 
 /**
@@ -131,6 +128,9 @@ static void bt_speed_to_uart_speed(uint32_t bt_speed, uint32_t *uart_speed)
             return;
         }
     }
+
+    SYSLOGW("bt_speed_to_uart_speed: use default baudrate[115200]");
+
     return;
 }
 
@@ -308,7 +308,7 @@ CFG_START:
             SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
 
             if (UART_hw_cfg_cb.baudrate[1] == 0) {
-                UART_hw_cfg_cb.baudrate[1] = 0x0000701d;
+                UART_hw_cfg_cb.baudrate[1] = 0x0252C014;
             }
 
             SYSLOGI("bt hw config: set controller uart baud 0x%08x", UART_hw_cfg_cb.baudrate[1]);
