@@ -208,13 +208,8 @@ typedef struct {
     /** Closes the interface. */
     void (*cleanup)(void);
 
-    /** Bluetooth Test Mode APIs - Bluetooth must be enabled for these APIs */
-    /* Configure DUT Mode - Use this mode to enter/exit DUT mode */
-    int (*dut_mode_configure)(uint8_t enable);
-
-    /** Send any test HCI (vendor-specific) command to the controller. Must */
-    /* be in DUT Mode */
-    int (*hal_mp_op_send)(uint16_t opcode, char *buf);
+    /** Send test HCI (vendor-specific) command to the controller. */
+    int (*op_send)(uint16_t opcode, char *buf);
 } bt_interface_t;
 
 

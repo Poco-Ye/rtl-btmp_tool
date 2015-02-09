@@ -313,7 +313,7 @@ void btmp_get_param(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_GetParam, p);
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_GetParam, p);
 
     check_return_status(STR_BT_MP_GET_PARAM, status);
 }
@@ -326,7 +326,7 @@ void btmp_set_param(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetParam, p);
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_SetParam, p);
 
     check_return_status(STR_BT_MP_SET_PARAM, status);
 }
@@ -339,7 +339,7 @@ void btmp_set_config(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_SetConfig, p);
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_SetConfig, p);
 
     check_return_status(STR_BT_MP_SET_CONFIG, status);
 }
@@ -352,7 +352,7 @@ void btmp_exec(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_Exec, p);
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_Exec, p);
 
     check_return_status(STR_BT_MP_EXEC, status);
 }
@@ -365,7 +365,7 @@ void btmp_report(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_Report, p);
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_Report, p);
 
     check_return_status(STR_BT_MP_REPORT, status);
 }
@@ -378,7 +378,7 @@ void btmp_reg_RW(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_USER_DEF_RegRW, p);
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_RegRW, p);
 
     check_return_status(STR_BT_MP_REG_RW, status);
 }
@@ -391,7 +391,7 @@ void btmp_hci_cmd(char *p)
         return;
     }
 
-    status = sBtInterface->hal_mp_op_send(BT_MP_OP_HCI_SEND_CMD, p);
+    status = sBtInterface->op_send(BT_MP_OP_HCI_SEND_CMD, p);
 
     check_return_status(STR_BT_MP_HCI_CMD, status);
 }

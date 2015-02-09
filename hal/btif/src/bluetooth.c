@@ -134,20 +134,9 @@ void hal_cleanup( void )
     return;
 }
 
-int hal_dut_mode_configure(uint8_t enable)
-{
-    SYSLOGI("hal_dut_mode_configure");
-
-    /* sanity check */
-    if (hal_interface_ready() == FALSE)
-        return BT_STATUS_NOT_READY;
-
-    return btif_dut_mode_configure(enable);
-}
-
 extern void btu_hcif_mp_notify_event (BT_HDR *p_msg);
 
-int hal_mp_op_send(uint16_t opcode, char *buf)
+int hal_op_send(uint16_t opcode, char *buf)
 {
     BT_HDR *p_buf = NULL;
     char *p = NULL;
@@ -160,7 +149,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
     p = (char *)(p_buf + 1);
     memset(p, 0, 1024);
 
-    SYSLOGI("hal_mp_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
+    SYSLOGI("hal_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
 
     /* sanity check */
     if (hal_interface_ready() == FALSE)
@@ -196,7 +185,7 @@ int hal_mp_op_send(uint16_t opcode, char *buf)
         break;
 
     default:
-        SYSLOGW("hal_mp_op_send: undefined opcode[0x%02x]", opcode);
+        SYSLOGW("hal_op_send: undefined opcode[0x%02x]", opcode);
         break;
     }
 
@@ -222,8 +211,7 @@ static const bt_interface_t bluetoothInterface = {
     hal_enable,
     hal_disable,
     hal_cleanup,
-    hal_dut_mode_configure,
-    hal_mp_op_send
+    hal_op_send
 };
 
 

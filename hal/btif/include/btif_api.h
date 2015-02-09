@@ -85,8 +85,6 @@ bt_status_t btif_disable_bluetooth(void);
 *******************************************************************************/
 bt_status_t btif_shutdown_bluetooth(void);
 
-bt_status_t btif_dut_mode_configure(uint8_t enable);
-
 /*******************************************************************************
 **
 ** Function         btif_dut_mode_send

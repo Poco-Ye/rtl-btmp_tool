@@ -92,14 +92,6 @@ static btif_core_state_t btif_core_state = BTIF_CORE_STATE_DISABLED;
 
 static int btif_shutdown_pending = 0;
 
-/*
-* This variable should be set to 1, if the Bluedroid+BTIF libraries are to
-* function in DUT mode.
-*
-* To set this, the btif_init_bluetooth needs to be called with argument as 1
-*/
-static UINT8 btif_dut_mode = 1;
-
 /************************************************************************************
 **  Static functions
 ************************************************************************************/
@@ -218,21 +210,6 @@ bt_status_t btif_transfer_context (tBTIF_CBACK *p_cback, UINT16 event, char* p_p
 
 /*******************************************************************************
 **
-** Function         btif_is_dut_mode
-**
-** Description      checks if BTIF is currently in DUT mode
-**
-** Returns          1 if test mode, otherwize 0
-**
-*******************************************************************************/
-
-UINT8 btif_is_dut_mode(void)
-{
-    return (btif_dut_mode == 1);
-}
-
-/*******************************************************************************
-**
 ** Function         btif_is_enabled
 **
 ** Description      checks if main adapter is fully enabled
@@ -281,10 +258,7 @@ static bt_status_t btif_mp_test_evt(void* msg)
 
     SYSLOGI("%s: evtcode[0x%02x]", __FUNCTION__, hci_evt_code);
 
-    if (btif_dut_mode)
-    {
-        btif_mp_rx_data_ind(hci_evt_code, (uint8_t*)p, hci_evt_len);
-    }
+    btif_mp_rx_data_ind(hci_evt_code, (uint8_t*)p, hci_evt_len);
 
     return BT_STATUS_SUCCESS;
 }
@@ -355,7 +329,6 @@ static void btif_task(UINT32 params)
             bte_main_disable();
             GKI_task_self_cleanup(BTIF_TASK);
             bte_main_shutdown();
-            btif_dut_mode = 0;
             btif_core_state = BTIF_CORE_STATE_DISABLED;
             HAL_CBACK(bt_hal_cbacks,adapter_state_changed_cb,BT_STATE_OFF);
             break;
@@ -588,8 +561,6 @@ bt_status_t btif_shutdown_bluetooth(void)
 
     bte_main_shutdown();
 
-    btif_dut_mode = 0;
-
     BTIF_TRACE_DEBUG1("%s done", __FUNCTION__);
 
     return BT_STATUS_SUCCESS;
@@ -619,90 +590,10 @@ static bt_status_t btif_disassociate_evt(void)
     return BT_STATUS_SUCCESS;
 }
 
-
-static const LAP general_inq_lap = {0x9e,0x8b,0x33};
-
-UINT8 btif_enable_test_mode(void)
-{
-    UINT8   cond;
-
-    BTIF_TRACE_DEBUG0 ("btif_enable_test_mode");
-/*
- send = hci_cmd 0xc1a 1 0x3
- send = hci_cmd 0xc05 3 0x2 0x0 0x2
- send = hci_cmd 0x1803 0
- send = hci_cmd 0xc1c 4 0x0 0x2 0x12 0x0
- send = hci_cmd 0xc1e 4 0x0 0x2 0x12 0x0
-*/
-
-    if (!btsnd_hcic_write_scan_enable (HCI_PAGE_SCAN_ENABLED|HCI_INQUIRY_SCAN_ENABLED))
-    return -1;
-
-    /* set auto accept connection as this is needed during test mode */
-    /* Allocate a buffer to hold HCI command */
-    cond = HCI_DO_AUTO_ACCEPT_CONNECT;
-    if (!btsnd_hcic_set_event_filter(HCI_FILTER_CONNECTION_SETUP,
-                                     HCI_FILTER_COND_NEW_DEVICE,
-                                     &cond, sizeof(cond)))
-     return -1;
-
-
-    if (!btsnd_hcic_enable_test_mode ())
-
-        return (-1);
-
-
-    if (!btsnd_hcic_write_pagescan_cfg (0x0200, BTM_DEFAULT_CONN_WINDOW))
-    return  -1;
-
-    if (!btsnd_hcic_write_inqscan_cfg(0x0200, BTM_DEFAULT_DISC_WINDOW))
-
-    return  -1;
-
-    return 0;
-}
-
-UINT8 btif_disable_test_mode(void)
-{
-    btsnd_hcic_reset (LOCAL_BR_EDR_CONTROLLER_ID);
-    return 0;
-}
-
-/*******************************************************************************
-**
-** Function         btif_dut_mode_configure
-**
-** Description      Configure Test Mode - 'enable' to 1 puts the device in test mode and 0 exits
-**                       test mode
-**
-** Returns          BT_STATUS_SUCCESS on success
-**
-*******************************************************************************/
-bt_status_t btif_dut_mode_configure(uint8_t enable)
-{
-    BTIF_TRACE_DEBUG1("%s", __FUNCTION__);
-
-    if (btif_core_state != BTIF_CORE_STATE_ENABLED) {
-        BTIF_TRACE_ERROR0("btif_dut_mode_configure : Bluetooth not enabled");
-        return BT_STATUS_NOT_READY;
-    }
-
-    btif_dut_mode = enable;
-    if (enable == 1) {
-        btif_enable_test_mode();
-    } else {
-        btif_disable_test_mode();
-    }
-    return BT_STATUS_SUCCESS;
-}
-
-
 void BTM_VendorSpecificCommand(UINT16 opcode, UINT8 param_len,
                                       UINT8 *p_param_buf)
 {
     void *p_buf;
-
-
 
     /* Allocate a buffer to hold HCI command plus the callback function */
     if ((p_buf = GKI_getbuf((UINT16)(sizeof(BT_HDR) + sizeof (void *) +
