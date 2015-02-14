@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright (C) 2009-2012 Realtek Corporation
+ *  Copyright (C) 2015 Realtek Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,22 +18,45 @@
 
 /******************************************************************************
  *
- *  Filename:      userial_vendor.h
+ *  Filename:      bt_vendor_if.h
  *
- *  Description:   Contains vendor-specific definitions used in serial port
- *                 controls
+ *  Description:   Contains definitions used for I/O controls
  *
  ******************************************************************************/
 
-#ifndef USERIAL_VENDOR_H
-#define USERIAL_VENDOR_H
+#ifndef BT_VENDOR_IF_H
+#define BT_VENDOR_IF_H
 
-#include "bt_vendor_uart.h"
+#include <termios.h>
+#include <unistd.h>
+
+#include "bt_vendor_lib.h"
 #include "userial.h"
 
-/******************************************************************************
-**  Constants & Macros
-******************************************************************************/
+#ifndef FALSE
+#define FALSE  0
+#endif
+
+#ifndef TRUE
+#define TRUE   (!FALSE)
+#endif
+
+#define BT_POWER_OFF 0
+#define BT_POWER_ON  1
+
+#ifndef USE_CONTROLLER_BDADDR
+#define USE_CONTROLLER_BDADDR   FALSE
+#endif
+
+/* Device port name where Bluetooth controller attached */
+#ifndef BLUETOOTH_UART_DEVICE_PORT
+#define BLUETOOTH_UART_DEVICE_PORT      "/dev/ttyS0"
+#endif
+
+/* Device port name where Bluetooth controller attached */
+#ifndef BLUETOOTH_USB_DEVICE_PORT
+#define BLUETOOTH_USB_DEVICE_PORT      "/dev/rtk_btusb"
+#endif
 
 /**** baud rates ****/
 #define USERIAL_BAUD_300        0
@@ -71,55 +94,42 @@
 #define USERIAL_DATABITS_7      (1<<8)
 #define USERIAL_DATABITS_8      (1<<9)
 
-
-#define USERIAL_HW_FLOW_CTRL_OFF  0
-#define USERIAL_HW_FLOW_CTRL_ON    1
-
-
-#if (BT_WAKE_VIA_USERIAL_IOCTL==TRUE)
-/* These are the ioctl values used for bt_wake ioctl via UART driver. you may
- * need to redefine them on you platform!
- * Logically they need to be unique and not colide with existing uart ioctl's.
- */
-#ifndef USERIAL_IOCTL_BT_WAKE_ASSERT
-#define USERIAL_IOCTL_BT_WAKE_ASSERT   0x8003
-#endif
-#ifndef USERIAL_IOCTL_BT_WAKE_DEASSERT
-#define USERIAL_IOCTL_BT_WAKE_DEASSERT 0x8004
-#endif
-#ifndef USERIAL_IOCTL_BT_WAKE_GET_ST
-#define USERIAL_IOCTL_BT_WAKE_GET_ST   0x8005
-#endif
-#endif // (BT_WAKE_VIA_USERIAL_IOCTL==TRUE)
-
-/******************************************************************************
-**  Type definitions
-******************************************************************************/
+/* Hardware Flow Control */
+#define USERIAL_HW_FLOW_CTRL_OFF    0
+#define USERIAL_HW_FLOW_CTRL_ON     1
 
 /* Structure used to configure serial port during open */
-typedef struct
-{
-    uint16_t fmt;       /* Data format */
-    uint8_t  baud;      /* Baud rate */
-    uint8_t hw_fctrl; /*hardware flowcontrol*/
+typedef struct {
+    uint16_t fmt;     /* Data format */
+    uint8_t  baud;    /* Baud rate */
+    uint8_t hw_fctrl; /* hardware flow control */
 } tUSERIAL_CFG;
 
-typedef enum {
-#if (BT_WAKE_VIA_USERIAL_IOCTL==TRUE)
-    USERIAL_OP_ASSERT_BT_WAKE,
-    USERIAL_OP_DEASSERT_BT_WAKE,
-    USERIAL_OP_GET_BT_WAKE_STATE,
-#endif
-    USERIAL_OP_NOP,
-} userial_vendor_ioctl_op_t;
+#define VND_PORT_NAME_MAXLEN    256
 
-/******************************************************************************
-**  Extern variables and functions
-******************************************************************************/
+/* vendor serial control block */
+typedef struct {
+    int fd;                     /* fd to Bluetooth device */
+    struct termios termios;     /* serial terminal of BT port */
+    char port_name[VND_PORT_NAME_MAXLEN]; /* port string name */
+} vnd_if_cb_t;
 
-/******************************************************************************
-**  Functions
-******************************************************************************/
+extern bt_vendor_callbacks_t *bt_vendor_cbacks;
+
+extern uint8_t vnd_local_bd_addr[6];
+
+/*******************************************************************************
+**
+** Function        bt_vendor_set_power
+**
+** Description     Interact with low layer driver to set Bluetooth power
+**                 on/off.
+**
+** Returns         0  : SUCCESS or Not-Applicable
+**                 <0 : ERROR
+**
+*******************************************************************************/
+int bt_vendor_set_power(int on);
 
 /*******************************************************************************
 **
@@ -167,15 +177,13 @@ void userial_vendor_set_baud(uint8_t userial_baud);
 
 /*******************************************************************************
 **
-** Function        userial_vendor_ioctl
+** Function        userial_vendor_set_hw_fctrl
 **
-** Description     ioctl inteface
+** Description     Set hw flow control
 **
 ** Returns         None
 **
 *******************************************************************************/
-void userial_vendor_ioctl(userial_vendor_ioctl_op_t op, void *p_data);
-
 void userial_vendor_set_hw_fctrl(uint8_t hw_fctrl);
 
-#endif /* USERIAL_VENDOR_H */
+#endif /* BT_VENDOR_IF_H */

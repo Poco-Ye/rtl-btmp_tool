@@ -57,9 +57,6 @@
 #define USERIALDBG(param, ...) {}
 #endif
 
-
-
-#define MAX_SERIAL_PORT (USERIAL_PORT_3 + 1)
 #define READ_LIMIT (BTHC_USERIAL_READ_MEM_SIZE - BT_HC_HDR_SIZE)
 
 enum {
@@ -78,10 +75,8 @@ extern bt_vendor_interface_t *bt_vnd_if;
 **  Local type definitions
 ******************************************************************************/
 
-typedef struct
-{
+typedef struct {
     int             fd;
-    uint8_t         port;
     pthread_t       read_thread;
     BUFFER_Q        rx_q;
     HC_BT_HDR      *p_rx_hdr;
@@ -307,36 +302,28 @@ uint8_t userial_init(void)
 **
 ** Function        userial_open
 **
-** Description     Open Bluetooth device with the port ID
+** Description     Open Bluetooth device port
 **
 ** Returns         TRUE/FALSE
 **
 *******************************************************************************/
-uint8_t userial_open(uint8_t port)
+uint8_t userial_open(void)
 {
     struct sched_param param;
     int policy, result;
     pthread_attr_t thread_attr;
     int fd_array[CH_MAX];
 
-    USERIALDBG("userial_open(port:%d)", port);
+    USERIALDBG("userial_open");
 
-    if (userial_running)
-    {
+    if (userial_running) {
         /* Userial is open; close it first */
         userial_close();
         utils_delay(50);
     }
 
-    if (port >= MAX_SERIAL_PORT)
-    {
-        SYSLOGE("Port > MAX_SERIAL_PORT");
-        return FALSE;
-    }
-
     /* Calling vendor-specific part */
-    if (bt_vnd_if)
-    {
+    if (bt_vnd_if) {
         result = bt_vnd_if->op(BT_VND_OP_USERIAL_OPEN, &fd_array);
 
         if (result != 1)
@@ -349,42 +336,33 @@ uint8_t userial_open(uint8_t port)
         }
 
         userial_cb.fd = fd_array[0];
-    }
-    else
-    {
+    } else {
         SYSLOGE("userial_open: missing vendor lib interface !!!");
-        SYSLOGE("userial_open: unable to open UART port");
         return FALSE;
     }
 
-    if (userial_cb.fd == -1)
-    {
-        SYSLOGE("userial_open: failed to open UART port");
+    if (userial_cb.fd == -1) {
+        SYSLOGE("userial_open: failed to open port");
         return FALSE;
     }
 
-    USERIALDBG( "fd = %d", userial_cb.fd);
-
-    userial_cb.port = port;
+    USERIALDBG("fd = %d", userial_cb.fd);
 
     pthread_attr_init(&thread_attr);
 
     if (pthread_create(&(userial_cb.read_thread), &thread_attr, \
-                       userial_read_thread, NULL) != 0 )
-    {
+                       userial_read_thread, NULL) != 0 ) {
         SYSLOGE("pthread_create failed!");
         return FALSE;
     }
 
-    if(pthread_getschedparam(userial_cb.read_thread, &policy, &param)==0)
-    {
+    if (pthread_getschedparam(userial_cb.read_thread, &policy, &param) == 0) {
         policy = BTHC_LINUX_BASE_POLICY;
 #if (BTHC_LINUX_BASE_POLICY!=SCHED_NORMAL)
         param.sched_priority = BTHC_USERIAL_READ_THREAD_PRIORITY;
 #endif
         result = pthread_setschedparam(userial_cb.read_thread, policy, &param);
-        if (result != 0)
-        {
+        if (result != 0) {
             SYSLOGW("userial_open: pthread_setschedparam failed (%s)",
                     strerror(result));
         }

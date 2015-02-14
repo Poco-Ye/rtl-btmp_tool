@@ -118,7 +118,7 @@ void bthc_signal_event(uint16_t event)
 **
 *****************************************************************************/
 
-static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
+static int init(const bt_hc_callbacks_t *p_cb, unsigned char *local_bdaddr,
         bt_hci_if_t hci_if, const char *dev_node)
 {
     pthread_attr_t thread_attr;
@@ -127,8 +127,7 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
 
     SYSLOGI("init");
 
-    if (p_cb == NULL)
-    {
+    if (p_cb == NULL) {
         SYSLOGE("Init failed with no user callbacks!");
         return BT_HC_STATUS_FAIL;
     }
@@ -140,11 +139,11 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
 
     utils_init();
 
-    if (hci_if == BT_HCI_IF_UART) {
+    if (hci_if == BT_HCI_IF_UART5) {
         extern tHCI_IF hci_h5_func_table;
         p_hci_if = &hci_h5_func_table;
         num_hci_cmd_pkts = &H5_num_hci_cmd_pkts;
-    } else if (hci_if == BT_HCI_IF_USB) {
+    } else if (hci_if == BT_HCI_IF_UART4 || hci_if == BT_HCI_IF_USB) {
         extern tHCI_IF hci_h4_func_table;
         p_hci_if = &hci_h4_func_table;
         num_hci_cmd_pkts = &H4_num_hci_cmd_pkts;
@@ -159,9 +158,8 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
 
     utils_queue_init(&tx_q);
 
-    if (lib_running)
-    {
-        SYSLOGW("init has been called repeatedly without calling cleanup ?");
+    if (lib_running) {
+        SYSLOGW("init has been called repeatedly without calling cleanup?");
     }
 
     lib_running = 1;
@@ -171,22 +169,19 @@ static int init(const bt_hc_callbacks_t* p_cb, unsigned char *local_bdaddr,
     pthread_attr_init(&thread_attr);
 
     if (pthread_create(&hc_cb.worker_thread, &thread_attr, \
-                       bt_hc_worker_thread, NULL) != 0)
-    {
+                       bt_hc_worker_thread, NULL) != 0) {
         SYSLOGE("pthread_create failed!");
         lib_running = 0;
         return BT_HC_STATUS_FAIL;
     }
 
-    if(pthread_getschedparam(hc_cb.worker_thread, &policy, &param)==0)
-    {
+    if (pthread_getschedparam(hc_cb.worker_thread, &policy, &param) == 0) {
         policy = BTHC_LINUX_BASE_POLICY;
 #if (BTHC_LINUX_BASE_POLICY!=SCHED_NORMAL)
         param.sched_priority = BTHC_MAIN_THREAD_PRIORITY;
 #endif
         result = pthread_setschedparam(hc_cb.worker_thread, policy, &param);
-        if (result != 0)
-        {
+        if (result != 0) {
             SYSLOGW("libbt-hci init: pthread_setschedparam failed (%s)",
                   strerror(result));
         }
@@ -388,7 +383,7 @@ static void *bt_hc_worker_thread(void *arg)
 #endif
 
         if (events & HC_EVENT_PRELOAD) {
-            int ret = userial_open(USERIAL_PORT_1);
+            int ret = userial_open();
             if (ret == FALSE) {
                 if (bt_hc_cbacks)
                     bt_hc_cbacks->preload_cb(NULL, BT_HC_PRELOAD_FAIL);

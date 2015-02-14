@@ -76,7 +76,7 @@ uint8_t hal_interface_ready(void)
 **
 *****************************************************************************/
 
-int hal_init(bt_callbacks_t* callbacks, bt_hci_if_t hci_if, const char *dev_node)
+int hal_init(bt_callbacks_t *callbacks, bt_hci_if_t hci_if, const char *dev_node)
 {
     SYSLOGI("init");
 
@@ -120,7 +120,7 @@ int hal_disable(void)
     return btif_disable_bluetooth();
 }
 
-void hal_cleanup( void )
+void hal_cleanup(void)
 {
     /* sanity check */
     if (hal_interface_ready() == FALSE)
@@ -134,7 +134,7 @@ void hal_cleanup( void )
     return;
 }
 
-extern void btu_hcif_mp_notify_event (BT_HDR *p_msg);
+extern void btu_hcif_mp_notify_event(BT_HDR *p_msg);
 
 int hal_op_send(uint16_t opcode, char *buf)
 {
@@ -215,10 +215,8 @@ static const bt_interface_t bluetoothInterface = {
 };
 
 
-const bt_interface_t* bluetooth_get_bluetooth_interface ()
+const bt_interface_t *bluetooth_get_bluetooth_interface(void)
 {
-    /* fixme -- add property to disable bt interface ? */
-
     return &bluetoothInterface;
 }
 

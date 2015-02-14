@@ -42,12 +42,8 @@
 #include "bt_hwcfg_if.h"
 #include "bt_vendor_lib.h"
 #include "bt_hci_bdroid.h"
-#include "bt_vendor_uart.h"
+#include "bt_vendor_if.h"
 #include "userial.h"
-#include "userial_vendor.h"
-#include "upio.h"
-
-extern uint8_t UART_vnd_local_bd_addr[BD_ADDR_LEN];
 
 void UART_hw_config_cback(void *p_evt_buf);
 
@@ -146,7 +142,7 @@ static uint8_t hw_config_set_controller_baudrate(HC_BT_HDR *p_buf, uint32_t baud
 
     p_buf->len = HCI_CMD_PREAMBLE_SIZE + 4;
 
-    ret = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_UPDATE_BAUDRATE, p_buf,
+    ret = bt_vendor_cbacks->xmit_cb(HCI_VSC_UPDATE_BAUDRATE, p_buf,
                                  UART_hw_config_cback);
     return ret;
 }
@@ -178,8 +174,8 @@ void UART_hw_config_cback(void *p_mem)
     /* Ask a new buffer big enough to hold any HCI cmd sent here */
     /* Vendor cmd 0xFC6D may have a status 1. */
     if (((status == 0) || (opcode == HCI_VSC_READ_ROM_VERSION)) &&
-        UART_bt_vendor_cbacks) {
-        p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + HCI_CMD_MAX_LEN);
+        bt_vendor_cbacks) {
+        p_buf = (HC_BT_HDR *)bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + HCI_CMD_MAX_LEN);
     }
 
     if (p_buf != NULL) {
@@ -193,6 +189,7 @@ void UART_hw_config_cback(void *p_mem)
         SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
 
         switch (UART_hw_cfg_cb.state) {
+        case HW_CFG_H4_START:
         case HW_CFG_H5_SYNC:
             p = (uint8_t *)(p_buf + 1);
             /* read local version information, here we care LMP sub version. */
@@ -202,7 +199,7 @@ void UART_hw_config_cback(void *p_mem)
 
             UART_hw_cfg_cb.state = HW_CFG_READ_LMP_SUB_VER;
 
-            is_proceeding = UART_bt_vendor_cbacks->xmit_cb(HCI_READ_LOCAL_VERSION_INFO,
+            is_proceeding = bt_vendor_cbacks->xmit_cb(HCI_READ_LOCAL_VERSION_INFO,
                                                     p_buf, UART_hw_config_cback);
             break;
 
@@ -218,8 +215,8 @@ void UART_hw_config_cback(void *p_mem)
 
             SYSLOGI("LMP sub version 0x%04x", UART_hw_cfg_cb.lmp_subver);
             if (UART_hw_cfg_cb.lmp_subver == ROM_LMP_8723a) {
-                UART_hw_cfg_cb.state = HW_CFG_START;
-                goto CFG_START;
+                UART_hw_cfg_cb.state = HW_CFG_PARSE_FW_PATCH;
+                goto CFG_PARSE_FW_PATCH;
             } else {
                 p = (uint8_t *)(p_buf + 1);
                 UINT16_TO_STREAM(p, HCI_VSC_READ_ROM_VERSION);
@@ -227,7 +224,7 @@ void UART_hw_config_cback(void *p_mem)
                 p_buf->len = HCI_CMD_PREAMBLE_SIZE;
 
                 UART_hw_cfg_cb.state = HW_CFG_READ_ROM_VER;
-                is_proceeding = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_READ_ROM_VERSION,
+                is_proceeding = bt_vendor_cbacks->xmit_cb(HCI_VSC_READ_ROM_VERSION,
                                                         p_buf, UART_hw_config_cback);
             }
             break;
@@ -251,13 +248,13 @@ void UART_hw_config_cback(void *p_mem)
                 break;
             }
 
-            UART_hw_cfg_cb.state = HW_CFG_START;
+            UART_hw_cfg_cb.state = HW_CFG_PARSE_FW_PATCH;
 
             SYSLOGI("read ROM version status: %d, echo version: %d", status, UART_hw_cfg_cb.rom_ver);
             /* fall through intentionally */
 
-CFG_START:
-        case HW_CFG_START:
+CFG_PARSE_FW_PATCH:
+        case HW_CFG_PARSE_FW_PATCH:
             SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
 
             /* load fw & config files according to patch item */
@@ -268,7 +265,7 @@ CFG_START:
                 if (UART_hw_cfg_cb.config_len < 0) {
                     UART_hw_cfg_cb.config_len = 0;
                 } else {
-                    bt_hw_parse_config(&UART_hw_cfg_cb, UART_vnd_local_bd_addr);
+                    bt_hw_parse_config(&UART_hw_cfg_cb, vnd_local_bd_addr);
                 }
 
                 UART_hw_cfg_cb.fw_len = bt_hw_load_file(&UART_hw_cfg_cb.fw_buf,
@@ -349,8 +346,8 @@ CFG_START:
                     SYSLOGI("bt hw config completed");
 
                     free(UART_hw_cfg_cb.total_buf);
-                    UART_bt_vendor_cbacks->dealloc(p_buf);
-                    UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
+                    bt_vendor_cbacks->dealloc(p_buf);
+                    bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
 
                     UART_hw_cfg_cb.state = HW_CFG_UNINIT;
                     is_proceeding = TRUE;
@@ -385,7 +382,7 @@ CFG_START:
 
             p_buf->len = HCI_CMD_PREAMBLE_SIZE + 1 + UART_hw_cfg_cb.patch_frag_len;
 
-            is_proceeding = UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_DOWNLOAD_FW_PATCH,
+            is_proceeding = bt_vendor_cbacks->xmit_cb(HCI_VSC_DOWNLOAD_FW_PATCH,
                                                     p_buf, UART_hw_config_cback);
             break;
 
@@ -395,16 +392,16 @@ CFG_START:
     } /* if (p_buf != NULL) */
 
     /* Free the RX event buffer */
-    if (UART_bt_vendor_cbacks && (p_mem != NULL))
-        UART_bt_vendor_cbacks->dealloc(p_evt_buf);
+    if (bt_vendor_cbacks && (p_mem != NULL))
+        bt_vendor_cbacks->dealloc(p_evt_buf);
 
     if (is_proceeding == FALSE) {
         SYSLOGE("vendor lib fwcfg aborted!!!");
-        if (UART_bt_vendor_cbacks) {
+        if (bt_vendor_cbacks) {
             if (p_buf != NULL)
-                UART_bt_vendor_cbacks->dealloc(p_buf);
+                bt_vendor_cbacks->dealloc(p_buf);
 
-            UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
+            bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
         }
 
         UART_hw_cfg_cb.state = 0;
@@ -412,7 +409,7 @@ CFG_START:
 }
 
 /** Kick off controller initialization process */
-void UART_hw_config_start(void)
+void UART_hw_config_start(bt_hci_if_t proto)
 {
     HC_BT_HDR *p_buf = NULL;
     uint8_t *p;
@@ -421,28 +418,34 @@ void UART_hw_config_start(void)
     UART_hw_cfg_cb.state = HW_CFG_UNINIT;
     UART_hw_cfg_cb.dl_fw_flag = 1;
 
-    SYSLOGI("UART_hw_config_start: version %s", BT_CFG_VERSION);
+    SYSLOGI("UART_hw_config_start: proto %d[1/H4, 2/H5]", proto);
 
-    /* Start from sending H5 SYNC */
-    if (UART_bt_vendor_cbacks) {
-        p_buf = (HC_BT_HDR *)UART_bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + 2);
-    }
-
-    if (p_buf) {
-        p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
-        p_buf->offset = 0;
-        p_buf->layer_specific = 0;
-        p_buf->len = 2;
-
-        p = (uint8_t *) (p_buf + 1);
-        UINT16_TO_STREAM(p, HCI_VSC_H5_INIT);
-
-        UART_hw_cfg_cb.state = HW_CFG_H5_SYNC;
-        UART_bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, UART_hw_config_cback);
-    } else {
-        if (UART_bt_vendor_cbacks) {
-            SYSLOGE("bt hw config aborted[no buffer]");
-            UART_bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
+    if (proto == BT_HCI_IF_UART5) {
+        /* H5: start from sending H5 SYNC */
+        if (bt_vendor_cbacks) {
+            p_buf = (HC_BT_HDR *)bt_vendor_cbacks->alloc(BT_HC_HDR_SIZE + 2);
         }
+
+        if (p_buf) {
+            p_buf->event = MSG_STACK_TO_HC_HCI_CMD;
+            p_buf->offset = 0;
+            p_buf->layer_specific = 0;
+            p_buf->len = 2;
+
+            p = (uint8_t *)(p_buf + 1);
+            UINT16_TO_STREAM(p, HCI_VSC_H5_INIT);
+
+            UART_hw_cfg_cb.state = HW_CFG_H5_SYNC;
+            bt_vendor_cbacks->xmit_cb(HCI_VSC_H5_INIT, p_buf, UART_hw_config_cback);
+        } else {
+            if (bt_vendor_cbacks) {
+                SYSLOGE("bt hw config aborted[no buffer]");
+                bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
+            }
+        }
+    } else if (proto == BT_HCI_IF_UART4) {
+        /* H4: start from reading lmp version */
+        UART_hw_cfg_cb.state = HW_CFG_H4_START;
+        UART_hw_config_cback(NULL);
     }
 }

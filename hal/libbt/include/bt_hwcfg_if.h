@@ -35,8 +35,6 @@
 
 #include "bt_hci_bdroid.h"
 
-#define BT_CFG_VERSION      "2.11"
-
 #define BT_FIRMWARE_DIRECTORY       "/lib/firmware/%s"
 #define HCI_CMD_MAX_LEN             258
 #define PATCH_FRAGMENT_MAX_SIZE     252
@@ -123,11 +121,12 @@ struct bt_patch_info {
 /* Hardware Configuration State */
 enum {
     HW_CFG_UNINIT = 0,          /* usb & uart state */
+    HW_CFG_H4_START,            /* uart(h4) specified state */
     HW_CFG_H5_SYNC,             /* uart(h5) specified state */
     HW_CFG_FW_RESET,            /* usb specified state */
     HW_CFG_READ_LMP_SUB_VER,    /* usb & uart state */
     HW_CFG_READ_ROM_VER,        /* usb & uart state */
-    HW_CFG_START,               /* usb & uart state */
+    HW_CFG_PARSE_FW_PATCH,      /* usb & uart state */
     HW_CFG_SET_CNTRL_BAUDRATE,  /* uart specified state */
     HW_CFG_SET_HOST_BAUDRATE,   /* uart specified state */
     HW_CFG_DL_FW_PATCH          /* usb & uart state */

@@ -276,8 +276,10 @@ void btmp_enable(char *p)
         *p_node++ = '\0';
     }
 
-    if (!strcasecmp(parse_buf, "UART")) {
-        hci_if = BT_HCI_IF_UART;
+    if (!strcasecmp(parse_buf, "UART4")) {
+        hci_if = BT_HCI_IF_UART4;
+    } else if (!strcasecmp(parse_buf, "UART") || !strcasecmp(parse_buf, "UART5")) {
+        hci_if = BT_HCI_IF_UART5;
     } else if (!strcasecmp(parse_buf, "USB")) {
         hci_if = BT_HCI_IF_USB;
     }

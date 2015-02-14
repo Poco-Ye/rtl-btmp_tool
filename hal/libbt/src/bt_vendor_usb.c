@@ -26,39 +26,12 @@
 #include <sys/types.h>
 
 #include "bt_syslog.h"
-#include "bt_vendor_usb.h"
+#include "bt_vendor_if.h"
 #include "bt_hci_bluez.h"
-
-#ifndef BTVND_DBG
-#define BTVND_DBG FALSE
-#endif
-
-#if (BTVND_DBG == TRUE)
-#define BTVNDDBG(param, ...) {SYSLOGD(param, ## __VA_ARGS__);}
-#else
-#define BTVNDDBG(param, ...) {}
-#endif
 
 void USB_hw_config_start(void);
 
-/******************************************************************************
-**  Local type definitions
-******************************************************************************/
-#define VND_PORT_NAME_MAXLEN    256
-/* vendor serial control block */
-typedef struct
-{
-    int fd;                     /* fd to Bluetooth device */
-    char port_name[VND_PORT_NAME_MAXLEN];
-} vnd_usb_cb_t;
-
-/******************************************************************************
-**  Variables
-******************************************************************************/
-
-bt_vendor_callbacks_t *USB_bt_vendor_cbacks = NULL;
-uint8_t USB_vnd_local_bd_addr[6]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static vnd_usb_cb_t vnd_usb;
+static vnd_if_cb_t vnd_usb;
 
 static void usb_vendor_init(const char *dev_node)
 {
@@ -127,10 +100,10 @@ static int USB_bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *loc
     usb_vendor_init(dev_node);
 
     /* store reference to user callbacks */
-    USB_bt_vendor_cbacks = (bt_vendor_callbacks_t *)p_cb;
+    bt_vendor_cbacks = (bt_vendor_callbacks_t *)p_cb;
 
     /* This is handed over from the stack */
-    memcpy(USB_vnd_local_bd_addr, local_bdaddr, 6);
+    memcpy(vnd_local_bd_addr, local_bdaddr, 6);
 
     return 0;
 }
@@ -141,68 +114,66 @@ static int USB_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 {
     int retval = 0;
 
-    BTVNDDBG("op for %d", opcode);
+    SYSLOGI("op for %d", opcode);
 
-    switch(opcode)
-    {
-        case BT_VND_OP_POWER_CTRL:
-            {
-                return 0;
+    switch (opcode) {
+    case BT_VND_OP_POWER_CTRL:
+        {
+            return 0;
+        }
+        break;
+
+    case BT_VND_OP_FW_CFG:
+        {
+            USB_hw_config_start();
+        }
+        break;
+
+    case BT_VND_OP_SCO_CFG:
+        {
+            retval = -1;
+        }
+        break;
+
+    case BT_VND_OP_USERIAL_OPEN:
+        {
+            int (*fd_array)[] = (int (*)[]) param;
+            int fd, idx;
+            fd = usb_vendor_open();
+            if (fd != -1) {
+                for (idx=0; idx < CH_MAX; idx++)
+                    (*fd_array)[idx] = fd;
+
+                retval = 1;
             }
-            break;
+        }
+        break;
 
-        case BT_VND_OP_FW_CFG:
-            {
-                USB_hw_config_start();
-            }
-            break;
+    case BT_VND_OP_USERIAL_CLOSE:
+        {
+            usb_vendor_close();
+        }
+        break;
 
-        case BT_VND_OP_SCO_CFG:
-            {
-                retval = -1;
-            }
-            break;
+    case BT_VND_OP_GET_LPM_IDLE_TIMEOUT:
+        {
+            uint32_t *timeout_ms = (uint32_t *) param;
+            *timeout_ms = 250;
+        }
+        break;
 
-        case BT_VND_OP_USERIAL_OPEN:
-            {
-                int (*fd_array)[] = (int (*)[]) param;
-                int fd, idx;
-                fd = usb_vendor_open();
-                if (fd != -1)
-                {
-                    for (idx=0; idx < CH_MAX; idx++)
-                        (*fd_array)[idx] = fd;
+    case BT_VND_OP_LPM_SET_MODE:
+        {
+            if (bt_vendor_cbacks)
+                bt_vendor_cbacks->lpm_cb(BT_VND_OP_RESULT_SUCCESS);
+        }
+        break;
 
-                    retval = 1;
-                }
-                /* retval contains numbers of open fd of HCI channels */
-            }
-            break;
+    case BT_VND_OP_LPM_WAKE_SET_STATE:
+        break;
 
-        case BT_VND_OP_USERIAL_CLOSE:
-            {
-                usb_vendor_close();
-            }
-            break;
-
-        case BT_VND_OP_GET_LPM_IDLE_TIMEOUT:
-            {
-                uint32_t *timeout_ms = (uint32_t *) param;
-                *timeout_ms = 250;
-            }
-            break;
-
-        case BT_VND_OP_LPM_SET_MODE:
-            {
-                if (USB_bt_vendor_cbacks)
-                    USB_bt_vendor_cbacks->lpm_cb(BT_VND_OP_RESULT_SUCCESS);
-            }
-            break;
-
-        case BT_VND_OP_LPM_WAKE_SET_STATE:
-            break;
-            default:
-                break;
+    default:
+         break;
     }
 
     return retval;
@@ -211,8 +182,8 @@ static int USB_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 /** Closes the interface */
 static void USB_bt_vnd_cleanup( void )
 {
-    BTVNDDBG("cleanup");
-    USB_bt_vendor_cbacks = NULL;
+    SYSLOGI("cleanup");
+    bt_vendor_cbacks = NULL;
 }
 
 // Entry point of DLib

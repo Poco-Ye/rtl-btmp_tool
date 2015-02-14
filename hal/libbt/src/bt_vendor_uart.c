@@ -23,52 +23,9 @@
 #include <unistd.h>
 
 #include "bt_syslog.h"
-#include "bt_vendor_uart.h"
-#include "upio.h"
-#include "userial_vendor.h"
+#include "bt_vendor_if.h"
 
-#ifndef BTVND_DBG
-#define BTVND_DBG TRUE
-#endif
-
-#if (BTVND_DBG == TRUE)
-#define BTVNDDBG(param, ...) {SYSLOGD(param, ## __VA_ARGS__);}
-#else
-#define BTVNDDBG(param, ...) {}
-#endif
-
-/******************************************************************************
-**  Externs
-******************************************************************************/
-
-void UART_hw_config_start(void);
-
-
-/******************************************************************************
-**  Variables
-******************************************************************************/
-
-bt_vendor_callbacks_t *UART_bt_vendor_cbacks = NULL;
-uint8_t UART_vnd_local_bd_addr[6]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-/******************************************************************************
-**  Local type definitions
-******************************************************************************/
-
-/******************************************************************************
-**  Static Variables
-******************************************************************************/
-
-static const tUSERIAL_CFG userial_init_cfg =
-{
-    (USERIAL_DATABITS_8 | USERIAL_PARITY_EVEN | USERIAL_STOPBITS_1),
-    USERIAL_BAUD_115200,
-    USERIAL_HW_FLOW_CTRL_OFF
-};
-
-/******************************************************************************
-**  Functions
-******************************************************************************/
+void UART_hw_config_start(bt_hci_if_t proto);
 
 /*****************************************************************************
 **
@@ -80,91 +37,149 @@ static int UART_bt_vnd_init(const bt_vendor_callbacks_t* p_cb, unsigned char *lo
 {
     SYSLOGI("%s: dev_node %s", __FUNCTION__, dev_node);
 
-    if (p_cb == NULL)
-    {
+    if (p_cb == NULL) {
         SYSLOGE("init failed with no user callbacks!");
         return -1;
     }
 
     userial_vendor_init(dev_node);
-    upio_init();
 
     /* store reference to user callbacks */
-    UART_bt_vendor_cbacks = (bt_vendor_callbacks_t *)p_cb;
+    bt_vendor_cbacks = (bt_vendor_callbacks_t *)p_cb;
 
     /* This is handed over from the stack */
-    memcpy(UART_vnd_local_bd_addr, local_bdaddr, 6);
+    memcpy(vnd_local_bd_addr, local_bdaddr, 6);
 
     return 0;
 }
 
-
-/** Requested operations */
-static int UART_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
+static int UART4_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 {
     int retval = 0;
 
-    BTVNDDBG("op for %d", opcode);
+    SYSLOGI("op for %d", opcode);
 
-    switch(opcode)
-    {
-        case BT_VND_OP_POWER_CTRL:
-            {
-                int *state = (int *) param;
-                if (*state == BT_VND_PWR_OFF)
-                {
-                    upio_set_bluetooth_power(UPIO_BT_POWER_OFF);
-                    usleep(200000);
-                    BTVNDDBG("set power off and delay 200ms");
-
-                }
-                else if (*state == BT_VND_PWR_ON)
-                {
-                    upio_set_bluetooth_power(UPIO_BT_POWER_ON);
-                    usleep(500000);
-                    BTVNDDBG("set power on and delay 500ms");
-
-                }
+    switch (opcode) {
+    case BT_VND_OP_POWER_CTRL:
+        {
+            int *state = (int *) param;
+            if (*state == BT_VND_PWR_OFF) {
+                bt_vendor_set_power(BT_POWER_OFF);
+                usleep(200000);
+                SYSLOGI("set power off and delay 200ms");
+            } else if (*state == BT_VND_PWR_ON) {
+                bt_vendor_set_power(BT_POWER_ON);
+                usleep(500000);
+                SYSLOGI("set power on and delay 500ms");
             }
-            break;
+        }
+        break;
 
-        case BT_VND_OP_FW_CFG:
-            {
-                UART_hw_config_start();
+    case BT_VND_OP_FW_CFG:
+        {
+            UART_hw_config_start(BT_HCI_IF_UART4);
+        }
+        break;
+
+    case BT_VND_OP_SCO_CFG:
+        {
+            retval = -1;
+        }
+        break;
+
+    case BT_VND_OP_USERIAL_OPEN:
+        {
+            int (*fd_array)[] = (int (*)[]) param;
+            int fd, idx;
+            tUSERIAL_CFG uart4_cfg = {
+                (USERIAL_DATABITS_8 | USERIAL_PARITY_NONE | USERIAL_STOPBITS_1),
+                USERIAL_BAUD_115200,
+                USERIAL_HW_FLOW_CTRL_OFF
+            };
+            fd = userial_vendor_open(&uart4_cfg);
+            if (fd != -1) {
+                for (idx=0; idx < CH_MAX; idx++)
+                    (*fd_array)[idx] = fd;
+
+                retval = 1;
             }
-            break;
+        }
+        break;
 
-        case BT_VND_OP_SCO_CFG:
-            {
-                retval = -1;
+    case BT_VND_OP_USERIAL_CLOSE:
+        {
+            userial_vendor_close();
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return retval;
+}
+
+static int UART5_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
+{
+    int retval = 0;
+
+    SYSLOGI("op for %d", opcode);
+
+    switch (opcode) {
+    case BT_VND_OP_POWER_CTRL:
+        {
+            int *state = (int *) param;
+            if (*state == BT_VND_PWR_OFF) {
+                bt_vendor_set_power(BT_POWER_OFF);
+                usleep(200000);
+                SYSLOGI("set power off and delay 200ms");
+            } else if (*state == BT_VND_PWR_ON) {
+                bt_vendor_set_power(BT_POWER_ON);
+                usleep(500000);
+                SYSLOGI("set power on and delay 500ms");
             }
-            break;
+        }
+        break;
 
-        case BT_VND_OP_USERIAL_OPEN:
-            {
-                int (*fd_array)[] = (int (*)[]) param;
-                int fd, idx;
-                fd = userial_vendor_open((tUSERIAL_CFG *) &userial_init_cfg);
-                if (fd != -1)
-                {
-                    for (idx=0; idx < CH_MAX; idx++)
-                        (*fd_array)[idx] = fd;
+    case BT_VND_OP_FW_CFG:
+        {
+            UART_hw_config_start(BT_HCI_IF_UART5);
+        }
+        break;
 
-                    retval = 1;
-                }
-                /* retval contains numbers of open fd of HCI channels */
+    case BT_VND_OP_SCO_CFG:
+        {
+            retval = -1;
+        }
+        break;
+
+    case BT_VND_OP_USERIAL_OPEN:
+        {
+            int (*fd_array)[] = (int (*)[]) param;
+            int fd, idx;
+            tUSERIAL_CFG uart5_cfg = {
+                (USERIAL_DATABITS_8 | USERIAL_PARITY_EVEN | USERIAL_STOPBITS_1),
+                USERIAL_BAUD_115200,
+                USERIAL_HW_FLOW_CTRL_OFF
+            };
+            fd = userial_vendor_open(&uart5_cfg);
+            if (fd != -1) {
+                for (idx=0; idx < CH_MAX; idx++)
+                    (*fd_array)[idx] = fd;
+
+                retval = 1;
             }
-            break;
+        }
+        break;
 
-        case BT_VND_OP_USERIAL_CLOSE:
-            {
-                userial_vendor_close();
-            }
-            break;
-        default:
-            break;
+    case BT_VND_OP_USERIAL_CLOSE:
+        {
+            userial_vendor_close();
+        }
+        break;
 
-
+    default:
+        break;
     }
 
     return retval;
@@ -173,19 +188,26 @@ static int UART_bt_vnd_op(bt_vendor_opcode_t opcode, void *param)
 /** Closes the interface */
 static void UART_bt_vnd_cleanup( void )
 {
-    BTVNDDBG("cleanup");
-
-    upio_cleanup();
-
-    UART_bt_vendor_cbacks = NULL;
+    SYSLOGI("cleanup");
+    bt_vendor_cbacks = NULL;
 }
 
-// Entry point of DLib
-const bt_vendor_interface_t UART_BLUETOOTH_VENDOR_LIB_INTERFACE = {
+// Entry point of uart4 DLib
+const bt_vendor_interface_t UART4_BLUETOOTH_VENDOR_LIB_INTERFACE = {
     sizeof(bt_vendor_interface_t),
     UART_bt_vnd_init,
-    UART_bt_vnd_op,
+    UART4_bt_vnd_op,
     UART_bt_vnd_cleanup
 };
 
-const bt_vendor_interface_t *UART_bt_vnd_if = &UART_BLUETOOTH_VENDOR_LIB_INTERFACE;
+const bt_vendor_interface_t *UART4_bt_vnd_if = &UART4_BLUETOOTH_VENDOR_LIB_INTERFACE;
+
+// Entry point of uart5 DLib
+const bt_vendor_interface_t UART5_BLUETOOTH_VENDOR_LIB_INTERFACE = {
+    sizeof(bt_vendor_interface_t),
+    UART_bt_vnd_init,
+    UART5_bt_vnd_op,
+    UART_bt_vnd_cleanup
+};
+
+const bt_vendor_interface_t *UART5_bt_vnd_if = &UART5_BLUETOOTH_VENDOR_LIB_INTERFACE;

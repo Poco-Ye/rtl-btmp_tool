@@ -27,47 +27,13 @@
 #ifndef USERIAL_H
 #define USERIAL_H
 
-/******************************************************************************
-**  Constants & Macros
-******************************************************************************/
-
-/**** port IDs ****/
-#define USERIAL_PORT_1          0
-#define USERIAL_PORT_2          1
-#define USERIAL_PORT_3          2
-#define USERIAL_PORT_4          3
-#define USERIAL_PORT_5          4
-#define USERIAL_PORT_6          5
-#define USERIAL_PORT_7          6
-#define USERIAL_PORT_8          7
-#define USERIAL_PORT_9          8
-#define USERIAL_PORT_10         9
-#define USERIAL_PORT_11         10
-#define USERIAL_PORT_12         11
-#define USERIAL_PORT_13         12
-#define USERIAL_PORT_14         13
-#define USERIAL_PORT_15         14
-#define USERIAL_PORT_16         15
-#define USERIAL_PORT_17         16
-#define USERIAL_PORT_18         17
+#include <stdint.h>
 
 typedef enum {
     USERIAL_OP_INIT,
     USERIAL_OP_RXFLOW_ON,
     USERIAL_OP_RXFLOW_OFF,
 } userial_ioctl_op_t;
-
-/******************************************************************************
-**  Type definitions
-******************************************************************************/
-
-/******************************************************************************
-**  Extern variables and functions
-******************************************************************************/
-
-/******************************************************************************
-**  Functions
-******************************************************************************/
 
 /*******************************************************************************
 **
@@ -84,12 +50,12 @@ uint8_t userial_init(void);
 **
 ** Function        userial_open
 **
-** Description     Open Bluetooth device with the port ID
+** Description     Open Bluetooth device port
 **
 ** Returns         TRUE/FALSE
 **
 *******************************************************************************/
-uint8_t userial_open(uint8_t port);
+uint8_t userial_open(void);
 
 /*******************************************************************************
 **
