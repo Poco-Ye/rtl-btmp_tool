@@ -37,12 +37,12 @@ bt_Recv(
        )
 {
     BASE_INTERFACE_MODULE *pBaseInterface;
-    uint8_t ucRecvBuf[MAX_HCI_EVENT_BUF_SIZ];
+    uint8_t ucRecvBuf[HCI_EVT_LEN_MAX];
     uint32_t Retlen = 0;
 
     pBaseInterface = pBt->pBaseInterface;
 
-    if (pBaseInterface->Recv(pBaseInterface, ucRecvBuf, MAX_HCI_EVENT_BUF_SIZ, &Retlen) != BT_FUNCTION_SUCCESS)
+    if (pBaseInterface->Recv(pBaseInterface, ucRecvBuf, HCI_EVT_LEN_MAX, &Retlen) != BT_FUNCTION_SUCCESS)
         goto error;
 
     switch (PktType) {
@@ -148,12 +148,12 @@ bt_uart_Recv(
         )
 {
     BASE_INTERFACE_MODULE *pBaseInterface;
-    uint8_t ucRecvBuf[HCI_BUF_LEN_MAX];
+    uint8_t ucRecvBuf[HCI_EVT_LEN_MAX];
     uint32_t Retlen = 0;
 
     pBaseInterface = pBt->pBaseInterface;
 
-    if (pBaseInterface->Recv(pBaseInterface, ucRecvBuf, HCI_BUF_LEN_MAX, &Retlen) != BT_FUNCTION_SUCCESS)
+    if (pBaseInterface->Recv(pBaseInterface, ucRecvBuf, HCI_EVT_LEN_MAX, &Retlen) != BT_FUNCTION_SUCCESS)
         goto error;
 
     switch (PktType) {
@@ -250,7 +250,7 @@ bt_default_RecvHCIEvent(
         uint32_t *pLen
         )
 {
-    memset(pReadingBuf, 0, sizeof(uint8_t)*MAX_HCI_EVENT_BUF_SIZ);
+    memset(pReadingBuf, 0, HCI_EVT_LEN_MAX);
 
     switch (pBt->InterfaceType) {
     case TYPE_USB:
@@ -593,7 +593,7 @@ bt_default_SendHciCommandWithEvent(
         )
 {
     uint32_t len;
-    uint8_t pWritingBuf[MAX_HCI_COMANND_BUF_SIZ];
+    uint8_t pWritingBuf[HCI_CMD_LEN_MAX];
     uint8_t hci_rtn = 0;
     uint8_t n = 0;
     BASE_INTERFACE_MODULE *pBaseInterface = pBtDevice->pBaseInterface;
@@ -1085,8 +1085,8 @@ bt_default_GetChipId(
         BT_DEVICE *pBtDevice
         )
 {
-    uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint8_t pPayload[HCI_CMD_LEN_MAX];
+    uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint16_t OpCode=0xfc6f;
     uint8_t pPayload_Len=0;
     uint32_t EvtLen;
@@ -1112,23 +1112,20 @@ bt_default_GetECOVersion(
         BT_DEVICE *pBtDevice
         )
 {
-    uint8_t pPayload[MAX_HCI_COMANND_BUF_SIZ];
-    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint8_t pPayload[HCI_CMD_LEN_MAX];
+    uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint16_t OpCode=0xfc6d;
     uint8_t pPayload_Len=0;
     uint32_t EvtLen;
-    int rtn=BT_FUNCTION_SUCCESS;
+    int rtn = BT_FUNCTION_SUCCESS;
     BT_CHIPINFO *pBTInfo = pBtDevice->pBTInfo;
 
-    if (bt_default_SendHciCommandWithEvent(pBtDevice,OpCode,pPayload_Len,pPayload,0x0E,pEvent,&EvtLen) != BT_FUNCTION_SUCCESS)
+    if (bt_default_SendHciCommandWithEvent(pBtDevice,OpCode,pPayload_Len,pPayload,0x0E,pEvent,&EvtLen) == BT_FUNCTION_SUCCESS)
     {
-        rtn=FUNCTION_HCISEND_ERROR;
-        goto exit;
+        pBTInfo->Version = pEvent[EVT_CHIP_ECO_VERSION] + 1;
+    } else {
+        pBTInfo->Version = 1;
     }
 
-    pBTInfo->Version=pEvent[EVT_CHIP_ECO_VERSION]+1;
-    rtn= BT_FUNCTION_SUCCESS;
-
-exit:
     return rtn;
 }

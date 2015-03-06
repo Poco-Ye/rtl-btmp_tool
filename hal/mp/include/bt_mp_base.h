@@ -21,8 +21,6 @@
 #define BT_EFUSE                1
 #define SYS_EFUSE               2
 
-#define MAX_HCI_COMANND_BUF_SIZ 256
-#define MAX_HCI_EVENT_BUF_SIZ   256
 #define MAX_TXGAIN_TABLE_SIZE   7
 #define MAX_TXDAC_TABLE_SIZE    5
 
@@ -204,6 +202,8 @@ enum RTK_BT_CHIP_ID_GROUP {
     RTK_BT_CHIP_ID_RTL8723B=1,
     RTK_BT_CHIP_ID_RTL8821A=2,
     RTK_BT_CHIP_ID_RTL8761A=3,
+    RTK_BT_CHIP_ID_RTL8703B=4,
+    RTK_BT_CHIP_ID_RTL8763A=5,
 
     NumOfRTKCHID
 };
@@ -545,6 +545,7 @@ typedef enum {
     REPORT_BT_STAGE,
     REPORT_CHIP,
     REPORT_LOGICAL_EFUSE,
+    REPORT_LE_RX,
 } BT_REPORT_TAG;
 
 typedef struct  BT_MODULE_TAG BT_MODULE;

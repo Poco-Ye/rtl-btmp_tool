@@ -51,11 +51,8 @@
 
 
 //  Define BT HCI Max Pkt size
-#define HCI_CMD_LEN_MAX     0x102
-#define HCI_EVT_LEN_MAX     0x101
-#define HCI_ACL_LEN_MAX     0x424
-#define HCI_SCO_LEN_MAX     0x102
-#define HCI_BUF_LEN_MAX HCI_ACL_LEN_MAX
+#define HCI_CMD_LEN_MAX     260
+#define HCI_EVT_LEN_MAX     260
 
 #ifndef TRUE
 #define TRUE    1

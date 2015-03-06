@@ -114,6 +114,16 @@ int BTModule_ActionReport(
         }
         break;
 
+    case REPORT_LE_RX:
+        pReport->TotalRXBits=pModuleBtReport->TotalRXBits;
+        pReport->TotalRxCounts=pModuleBtReport->TotalRxCounts;
+        pReport->TotalRxErrorBits=pModuleBtReport->TotalRxErrorBits;
+        pReport->ber=pModuleBtReport->ber;
+        pReport->RxRssi=pModuleBtReport->RxRssi;
+        pReport->RXRecvPktCnts=pModuleBtReport->RXRecvPktCnts;
+        pReport->Cfo=pModuleBtReport->Cfo;
+        break;
+
     default:
         rtn = FUNCTION_ERROR;
         break;
@@ -334,18 +344,9 @@ BTModule_DownloadPatchCode(
 
     BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
 
-    if (Mode)
-    {
-        if (pModuleBtDevice->GetChipVersionInfo(pModuleBtDevice) != BT_FUNCTION_SUCCESS)
-        {
-            rtn = FUNCTION_ERROR;
-            goto exit;
-        }
-
+    if (Mode) {
         rtn=pModuleBtDevice->BTDlMERGERFW(pModuleBtDevice, pPatchcode, patchLength);
-    }
-    else
-    {
+    } else {
         rtn=pModuleBtDevice->BTDlFW(pModuleBtDevice, pPatchcode, patchLength);
     }
 

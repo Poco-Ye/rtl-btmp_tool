@@ -64,14 +64,14 @@ BTDevice_Efuse_HCIIO_GetBytes(
         unsigned int DataBytesLen
         )
 {
-    uint8_t pData[MAX_HCI_COMANND_BUF_SIZ];
-    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint8_t pData[HCI_CMD_LEN_MAX];
+    uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EvtLen;
 
     unsigned int length;
 
-    memset(pData,0,MAX_HCI_COMANND_BUF_SIZ);
-    memset(pEvent,0,MAX_HCI_EVENT_BUF_SIZ);
+    memset(pData, 0, HCI_CMD_LEN_MAX);
+    memset(pEvent, 0, HCI_EVT_LEN_MAX);
 
     pData[0]=Bank;
     pData[1]=address&0xff;
@@ -111,13 +111,13 @@ BTDevice_Efuse_HCIIO_SetBytes(
         unsigned int DataBytesLen
         )
 {
-    uint8_t pData[MAX_HCI_COMANND_BUF_SIZ];
-    uint8_t pEvent[MAX_HCI_EVENT_BUF_SIZ];
+    uint8_t pData[HCI_CMD_LEN_MAX];
+    uint8_t pEvent[HCI_EVT_LEN_MAX];
     unsigned char length;
     uint32_t EvtLen;
 
-    memset(pData,0,MAX_HCI_COMANND_BUF_SIZ);
-    memset(pEvent,0,MAX_HCI_EVENT_BUF_SIZ);
+    memset(pData, 0, HCI_CMD_LEN_MAX);
+    memset(pEvent, 0, HCI_EVT_LEN_MAX);
 
     pData[0]=Bank;
     pData[1]=address&0xff;
@@ -186,8 +186,6 @@ error:
 
 }
 
-
-
 int
 BTDevice_Efuse_IO_GetBytes(
         BT_DEVICE *pBtDevice,
@@ -197,29 +195,18 @@ BTDevice_Efuse_IO_GetBytes(
         unsigned int DataBytesLen
         )
 {
-    uint16_t tmpdata;
 
     if (BTDevice_Efuse_HCIIO_GetBytes(pBtDevice, Bank, address, pDataBytes, DataBytesLen)!=BT_FUNCTION_SUCCESS)
         goto error;
 
-    if (bt_default_GetSysRegMaskBits(pBtDevice, 0x35, 7, 0, &tmpdata)!=BT_FUNCTION_SUCCESS)
-        goto error;
-
-    tmpdata = tmpdata & 0xF4;
-    tmpdata |= Bank & 0x0f;
-
-    if (bt_default_SetSysRegMaskBits(pBtDevice, 0x35, 7, 0, tmpdata) !=BT_FUNCTION_SUCCESS)
+    if (bt_default_SetSysRegMaskBits(pBtDevice, 0x35, 3, 0, Bank&0x07) !=BT_FUNCTION_SUCCESS)
         goto error;
 
     return BT_FUNCTION_SUCCESS;
 
 error:
-
     return FUNCTION_ERROR;
-
 }
-
-
 
 int
 BTDevice_Efuse_GetBytes(
@@ -261,12 +248,8 @@ BTDevice_Efuse_GetBytes(
     return BT_FUNCTION_SUCCESS;
 
 error:
-
     return FUNCTION_ERROR;
-
 }
-
-
 
 int
 BTDevice_Efuse_SetBytes(
@@ -342,8 +325,6 @@ error:
 
 }
 
-
-
 int
 BuildEfuseLogicUnit(
         BT_DEVICE *pBtDevice,
@@ -389,8 +370,6 @@ error:
     return FUNCTION_ERROR;
 }
 
-
-
 int
 BTDevice_Efuse_ReadData(
         EFUSE_UNIT *pEfuse
@@ -416,8 +395,6 @@ error:
     return FUNCTION_ERROR;
 
 }
-
-
 
 int
 BTDevice_Efuse_WriteData(
@@ -472,9 +449,6 @@ error:
 
     return FUNCTION_ERROR;
 }
-
-
-
 
 int
 BTDevice_Efuse_PhysicalToLogicalData(
@@ -546,8 +520,6 @@ BTDevice_Efuse_PhysicalToLogicalData(
 
 }
 
-
-
 int
 BTDevice_Efuse_SetValueToLogicalData(
         EFUSE_UNIT *pEfuse,
@@ -563,8 +535,6 @@ BTDevice_Efuse_SetValueToLogicalData(
 
     return BT_FUNCTION_SUCCESS;
 }
-
-
 
 int
 BTDevice_Efuse_LogicDataToWritingEntry(
