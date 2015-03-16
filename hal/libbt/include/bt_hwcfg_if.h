@@ -67,8 +67,13 @@
 #define ROM_LMP_NONE                0x0000
 #define ROM_LMP_8723a               0x1200
 #define ROM_LMP_8723b               0x8723
-#define ROM_LMP_8821a               0X8821
-#define ROM_LMP_8761a               0X8761
+#define ROM_LMP_8821a               0x8821
+#define ROM_LMP_8761a               0x8761
+#define ROM_LMP_8703a               0x8723
+#define ROM_LMP_8763a               0x8763
+#define ROM_LMP_8703b               0x8703
+#define ROM_LMP_8723c               0x8703
+#define ROM_LMP_8822b               0x8822
 
 #define STREAM_TO_UINT16(u16, p) {u16 = ((uint16_t)(*(p)) + (((uint16_t)(*((p) + 1))) << 8)); (p) += 2;}
 #define STREAM_TO_UINT32(u32, p) {u32 = (((uint32_t)(*(p))) + ((((uint32_t)(*((p) + 1)))) << 8) + ((((uint32_t)(*((p) + 2)))) << 16) + ((((uint32_t)(*((p) + 3)))) << 24)); (p) += 4;}

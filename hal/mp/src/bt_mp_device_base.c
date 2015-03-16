@@ -2057,8 +2057,11 @@ unsigned char BT_DEFAULT_TX_GAIN_TABLE[][MAX_TXGAIN_TABLE_SIZE] = {
     {0x2b,0x2e,0x6b,0x6e,0x8b,0x8e,0xce},   //RTL8723B
     {0x28,0x2b,0x48,0x4b,0xc8,0xcc,0xe9},   //RTL8821A
     {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8761A
-    {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8703B
+    {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8703A -->TODO
     {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8763A
+    {0x08,0x26,0x36,0x38,0x46,0x4a,0x66},   //RTL8703B
+    {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8723C -->TODO
+    {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8822B -->TODO
 };
 
 int
@@ -2101,8 +2104,11 @@ unsigned char BT_DEFAULT_TX_DAC_TABLE[][MAX_TXDAC_TABLE_SIZE]= {
     {0x11,0x12,0x13,0x14,0x15}, //RTL8723B
     {0x11,0x12,0x13,0x14,0x16}, //RTL8821A
     {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8761A
-    {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8703B
+    {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8703A -->TODO
     {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8763A
+    {0x0a,0x0b,0x0c,0x0d,0x0e}, //RTL8703B
+    {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8723C -->TODO
+    {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8822B -->TODO
 };
 
 int
@@ -2195,9 +2201,7 @@ BTDevice_GetBTChipVersionInfo(
     pBTInfo->Is_After_PatchCode=0;
     pBTInfo->Version=0;
 
-    if ((pBTInfo->LMP_SubVersion == 0x1200) && (pBTInfo->HCI_SubVersion == 0x000B)) {
-        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723A;
-    } else if ((pBTInfo->LMP_SubVersion == 0x8723) && (pBTInfo->HCI_SubVersion == 0x000A)) {
+    if (pBTInfo->LMP_SubVersion == 0x1200) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723A;
     } else if ((pBTInfo->LMP_SubVersion == 0x8723) && (pBTInfo->HCI_SubVersion == 0x000B)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723B;
@@ -2205,10 +2209,16 @@ BTDevice_GetBTChipVersionInfo(
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8821A;
     } else if ((pBTInfo->LMP_SubVersion == 0x8761) && (pBTInfo->HCI_SubVersion == 0x000A)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8761A;
-    } else if ((pBTInfo->LMP_SubVersion == 0x8703) && (pBTInfo->HCI_SubVersion == 0x000B)) {
-        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8703B;
+    } else if ((pBTInfo->LMP_SubVersion == 0x8723) && (pBTInfo->HCI_SubVersion == 0x000A)) {
+        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8703A;
     } else if ((pBTInfo->LMP_SubVersion == 0x8763) && (pBTInfo->HCI_SubVersion == 0x000A)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8763A;
+    } else if ((pBTInfo->LMP_SubVersion == 0x8703) && (pBTInfo->HCI_SubVersion == 0x000B)) {
+        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8703B;
+    } else if ((pBTInfo->LMP_SubVersion == 0x8703) && (pBTInfo->HCI_SubVersion == 0x000B)) {
+        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723C;
+    } else if ((pBTInfo->LMP_SubVersion == 0x8822) && (pBTInfo->HCI_SubVersion == 0x000B)) {
+        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8822B;
     } else {
         if (bt_default_GetChipId(pBtDevice) != BT_FUNCTION_SUCCESS) {
             rtn= FUNCTION_ERROR;

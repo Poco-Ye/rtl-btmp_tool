@@ -350,7 +350,6 @@ BTModule_DownloadPatchCode(
         rtn=pModuleBtDevice->BTDlFW(pModuleBtDevice, pPatchcode, patchLength);
     }
 
-exit:
     return rtn;
 }
 

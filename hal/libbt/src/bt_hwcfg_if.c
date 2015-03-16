@@ -54,6 +54,11 @@ uint16_t project_id[] = {
     ROM_LMP_8723b,
     ROM_LMP_8821a,
     ROM_LMP_8761a,
+    ROM_LMP_8703a,
+    ROM_LMP_8763a,
+    ROM_LMP_8703b,
+    ROM_LMP_8723c,
+    ROM_LMP_8822b,
     ROM_LMP_NONE
 };
 
@@ -62,6 +67,11 @@ static patch_item patch_table[] = {
     { ROM_LMP_8723b, "mp_rtl8723b_fw", "mp_rtl8723b_config" },    //RTL8723B
     { ROM_LMP_8821a, "mp_rtl8821a_fw", "mp_rtl8821a_config" },    //RTL8821A
     { ROM_LMP_8761a, "mp_rtl8761a_fw", "mp_rtl8761a_config" },    //RTL8761A
+    { ROM_LMP_8703a, "mp_rtl8703a_fw", "mp_rtl8703a_config" },    //RTL8703A
+    { ROM_LMP_8763a, "mp_rtl8763a_fw", "mp_rtl8763a_config" },    //RTL8763A
+    { ROM_LMP_8703b, "mp_rtl8703b_fw", "mp_rtl8703b_config" },    //RTL8703B
+    { ROM_LMP_8723c, "mp_rtl8723c_fw", "mp_rtl8723c_config" },    //RTL8723C
+    { ROM_LMP_8822b, "mp_rtl8822b_fw", "mp_rtl8822b_config" },    //RTL8822B
     /* add entries here*/
 
     { ROM_LMP_NONE,  "mp_none_fw",     "mp_none_config" }
