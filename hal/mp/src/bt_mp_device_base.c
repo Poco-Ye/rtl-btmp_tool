@@ -859,9 +859,9 @@ int BTDevice_ReadThermal(
         )
 {
     uint16_t Value;
+    uint32_t ChipType;
 
-    if( pParam->mPacketType==BT_PKT_LE)
-    {
+    if (pParam->mPacketType == BT_PKT_LE) {
 
         if (BT_SetGlobalReg2Bytes(pBtDevice, 0x1ba, 0x800f))
             goto error;
@@ -869,22 +869,43 @@ int BTDevice_ReadThermal(
             goto error;
 
         *pThermalValue = (uint8_t)((Value >> 9) & 0x1f);
-    }
-    else
-    {
-        if(bt_default_SetRFRegMaskBits(pBtDevice, 0x00, 15, 0, 0x1000))
+    } else {
+        // chips have different read-thermal procedures
+        if (pBtDevice->pBTInfo->Is_After_PatchCode)
+            ChipType = pBtDevice->pBTInfo->ChipType;
+        else if (bt_default_GetChipId(pBtDevice) == BT_FUNCTION_SUCCESS)
+            ChipType = pBtDevice->pBTInfo->ChipType;
+        else
             goto error;
 
-        //enable thermal meter
-        if(bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 15, 0, 0x0020))
+        if (bt_default_SetRFRegMaskBits(pBtDevice, 0x00, 15, 15, 1))
             goto error;
 
-        pBtDevice->pBaseInterface->WaitMs(pBtDevice->pBaseInterface, 10);
+        // enable thermal meter
+        if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
+            if (bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 5, 5, 1))
+                goto error;
+        } else {
+            if (bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 6, 6, 1))
+                goto error;
+        }
 
-        if(bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 15, 0, &Value))
-            goto error;
+        if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
+            if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 4, 0, &Value))
+                goto error;
+        } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723C) {
+            if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 1))
+                goto error;
+            if (bt_default_GetRFRegMaskBits(pBtDevice, 0x3b, 5, 0, &Value))
+                goto error;
+            if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 0))
+                goto error;
+        } else if (ChipType <= RTK_BT_CHIP_ID_RTL8822B) {
+            if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 5, 0, &Value))
+                goto error;
+        }
 
-        *pThermalValue= (uint8_t)(Value & 0x1f);
+        *pThermalValue = (uint8_t)Value;
     }
 
     return BT_FUNCTION_SUCCESS;
