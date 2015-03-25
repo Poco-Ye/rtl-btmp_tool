@@ -731,42 +731,6 @@ struct BT_MODULE_TAG {
     BT_MODULE_FP_RECV_ANYEVENT              RecvAnyHciEvent;
 };
 
-// Constants
-#define INVALID_POINTER_VALUE       0
-#define NO_USE                      0
-
-#define LEN_1_BYTE                  1
-#define LEN_2_BYTE                  2
-#define LEN_3_BYTE                  3
-#define LEN_4_BYTE                  4
-#define LEN_5_BYTE                  5
-#define LEN_6_BYTE                  6
-#define LEN_7_BYTE                  7
-#define LEN_11_BYTE                 11
-#define LEN_14_BYTE                 14
-#define LEN_16_BYTE                 16
-
-#define LEN_1_BIT                   1
-
-#define BYTE_MASK                   0xff
-#define BYTE_SHIFT                  8
-#define HEX_DIGIT_MASK              0xf
-#define BYTE_BIT_NUM                8
-#define LONG_BIT_NUM                32
-
-#define BIT_0_MASK                  0x1
-#define BIT_1_MASK                  0x2
-#define BIT_2_MASK                  0x4
-#define BIT_3_MASK                  0x8
-#define BIT_4_MASK                  0x10
-#define BIT_5_MASK                  0x20
-#define BIT_6_MASK                  0x40
-#define BIT_7_MASK                  0x80
-#define BIT_8_MASK                  0x100
-
-#define BIT_7_SHIFT                 7
-#define BIT_8_SHIFT                 8
-
 //  Define UART HCI Packet Indicator
 #define IF_UART_CMD     0x01
 #define IF_UART_ACL     0x02

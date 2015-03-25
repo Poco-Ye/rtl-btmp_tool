@@ -860,6 +860,8 @@ int BTDevice_ReadThermal(
 {
     uint16_t Value;
     uint32_t ChipType;
+    uint8_t pEvent[HCI_EVT_LEN_MAX];
+    uint32_t EvtLen;
 
     if (pParam->mPacketType == BT_PKT_LE) {
 
@@ -890,9 +892,14 @@ int BTDevice_ReadThermal(
                 goto error;
         }
 
-        if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
+        if (ChipType < RTK_BT_CHIP_ID_RTL8763A) {
             if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 4, 0, &Value))
                 goto error;
+        } else if (ChipType == RTK_BT_CHIP_ID_RTL8763A) {
+            if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xfc40, LEN_0_BYTE, NULL, 0x0E, pEvent, &EvtLen))
+                goto error;
+            else
+                Value = (uint16_t)pEvent[6];
         } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723C) {
             if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 1))
                 goto error;
