@@ -436,8 +436,8 @@ struct BT_TRX_TIME_TAG {
 #define MAX_EFUSE_BANK_NUM 4
 
 typedef struct {
-    uint8_t bMark;
-    uint8_t Value;
+    uint8_t NewValue;
+    uint8_t OldValue;
 } EFUSE_LOGIC;
 
 typedef struct {
@@ -451,6 +451,7 @@ typedef struct {
 
     uint8_t StartBank;
     uint8_t BankNum;
+    uint8_t CurrBank;
 } EFUSE_UNIT;
 
 struct BT_DEVICE_TAG {

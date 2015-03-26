@@ -880,7 +880,7 @@ int BTDevice_ReadThermal(
         else
             goto error;
 
-        if (bt_default_SetRFRegMaskBits(pBtDevice, 0x00, 15, 15, 1))
+        if (bt_default_SetRFRegMaskBits(pBtDevice, 0x00, 15, 0, 0x1000))
             goto error;
 
         // enable thermal meter
@@ -2757,7 +2757,7 @@ BTDevice_ReadEfuseLogicalData(
     memcpy(pBtReport->ReportData, pParam->mPGRawData, LEN_4_BYTE);
 
     for (i = 0; i < Len; i++) {
-        pBtReport->ReportData[i+LEN_4_BYTE] = pEfuse->pEfuseLogMem[i+EfuseLogicalAddr].Value;
+        pBtReport->ReportData[i+LEN_4_BYTE] = pEfuse->pEfuseLogMem[i+EfuseLogicalAddr].OldValue;
     }
 
     return BT_FUNCTION_SUCCESS;

@@ -24,8 +24,8 @@ BuildEfuseLogicUnit(
         BT_DEVICE *pBtDevice,
         EFUSE_UNIT **ppEfuseModule,
         EFUSE_UNIT *pEfuseModuleMemory,
-        unsigned int EfuseLogSize,
-        unsigned int EfusePhySize,
+        uint16_t EfuseLogSize,
+        uint16_t EfusePhySize,
         uint8_t StartBank,
         uint8_t BankNum
         );
@@ -48,16 +48,16 @@ BTDevice_Efuse_PhysicalToLogicalData(
 int
 Efuse_SetValueToLogMem(
         EFUSE_UNIT *pEfuse,
-        unsigned int Addr,
+        uint16_t Addr,
         uint8_t Value
         );
 
 int
 BTDevice_Efuse_LogicDataToWritingEntry(
         EFUSE_UNIT *pEfuse,
-        unsigned int StartLogAddr,
+        uint16_t StartLogAddr,
         uint8_t *pWritingEntry,
-        unsigned int *Len
+        uint16_t *Len
         );
 
 #endif
