@@ -42,7 +42,7 @@ typedef enum {
     // test mode
     TEST_MODE_ENABLE,               //1
     // efuse setting
-    PG_EFUSE_RAWDATA,               //2
+    WRITE_EFUSE_DATA,               //2
     // set table
     SET_TX_GAIN_TABLE,              //3
     SET_TX_DAC_TABLE,               //4
@@ -410,7 +410,7 @@ typedef int(*BT_FP_GET_CHIPVERSIONINFO)(BT_DEVICE *pBtDevice);
 typedef int(*BT_FP_BT_DL_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
 // PG efuse
-typedef int(*BT_FP_PG_EFUSE_DATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam);
+typedef int(*BT_FP_WRITE_EFUSE_DATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam);
 typedef int(*BT_FP_READ_EFUSE_DATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport);
 // LE
 typedef int(*BT_FP_LE_TEST)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport);
@@ -533,8 +533,8 @@ struct BT_DEVICE_TAG {
     BT_FP_BT_DL_MERGER_FW           BTDlMERGERFW;
 
     // Efuse settting
-    BT_FP_PG_EFUSE_DATA             BT_PGEfuseRawData;
-    BT_FP_READ_EFUSE_DATA           BT_ReadEfuseLogicalData;
+    BT_FP_WRITE_EFUSE_DATA             WriteEfuseLogicalData;
+    BT_FP_READ_EFUSE_DATA           ReadEfuseLogicalData;
 };
 
 typedef enum {

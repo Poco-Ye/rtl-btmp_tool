@@ -1578,9 +1578,10 @@ BTDevice_SetPktTxUpdate(
         BT_DEVICE_REPORT *pBtReport
         )
 {
-    unsigned long NewModemReg4Value=0;
-    uint16_t tmp=0;
-    uint32_t TXUpdateBits, TXPktUpdateCnts;
+    unsigned long NewModemReg4Value = 0;
+    uint16_t tmp = 0;
+    uint32_t TXUpdateBits = 0;
+    uint32_t TXPktUpdateCnts = 0;
 
     SYSLOGI("BTDevice_SetPktTxUpdate");
 
@@ -1940,7 +1941,8 @@ BTDevice_SetContinueTxUpdate(
         BT_DEVICE_REPORT *pBtReport
         )
 {
-    uint32_t TXUpdateBits, TXPktUpdateCnts;
+    uint32_t TXUpdateBits = 0;
+    uint32_t TXPktUpdateCnts = 0;
 
     if ((pBtReport == NULL) || (pParam == NULL))
         goto exit;
@@ -2709,6 +2711,53 @@ BTDevice_PGEfuseRawData(
     return rtn;
 }
 
+
+int
+BTDevice_WriteEfuseLogicalData(
+        BT_DEVICE *pBtDevice,
+        BT_PARAMETER *pParam
+        )
+{
+    uint8_t Cmd;
+    EFUSE_UNIT *pEfuse;
+    uint16_t Addr;
+    uint8_t  Len;
+    uint8_t *pBuf;
+
+    Cmd = pParam->mPGRawData[0];
+    switch (Cmd) {
+    case BT_EFUSE:
+        pEfuse = pBtDevice->pBtEfuse;
+        break;
+
+    case SYS_EFUSE:
+        pEfuse = pBtDevice->pSysEfuse;
+        break;
+
+    default:
+        goto error;
+    }
+
+    if (BTDevice_Efuse_LoadPhyMem(pEfuse))
+        goto error;
+
+    if (BTDevice_Efuse_Phy2LogMap(pEfuse))
+        goto error;
+
+    Addr = pParam->mPGRawData[1] | (pParam->mPGRawData[2] << 8);
+    Len = pParam->mPGRawData[3];
+    pBuf = &(pParam->mPGRawData[4]);
+    BTDevice_Efuse_UpdateLogMem(pEfuse, Addr, Len, pBuf);
+
+    if (BTDevice_Efuse_Log2PhyMap(pEfuse))
+        goto error;
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+    return FUNCTION_ERROR;
+}
+
 int
 BTDevice_ReadEfuseLogicalData(
         BT_DEVICE *pBtDevice,
@@ -2718,16 +2767,16 @@ BTDevice_ReadEfuseLogicalData(
 {
     int rtn = BT_FUNCTION_SUCCESS;
 
-    uint8_t Command;
-    uint32_t EfuseLogicalAddr;
+    uint8_t Cmd;
+    uint16_t EfuseLogicalAddr;
     EFUSE_UNIT *pEfuse;
     uint8_t i, Len;
 
-    Command = pParam->mPGRawData[0];
+    Cmd = pParam->mPGRawData[0];
     EfuseLogicalAddr = (pParam->mPGRawData[2]<<8) | pParam->mPGRawData[1];
     Len = pParam->mPGRawData[3];
 
-    switch (Command) {
+    switch (Cmd) {
     case BT_EFUSE:
         pEfuse = pBtDevice->pBtEfuse;
         break;
@@ -2741,10 +2790,10 @@ BTDevice_ReadEfuseLogicalData(
         break;
     }
 
-    if (BTDevice_Efuse_ReadData(pEfuse))
+    if (BTDevice_Efuse_LoadPhyMem(pEfuse))
         goto error;
 
-    if (BTDevice_Efuse_PhysicalToLogicalData(pEfuse))
+    if (BTDevice_Efuse_Phy2LogMap(pEfuse))
         goto error;
 
     memcpy(pBtReport->ReportData, pParam->mPGRawData, LEN_4_BYTE);

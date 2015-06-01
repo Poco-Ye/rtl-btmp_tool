@@ -598,24 +598,24 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
             param_token = strtok_r(params_buf, STR_BT_MP_PARAM_DELIM, &save_params);
             if (param_token && params_count == 0) {
                 index = strtol(param_token, NULL, 0);
-                if (index < 0 || index >= BT_PARAM_IDX_NUM) {
+                if (index < BT_PARAM_IDX0 || index >= BT_PARAM_IDX_NUM) {
                     SYSLOGI("Invalid BT param index %d", index);
                     sprintf(buf_cb, "%s%s%d%s0x%02x",
                             STR_BT_MP_SET_PARAM, STR_BT_MP_RESULT_DELIM,
                             index, STR_BT_MP_RESULT_DELIM,
                             FUNCTION_PARAMETER_ERROR);
                     return FUNCTION_PARAMETER_ERROR;
-                } else if (index == 0 || index == 12 || index == 13) {
+                } else if (index == BT_PARAM_IDX0 || index == BT_PARAM_IDX12 || index == BT_PARAM_IDX13) {
                     var_pair = 1;
                 }
             } else if (param_token && params_count == 1) {
                 value = strtoll(param_token, NULL, 0);
             } else if (param_token && params_count > 1 && var_pair == 1) {
-                if (index == 0)
+                if (index == BT_PARAM_IDX0)
                     pBtModule->pBtParam->mPGRawData[params_count - 1] = (uint8_t)strtoll(param_token, NULL, 0);
-                else if (index == 12 && params_count <= MAX_TXGAIN_TABLE_SIZE)
+                else if (index == BT_PARAM_IDX12 && params_count <= MAX_TXGAIN_TABLE_SIZE)
                     pBtModule->pBtParam->TXGainTable[params_count - 1] = (uint8_t)strtoll(param_token, NULL, 0);
-                else if (index == 13 && params_count <= MAX_TXDAC_TABLE_SIZE)
+                else if (index == BT_PARAM_IDX13 && params_count <= MAX_TXDAC_TABLE_SIZE)
                     pBtModule->pBtParam->TXDACTable[params_count - 1] = (uint8_t)strtoll(param_token, NULL, 0);
             } else if (param_token == NULL) // null token OR token parsing completed
                 break;
@@ -625,11 +625,11 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
             bt_index2param(pBtModule, index, value);
             uint16_t i = 0;
             for (i = 0; i < params_count - 1; i++) {
-                if (index == 0) // variable pair format<index, cmd, len, data...>
+                if (index == BT_PARAM_IDX0) // variable pair format<index, cmd, len, data...>
                     SYSLOGI("PG raw data[%d]: 0x%02x", i, pBtModule->pBtParam->mPGRawData[i]);
-                else if (index == 12)
+                else if (index == BT_PARAM_IDX12)
                     SYSLOGI("TX gain table[%d]: 0x%02x", i, pBtModule->pBtParam->TXGainTable[i]);
-                else if (index == 13)
+                else if (index == BT_PARAM_IDX13)
                     SYSLOGI("TX dac table[%d]: 0x%02x", i, pBtModule->pBtParam->TXDACTable[i]);
             }
         } else if (params_count == 2 && var_pair == 0) { // 2-param pair format<index, value>

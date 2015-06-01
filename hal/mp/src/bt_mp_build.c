@@ -71,9 +71,9 @@ BuildBluetoothDevice(
     pBtDevice->GetChipVersionInfo   =       BTDevice_GetBTChipVersionInfo;
     pBtDevice->BTDlFW               =       BTDevice_BTDlFW;
     pBtDevice->BTDlMERGERFW         =       BTDevice_BTDlMergerFW;
-    //PG Efuse
-    pBtDevice->BT_PGEfuseRawData    =       BTDevice_PGEfuseRawData;
-    pBtDevice->BT_ReadEfuseLogicalData = BTDevice_ReadEfuseLogicalData;
+    //PG Logical Efuse
+    pBtDevice->WriteEfuseLogicalData    =   BTDevice_WriteEfuseLogicalData;
+    pBtDevice->ReadEfuseLogicalData     =   BTDevice_ReadEfuseLogicalData;
 
     BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pSysEfuse), &(pBtDevice->SysEfuseMemory), 128, 128, 0, 1);
     BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pBtEfuse), &(pBtDevice->BtEfuseMemory), 1024, 512, 1, 2);

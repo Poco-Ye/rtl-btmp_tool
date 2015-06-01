@@ -31,33 +31,26 @@ BuildEfuseLogicUnit(
         );
 
 int
-BTDevice_Efuse_ReadData(
+BTDevice_Efuse_LoadPhyMem(
         EFUSE_UNIT *pEfuse
         );
 
 int
-BTDevice_Efuse_WriteData(
+BTDevice_Efuse_Phy2LogMap(
         EFUSE_UNIT *pEfuse
         );
 
 int
-BTDevice_Efuse_PhysicalToLogicalData(
-        EFUSE_UNIT *pEfuse
-        );
-
-int
-Efuse_SetValueToLogMem(
+BTDevice_Efuse_UpdateLogMem(
         EFUSE_UNIT *pEfuse,
         uint16_t Addr,
-        uint8_t Value
+        uint8_t Len,
+        uint8_t *pBuf
         );
 
 int
-BTDevice_Efuse_LogicDataToWritingEntry(
-        EFUSE_UNIT *pEfuse,
-        uint16_t StartLogAddr,
-        uint8_t *pWritingEntry,
-        uint16_t *Len
+BTDevice_Efuse_Log2PhyMap(
+        EFUSE_UNIT *pEfuse
         );
 
 #endif

@@ -287,6 +287,12 @@ BTDevice_PGEfuseRawData(
         );
 
 int
+BTDevice_WriteEfuseLogicalData(
+        BT_DEVICE *pBtDevice,
+        BT_PARAMETER *pParam
+        );
+
+int
 BTDevice_ReadEfuseLogicalData(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,

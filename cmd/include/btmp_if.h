@@ -19,7 +19,7 @@
 #ifndef BTMP_IF_H
 #define BTMP_IF_H
 
-#define MP_TOOL_VERSION     "ver 2.0.0"
+#define MP_TOOL_VERSION     "ver 2.1.0"
 
 typedef enum {
     LOG_STD = 0, /* log printed to stdout */

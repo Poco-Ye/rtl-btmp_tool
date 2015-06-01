@@ -209,8 +209,8 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         rtn = pModuleBtDevice->TestModeEnable(pModuleBtDevice);
         break;
 
-    case PG_EFUSE_RAWDATA:
-        rtn = pModuleBtDevice->BT_PGEfuseRawData(pModuleBtDevice, pModuleBtParam);
+    case WRITE_EFUSE_DATA:
+        rtn = pModuleBtDevice->WriteEfuseLogicalData(pModuleBtDevice, pModuleBtParam);
         break;
 
     case SET_TX_GAIN_TABLE:
@@ -321,7 +321,7 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case READ_EFUSE_DATA:
-        rtn = pModuleBtDevice->BT_ReadEfuseLogicalData(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        rtn = pModuleBtDevice->ReadEfuseLogicalData(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         break;
 
     default:
