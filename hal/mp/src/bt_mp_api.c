@@ -32,19 +32,18 @@
 #include "btif_common.h"
 
 
-#define DEFAULT_HIT_ADDRESS 0x0000009e8b33
-
-#define DEFAULT_CH_NUM                      10
-#define DEFAULT_PKT_TYPE                    BT_PKT_3DH5
-#define DEFAULT_PAYLOAD_TYPE                BT_PAYLOAD_TYPE_PRBS9
+#define DEFAULT_HIT_ADDRESS                 0x0000009E8B33
+#define DEFAULT_CH_NUM                      0
+#define DEFAULT_PKT_TYPE                    BT_PKT_1DH1
+#define DEFAULT_PAYLOAD_TYPE                BT_PAYLOAD_TYPE_ALL0
 #define DEFAULT_PKT_COUNT                   0
-#define DEFAULT_TX_GAIN_VALUE               0xA9
-#define DEFAULT_WHITE_COEFF_VALUE           0
+#define DEFAULT_TX_GAIN_VALUE               0xCE
+#define DEFAULT_WHITE_COEFF_VALUE           0x7F
 
-#define DEFAULT_TX_GAIN_INDEX               0xFF
+#define DEFAULT_TX_GAIN_INDEX               0x06
 #define DEFAULT_TEST_MODE                   BT_PSEUDO_MODE
 #define DEFAULT_TX_DAC                      0x13
-#define DEFAULT_PKTHEADER                   0x1234
+#define DEFAULT_PKT_HEADER                  0x1234
 #define DEFAULT_HOPPING_CH_NUM              0
 #define DEFAULT_MULTI_RX_ENABLE             0
 
@@ -1173,7 +1172,7 @@ void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *p
     pBtModule->pBtParam->mWhiteningCoeffValue = DEFAULT_WHITE_COEFF_VALUE;
     pBtModule->pBtParam->mTxGainIndex = DEFAULT_TX_GAIN_INDEX;
     pBtModule->pBtParam->mTxDAC = DEFAULT_TX_DAC;
-    pBtModule->pBtParam->mPacketHeader = DEFAULT_PKTHEADER;
+    pBtModule->pBtParam->mPacketHeader = DEFAULT_PKT_HEADER;
     pBtModule->pBtParam->mHoppingFixChannel = DEFAULT_HOPPING_CH_NUM;
-    pBtModule->pBtParam->mHitTarget = 0x0000009e8b33;
+    pBtModule->pBtParam->mHitTarget = DEFAULT_HIT_ADDRESS;
 }
