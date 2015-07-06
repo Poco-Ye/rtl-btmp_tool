@@ -429,6 +429,19 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
 
         SYSLOGI("%s", buf_cb);
         break;
+    case REPORT_LE_RX:
+        SYSLOGI("%s%s%d%s0x%02x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts);
+        break;
     default:
         break;
     }
