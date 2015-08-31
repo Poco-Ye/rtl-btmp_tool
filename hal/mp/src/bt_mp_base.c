@@ -250,8 +250,6 @@ bt_default_RecvHCIEvent(
         uint32_t *pLen
         )
 {
-    memset(pReadingBuf, 0, HCI_EVT_LEN_MAX);
-
     switch (pBt->InterfaceType) {
     case TYPE_USB:
     case TYPE_FILTER_UART:
