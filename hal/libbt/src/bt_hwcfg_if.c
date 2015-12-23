@@ -59,22 +59,24 @@ uint16_t project_id[] = {
     ROM_LMP_8703b,
     ROM_LMP_8723c,
     ROM_LMP_8822b,
+    ROM_LMP_8723d,
     ROM_LMP_NONE
 };
 
 static patch_item patch_table[] = {
-    { ROM_LMP_8723a, "mp_rtl8723a_fw", "mp_rtl8723a_config" },    //RTL8723A
-    { ROM_LMP_8723b, "mp_rtl8723b_fw", "mp_rtl8723b_config" },    //RTL8723B
-    { ROM_LMP_8821a, "mp_rtl8821a_fw", "mp_rtl8821a_config" },    //RTL8821A
-    { ROM_LMP_8761a, "mp_rtl8761a_fw", "mp_rtl8761a_config" },    //RTL8761A
-    { ROM_LMP_8703a, "mp_rtl8703a_fw", "mp_rtl8703a_config" },    //RTL8703A
-    { ROM_LMP_8763a, "mp_rtl8763a_fw", "mp_rtl8763a_config" },    //RTL8763A
-    { ROM_LMP_8703b, "mp_rtl8703b_fw", "mp_rtl8703b_config" },    //RTL8703B
-    { ROM_LMP_8723c, "mp_rtl8723c_fw", "mp_rtl8723c_config" },    //RTL8723C
-    { ROM_LMP_8822b, "mp_rtl8822b_fw", "mp_rtl8822b_config" },    //RTL8822B
+    { ROM_LMP_8723a, ROM_HCI_8723a, "mp_rtl8723a_fw", "mp_rtl8723a_config" },    //RTL8723A
+    { ROM_LMP_8723b, ROM_HCI_8723b, "mp_rtl8723b_fw", "mp_rtl8723b_config" },    //RTL8723B
+    { ROM_LMP_8821a, ROM_HCI_8821a, "mp_rtl8821a_fw", "mp_rtl8821a_config" },    //RTL8821A
+    { ROM_LMP_8761a, ROM_HCI_8761a, "mp_rtl8761a_fw", "mp_rtl8761a_config" },    //RTL8761A
+    { ROM_LMP_8703a, ROM_HCI_8703a, "mp_rtl8703a_fw", "mp_rtl8703a_config" },    //RTL8703A
+    { ROM_LMP_8763a, ROM_HCI_8763a, "mp_rtl8763a_fw", "mp_rtl8763a_config" },    //RTL8763A
+    { ROM_LMP_8703b, ROM_HCI_8703b, "mp_rtl8703b_fw", "mp_rtl8703b_config" },    //RTL8703B
+    { ROM_LMP_8723c, ROM_HCI_8723c, "mp_rtl8723c_fw", "mp_rtl8723c_config" },    //RTL8723C
+    { ROM_LMP_8822b, ROM_HCI_8822b, "mp_rtl8822b_fw", "mp_rtl8822b_config" },    //RTL8822B
+    { ROM_LMP_8723d, ROM_HCI_8723d, "mp_rtl8723d_fw", "mp_rtl8723d_config" },    //RTL8723D
     /* add entries here*/
 
-    { ROM_LMP_NONE,  "mp_none_fw",     "mp_none_config" }
+    { ROM_LMP_NONE,  ROM_HCI_NONE,  "mp_none_fw",     "mp_none_config" }
 };
 
 /** sleep unconditionally for timeout milliseconds */
@@ -131,12 +133,12 @@ void hw_cfg_clear_timer(timer_t timer_id)
     timer_delete(timer_id);
 }
 
-patch_item *bt_hw_get_patch_item(uint16_t lmp_subver)
+patch_item *bt_hw_get_patch_item(uint16_t lmp_subver, uint16_t hci_subver)
 {
     patch_item *item = patch_table;
 
-    while (lmp_subver != item->lmp_subver) {
-        if (item->lmp_subver == 0)
+    while ((lmp_subver != item->lmp_subver) || (hci_subver != item->hci_subver)) {
+        if ((item->lmp_subver == 0) && (item->hci_subver == 0))
             break;
 
         item++;

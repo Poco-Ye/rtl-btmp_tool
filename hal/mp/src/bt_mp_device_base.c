@@ -865,18 +865,17 @@ int BTDevice_ReadThermal(
 
         if (BT_SetGlobalReg2Bytes(pBtDevice, 0x1ba, 0x800f))
             goto error;
+
         if (BT_GetGlobalReg2Bytes(pBtDevice, 0x1ba, &Value))
             goto error;
 
         *pThermalValue = (uint8_t)((Value >> 9) & 0x1f);
     } else {
         // chips have different read-thermal procedures
-        if (pBtDevice->pBTInfo->Is_After_PatchCode)
-            ChipType = pBtDevice->pBTInfo->ChipType;
-        else if (bt_default_GetChipId(pBtDevice) == BT_FUNCTION_SUCCESS)
-            ChipType = pBtDevice->pBTInfo->ChipType;
-        else
+        if (BTDevice_GetBTChipVersionInfo(pBtDevice) !=BT_FUNCTION_SUCCESS)
             goto error;
+
+        ChipType = pBtDevice->pBTInfo->ChipType;
 
         if (bt_default_SetRFRegMaskBits(pBtDevice, 0x00, 15, 0, 0x1000))
             goto error;
@@ -900,7 +899,7 @@ int BTDevice_ReadThermal(
                 goto error;
             if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 0))
                 goto error;
-        } else if (ChipType <= RTK_BT_CHIP_ID_RTL8822B) {
+        } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723D) {
             if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 5, 0, &Value))
                 goto error;
         }
@@ -1064,15 +1063,6 @@ BTDevice_SetPktRxBegin(
           pParam->mChannelNumber, pParam->mPacketType, pParam->mTxGainIndex, pParam->mTxGainValue,
           pParam->mTxPacketCount, pParam->mPayloadType, pParam->mPacketHeader,
           pParam->mWhiteningCoeffValue, pParam->mTxDAC, pParam->mHitTarget);
-
-    if (pParam->mPacketType == BT_PKT_LE)
-    {
-        if (pParam->mChannelNumber > 39)
-        {
-            rtn = FUNCTION_PARAMETER_INVALID_CHANNEL;
-            return rtn;
-        }
-    }
 
     if (pBtReport != NULL)
     {
@@ -2092,11 +2082,12 @@ unsigned char BT_DEFAULT_TX_GAIN_TABLE[][MAX_TXGAIN_TABLE_SIZE] = {
     {0x2b,0x2e,0x6b,0x6e,0x8b,0x8e,0xce},   //RTL8723B
     {0x28,0x2b,0x48,0x4b,0xc8,0xcc,0xe9},   //RTL8821A
     {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8761A
-    {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8703A -->TODO
+    {0x2b,0x2e,0x6b,0x6e,0x8b,0x8e,0xce},   //RTL8703A
     {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8763A
-    {0x08,0x26,0x36,0x38,0x46,0x4a,0x66},   //RTL8703B
-    {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8723C -->TODO
-    {0x0d,0x49,0x4d,0x69,0x89,0x8d,0xa9},   //RTL8822B -->TODO
+    {0x08,0x26,0x36,0x38,0x3a,0x48,0x4a},   //RTL8703B
+    {0x08,0x26,0x36,0x38,0x3a,0x48,0x4a},   //RTL8723C
+    {0x16,0x18,0x32,0x34,0x36,0x38,0x54},   //RTL8822B -->TODO
+    {0x58,0x70,0x76,0x7c,0x96,0x9c,0xb8},   //RTL8723D
 };
 
 int
@@ -2111,7 +2102,7 @@ BTDevice_SetTxGainTable(
     if (pTable == NULL)
     {
         SYSLOGI("BTDevice_SetTxGainTable: default");
-        if(bt_default_GetChipId(pBtDevice) !=BT_FUNCTION_SUCCESS)
+        if (BTDevice_GetBTChipVersionInfo(pBtDevice) != BT_FUNCTION_SUCCESS)
             goto error;
 
         ChipID = pBtDevice->pBTInfo->ChipType;
@@ -2142,8 +2133,9 @@ unsigned char BT_DEFAULT_TX_DAC_TABLE[][MAX_TXDAC_TABLE_SIZE]= {
     {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8703A -->TODO
     {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8763A
     {0x0a,0x0b,0x0c,0x0d,0x0e}, //RTL8703B
-    {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8723C -->TODO
-    {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8822B -->TODO
+    {0x0a,0x0b,0x0c,0x0d,0x0e}, //RTL8723C
+    {0x0f,0x10,0x11,0x12,0x13}, //RTL8822B
+    {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8723D
 };
 
 int
@@ -2158,7 +2150,7 @@ BTDevice_SetTxDACTable(
     if (pTable == NULL)
     {
         SYSLOGI("BTDevice_SetTxDACTable: default");
-        if (bt_default_GetChipId(pBtDevice) !=BT_FUNCTION_SUCCESS)
+        if (BTDevice_GetBTChipVersionInfo(pBtDevice) !=BT_FUNCTION_SUCCESS)
             goto error;
 
         ChipID = pBtDevice->pBTInfo->ChipType;
@@ -2254,6 +2246,8 @@ BTDevice_GetBTChipVersionInfo(
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723C;
     } else if ((pBTInfo->LMP_SubVersion == 0x8822) && (pBTInfo->HCI_SubVersion == 0x000B)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8822B;
+    } else if ((pBTInfo->LMP_SubVersion == 0x8723) && (pBTInfo->HCI_SubVersion == 0x000D)) {
+        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723D;
     } else {
         if (bt_default_GetChipId(pBtDevice) != BT_FUNCTION_SUCCESS) {
             rtn= FUNCTION_ERROR;

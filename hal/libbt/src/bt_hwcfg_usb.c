@@ -116,7 +116,11 @@ void USB_hw_config_cback(void *p_mem)
             p = (uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_LMP_SUB_VERSION;
             STREAM_TO_UINT16(USB_hw_cfg_cb.lmp_subver, p);
 
-            SYSLOGI("LMP sub version 0x%04x", USB_hw_cfg_cb.lmp_subver);
+            p = (uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_HCI_SUB_VERSION;
+            STREAM_TO_UINT16(USB_hw_cfg_cb.hci_subver, p);
+
+            SYSLOGI("LMP sub version 0x%04x, HCI sub version 0x%04x",
+                                   USB_hw_cfg_cb.lmp_subver, USB_hw_cfg_cb.hci_subver);
             if (USB_hw_cfg_cb.lmp_subver == ROM_LMP_8723a) {
                 USB_hw_cfg_cb.state = HW_CFG_PARSE_FW_PATCH;
                 goto CFG_PARSE_FW_PATCH;
@@ -162,7 +166,7 @@ CFG_PARSE_FW_PATCH:
             SYSLOGI("USB_hw_config_cback state: %d", USB_hw_cfg_cb.state);
 
             /* load fw & config files according to patch item */
-            entry = bt_hw_get_patch_item(USB_hw_cfg_cb.lmp_subver);
+            entry = bt_hw_get_patch_item(USB_hw_cfg_cb.lmp_subver, USB_hw_cfg_cb.hci_subver);
             if (entry) {
                 USB_hw_cfg_cb.config_len = bt_hw_load_file(&USB_hw_cfg_cb.config_buf,
                                                 entry->config_name);

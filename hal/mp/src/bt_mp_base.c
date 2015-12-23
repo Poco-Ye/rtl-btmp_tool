@@ -1077,6 +1077,7 @@ bt_default_GetChipId(
 
     if (bt_default_SendHciCommandWithEvent(pBtDevice,OpCode,pPayload_Len,pPayload,0x0E,pEvent,&EvtLen) != BT_FUNCTION_SUCCESS)
     {
+        SYSLOGE("bt_default_GetChipId : ERROR");
         rtn=FUNCTION_HCISEND_ERROR;
         goto exit;
     }

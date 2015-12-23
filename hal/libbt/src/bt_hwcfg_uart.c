@@ -213,7 +213,11 @@ void UART_hw_config_cback(void *p_mem)
             p = (uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_LMP_SUB_VERSION;
             STREAM_TO_UINT16(UART_hw_cfg_cb.lmp_subver, p);
 
-            SYSLOGI("LMP sub version 0x%04x", UART_hw_cfg_cb.lmp_subver);
+            p = (uint8_t *)(p_evt_buf + 1) + HCI_EVT_CMD_CMPL_HCI_SUB_VERSION;
+            STREAM_TO_UINT16(UART_hw_cfg_cb.hci_subver, p);
+
+            SYSLOGI("LMP sub version 0x%04x, HCI sub version 0x%04x",
+                                   UART_hw_cfg_cb.lmp_subver, UART_hw_cfg_cb.hci_subver);
             if (UART_hw_cfg_cb.lmp_subver == ROM_LMP_8723a) {
                 UART_hw_cfg_cb.state = HW_CFG_PARSE_FW_PATCH;
                 goto CFG_PARSE_FW_PATCH;
@@ -258,7 +262,7 @@ CFG_PARSE_FW_PATCH:
             SYSLOGI("UART_hw_config_cback state: %d", UART_hw_cfg_cb.state);
 
             /* load fw & config files according to patch item */
-            entry = bt_hw_get_patch_item(UART_hw_cfg_cb.lmp_subver);
+            entry = bt_hw_get_patch_item(UART_hw_cfg_cb.lmp_subver, UART_hw_cfg_cb.hci_subver);
             if (entry) {
                 UART_hw_cfg_cb.config_len = bt_hw_load_file(&UART_hw_cfg_cb.config_buf,
                                                 entry->config_name);

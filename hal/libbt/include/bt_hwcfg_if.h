@@ -57,6 +57,7 @@
 #define HCI_EVT_CMD_CMPL_LOCAL_NAME_STRING      6
 #define HCI_EVT_CMD_CMPL_LOCAL_BDADDR_ARRAY     6
 #define HCI_EVT_CMD_CMPL_OPCODE                 3
+#define HCI_EVT_CMD_CMPL_HCI_SUB_VERSION        7
 #define HCI_EVT_CMD_CMPL_LMP_SUB_VERSION        12
 #define HCI_EVT_CMD_CMPL_ROM_VERSION            6
 #define HCI_EVT_CMD_CMPL_DL_FW_PATCH_INDEX      6
@@ -74,6 +75,19 @@
 #define ROM_LMP_8703b               0x8703
 #define ROM_LMP_8723c               0x8703
 #define ROM_LMP_8822b               0x8822
+#define ROM_LMP_8723d               0x8723
+
+#define ROM_HCI_NONE                0x0000
+#define ROM_HCI_8723a               0x1200
+#define ROM_HCI_8723b               0x000B
+#define ROM_HCI_8821a               0x000A
+#define ROM_HCI_8761a               0x000A
+#define ROM_HCI_8703a               0x000A
+#define ROM_HCI_8763a               0x000A
+#define ROM_HCI_8703b               0x000B
+#define ROM_HCI_8723c               0x000B
+#define ROM_HCI_8822b               0x000B
+#define ROM_HCI_8723d               0x000D
 
 #define STREAM_TO_UINT16(u16, p) {u16 = ((uint16_t)(*(p)) + (((uint16_t)(*((p) + 1))) << 8)); (p) += 2;}
 #define STREAM_TO_UINT32(u32, p) {u32 = (((uint32_t)(*(p))) + ((((uint32_t)(*((p) + 1)))) << 8) + ((((uint32_t)(*((p) + 2)))) << 16) + ((((uint32_t)(*((p) + 3)))) << 24)); (p) += 4;}
@@ -106,6 +120,7 @@ struct bt_config_info {
 
 typedef struct {
     uint16_t lmp_subver;
+    uint16_t hci_subver;
     char     *fw_name;
     char     *config_name;
 } patch_item;
@@ -142,6 +157,7 @@ typedef struct {
     uint8_t  state;           /* Hardware configuration state */
     uint8_t  rom_ver;         /* ROM echo version */
     uint16_t lmp_subver;      /* LMP sub version */
+    uint16_t hci_subver;      /* HCI sub version */
     timer_t  timer_id;        /* hw cfg specified timer */
     int      fw_len;          /* FW patch file len */
     int      config_len;      /* Config patch file len */
@@ -165,7 +181,7 @@ int hw_cfg_set_timer(bt_hw_cfg_cb_t *cfg_cb,
 
 void hw_cfg_clear_timer(timer_t timer_id);
 
-patch_item *bt_hw_get_patch_item(uint16_t lmp_subver);
+patch_item *bt_hw_get_patch_item(uint16_t lmp_subver, uint16_t hci_subver);
 
 int bt_hw_load_file(uint8_t **file_buf, char *file_name);
 
