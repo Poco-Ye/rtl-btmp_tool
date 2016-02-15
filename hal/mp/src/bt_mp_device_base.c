@@ -1963,12 +1963,11 @@ BTDevice_LeTxTestCmd(
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EventLen = 0;
-    uint8_t TxGainIndex;
+    uint8_t TxGain;
 
     pPayload[0] = pParam->mChannelNumber; // channel: 0~39
     pPayload[1] = pParam->mParamData[0]; // Length_Of_Test_Data: 0x00~0x25
     pPayload[2] = pParam->mPayloadType; // Packet_Payload
-    TxGainIndex = pParam->mTxGainIndex;
 
     SYSLOGI("BTDevice_LeTxTestCmd: Channel %d, Data length %d, Pkt Payload %d",
             pPayload[0], pPayload[1], pPayload[2]);
@@ -1980,9 +1979,9 @@ BTDevice_LeTxTestCmd(
 
     if (pParam->mPacketType == BT_PKT_LE)
     {
-        TxGainIndex = TxGainIndex - 1;
+        TxGain = pBtDevice->TXGainTable[pParam->mTxGainIndex-1];
 
-        if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFCE6, LEN_1_BYTE, &TxGainIndex, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+        if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFCE6, LEN_1_BYTE, &TxGain, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
         {
             goto exit;
         }
