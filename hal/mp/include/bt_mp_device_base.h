@@ -3,6 +3,9 @@
 
 #include "bt_mp_base.h"
 
+#define ON 1
+#define OFF 0
+
 int
 BTDevice_SetMDRegMaskBits(
         BT_DEVICE *pBtDevice,
@@ -97,7 +100,7 @@ BTDevice_RecvAnyHciEvent(
 int
 BTDevice_SetPowerGainIndex(
         BT_DEVICE *pBtDevice,
-        int Index
+        uint8_t Index
         );
 
 int

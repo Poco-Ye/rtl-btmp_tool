@@ -710,25 +710,34 @@ exit:
 int
 BTDevice_SetPowerGainIndex(
         BT_DEVICE *pBtDevice,
-        int Index
+        uint8_t Index
         )
 {
-    uint8_t PowerGainValue =0;
-    int rtn=BT_FUNCTION_SUCCESS;
-    if (Index > MAX_TXGAIN_TABLE_SIZE)
-    {
-        rtn=FUNCTION_PARAMETER_ERROR;
-        goto exit;
-    }
+    uint32_t ChipType;
+    uint8_t pEvent[HCI_EVT_LEN_MAX];
+    uint8_t TxGainIndex;
+    uint8_t PowerGainValue = 0;
+    uint32_t EvtLen = 0;
+    int rtn = BT_FUNCTION_SUCCESS;
 
-    PowerGainValue =pBtDevice->TXGainTable[Index - 1];
-    /* set rf standby mode */
-    rtn = bt_default_SetRFRegMaskBits(pBtDevice,0x00,15,0,0x1000);
-    if (rtn != BT_FUNCTION_SUCCESS)
+    ChipType = pBtDevice->pBTInfo->ChipType;
+
+    if(ChipType < RTK_BT_CHIP_ID_RTL8822B)
     {
-        goto exit;
+        PowerGainValue = pBtDevice->TXGainTable[Index-1];
+        /* set rf standby mode */
+        rtn = bt_default_SetRFRegMaskBits(pBtDevice,0x00,15,0,0x1000);
+        if (rtn != BT_FUNCTION_SUCCESS)
+        {
+            goto exit;
+        }
+
+        rtn = BTDevice_SetPowerGain(pBtDevice,PowerGainValue);
+    } else {
+        TxGainIndex = Index - 1;
+        if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfce7, LEN_1_BYTE, &TxGainIndex, 0x0E, pEvent, &EvtLen) != BT_FUNCTION_SUCCESS)
+            goto exit;
     }
-    rtn=BTDevice_SetPowerGain(pBtDevice,PowerGainValue);
 
 exit:
     return rtn;
@@ -740,14 +749,22 @@ BTDevice_SetPowerGain(
         uint8_t PowerGainValue
         )
 {
-    int rtn=BT_FUNCTION_SUCCESS;
+    int rtn = BT_FUNCTION_SUCCESS;
+
     /* set rf standby mode */
-    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x00,15,0,0x1000);
+    rtn = bt_default_SetRFRegMaskBits(pBtDevice,0x00,15,0,0x1000);
     if (rtn != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
-    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x02,15,8,PowerGainValue);
+
+    rtn = bt_default_SetRFRegMaskBits(pBtDevice,0x02,15,8,PowerGainValue);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+
+    return rtn;
 
 exit:
     return rtn;
@@ -861,51 +878,70 @@ int BTDevice_ReadThermal(
     uint16_t Value;
     uint32_t ChipType;
 
-    if (pParam->mPacketType == BT_PKT_LE) {
+    // chips have different read-thermal procedures
+    if (BTDevice_GetBTChipVersionInfo(pBtDevice) !=BT_FUNCTION_SUCCESS)
+        goto error;
 
-        if (BT_SetGlobalReg2Bytes(pBtDevice, 0x1ba, 0x800f))
+    ChipType = pBtDevice->pBTInfo->ChipType;
+
+    if (bt_default_SetRFRegMaskBits(pBtDevice, 0x00, 15, 0, 0x1000))
+        goto error;
+
+    // enable thermal meter
+    if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
+        if (bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 5, 5, 1))
             goto error;
-
-        if (BT_GetGlobalReg2Bytes(pBtDevice, 0x1ba, &Value))
-            goto error;
-
-        *pThermalValue = (uint8_t)((Value >> 9) & 0x1f);
     } else {
-        // chips have different read-thermal procedures
-        if (BTDevice_GetBTChipVersionInfo(pBtDevice) !=BT_FUNCTION_SUCCESS)
+        if (bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 6, 6, 1))
             goto error;
-
-        ChipType = pBtDevice->pBTInfo->ChipType;
-
-        if (bt_default_SetRFRegMaskBits(pBtDevice, 0x00, 15, 0, 0x1000))
-            goto error;
-
-        // enable thermal meter
-        if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
-            if (bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 5, 5, 1))
-                goto error;
-        } else {
-            if (bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 6, 6, 1))
-                goto error;
-        }
-
-        if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
-            if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 4, 0, &Value))
-                goto error;
-        } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723C) {
-            if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 1))
-                goto error;
-            if (bt_default_GetRFRegMaskBits(pBtDevice, 0x3b, 5, 0, &Value))
-                goto error;
-            if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 0))
-                goto error;
-        } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723D) {
-            if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 5, 0, &Value))
-                goto error;
-        }
-
-        *pThermalValue = (uint8_t)Value;
     }
+
+    if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
+        if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 4, 0, &Value))
+            goto error;
+    } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723C) {
+        if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 1))
+            goto error;
+        if (bt_default_GetRFRegMaskBits(pBtDevice, 0x3b, 5, 0, &Value))
+            goto error;
+        if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 0))
+            goto error;
+    } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723D) {
+        if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 5, 0, &Value))
+            goto error;
+    }
+
+    *pThermalValue = (uint8_t)Value;
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+    return FUNCTION_ERROR;
+}
+
+int
+BTDevice_TxPowerTracking(
+    BT_DEVICE *pBtDevice,
+    uint8_t OnOff
+    )
+{
+    uint8_t pPayload[HCI_CMD_LEN_MAX];
+    uint8_t pEvent[HCI_EVT_LEN_MAX];
+    uint32_t EvtLen = 0;
+
+    if (OnOff == ON)
+    {
+        //Enable TX Power Tracking
+        pPayload[0] = 1;
+    } else {
+        //Disable TX Power Tracking
+        pPayload[0] = 0;
+    }
+
+    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFCE8, LEN_1_BYTE, pPayload, 0x0E, pEvent, &EvtLen))
+        goto error;
+
+    SYSLOGI("BTDevice_TxPowerTracking = %d", OnOff);
 
     return BT_FUNCTION_SUCCESS;
 
@@ -923,6 +959,9 @@ BTDevice_TestModeEnable(
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EvtLen;
     int status;
+
+    //Enable TX Power Tracking
+    BTDevice_TxPowerTracking(pBtDevice, ON);
 
     //Set BT HCI Scan Enable
     OpCode = OPCODE( OCF_HCI_WRITE_SCAN_ENABLE, OGF_CONTROLER_AND_BB);
@@ -1012,9 +1051,8 @@ BTDevice_SetPktRxStop(
         BT_DEVICE_REPORT *pBtReport
         )
 {
-    uint32_t EventLen = 0;
-    uint16_t OpCode=0x0000;
-    int pktType=pParam->mPacketType;
+    uint16_t OpCode = 0x0000;
+    int pktType = pParam->mPacketType;
 
     SYSLOGI("+BTDevice_SetPktRxStop");
 
@@ -1051,7 +1089,6 @@ BTDevice_SetPktRxBegin(
 {
     int rtn=BT_FUNCTION_SUCCESS;
     unsigned long btClockTime=0;
-    uint32_t EventLen = 0;
     uint16_t OpCode=0x0000;
     int pktType = pParam->mPacketType;
     uint8_t pPayload_Len=0;
@@ -1348,7 +1385,6 @@ BTDevice_SetPktTxStop(
         )
 {
     uint16_t OpCode=0x0000;
-    uint32_t EventLen = 0;
     int pktType = pParam->mPacketType;
 
     SYSLOGI("+BTDevice_SetPktTxStop");
@@ -1449,6 +1485,7 @@ BTDevice_SetPktTxBegin(
     unsigned long btClockTime = 0;
     uint16_t tmp = 0;
     BT_TRX_TIME *pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
+    uint32_t ChipType;
 
     SYSLOGI("BTDevice_SetPktTxBegin: mChannelNumber 0x%02x, mPacketType 0x%02x, "
           "mPayloadType 0x%02x, mTxPacketCount 0x%04x, mTxGainValue 0x%02x, "
@@ -1467,6 +1504,8 @@ BTDevice_SetPktTxBegin(
     }
 
     SYSLOGI("+BTDevice_SetPktTxBegin");
+
+    ChipType = pBtDevice->pBTInfo->ChipType;
 
     pTxTime->beginTimeClockCnt=0;
     pTxTime->UseTimeClockCnt=0;
@@ -1516,14 +1555,20 @@ BTDevice_SetPktTxBegin(
     }
 
     //set outpower
-    if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
-        rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
-    else
-        rtn = BTDevice_SetPowerGain(pBtDevice,pParam->mTxGainValue);
+    if(ChipType < RTK_BT_CHIP_ID_RTL8822B){
+        if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
+            rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
+        else
+            rtn = BTDevice_SetPowerGain(pBtDevice,pParam->mTxGainValue);
 
-    if (rtn != BT_FUNCTION_SUCCESS)
-    {
-        goto exit;
+        if (rtn != BT_FUNCTION_SUCCESS){
+            goto exit;
+        }
+    } else {
+        rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
+        if (rtn != BT_FUNCTION_SUCCESS){
+            goto exit;
+        }
     }
 
     //set test mode
@@ -1793,9 +1838,12 @@ BTDevice_SetContinueTxBegin(
         BT_DEVICE_REPORT *pBtReport
         )
 {
-    int rtn=BT_FUNCTION_SUCCESS;
-    unsigned long btClockTime=0;
+    int rtn = BT_FUNCTION_SUCCESS;
+    unsigned long btClockTime = 0;
     BT_TRX_TIME *pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
+    uint32_t ChipType;
+
+    ChipType = pBtDevice->pBTInfo->ChipType;
 
     pTxTime->beginTimeClockCnt=0;
     pTxTime->UseTimeClockCnt=0;
@@ -1856,13 +1904,20 @@ BTDevice_SetContinueTxBegin(
         goto error;
     }
     //set outpower
-    if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
+    if(ChipType < RTK_BT_CHIP_ID_RTL8822B){
+        if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
+            rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
+        else
+            rtn = BTDevice_SetPowerGain(pBtDevice,pParam->mTxGainValue);
+
+        if (rtn != BT_FUNCTION_SUCCESS){
+            goto error;
+        }
+    } else {
         rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
-    else
-        rtn = BTDevice_SetPowerGain(pBtDevice,pParam->mTxGainValue);
-    if (rtn != BT_FUNCTION_SUCCESS)
-    {
-        goto error;
+        if (rtn != BT_FUNCTION_SUCCESS){
+            goto error;
+        }
     }
 
     if (BTDevice_SetMutiRxEnable(pBtDevice,0) != BT_FUNCTION_SUCCESS)
@@ -1963,7 +2018,11 @@ BTDevice_LeTxTestCmd(
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EventLen = 0;
-    uint8_t TxGain;
+    unsigned long TxGain;
+    uint8_t TxGainIndex;
+    uint32_t ChipType;
+
+    ChipType = pBtDevice->pBTInfo->ChipType;
 
     pPayload[0] = pParam->mChannelNumber; // channel: 0~39
     pPayload[1] = pParam->mParamData[0]; // Length_Of_Test_Data: 0x00~0x25
@@ -1979,11 +2038,22 @@ BTDevice_LeTxTestCmd(
 
     if (pParam->mPacketType == BT_PKT_LE)
     {
-        TxGain = pBtDevice->TXGainTable[pParam->mTxGainIndex-1];
-
-        if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFCE6, LEN_1_BYTE, &TxGain, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+        if (ChipType < RTK_BT_CHIP_ID_RTL8822B)
         {
-            goto exit;
+            TxGain = (pBtDevice->TXGainTable[pParam->mTxGainIndex-1] << 8);
+
+            bt_default_SetMDRegMaskBits(pBtDevice, 0x3C, 12, 12, 0);
+            bt_default_SetBBRegMaskBits(pBtDevice, 0, 0x178, 15, 0, TxGain);
+            bt_default_SetBBRegMaskBits(pBtDevice, 0, 0x17A, 15, 0, 0x382);
+        }
+        else
+        {
+            TxGainIndex = pParam->mTxGainIndex-1;
+
+            if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfce7, LEN_1_BYTE, &TxGainIndex, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+            {
+                goto exit;
+            }
         }
     }
 
@@ -2193,6 +2263,9 @@ BTDevice_SetHciReset(
         goto error;
     }
 
+    //Disable power tracking
+    BTDevice_TxPowerTracking(pBtDevice, OFF);
+
     return BT_FUNCTION_SUCCESS;
 
 error:
@@ -2247,6 +2320,8 @@ BTDevice_GetBTChipVersionInfo(
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8822B;
     } else if ((pBTInfo->LMP_SubVersion == 0x8723) && (pBTInfo->HCI_SubVersion == 0x000D)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723D;
+    } else if ((pBTInfo->LMP_SubVersion == 0x8821) && (pBTInfo->HCI_SubVersion == 0x000C)) {
+        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8821C;
     } else {
         if (bt_default_GetChipId(pBtDevice) != BT_FUNCTION_SUCCESS) {
             rtn= FUNCTION_ERROR;
@@ -2284,7 +2359,7 @@ BTDevice_BTDlFW(
     int SegmentIndex=0;
     int LastSegment=patchLength/252;
 
-    if ((patchLength%252) !=0)
+    if ((patchLength%252) != 0)
         LastSegment+=1;
 
     while(!flag)
@@ -2300,10 +2375,12 @@ BTDevice_BTDlFW(
         }
         if (flag)
         {
-            pPayload[0]= (SegmentIndex | 0x80);
+            pPayload[0] = (SegmentIndex | 0x80);
         }
         else
-            pPayload[0]= (SegmentIndex &0x7f);
+        {
+            pPayload[0] = (SegmentIndex &0x7f);
+        }
 
         for (n=0;n<pPayload_Len;n++)
         {
