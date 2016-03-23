@@ -3,8 +3,6 @@
 
 #include "bt_mp_base.h"
 
-#define ON 1
-#define OFF 0
 
 int
 BTDevice_SetMDRegMaskBits(

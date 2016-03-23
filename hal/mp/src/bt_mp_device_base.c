@@ -922,14 +922,14 @@ error:
 int
 BTDevice_TxPowerTracking(
     BT_DEVICE *pBtDevice,
-    uint8_t OnOff
+    BOOL openPwrTracking
     )
 {
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EvtLen = 0;
 
-    if (OnOff == ON)
+    if (openPwrTracking == true)
     {
         //Enable TX Power Tracking
         pPayload[0] = 1;
@@ -941,7 +941,7 @@ BTDevice_TxPowerTracking(
     if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFCE8, LEN_1_BYTE, pPayload, 0x0E, pEvent, &EvtLen))
         goto error;
 
-    SYSLOGI("BTDevice_TxPowerTracking = %d", OnOff);
+    SYSLOGI("BTDevice_TxPowerTracking = %d", openPwrTracking);
 
     return BT_FUNCTION_SUCCESS;
 
@@ -959,9 +959,6 @@ BTDevice_TestModeEnable(
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EvtLen;
     int status;
-
-    //Enable TX Power Tracking
-    BTDevice_TxPowerTracking(pBtDevice, ON);
 
     //Set BT HCI Scan Enable
     OpCode = OPCODE( OCF_HCI_WRITE_SCAN_ENABLE, OGF_CONTROLER_AND_BB);
@@ -2262,9 +2259,6 @@ BTDevice_SetHciReset(
     {
         goto error;
     }
-
-    //Disable power tracking
-    BTDevice_TxPowerTracking(pBtDevice, OFF);
 
     return BT_FUNCTION_SUCCESS;
 
