@@ -230,7 +230,7 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case SET_POWER_GAIN_INDEX:
-        rtn = pModuleBtDevice->SetPowerGainIndex(pModuleBtDevice, pModuleBtParam->mTxGainIndex);
+        rtn = pModuleBtDevice->SetPowerGainIndex(pModuleBtDevice, pModuleBtParam->mPacketType, pModuleBtParam->mTxGainIndex);
         break;
 
     case SET_POWER_GAIN:

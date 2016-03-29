@@ -98,6 +98,7 @@ BTDevice_RecvAnyHciEvent(
 int
 BTDevice_SetPowerGainIndex(
         BT_DEVICE *pBtDevice,
+        BT_PKT_TYPE PacketType,
         uint8_t Index
         );
 

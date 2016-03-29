@@ -710,10 +710,12 @@ exit:
 int
 BTDevice_SetPowerGainIndex(
         BT_DEVICE *pBtDevice,
+        BT_PKT_TYPE PacketType,
         uint8_t Index
         )
 {
     uint32_t ChipType;
+    uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint8_t TxGainIndex;
     uint8_t PowerGainValue = 0;
@@ -733,10 +735,22 @@ BTDevice_SetPowerGainIndex(
         }
 
         rtn = BTDevice_SetPowerGain(pBtDevice,PowerGainValue);
-    } else {
+    }
+    else
+    {
         TxGainIndex = Index - 1;
-        if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfce7, LEN_1_BYTE, &TxGainIndex, 0x0E, pEvent, &EvtLen) != BT_FUNCTION_SUCCESS)
+        pPayload[0] = TxGainIndex;
+        pPayload[1] = PacketType/LEN_3_BYTE;
+
+        //opcode=0xfce7 , length = 0x2 , data[0]:index , data[1]:target rate , 0x0:1M , 0x1:2M , 0x2:3M , 0x3:LE
+        //Return event , data[0] = target_rate , data[1]:target rate tx power index , data[2]:target rate tx power value
+        if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfce7, LEN_2_BYTE, pPayload, 0x0E, pEvent, &EvtLen) != BT_FUNCTION_SUCCESS)
+        {
             goto exit;
+        }
+
+        SYSLOGI("BTDevice_SetPowerGainIndex :  Tx Gain Index = %d, rate = %dM ; target rate = %dM, tx power index = %d(0x%x)",
+            TxGainIndex, (PacketType/LEN_3_BYTE)+1, pEvent[EVT_BYTE0]+1, pEvent[EVT_BYTE1], pEvent[EVT_BYTE2]);
     }
 
 exit:
@@ -1554,15 +1568,15 @@ BTDevice_SetPktTxBegin(
     //set outpower
     if(ChipType < RTK_BT_CHIP_ID_RTL8822B){
         if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
-            rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
+            rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
         else
-            rtn = BTDevice_SetPowerGain(pBtDevice,pParam->mTxGainValue);
+            rtn = BTDevice_SetPowerGain(pBtDevice, pParam->mTxGainValue);
 
         if (rtn != BT_FUNCTION_SUCCESS){
             goto exit;
         }
     } else {
-        rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
+        rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
         if (rtn != BT_FUNCTION_SUCCESS){
             goto exit;
         }
@@ -1903,7 +1917,7 @@ BTDevice_SetContinueTxBegin(
     //set outpower
     if(ChipType < RTK_BT_CHIP_ID_RTL8822B){
         if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
-            rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
+            rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
         else
             rtn = BTDevice_SetPowerGain(pBtDevice,pParam->mTxGainValue);
 
@@ -1911,7 +1925,7 @@ BTDevice_SetContinueTxBegin(
             goto error;
         }
     } else {
-        rtn = BTDevice_SetPowerGainIndex(pBtDevice,pParam->mTxGainIndex);
+        rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
         if (rtn != BT_FUNCTION_SUCCESS){
             goto error;
         }
@@ -2021,14 +2035,7 @@ BTDevice_LeTxTestCmd(
 
     ChipType = pBtDevice->pBTInfo->ChipType;
 
-    pPayload[0] = pParam->mChannelNumber; // channel: 0~39
-    pPayload[1] = pParam->mParamData[0]; // Length_Of_Test_Data: 0x00~0x25
-    pPayload[2] = pParam->mPayloadType; // Packet_Payload
-
-    SYSLOGI("BTDevice_LeTxTestCmd: Channel %d, Data length %d, Pkt Payload %d",
-            pPayload[0], pPayload[1], pPayload[2]);
-
-    if (pPayload[0] > 39 || pPayload[1] > 0x25 || pPayload[2] > 7)
+    if( pParam->mChannelNumber>39 || pParam->mParamData[0]>0x25 || pParam->mPayloadType>7)
     {
         goto exit;
     }
@@ -2047,12 +2054,27 @@ BTDevice_LeTxTestCmd(
         {
             TxGainIndex = pParam->mTxGainIndex-1;
 
-            if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfce7, LEN_1_BYTE, &TxGainIndex, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+            //opcode=0xfce7 , length = 0x2 , data[0]:index , data[1]:target rate , 0x0:1M , 0x1:2M , 0x2:3M , 0x3:LE
+            //Return event , data[0] = target_rate , data[1]:target rate tx power index , data[2]:target rate tx power value
+            pPayload[0] = TxGainIndex;
+            pPayload[1] = 0x3; //LE
+
+            if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfce7, LEN_2_BYTE, pPayload, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
             {
                 goto exit;
             }
+
+            SYSLOGI("BTDevice_LeTxTestCmd : Tx Gain Index = %d, LE ; target rate = %dM, tx power index = %d(0x%x)",
+                TxGainIndex, pEvent[EVT_BYTE0]+1, pEvent[EVT_BYTE1], pEvent[EVT_BYTE2]);
         }
     }
+
+    pPayload[0] = pParam->mChannelNumber; //channel : 0~39
+    pPayload[1] = pParam->mParamData[0]; //Length_Of_Test_Data : 0x00~0x25
+    pPayload[2] = (uint8_t)pParam->mPayloadType; //Packet_Payload
+
+    SYSLOGI("BTDevice_LeTxTestCmd: Channel %d, Data length %d, Pkt Payload %d",
+        pPayload[0], pPayload[1], pPayload[2]);
 
     if (bt_default_SendHciCommandWithEvent(pBtDevice, 0x201E, LEN_3_BYTE, pPayload, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
     {
@@ -2067,7 +2089,7 @@ BTDevice_LeTxTestCmd(
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    SYSLOGI("BTDevice_LeTxTestCmd: ERROR");
+    SYSLOGE("BTDevice_LeTxTestCmd: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -2106,7 +2128,8 @@ BTDevice_LeRxTestCmd(
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    SYSLOGI("BTDevice_LeRxTestCmd: ERROR");
+
+    SYSLOGE("BTDevice_LeRxTestCmd: ERROR");
     return FUNCTION_ERROR;
 }
 
@@ -2139,7 +2162,7 @@ BTDevice_LeTestEndCmd(
     return BT_FUNCTION_SUCCESS;
 
 exit:
-    SYSLOGI("BTDevice_LeTestEndCmd: ERROR");
+    SYSLOGE("BTDevice_LeTestEndCmd: ERROR");
     return FUNCTION_ERROR;
 }
 

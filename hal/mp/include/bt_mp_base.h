@@ -343,6 +343,7 @@ typedef int
 typedef int
 (*BT_FP_SET_POWERGAININDEX)(
         BT_DEVICE *pBtDevice,
+        BT_PKT_TYPE PacketType,
         int Index
         );
 
