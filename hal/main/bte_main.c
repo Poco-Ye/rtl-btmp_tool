@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
-#include <asm-generic/siginfo.h>
+#include <signal.h>
 
 #include "gki.h"
 //#include "bd.h"
