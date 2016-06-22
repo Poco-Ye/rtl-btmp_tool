@@ -324,6 +324,23 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         rtn = pModuleBtDevice->ReadEfuseLogicalData(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         break;
 
+    // LE Cont-Tx
+    case LE_CONTINUE_TX_START:
+        pModuleBtParam->mChannelNumber = (pModuleBtParam->mChannelNumber) * 2;
+        pModuleBtParam->mWhiteningCoeffValue=0x7f;
+        pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
+        pModuleBtParam->mPacketType= BT_PKT_1DH1;
+        rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        break;
+
+    case LE_CONTINUE_TX_UPDATE:
+        rtn = pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        break;
+
+    case LE_CONTINUE_TX_STOP:
+        rtn=pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        break;
+
     default:
         rtn = FUNCTION_ERROR;
         break;

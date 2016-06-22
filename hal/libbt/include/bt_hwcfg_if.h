@@ -76,6 +76,7 @@
 #define ROM_LMP_8723c               0x8703
 #define ROM_LMP_8822b               0x8822
 #define ROM_LMP_8723d               0x8723
+#define ROM_LMP_8821c               0x8821
 
 #define ROM_HCI_NONE                0x0000
 #define ROM_HCI_8723a               0x1200
@@ -88,6 +89,8 @@
 #define ROM_HCI_8723c               0x000B
 #define ROM_HCI_8822b               0x000B
 #define ROM_HCI_8723d               0x000D
+#define ROM_HCI_8821c               0x000C
+
 
 #define STREAM_TO_UINT16(u16, p) {u16 = ((uint16_t)(*(p)) + (((uint16_t)(*((p) + 1))) << 8)); (p) += 2;}
 #define STREAM_TO_UINT32(u32, p) {u32 = (((uint32_t)(*(p))) + ((((uint32_t)(*((p) + 1)))) << 8) + ((((uint32_t)(*((p) + 2)))) << 16) + ((((uint32_t)(*((p) + 3)))) << 24)); (p) += 4;}

@@ -77,6 +77,11 @@ typedef enum {
 
     READ_EFUSE_DATA,                //25
 
+    //LE Continue TX
+    LE_CONTINUE_TX_START,
+    LE_CONTINUE_TX_UPDATE,
+    LE_CONTINUE_TX_STOP,
+
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
 

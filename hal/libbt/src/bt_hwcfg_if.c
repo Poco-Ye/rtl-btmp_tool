@@ -60,6 +60,7 @@ uint16_t project_id[] = {
     ROM_LMP_8723c,
     ROM_LMP_8822b,
     ROM_LMP_8723d,
+    ROM_LMP_8821c,
     ROM_LMP_NONE
 };
 
@@ -74,6 +75,7 @@ static patch_item patch_table[] = {
     { ROM_LMP_8723c, ROM_HCI_8723c, "mp_rtl8723c_fw", "mp_rtl8723c_config" },    //RTL8723C
     { ROM_LMP_8822b, ROM_HCI_8822b, "mp_rtl8822b_fw", "mp_rtl8822b_config" },    //RTL8822B
     { ROM_LMP_8723d, ROM_HCI_8723d, "mp_rtl8723d_fw", "mp_rtl8723d_config" },    //RTL8723D
+    { ROM_LMP_8821c, ROM_HCI_8821c, "mp_rtl8821c_fw", "mp_rtl8821c_config" },    //RTL8821C
     /* add entries here*/
 
     { ROM_LMP_NONE,  ROM_HCI_NONE,  "mp_none_fw",     "mp_none_config" }
