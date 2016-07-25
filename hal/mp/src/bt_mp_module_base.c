@@ -124,6 +124,48 @@ int BTModule_ActionReport(
         pReport->Cfo=pModuleBtReport->Cfo;
         break;
 
+    case REPORT_LE_CONTINUE_TX:
+        pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        pReport->TotalTXBits=pModuleBtReport->TotalTXBits;
+        pReport->TotalTxCounts=pModuleBtReport->TotalTxCounts;
+        break;
+
+    case REPORT_FW_PACKET_TX:
+        pModuleBtDevice->FwPacketTxReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        pReport->TotalTXBits=pModuleBtReport->TotalTXBits;
+        pReport->TotalTxCounts=pModuleBtReport->TotalTxCounts;
+        break;
+
+    case REPORT_FW_CONTINUE_TX:
+        pModuleBtDevice->FwContTxReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        pReport->TotalTXBits=pModuleBtReport->TotalTXBits;
+        pReport->TotalTxCounts=pModuleBtReport->TotalTxCounts;
+        break;
+
+    case REPORT_FW_PACKET_RX:
+        pModuleBtDevice->FwPacketRxReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        pReport->TotalRXBits=pModuleBtReport->TotalRXBits;
+        pReport->TotalRxCounts=pModuleBtReport->TotalRxCounts;
+        pReport->TotalRxErrorBits=pModuleBtReport->TotalRxErrorBits;
+        pReport->ber=pModuleBtReport->ber;
+        pReport->RxRssi=pModuleBtReport->RxRssi;
+        pReport->RXRecvPktCnts=pModuleBtReport->RXRecvPktCnts;
+        pReport->Cfo=pModuleBtReport->Cfo;
+        break;
+
+    case REPORT_FW_LE_CONTINUE_TX:
+        pModuleBtDevice->FwContTxReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        pReport->TotalTXBits=pModuleBtReport->TotalTXBits;
+        pReport->TotalTxCounts=pModuleBtReport->TotalTxCounts;
+        break;
+
+    case REPORT_TX_POWER_INFO:
+        for ( i=0; i<LEN_5_BYTE; i++)
+        {
+            pReport->ReportData[i] = pModuleBtReport->ReportData[i];
+        }
+        break;
+
     default:
         rtn = FUNCTION_ERROR;
         break;
@@ -326,19 +368,67 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
 
     // LE Cont-Tx
     case LE_CONTINUE_TX_START:
-        pModuleBtParam->mChannelNumber = (pModuleBtParam->mChannelNumber) * 2;
-        pModuleBtParam->mWhiteningCoeffValue=0x7f;
-        pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
-        pModuleBtParam->mPacketType= BT_PKT_1DH1;
-        rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
-        break;
+        {
+            pModuleBtParam->mChannelNumber = (pModuleBtParam->mChannelNumber) * 2;
+            pModuleBtParam->mWhiteningCoeffValue=0x7f;
+            pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
+            pModuleBtParam->mPacketType= BT_PKT_1DH1;
+            rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
 
-    case LE_CONTINUE_TX_UPDATE:
-        rtn = pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case LE_CONTINUE_TX_STOP:
-        rtn=pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        {
+            rtn = pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+
+        break;
+
+    case FW_PACKET_TX_START:
+        rtn = pModuleBtDevice->FwPacketTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        break;
+
+    case FW_PACKET_TX_STOP:
+        rtn = pModuleBtDevice->FwPacketTxStop(pModuleBtDevice);
+        break;
+
+    case FW_CONTINUE_TX_START:
+        rtn = pModuleBtDevice->FwContTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        break;
+
+    case FW_CONTINUE_TX_STOP:
+        rtn = pModuleBtDevice->FwContTxStop(pModuleBtDevice);
+        break;
+
+    case FW_PACKET_RX_START:
+        rtn = pModuleBtDevice->FwPacketRxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        break;
+
+    case FW_PACKET_RX_STOP:
+        rtn = pModuleBtDevice->FwPacketRxStop(pModuleBtDevice);
+        break;
+
+    case FW_LE_CONTINUE_TX_START:
+        {
+            pModuleBtParam->mChannelNumber = pModuleBtParam->mChannelNumber*2;
+            pModuleBtParam->mWhiteningCoeffValue=0x7f;
+            pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
+            pModuleBtParam->mPacketType= BT_PKT_1DH1;
+            rtn = pModuleBtDevice->FwContTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+
+        break;
+
+    case FW_LE_CONTINUE_TX_STOP:
+        {
+            rtn = pModuleBtDevice->FwContTxStop(pModuleBtDevice);
+        }
+
+        break;
+
+    case FW_READ_TX_POWER_INFO:
+        rtn = pModuleBtDevice->FwReadTxPowerInfo(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     default:

@@ -28,7 +28,7 @@ static unsigned char main_done = 0;
 
 int main(int argc, char *argv[])
 {
-    char cmdline[128];
+    char cmdline[256];
 
     btmp_log_std(":::::::::::::::::::::::::::::::::::::::::::::::::");
     btmp_log_std(":::::::: Bluetooth MP Test Tool Starting ::::::::");
@@ -45,11 +45,11 @@ int main(int argc, char *argv[])
         printf("> ");
         fflush(stdout);
 
-        fgets(cmdline, 128, stdin);
+        fgets(cmdline, 256, stdin);
 
         if (cmdline[0] != '\0') {
             process_cmd(cmdline);
-            memset(cmdline, '\0', 128);
+            memset(cmdline, '\0', 256);
         }
     }
 

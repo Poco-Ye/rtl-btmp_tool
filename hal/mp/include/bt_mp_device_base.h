@@ -4,6 +4,21 @@
 #include "bt_mp_base.h"
 
 
+//define FW Process MP Vendor Command
+#define HCI_VENDOR_MP_PACKET_TX_ENABLE_CONFIG     0xFCE0
+#define HCI_VENDOR_MP_PACKET_TX_STOP              0xFCE1
+#define HCI_VENDOR_MP_PACKET_RX_ENABLE_CONFIG     0xFCE2
+#define HCI_VENDOR_MP_PACKET_RX_STOP              0xFCE3
+#define HCI_VENDOR_MP_PACKET_TX_REPORT            0xFCE4
+#define HCI_VENDOR_MP_PACKET_RX_REPORT            0xFCE5
+#define HCI_VENDOR_MP_ENABLE_TX_POWER_TRACKING    0xFCE8
+#define HCI_VENDOR_READ_THERMAL_METER_DATA        0xFC40
+#define HCI_VENDOR_MP_BLE_CONT_TX                 0xFCF6
+#define HCI_VENDOR_MP_CON_TX_ENABLE_CONFIG        0xFCF1
+#define HCI_VENDOR_MP_CON_TX_STOP                 0xFCF2
+#define HCI_VENDOR_MP_READ_TX_POWER_INFO          0xFCED
+
+
 int
 BTDevice_SetMDRegMaskBits(
         BT_DEVICE *pBtDevice,
@@ -300,5 +315,77 @@ BTDevice_ReadEfuseLogicalData(
         BT_PARAMETER *pParam,
         BT_DEVICE_REPORT *pBtReport
         );
+
+int
+BTDevice_8822b_LeContTxCmd(
+    BT_DEVICE *pBtDevice,
+    unsigned char enableLeContTx,
+    unsigned char Channel,
+    unsigned char TxPowerIndex
+    );
+
+int
+BTDevice_fw_packet_tx_start(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_fw_packet_tx_stop(
+    BT_DEVICE *pBtDevice
+    );
+
+int
+BTDevice_fw_packet_tx_report(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_fw_packet_rx_start(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_fw_packet_rx_stop(
+    BT_DEVICE *pBtDevice
+    );
+
+int
+BTDevice_fw_packet_rx_report(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_fw_cont_tx_start(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_fw_cont_tx_stop(
+    BT_DEVICE *pBtDevice
+    );
+
+int
+BTDevice_fw_cont_tx_report(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_fw_read_tx_power_info(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
 
 #endif

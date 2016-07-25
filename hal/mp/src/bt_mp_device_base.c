@@ -2891,3 +2891,551 @@ BTDevice_ReadEfuseLogicalData(
 error:
     return FUNCTION_ERROR;
 }
+
+int
+BTDevice_8822b_LeContTxCmd(
+    BT_DEVICE *pBtDevice,
+    unsigned char enableLeContTx,
+    unsigned char Channel,
+    unsigned char TxPowerIndex
+    )
+{
+    BT_TRX_TIME   *pTxTime;
+    unsigned long btClockTime;
+
+    unsigned char pPayload[HCI_CMD_LEN_MAX];
+    unsigned char pEvent[HCI_EVT_LEN_MAX];
+    uint32_t EvtLen;
+
+    pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
+
+    pPayload[0] = enableLeContTx;
+    pPayload[1] = Channel;
+    pPayload[2] = TxPowerIndex-1;
+
+    if(bt_default_SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_BLE_CONT_TX, LEN_3_BYTE, pPayload, 0x0E, pEvent, &EvtLen) != BT_FUNCTION_SUCCESS)
+        goto error;
+
+    if(enableLeContTx == 1)
+    {
+        //get begin clock
+        pTxTime->beginTimeClockCnt=0;
+        pTxTime->UseTimeClockCnt=0;
+        pTxTime->endTimeClockCnt=0;
+
+        if (BTDevice_GetBTClockTime(pBtDevice, &btClockTime) == BT_FUNCTION_SUCCESS)
+        {
+            pTxTime->beginTimeClockCnt = btClockTime;
+        }
+    }
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+    return FUNCTION_ERROR;
+}
+
+int
+BTDevice_fw_packet_tx_start(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    BT_TRX_TIME   *pTxTime;
+    unsigned long btClockTime;
+    uint32_t EvtLen;
+
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+
+    pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
+
+    SYSLOGI(" +BTDevice_fw_packet_tx_start");
+    SYSLOGI(" mChannelNumber = 0x%x", pParam->mChannelNumber);
+    SYSLOGI(" mPacketType = 0x%x", pParam->mPacketType);
+    SYSLOGI(" mTxGainIndex = 0x%x", pParam->mTxGainIndex);
+    SYSLOGI(" mTxGainValue = 0x%x", pParam->mTxGainValue);
+    SYSLOGI(" mTxPacketCount = 0x%x", pParam->mTxPacketCount);
+    SYSLOGI(" mPayloadType = 0x%x", pParam->mPayloadType);
+    SYSLOGI(" mPacketHeader = 0x%x", pParam->mPacketHeader);
+    SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
+    SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
+
+    pData[0] = (pParam->mHitTarget&0xff);                           //bt addr 6 bytes
+    pData[1] = ((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);        //bt addr
+    pData[2] = ((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);        //bt addr
+    pData[3] = ((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);        //bt addr
+    pData[4] = ((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);        //bt addr
+    pData[5] = ((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);        //bt addr
+
+    pData[6] = pParam->mPayloadType;                                //payload_pattern
+    pData[7] = 0x01;                                                //tx_interval
+    pData[8] = pParam->mTxGainIndex-1;                              //tx_power_index
+
+    if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
+    {
+        pData[9] = 0x00;                                            //is_whiten
+        pData[10] = pParam->mWhiteningCoeffValue;
+    }
+    else
+    {
+        pData[9] = 0x01;                                            //is_whiten
+        pData[10] = pParam->mWhiteningCoeffValue;                   //whiten_coeff
+    }
+
+    pData[11] = pParam->mChannelNumber;                             //rf_channel
+    pData[12] = pParam->mPacketType;                                //packet_type
+    pData[13] = 0x01;                                               //multirx_enable
+    pData[14] = 0x01;                                               //is_pseudo_outer_mode
+    pData[15] = 0x01;                                               //is_pkt_tx
+
+    pData[16] = (pParam->mPacketHeader&0xff);                       //payload_header 4 bytes
+    pData[17] = ((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);    //payload_header
+    pData[18] = ((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);    //payload_header
+    pData[19] = ((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);    //payload_header
+
+    pData[20] = (pParam->mTxPacketCount&0xff);                      //tx_packet_count 4 bytes
+    pData[21] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);   //tx_packet_count
+    pData[22] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);   //tx_packet_count
+    pData[23] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);   //tx_packet_count
+
+    pData[24] = (Arrary_PayloadLength[pParam->mPacketType]&0xff);   //payload_length 2 bytes
+    pData[25] = ((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_TX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    //get begin clock
+    pTxTime->beginTimeClockCnt=0;
+    pTxTime->UseTimeClockCnt=0;
+    pTxTime->endTimeClockCnt=0;
+
+    if (BTDevice_GetBTClockTime(pBtDevice,&btClockTime) == BT_FUNCTION_SUCCESS)
+    {
+        pTxTime->beginTimeClockCnt = btClockTime;
+    }
+
+    SYSLOGI(" -BTDevice_fw_packet_tx_start");
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    SYSLOGI(" -BTDevice_fw_packet_tx_start : ERROR");
+
+    return FUNCTION_ERROR;
+
+}
+
+
+int
+BTDevice_fw_packet_tx_stop(
+    BT_DEVICE *pBtDevice
+    )
+{
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+    uint32_t EvtLen;
+
+    SYSLOGI(" +BTDevice_fw_packet_tx_stop");
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_TX_STOP, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    SYSLOGI(" -BTDevice_fw_packet_tx_stop");
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    SYSLOGI(" -BTDevice_fw_packet_tx_stop : ERROR");
+
+    return FUNCTION_ERROR;
+
+}
+
+
+int
+BTDevice_fw_packet_tx_report(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    unsigned long TXUpdateBits, TXPktUpdateCnts;
+
+    BTDevice_CalculatedTxBits(pBtDevice, pParam, pBtReport, PKT_TX, &TXUpdateBits, &TXPktUpdateCnts);
+
+    pBtReport->TotalTXBits += TXUpdateBits;
+
+    pBtReport->TotalTxCounts += TXPktUpdateCnts;
+
+    SYSLOGI("BTDevice_fw_packet_tx_report : Total Tx Pkt = %d", pBtReport->TotalTxCounts);
+
+    return BT_FUNCTION_SUCCESS;
+
+}
+
+
+int
+BTDevice_fw_packet_rx_start(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+    uint32_t EvtLen;
+
+    SYSLOGI(" +BTDevice_fw_packet_rx_start");
+    SYSLOGI(" mChannelNumber = 0x%x", pParam->mChannelNumber);
+    SYSLOGI(" mPacketType = 0x%x", pParam->mPacketType);
+    SYSLOGI(" mTxGainIndex = 0x%x", pParam->mTxGainIndex);
+    SYSLOGI(" mTxGainValue = 0x%x", pParam->mTxGainValue);
+    SYSLOGI(" mTxPacketCount = 0x%x", pParam->mTxPacketCount);
+    SYSLOGI(" mPayloadType = 0x%x", pParam->mPayloadType);
+    SYSLOGI(" mPacketHeader = 0x%x", pParam->mPacketHeader);
+    SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
+    SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
+
+    pData[0] = (pParam->mHitTarget&0xff);                               //bt addr 6 bytes
+    pData[1] = ((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);            //bt addr
+    pData[2] = ((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);            //bt addr
+    pData[3] = ((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);            //bt addr
+    pData[4] = ((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);            //bt addr
+    pData[5] = ((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);            //bt addr
+
+    pData[6] = pParam->mPayloadType;                                    //payload_pattern
+    pData[7] = 0x01;                                                    //tx_interval
+    pData[8] = pParam->mTxGainIndex-1;                                  //tx_power_index
+
+    if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
+    {
+        pData[9] = 0x00;                                                //is_whiten
+        pData[10] = pParam->mWhiteningCoeffValue;
+    }
+    else
+    {
+        pData[9] = 0x01;                                                //is_whiten
+        pData[10] = pParam->mWhiteningCoeffValue;                       //whiten_coeff
+    }
+
+    pData[11] = pParam->mChannelNumber;                                 //rf_channel
+    pData[12] = pParam->mPacketType;                                    //packet_type
+    pData[13] = 0x01;                                                   //multirx_enable
+    pData[14] = 0x01;                                                   //is_pseudo_outer_mode
+    pData[15] = 0x00;                                                   //is_pkt_tx
+
+    pData[16] = (pParam->mPacketHeader&0xff);                           //payload_header 4 bytes
+    pData[17] = ((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);        //payload_header
+    pData[18] = ((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);        //payload_header
+    pData[19] = ((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);        //payload_header
+
+    pData[20] = (pParam->mTxPacketCount&0xff);                          //tx_packet_count 4 bytes
+    pData[21] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);       //tx_packet_count
+    pData[22] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);       //tx_packet_count
+    pData[23] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);       //tx_packet_count
+
+    pData[24] = (Arrary_PayloadLength[pParam->mPacketType]&0xff);       //payload_length 2 bytes
+    pData[25] = ((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_RX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    SYSLOGI(" -BTDevice_fw_packet_rx_start");
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    SYSLOGI(" -BTDevice_fw_packet_rx_start : ERROR");
+
+    return FUNCTION_ERROR;
+
+}
+
+
+int
+BTDevice_fw_packet_rx_stop(
+    BT_DEVICE *pBtDevice
+    )
+{
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+    uint32_t EvtLen;
+
+    SYSLOGI(" +BTDevice_fw_packet_rx_stop");
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_RX_STOP, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    SYSLOGI(" -BTDevice_fw_packet_rx_stop");
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    SYSLOGI(" -BTDevice_fw_packet_rx_stop : ERROR");
+
+    return FUNCTION_ERROR;
+
+}
+
+
+int
+BTDevice_fw_packet_rx_report(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+
+    unsigned int rx_packet;
+    unsigned int rx_packet_bits;
+    unsigned int rx_packet_error_bits;
+
+    uint32_t EvtLen;
+    unsigned int j;
+    unsigned long data;
+    long value;
+
+    pBtReport->Cfo = 999.0;
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_RX_REPORT, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    rx_packet = 0;
+    rx_packet_error_bits = 0;
+
+    for (j = 0; j < LEN_4_BYTE; j++)
+        rx_packet |= (unsigned long)(pEvtBuf[j+EVT_BYTE0] << (BYTE_SHIFT * j));
+
+    for (j = 0; j < LEN_4_BYTE; j++)
+        rx_packet_error_bits |= (unsigned long)(pEvtBuf[j+EVT_BYTE0+LEN_8_BYTE] << (BYTE_SHIFT * j));
+
+    pBtReport->TotalRxCounts = rx_packet;
+    pBtReport->TotalRxErrorBits = rx_packet_error_bits;
+
+    if(rx_packet == 0)
+    {
+        pBtReport->ber = -100.0;
+    }
+    else
+    {
+        rx_packet_bits = rx_packet * Arrary_PayloadLength[pParam->mPacketType];
+
+        pBtReport->TotalRXBits = rx_packet_bits;
+        pBtReport->ber =(float)( (float) rx_packet_error_bits /(float) rx_packet_bits );
+    }
+
+    pBtReport->RxRssi = (char)(pEvtBuf[EVT_BYTE0+LEN_16_BYTE]);
+
+    //Cfo
+    if(bt_default_GetMDRegMaskBits(pBtDevice, 0x6c, 8, 0, &data))
+        goto error;
+
+    value = BinToSignedInt(data, LEN_9_BYTE);
+
+    pBtReport->Cfo= ((float)value /(float)4096)*10000;
+
+    SYSLOGI(" BTDevice_fw_packet_rx_report : rx packets = %d", rx_packet);
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    return FUNCTION_ERROR;
+
+
+}
+
+
+int
+BTDevice_fw_cont_tx_start(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    BT_TRX_TIME   *pTxTime;
+    unsigned long btClockTime;
+    uint32_t EvtLen;
+
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+
+    pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
+
+    SYSLOGI(" +BTDevice_fw_cont_tx_start");
+    SYSLOGI(" mChannelNumber = 0x%x", pParam->mChannelNumber);
+    SYSLOGI(" mPacketType = 0x%x", pParam->mPacketType);
+    SYSLOGI(" mTxGainIndex = 0x%x", pParam->mTxGainIndex);
+    SYSLOGI(" mTxGainValue = 0x%x", pParam->mTxGainValue);
+    SYSLOGI(" mTxPacketCount = 0x%x", pParam->mTxPacketCount);
+    SYSLOGI(" mPayloadType = 0x%x", pParam->mPayloadType);
+    SYSLOGI(" mPacketHeader = 0x%x", pParam->mPacketHeader);
+    SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
+    SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
+
+    pData[0] = (pParam->mHitTarget&0xff);                               //bt addr 6 bytes
+    pData[1] = ((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);            //bt addr
+    pData[2] = ((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);            //bt addr
+    pData[3] = ((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);            //bt addr
+    pData[4] = ((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);            //bt addr
+    pData[5] = ((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);            //bt addr
+
+    pData[6] = pParam->mPayloadType;                                    //payload_pattern
+    pData[7] = 0x01;                                                    //tx_interval
+    pData[8] = pParam->mTxGainIndex-1;                                  //tx_power_index
+
+    if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
+    {
+        pData[9] = 0x00;                                                //is_whiten
+        pData[10] = pParam->mWhiteningCoeffValue;
+    }
+    else
+    {
+        pData[9] = 0x01;                                                //is_whiten
+        pData[10] = pParam->mWhiteningCoeffValue;                       //whiten_coeff
+    }
+
+    pData[11] = pParam->mChannelNumber;                                 //rf_channel
+    pData[12] = pParam->mPacketType;                                    //packet_type
+
+    pData[13] = 0x00;                                                   //multirx_enable
+    pData[14] = 0x01;                                                   //is_pseudo_outer_mode
+    pData[15] = 0x00;                                                   //is_pkt_tx
+
+    pData[16] = (pParam->mPacketHeader&0xff);                           //payload_header 4 bytes
+    pData[17] = ((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);        //payload_header
+    pData[18] = ((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);        //payload_header
+    pData[19] = ((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);        //payload_header
+
+    pData[20] = (pParam->mTxPacketCount&0xff);                          //tx_packet_count 4 bytes
+    pData[21] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);       //tx_packet_count
+    pData[22] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);       //tx_packet_count
+    pData[23] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);       //tx_packet_count
+
+    pData[24] = (Arrary_PayloadLength[pParam->mPacketType]&0xff);       //payload_length 2 bytes
+    pData[25] = ((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_CON_TX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    //get begin clock
+    pTxTime->beginTimeClockCnt=0;
+    pTxTime->UseTimeClockCnt=0;
+    pTxTime->endTimeClockCnt=0;
+
+    if (BTDevice_GetBTClockTime(pBtDevice,&btClockTime) == BT_FUNCTION_SUCCESS)
+    {
+        pTxTime->beginTimeClockCnt = btClockTime;
+    }
+
+    SYSLOGI(" -BTDevice_fw_cont_tx_start");
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    SYSLOGI(" -BTDevice_fw_cont_tx_start : ERROR");
+    return FUNCTION_ERROR;
+
+}
+
+
+int
+BTDevice_fw_cont_tx_stop(
+    BT_DEVICE *pBtDevice
+    )
+{
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+    uint32_t EvtLen;
+
+    SYSLOGI(" +BTDevice_fw_cont_tx_stop");
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_CON_TX_STOP, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    SYSLOGI(" -BTDevice_fw_cont_tx_stop");
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    SYSLOGI(" -BTDevice_fw_cont_tx_stop : ERROR");
+
+    return FUNCTION_ERROR;
+}
+
+
+int
+BTDevice_fw_cont_tx_report(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    unsigned long TXUpdateBits, TXPktUpdateCnts;
+
+    //report
+    BTDevice_CalculatedTxBits(pBtDevice, pParam, pBtReport, CON_TX, &TXUpdateBits, &TXPktUpdateCnts);
+
+    pBtReport->TotalTXBits += TXUpdateBits;
+
+    pBtReport->TotalTxCounts += TXPktUpdateCnts;
+
+    SYSLOGI("BTDevice_fw_cont_tx_report : Total Tx Pkt = %d", pBtReport->TotalTxCounts);
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    return FUNCTION_ERROR;
+
+}
+
+
+
+int
+BTDevice_fw_read_tx_power_info(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+    uint32_t EvtLen;
+    int i;
+
+    SYSLOGI(" +BTDevice_fw_read_tx_power_info");
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_READ_TX_POWER_INFO, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    memcpy(pBtReport->ReportData, pEvtBuf+EVT_BYTE0, LEN_5_BYTE);
+
+    for( i=0 ; i<LEN_5_BYTE; i++)
+    {
+        pBtReport->ReportData[i] += 1;
+    }
+
+    SYSLOGI("-BTDevice_fw_read_tx_power_info : BT Max Tx Power Index:%d,  Default Power Index:(1M %d),(2M %d),(3M %d),(LE %d)",
+        pBtReport->ReportData[0], pBtReport->ReportData[1], pBtReport->ReportData[2], pBtReport->ReportData[3], pBtReport->ReportData[4]);
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    SYSLOGI(" -BTDevice_fw_read_tx_power_info : ERROR");
+
+    return FUNCTION_ERROR;
+
+}
+

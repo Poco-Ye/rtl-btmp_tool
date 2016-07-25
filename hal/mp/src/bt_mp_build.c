@@ -19,61 +19,77 @@ BuildBluetoothDevice(
 
     pBtDevice->pBTInfo = &pBtDevice->BaseBTInfoMemory ;
 
-    pBtDevice->SetTxGainTable = BTDevice_SetTxGainTable;
-    pBtDevice->SetTxDACTable  = BTDevice_SetTxDACTable;
+    pBtDevice->SetTxGainTable           =   BTDevice_SetTxGainTable;
+    pBtDevice->SetTxDACTable            =   BTDevice_SetTxDACTable;
     // Register Read/Write
-    pBtDevice->SetMdRegMaskBits = BTDevice_SetMDRegMaskBits;
-    pBtDevice->GetMdRegMaskBits = BTDevice_GetMDRegMaskBits;
-    pBtDevice->SetRfRegMaskBits = BTDevice_SetRFRegMaskBits;;
-    pBtDevice->GetRfRegMaskBits = BTDevice_GetRFRegMaskBits;
-    pBtDevice->SetSysRegMaskBits = BTDevice_SetSysRegMaskBits;
-    pBtDevice->GetSysRegMaskBits = BTDevice_GetSysRegMaskBits;
-    pBtDevice->SetBBRegMaskBits = BTDevice_SetBBRegMaskBits;
-    pBtDevice->GetBBRegMaskBits = BTDevice_GetBBRegMaskBits;
+    pBtDevice->SetMdRegMaskBits         =   BTDevice_SetMDRegMaskBits;
+    pBtDevice->GetMdRegMaskBits         =   BTDevice_GetMDRegMaskBits;
+    pBtDevice->SetRfRegMaskBits         =   BTDevice_SetRFRegMaskBits;;
+    pBtDevice->GetRfRegMaskBits         =   BTDevice_GetRFRegMaskBits;
+    pBtDevice->SetSysRegMaskBits        =   BTDevice_SetSysRegMaskBits;
+    pBtDevice->GetSysRegMaskBits        =   BTDevice_GetSysRegMaskBits;
+    pBtDevice->SetBBRegMaskBits         =   BTDevice_SetBBRegMaskBits;
+    pBtDevice->GetBBRegMaskBits         =   BTDevice_GetBBRegMaskBits;
     // HCI Command & Event
-    pBtDevice->SendHciCommandWithEvent = BTDevice_SendHciCommandWithEvent;
-    pBtDevice->RecvAnyHciEvent = BTDevice_RecvAnyHciEvent;
+    pBtDevice->SendHciCommandWithEvent  =   BTDevice_SendHciCommandWithEvent;
+    pBtDevice->RecvAnyHciEvent          =   BTDevice_RecvAnyHciEvent;
     // Register Control
-    pBtDevice->SetPowerGainIndex = BTDevice_SetPowerGainIndex;
-    pBtDevice->SetPowerGain = BTDevice_SetPowerGain;
-    pBtDevice->SetPowerDac = BTDevice_SetPowerDac;
-    pBtDevice->SetRestMDCount = BTDevice_SetResetMDCount;
+    pBtDevice->SetPowerGainIndex        =   BTDevice_SetPowerGainIndex;
+    pBtDevice->SetPowerGain             =   BTDevice_SetPowerGain;
+    pBtDevice->SetPowerDac              =   BTDevice_SetPowerDac;
+    pBtDevice->SetRestMDCount           =   BTDevice_SetResetMDCount;
 
-    pBtDevice->TestModeEnable = BTDevice_TestModeEnable;
-    pBtDevice->SetRtl8761Xtal = BTDevice_SetRTL8761Xtal;
-    pBtDevice->GetRtl8761Xtal = BTDevice_GetRTL8761Xtal;
-    pBtDevice->ReadThermal = BTDevice_ReadThermal;
+    pBtDevice->TestModeEnable           =   BTDevice_TestModeEnable;
+    pBtDevice->SetRtl8761Xtal           =   BTDevice_SetRTL8761Xtal;
+    pBtDevice->GetRtl8761Xtal           =   BTDevice_GetRTL8761Xtal;
+    pBtDevice->ReadThermal              =   BTDevice_ReadThermal;
 
-    pBtDevice->GetStage = BTDevice_GetStage;
+    pBtDevice->GetStage                 =   BTDevice_GetStage;
     // Vendor HCI Command Control
-    pBtDevice->SetHoppingMode        =      BTDevice_SetHoppingMode;
-    pBtDevice->SetHciReset           =      BTDevice_SetHciReset;
+    pBtDevice->SetHoppingMode           =   BTDevice_SetHoppingMode;
+    pBtDevice->SetHciReset              =   BTDevice_SetHciReset;
 
-    pBtDevice->TxTriggerPktCnt = 0;
+    pBtDevice->TxTriggerPktCnt          =   0;
 
     //CON-TX
-    pBtDevice->SetContinueTxBegin   =       BTDevice_SetContinueTxBegin;
-    pBtDevice->SetContinueTxStop    =       BTDevice_SetContinueTxStop;
-    pBtDevice->SetContinueTxUpdate  =       BTDevice_SetContinueTxUpdate;
+    pBtDevice->SetContinueTxBegin       =   BTDevice_SetContinueTxBegin;
+    pBtDevice->SetContinueTxStop        =   BTDevice_SetContinueTxStop;
+    pBtDevice->SetContinueTxUpdate      =   BTDevice_SetContinueTxUpdate;
     //LE Test
-    pBtDevice->LeTxTestCmd          =       BTDevice_LeTxTestCmd;
-    pBtDevice->LeRxTestCmd          =       BTDevice_LeRxTestCmd;
-    pBtDevice->LeTestEndCmd         =       BTDevice_LeTestEndCmd;
+    pBtDevice->LeTxTestCmd              =   BTDevice_LeTxTestCmd;
+    pBtDevice->LeRxTestCmd              =   BTDevice_LeRxTestCmd;
+    pBtDevice->LeTestEndCmd             =   BTDevice_LeTestEndCmd;
     //PKT-TX
-    pBtDevice->SetPktTxBegin        =       BTDevice_SetPktTxBegin;
-    pBtDevice->SetPktTxStop         =       BTDevice_SetPktTxStop;
-    pBtDevice->SetPktTxUpdate       =       BTDevice_SetPktTxUpdate;
+    pBtDevice->SetPktTxBegin            =   BTDevice_SetPktTxBegin;
+    pBtDevice->SetPktTxStop             =   BTDevice_SetPktTxStop;
+    pBtDevice->SetPktTxUpdate           =   BTDevice_SetPktTxUpdate;
     //PKT-RX
-    pBtDevice->SetPktRxBegin        =       BTDevice_SetPktRxBegin;
-    pBtDevice->SetPktRxStop         =       BTDevice_SetPktRxStop;
-    pBtDevice->SetPktRxUpdate       =       BTDevice_SetPktRxUpdate;
+    pBtDevice->SetPktRxBegin            =   BTDevice_SetPktRxBegin;
+    pBtDevice->SetPktRxStop             =   BTDevice_SetPktRxStop;
+    pBtDevice->SetPktRxUpdate           =   BTDevice_SetPktRxUpdate;
     //Base Function
-    pBtDevice->GetChipVersionInfo   =       BTDevice_GetBTChipVersionInfo;
-    pBtDevice->BTDlFW               =       BTDevice_BTDlFW;
-    pBtDevice->BTDlMERGERFW         =       BTDevice_BTDlMergerFW;
+    pBtDevice->GetChipVersionInfo       =   BTDevice_GetBTChipVersionInfo;
+    pBtDevice->BTDlFW                   =   BTDevice_BTDlFW;
+    pBtDevice->BTDlMERGERFW             =   BTDevice_BTDlMergerFW;
     //PG Logical Efuse
     pBtDevice->WriteEfuseLogicalData    =   BTDevice_WriteEfuseLogicalData;
     pBtDevice->ReadEfuseLogicalData     =   BTDevice_ReadEfuseLogicalData;
+
+    pBtDevice->LeContTxCmd_8822b        =   BTDevice_8822b_LeContTxCmd;
+
+    pBtDevice->FwPacketTxStart          =   BTDevice_fw_packet_tx_start;
+    pBtDevice->FwPacketTxStop           =   BTDevice_fw_packet_tx_stop;
+    pBtDevice->FwPacketTxReport         =   BTDevice_fw_packet_tx_report;
+
+    pBtDevice->FwPacketRxStart          =   BTDevice_fw_packet_rx_start;
+    pBtDevice->FwPacketRxStop           =   BTDevice_fw_packet_rx_stop;
+    pBtDevice->FwPacketRxReport         =   BTDevice_fw_packet_rx_report;
+
+    pBtDevice->FwContTxStart            =   BTDevice_fw_cont_tx_start;
+    pBtDevice->FwContTxStop             =   BTDevice_fw_cont_tx_stop;
+    pBtDevice->FwContTxReport           =   BTDevice_fw_cont_tx_report;
+
+    pBtDevice->FwReadTxPowerInfo        =   BTDevice_fw_read_tx_power_info;
 
     BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pSysEfuse), &(pBtDevice->SysEfuseMemory), 128, 128, 0, 1);
     BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pBtEfuse), &(pBtDevice->BtEfuseMemory), 1024, 512, 1, 2);

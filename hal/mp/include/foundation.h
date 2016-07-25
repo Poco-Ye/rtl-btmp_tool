@@ -24,7 +24,9 @@
 #define LEN_13_BYTE                 13
 #define LEN_14_BYTE                 14
 #define LEN_16_BYTE                 16
+#define LEN_26_BYTE                 26
 #define LEN_250_BYTE                250
+#define LEN_512_BYTE                512
 #define LEN_2048_BYTE               2048
 
 

@@ -77,10 +77,30 @@ typedef enum {
 
     READ_EFUSE_DATA,                //25
 
-    //LE Continue TX
-    LE_CONTINUE_TX_START,
-    LE_CONTINUE_TX_UPDATE,
-    LE_CONTINUE_TX_STOP,
+    SET_CONFIG_FILE_DATA,           //26
+    CLEAR_CONFIG_FILE_DATA,         //27
+
+    // LE Continue TX
+    LE_CONTINUE_TX_START,           //28
+    LE_CONTINUE_TX_STOP,            //29
+
+    // FW pkt tx
+    FW_PACKET_TX_START,             //30
+    FW_PACKET_TX_STOP,              //31
+
+    // FW pkt rx
+    FW_PACKET_RX_START,             //32
+    FW_PACKET_RX_STOP,              //33
+
+    // FW continue tx
+    FW_CONTINUE_TX_START,           //34
+    FW_CONTINUE_TX_STOP,            //35
+
+    //FW LE Continue TX
+    FW_LE_CONTINUE_TX_START,        //36
+    FW_LE_CONTINUE_TX_STOP,         //37
+
+    FW_READ_TX_POWER_INFO,          //38
 
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
@@ -402,26 +422,138 @@ typedef int
         );
 
 // CON TX
-typedef int(*BT_FP_SET_CONTINUETX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_CONTINUETX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_CONTINUETX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-// PKT TX
-typedef int(*BT_FP_SET_PKTTX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_PKTTX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_PKTTX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-// PKT RX
-typedef int(*BT_FP_SET_PKTRX_BEGIN)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_PKTRX_STOP)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
-typedef int(*BT_FP_SET_PKTRX_UPDATE)(BT_DEVICE *pBtDevice,BT_PARAMETER *pParam,BT_DEVICE_REPORT *pBtReport);
+typedef int
+(*BT_FP_SET_CONTINUETX_BEGIN)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
 
-typedef int(*BT_FP_GET_CHIPVERSIONINFO)(BT_DEVICE *pBtDevice);
-typedef int(*BT_FP_BT_DL_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
-typedef int(*BT_FP_BT_DL_MERGER_FW)(BT_DEVICE *pBtDevice, uint8_t *pPatchcode, int patchLength);
+typedef int
+(*BT_FP_SET_CONTINUETX_STOP)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+typedef int
+(*BT_FP_SET_CONTINUETX_UPDATE)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+// PKT TX
+typedef int
+(*BT_FP_SET_PKTTX_BEGIN)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+typedef int
+(*BT_FP_SET_PKTTX_STOP)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+typedef int
+(*BT_FP_SET_PKTTX_UPDATE)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+// PKT RX
+typedef int
+(*BT_FP_SET_PKTRX_BEGIN)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+typedef int
+(*BT_FP_SET_PKTRX_STOP)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+typedef int
+(*BT_FP_SET_PKTRX_UPDATE)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+typedef int
+(*BT_FP_GET_CHIPVERSIONINFO)(
+    BT_DEVICE *pBtDevice
+    );
+
+typedef int
+(*BT_FP_BT_DL_FW)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pPatchcode,
+    int patchLength
+    );
+
+typedef int
+(*BT_FP_BT_DL_MERGER_FW)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pPatchcode,
+    int patchLength
+    );
+
 // PG efuse
-typedef int(*BT_FP_WRITE_EFUSE_DATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam);
-typedef int(*BT_FP_READ_EFUSE_DATA)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport);
+typedef int
+(*BT_FP_WRITE_EFUSE_DATA)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam
+    );
+
+typedef int
+(*BT_FP_READ_EFUSE_DATA)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
 // LE
-typedef int(*BT_FP_LE_TEST)(BT_DEVICE *pBtDevice, BT_PARAMETER *pParam, BT_DEVICE_REPORT *pBtReport);
+typedef int
+(*BT_FP_LE_TEST)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+typedef int
+(*BT_FP_8822B_LE_CONT_TX)(
+    BT_DEVICE *pBtDevice,
+    unsigned char enableLeContTx,
+    unsigned char Channel,
+    unsigned char TxPowerIndex
+    );
+
+typedef int
+(*BT_FP_START)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+typedef int
+(*BT_FP_STOP)(
+    BT_DEVICE *pBtDevice
+    );
+
+typedef int
+(*BT_FP_UPDATE)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
 
 typedef struct BT_TRX_TIME_TAG BT_TRX_TIME;
 
@@ -473,40 +605,40 @@ struct BT_DEVICE_TAG {
     EFUSE_UNIT *pBtEfuse;
     EFUSE_UNIT BtEfuseMemory;
 
-    BT_FP_SET_TXGAINTABLE       SetTxGainTable;
-    BT_FP_SET_TXDACTABLE        SetTxDACTable;
+    BT_FP_SET_TXGAINTABLE           SetTxGainTable;
+    BT_FP_SET_TXDACTABLE            SetTxDACTable;
 
     // Register Read/Write
-    BT_FP_SET_MD_REG_MASK_BITS  SetMdRegMaskBits;
-    BT_FP_GET_MD_REG_MASK_BITS  GetMdRegMaskBits;
+    BT_FP_SET_MD_REG_MASK_BITS      SetMdRegMaskBits;
+    BT_FP_GET_MD_REG_MASK_BITS      GetMdRegMaskBits;
 
-    BT_FP_SET_RF_REG_MASK_BITS  SetRfRegMaskBits;
-    BT_FP_GET_RF_REG_MASK_BITS  GetRfRegMaskBits;
+    BT_FP_SET_RF_REG_MASK_BITS      SetRfRegMaskBits;
+    BT_FP_GET_RF_REG_MASK_BITS      GetRfRegMaskBits;
 
     // HCI Command & Event
     BT_FP_SEND_HCICOMMANDWITHEVENT  SendHciCommandWithEvent;
-    BT_FP_RECV_ANYEVENT RecvAnyHciEvent;
+    BT_FP_RECV_ANYEVENT             RecvAnyHciEvent;
 
     // Register Control
-    BT_FP_SET_POWERGAININDEX    SetPowerGainIndex;
-    BT_FP_SET_POWERGAIN         SetPowerGain;
-    BT_FP_SET_POWERDAC          SetPowerDac;
-    BT_FP_SET_SETRESETMDCOUNT   SetRestMDCount;
-    BT_FP_SET_TEST_MODE_ENABLE TestModeEnable;
+    BT_FP_SET_POWERGAININDEX        SetPowerGainIndex;
+    BT_FP_SET_POWERGAIN             SetPowerGain;
+    BT_FP_SET_POWERDAC              SetPowerDac;
+    BT_FP_SET_SETRESETMDCOUNT       SetRestMDCount;
+    BT_FP_SET_TEST_MODE_ENABLE      TestModeEnable;
 
-    BT_FP_SET_RTL8761_XTAL SetRtl8761Xtal;
-    BT_FP_GET_RTL8761_XTAL GetRtl8761Xtal;
-    BT_FP_READ_THERMAL  ReadThermal;
+    BT_FP_SET_RTL8761_XTAL          SetRtl8761Xtal;
+    BT_FP_GET_RTL8761_XTAL          GetRtl8761Xtal;
+    BT_FP_READ_THERMAL              ReadThermal;
 
     BT_FP_GET_STAGE                 GetStage;
-    BT_FP_SET_SYS_REG_MASK_BITS SetSysRegMaskBits;
-    BT_FP_GET_SYS_REG_MASK_BITS GetSysRegMaskBits;
+    BT_FP_SET_SYS_REG_MASK_BITS     SetSysRegMaskBits;
+    BT_FP_GET_SYS_REG_MASK_BITS     GetSysRegMaskBits;
     BT_FP_SET_BB_REG_MASK_BITS      SetBBRegMaskBits;
     BT_FP_GET_BB_REG_MASK_BITS      GetBBRegMaskBits;
 
     // Vendor HCI Command Control
-    BT_FP_SET_HOPPINGMODE   SetHoppingMode;
-    BT_FP_SET_HCIRESET  SetHciReset;
+    BT_FP_SET_HOPPINGMODE           SetHoppingMode;
+    BT_FP_SET_HCIRESET              SetHciReset;
 
     unsigned long TxTriggerPktCnt;
 
@@ -543,6 +675,22 @@ struct BT_DEVICE_TAG {
     // Efuse settting
     BT_FP_WRITE_EFUSE_DATA             WriteEfuseLogicalData;
     BT_FP_READ_EFUSE_DATA           ReadEfuseLogicalData;
+
+    BT_FP_8822B_LE_CONT_TX          LeContTxCmd_8822b;
+
+    BT_FP_START                     FwPacketTxStart;
+    BT_FP_STOP                      FwPacketTxStop;
+    BT_FP_UPDATE                    FwPacketTxReport;
+
+    BT_FP_START                     FwPacketRxStart;
+    BT_FP_STOP                      FwPacketRxStop;
+    BT_FP_UPDATE                    FwPacketRxReport;
+
+    BT_FP_START                     FwContTxStart;
+    BT_FP_STOP                      FwContTxStop;
+    BT_FP_UPDATE                    FwContTxReport;
+
+    BT_FP_UPDATE                    FwReadTxPowerInfo;
 };
 
 typedef enum {
@@ -558,6 +706,12 @@ typedef enum {
     REPORT_CHIP,
     REPORT_LOGICAL_EFUSE,
     REPORT_LE_RX,
+    REPORT_LE_CONTINUE_TX,
+    REPORT_FW_PACKET_TX,
+    REPORT_FW_CONTINUE_TX,
+    REPORT_FW_PACKET_RX,
+    REPORT_FW_LE_CONTINUE_TX,
+    REPORT_TX_POWER_INFO,
 } BT_REPORT_TAG;
 
 typedef struct  BT_MODULE_TAG BT_MODULE;

@@ -287,6 +287,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->TotalTxCounts);
         break;
+
     case REPORT_PKT_RX:
         SYSLOGI("%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -306,6 +307,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->TotalRxCounts, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->TotalRxErrorBits);
         break;
+
     case REPORT_TX_GAIN_TABLE:
         SYSLOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -331,6 +333,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->CurrTXGainTable[5], STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrTXGainTable[6]);
         break;
+
     case REPORT_TX_DAC_TABLE:
         SYSLOGI("%s%s%d%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x%s0x%02x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -352,6 +355,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->CurrTXDACTable[3], STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrTXDACTable[4]);
         break;
+
     case REPORT_XTAL:
         SYSLOGI("%s%s%d%s0x%02x%s0x%08x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -365,6 +369,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrRtl8761Xtal);
         break;
+
     case REPORT_THERMAL:
         SYSLOGI("%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -378,6 +383,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrThermalValue);
         break;
+
     case REPORT_BT_STAGE:
         SYSLOGI("%s%s%d%s0x%02x%s0x%02x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -391,6 +397,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->CurrStage);
         break;
+
     case REPORT_CHIP:
         SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x%s0x%08x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -416,6 +423,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->pBTInfo->LMP_Version, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->pBTInfo->Version);
         break;
+
     case REPORT_LOGICAL_EFUSE:
         sprintf(buf_cb, "%s%s%d%s0x%02x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -429,6 +437,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
 
         SYSLOGI("%s", buf_cb);
         break;
+
     case REPORT_LE_RX:
         SYSLOGI("%s%s%d%s0x%02x%s0x%08x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
@@ -442,6 +451,118 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->TotalRxCounts);
         break;
+
+    case REPORT_LE_CONTINUE_TX:
+        SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        break;
+
+    case REPORT_FW_PACKET_TX:
+        SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        break;
+
+    case REPORT_FW_CONTINUE_TX:
+        SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        break;
+
+    case REPORT_FW_PACKET_RX:
+        SYSLOGI("%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->RxRssi, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxErrorBits);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->RxRssi, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxCounts, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalRxErrorBits);
+
+        break;
+
+    case REPORT_FW_LE_CONTINUE_TX:
+        SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%08x%s0x%08x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTXBits, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->TotalTxCounts);
+
+        break;
+
+    case REPORT_TX_POWER_INFO:
+        SYSLOGI("%s%s%d%s0x%02x%s%d%s%d%s%d%s%d%s%d",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[0],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[1],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[2],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[3],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[4]);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s%d%s%d%s%d%s%d%s%d",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[0],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[1],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[2],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[3],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[4]);
+        break;
+
     default:
         break;
     }
