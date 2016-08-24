@@ -18,23 +18,47 @@ int BTModule_ActionReport(
     BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
     BT_PARAMETER *pModuleBtParam = pBtModule->pBtParam;
     BT_DEVICE_REPORT *pModuleBtReport = pBtModule->pModuleBtReport;
+    unsigned int ChipType;
     uint8_t i;
+
+    ChipType = pModuleBtDevice->pBTInfo->ChipType;
 
     switch (ActiceItem) {
     case REPORT_PKT_TX:
-        pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            pModuleBtDevice->FwPacketTxReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         pReport->TotalTXBits = pModuleBtReport->TotalTXBits;
         pReport->TotalTxCounts = pModuleBtReport->TotalTxCounts;
         break;
 
     case REPORT_CONT_TX:
-        pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            pModuleBtDevice->FwContTxReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         pReport->TotalTXBits = pModuleBtReport->TotalTXBits;
         pReport->TotalTxCounts = pModuleBtReport->TotalTxCounts;
         break;
 
     case REPORT_PKT_RX:
-        pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            pModuleBtDevice->FwPacketRxReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         pReport->TotalRXBits = pModuleBtReport->TotalRXBits;
         pReport->TotalRxCounts = pModuleBtReport->TotalRxCounts;
         pReport->TotalRxErrorBits = pModuleBtReport->TotalRxErrorBits;
@@ -125,7 +149,14 @@ int BTModule_ActionReport(
         break;
 
     case REPORT_LE_CONTINUE_TX:
-        pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            pModuleBtDevice->FwContTxReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         pReport->TotalTXBits=pModuleBtReport->TotalTXBits;
         pReport->TotalTxCounts=pModuleBtReport->TotalTxCounts;
         break;
@@ -223,6 +254,7 @@ int BTModule_UpDataParameter(
 int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
 {
     int rtn = BT_FUNCTION_SUCCESS;
+    unsigned int ChipType;
     int Item = pBtModule->pBtParam->ParameterIndex;
     BT_DEVICE *pModuleBtDevice = pBtModule->pBtDevice;
     BT_PARAMETER *pModuleBtParam = pBtModule->pBtParam;
@@ -231,6 +263,8 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
     SYSLOGI("BTModule_ActionControlExcute: pBtModule 0x%p, pBtDevice 0x%p, pBtParam 0x%p, "
            "pModuleBtReport 0x%p, ParameterIndex %d", pBtModule, pModuleBtDevice, pModuleBtParam,
             pModuleBtReport, Item);
+
+    ChipType = pModuleBtDevice->pBTInfo->ChipType;
 
     switch (Item) {
     case HCI_RESET:
@@ -302,39 +336,90 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case PACKET_TX_START:
-        rtn = pModuleBtDevice->SetPktTxBegin(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn = pModuleBtDevice->SetPktTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            rtn = pModuleBtDevice->FwPacketTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         break;
 
     case PACKET_TX_UPDATE:
-        rtn = pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn = pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         break;
 
     case PACKET_TX_STOP:
-        rtn = pModuleBtDevice->SetPktTxStop(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn = pModuleBtDevice->SetPktTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            rtn = pModuleBtDevice->FwPacketTxStop(pModuleBtDevice);
+        }
         break;
 
     case CONTINUE_TX_START:
-        rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            rtn = pModuleBtDevice->FwContTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         break;
 
     case CONTINUE_TX_STOP:
-        rtn = pModuleBtDevice->SetContinueTxStop(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn=pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            rtn = pModuleBtDevice->FwContTxStop(pModuleBtDevice);
+        }
         break;
 
     case CONTINUE_TX_UPDATE:
-        rtn = pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn = pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         break;
 
     case PACKET_RX_START:
-        rtn = pModuleBtDevice->SetPktRxBegin(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn = pModuleBtDevice->SetPktRxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            rtn = pModuleBtDevice->FwPacketRxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         break;
 
     case PACKET_RX_UPDATE:
-        rtn = pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn = pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
         break;
 
     case PACKET_RX_STOP:
-        rtn = pModuleBtDevice->SetPktRxStop(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        {
+            rtn = pModuleBtDevice->SetPktRxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            rtn = pModuleBtDevice->FwPacketRxStop(pModuleBtDevice);
+        }
         break;
 
     case HOPPING_DWELL_TIME:
@@ -366,8 +451,8 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         rtn = pModuleBtDevice->ReadEfuseLogicalData(pModuleBtDevice, pModuleBtParam, pModuleBtReport);
         break;
 
-    // LE Cont-Tx
     case LE_CONTINUE_TX_START:
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
         {
             pModuleBtParam->mChannelNumber = (pModuleBtParam->mChannelNumber) * 2;
             pModuleBtParam->mWhiteningCoeffValue=0x7f;
@@ -375,12 +460,25 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
             pModuleBtParam->mPacketType= BT_PKT_1DH1;
             rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
+        else
+        {
+            pModuleBtParam->mChannelNumber = pModuleBtParam->mChannelNumber*2;
+            pModuleBtParam->mWhiteningCoeffValue=0x7f;
+            pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
+            pModuleBtParam->mPacketType= BT_PKT_1DH1;
+            rtn = pModuleBtDevice->FwContTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
 
         break;
 
     case LE_CONTINUE_TX_STOP:
+        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
         {
             rtn = pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        }
+        else
+        {
+            rtn = pModuleBtDevice->FwContTxStop(pModuleBtDevice);
         }
 
         break;
@@ -410,21 +508,15 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
         break;
 
     case FW_LE_CONTINUE_TX_START:
-        {
-            pModuleBtParam->mChannelNumber = pModuleBtParam->mChannelNumber*2;
-            pModuleBtParam->mWhiteningCoeffValue=0x7f;
-            pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
-            pModuleBtParam->mPacketType= BT_PKT_1DH1;
-            rtn = pModuleBtDevice->FwContTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
-        }
-
+        pModuleBtParam->mChannelNumber = pModuleBtParam->mChannelNumber*2;
+        pModuleBtParam->mWhiteningCoeffValue=0x7f;
+        pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
+        pModuleBtParam->mPacketType= BT_PKT_1DH1;
+        rtn = pModuleBtDevice->FwContTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         break;
 
     case FW_LE_CONTINUE_TX_STOP:
-        {
-            rtn = pModuleBtDevice->FwContTxStop(pModuleBtDevice);
-        }
-
+        rtn = pModuleBtDevice->FwContTxStop(pModuleBtDevice);
         break;
 
     case FW_READ_TX_POWER_INFO:

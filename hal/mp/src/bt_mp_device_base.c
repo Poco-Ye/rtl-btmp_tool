@@ -735,7 +735,7 @@ BTDevice_SetPowerGainIndex(
     }
     else
     {
-        TxGainIndex = Index - 1;
+        TxGainIndex = Index;
         pPayload[0] = TxGainIndex;
         pPayload[1] = PacketType/LEN_3_BYTE;
 
@@ -2036,7 +2036,7 @@ BTDevice_LeTxTestCmd(
     }
     else
     {
-        TxGainIndex = pParam->mTxGainIndex-1;
+        TxGainIndex = pParam->mTxGainIndex;
 
         //opcode=0xfce7 , length = 0x2 , data[0]:index , data[1]:target rate , 0x0:1M , 0x1:2M , 0x2:3M , 0x3:LE
         //Return event , data[0] = target_rate , data[1]:target rate tx power index , data[2]:target rate tx power value
@@ -2971,7 +2971,7 @@ BTDevice_fw_packet_tx_start(
 
     pData[6] = pParam->mPayloadType;                                //payload_pattern
     pData[7] = 0x01;                                                //tx_interval
-    pData[8] = pParam->mTxGainIndex-1;                              //tx_power_index
+    pData[8] = pParam->mTxGainIndex;                              //tx_power_index
 
     if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
     {
@@ -3109,7 +3109,7 @@ BTDevice_fw_packet_rx_start(
 
     pData[6] = pParam->mPayloadType;                                    //payload_pattern
     pData[7] = 0x01;                                                    //tx_interval
-    pData[8] = pParam->mTxGainIndex-1;                                  //tx_power_index
+    pData[8] = pParam->mTxGainIndex;                                  //tx_power_index
 
     if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
     {
@@ -3290,7 +3290,7 @@ BTDevice_fw_cont_tx_start(
 
     pData[6] = pParam->mPayloadType;                                    //payload_pattern
     pData[7] = 0x01;                                                    //tx_interval
-    pData[8] = pParam->mTxGainIndex-1;                                  //tx_power_index
+    pData[8] = pParam->mTxGainIndex;                                  //tx_power_index
 
     if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
     {
@@ -3420,11 +3420,6 @@ BTDevice_fw_read_tx_power_info(
         goto error;
 
     memcpy(pBtReport->ReportData, pEvtBuf+EVT_BYTE0, LEN_5_BYTE);
-
-    for( i=0 ; i<LEN_5_BYTE; i++)
-    {
-        pBtReport->ReportData[i] += 1;
-    }
 
     SYSLOGI("-BTDevice_fw_read_tx_power_info : BT Max Tx Power Index:%d,  Default Power Index:(1M %d),(2M %d),(3M %d),(LE %d)",
         pBtReport->ReportData[0], pBtReport->ReportData[1], pBtReport->ReportData[2], pBtReport->ReportData[3], pBtReport->ReportData[4]);
