@@ -388,4 +388,16 @@ BTDevice_fw_read_tx_power_info(
     BT_DEVICE_REPORT *pBtReport
     );
 
+int
+BTDevice_SetGpio3_0(
+    BT_DEVICE *pBtDevice,
+    unsigned char GpioValue
+    );
+
+int
+BTDevice_GetGpio3_0(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pGpioValue
+    );
+
 #endif

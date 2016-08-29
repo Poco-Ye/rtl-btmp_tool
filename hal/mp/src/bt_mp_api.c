@@ -563,6 +563,19 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->ReportData[4]);
         break;
 
+    case REPORT_GPIO3_0:
+        SYSLOGI("%s%s%d%s0x%02x%s0x%x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[0]);
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[0]);
+        break;
+
     default:
         break;
     }

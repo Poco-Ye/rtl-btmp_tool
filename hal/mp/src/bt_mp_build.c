@@ -91,6 +91,9 @@ BuildBluetoothDevice(
 
     pBtDevice->FwReadTxPowerInfo        =   BTDevice_fw_read_tx_power_info;
 
+    pBtDevice->SetGPIO3_0               =   BTDevice_SetGpio3_0;
+    pBtDevice->GetGPIO3_0               =   BTDevice_GetGpio3_0;
+
     BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pSysEfuse), &(pBtDevice->SysEfuseMemory), 128, 128, 0, 1);
     BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pBtEfuse), &(pBtDevice->BtEfuseMemory), 1024, 512, 1, 2);
 

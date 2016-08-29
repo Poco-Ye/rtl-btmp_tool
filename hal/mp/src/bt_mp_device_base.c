@@ -3434,3 +3434,71 @@ error:
 
 }
 
+
+int
+BTDevice_SetGpio3_0(
+    BT_DEVICE *pBtDevice,
+    unsigned char GpioValue
+    )
+{
+    SYSLOGI("BTDevice_SetGpio3_0 : 0x%x", GpioValue);
+
+    //change pin-mux
+    if(bt_default_SetSysRegMaskBits(pBtDevice, 0x66, 3, 0, 0x00))
+        goto error;
+
+    //Set GPIO 3~0 is GPIO Mode
+    if(bt_default_SetSysRegMaskBits(pBtDevice, 0x46, 11, 8, 0x0F))
+        goto error;
+
+    //Set GPIO 3~0 is Output Mode
+    if(bt_default_SetSysRegMaskBits(pBtDevice, 0x46, 3, 0, 0xF))
+        goto error;
+
+    //Set GPIO 3~0 is Output Value
+    if(bt_default_SetSysRegMaskBits(pBtDevice, 0x44, 11, 8, (GpioValue&0x0F)))
+        goto error;
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    return FUNCTION_ERROR;
+}
+
+
+int
+BTDevice_GetGpio3_0(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pGpioValue
+    )
+{
+        unsigned char  GpioValue =0;
+        *pGpioValue =0;
+
+        //change pin-mux
+    if(bt_default_SetSysRegMaskBits(pBtDevice, 0x66, 3, 0, 0x00))
+        goto error;
+
+    //Set GPIO 3~0 is GPIO Mode
+    if(bt_default_SetSysRegMaskBits(pBtDevice, 0x46, 11, 8, 0x0F))
+        goto error;
+
+    //Set GPIO 3~0 is Output Mode
+    if(bt_default_SetSysRegMaskBits(pBtDevice, 0x46, 3, 0, 0x0))
+        goto error;
+
+    //Get GPIO 3~0 is Input Value
+    if(bt_default_GetSysRegMaskBits(pBtDevice, 0x44, 3, 0, &GpioValue))
+        goto error;
+
+    *pGpioValue = GpioValue & 0x0F;
+
+    SYSLOGI("BTDevice_GetGpio3_0 : 0x%x", *pGpioValue);
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+    return FUNCTION_ERROR;
+}
+

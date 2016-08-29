@@ -197,6 +197,10 @@ int BTModule_ActionReport(
         }
         break;
 
+    case REPORT_GPIO3_0:
+        pModuleBtDevice->GetGPIO3_0(pModuleBtDevice, &pReport->ReportData[0]);
+        break;
+
     default:
         rtn = FUNCTION_ERROR;
         break;
@@ -521,6 +525,10 @@ int BTModule_ActionControlExcute(BT_MODULE *pBtModule)
 
     case FW_READ_TX_POWER_INFO:
         rtn = pModuleBtDevice->FwReadTxPowerInfo(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        break;
+
+    case SET_GPIO3_0:
+        rtn = pModuleBtDevice->SetGPIO3_0(pModuleBtDevice, pModuleBtParam->mParamData[0]);
         break;
 
     default:

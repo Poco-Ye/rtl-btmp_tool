@@ -102,6 +102,8 @@ typedef enum {
 
     FW_READ_TX_POWER_INFO,          //38
 
+    SET_GPIO3_0,                    //39
+
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
 
@@ -555,6 +557,18 @@ typedef int
     BT_DEVICE_REPORT *pBtReport
     );
 
+typedef int
+(*BT_FP_SET_GPIO3_0)(
+    BT_DEVICE *pBtDevice,
+    unsigned char GpioValue
+    );
+
+typedef int
+(*BT_FP_GET_GPIO3_0)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pGpioValue
+    );
+
 typedef struct BT_TRX_TIME_TAG BT_TRX_TIME;
 
 typedef enum {
@@ -691,6 +705,8 @@ struct BT_DEVICE_TAG {
     BT_FP_UPDATE                    FwContTxReport;
 
     BT_FP_UPDATE                    FwReadTxPowerInfo;
+    BT_FP_SET_GPIO3_0               SetGPIO3_0;
+    BT_FP_GET_GPIO3_0               GetGPIO3_0;
 };
 
 typedef enum {
@@ -712,6 +728,7 @@ typedef enum {
     REPORT_FW_PACKET_RX,
     REPORT_FW_LE_CONTINUE_TX,
     REPORT_TX_POWER_INFO,
+    REPORT_GPIO3_0,
 } BT_REPORT_TAG;
 
 typedef struct  BT_MODULE_TAG BT_MODULE;
