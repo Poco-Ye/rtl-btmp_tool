@@ -30,6 +30,9 @@
 #define EVT_HCI_LMPSUBVERSION   12
 #define EVT_CHIP_ECO_VERSION    6
 
+#define MP_DEBUG_MESSAGE_DATA_LEN 14
+#define MP_FT_VALUE_DATA_LEN 12
+
 typedef enum {
     MD_REG = 0,
     RF_REG,
@@ -707,6 +710,9 @@ struct BT_DEVICE_TAG {
     BT_FP_UPDATE                    FwReadTxPowerInfo;
     BT_FP_SET_GPIO3_0               SetGPIO3_0;
     BT_FP_GET_GPIO3_0               GetGPIO3_0;
+
+    BT_FP_UPDATE                    MpDebugMessageReport;
+    BT_FP_UPDATE                    MpFTValueReport;
 };
 
 typedef enum {
@@ -729,6 +735,8 @@ typedef enum {
     REPORT_FW_LE_CONTINUE_TX,
     REPORT_TX_POWER_INFO,
     REPORT_GPIO3_0,
+    REPORT_MP_DEBUG_MESSAGE,
+    REPORT_MP_FT_VALUE,
 } BT_REPORT_TAG;
 
 typedef struct  BT_MODULE_TAG BT_MODULE;

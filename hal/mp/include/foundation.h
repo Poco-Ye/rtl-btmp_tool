@@ -47,6 +47,13 @@
 #define BIT_6_MASK                  0x40
 #define BIT_7_MASK                  0x80
 #define BIT_8_MASK                  0x100
+#define BIT_9_MASK                  0x200
+#define BIT_10_MASK                 0x400
+#define BIT_11_MASK                 0x800
+#define BIT_12_MASK                 0x1000
+#define BIT_13_MASK                 0x2000
+#define BIT_14_MASK                 0x4000
+#define BIT_15_MASK                 0x8000
 
 #define BIT_7_SHIFT                 7
 #define BIT_8_SHIFT                 8

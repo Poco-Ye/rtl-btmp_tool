@@ -233,7 +233,7 @@ BTDevice_Efuse_GetBytes(
         // Determine reading byte number.
         ReadingByteNum = (ReadingByteNumRem > READ_WRITE_EFUSE_REG_MAX_LEN) ? READ_WRITE_EFUSE_REG_MAX_LEN : ReadingByteNumRem;
 
-        if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_READ_, TYPE_15K))	// 1.5K
+        if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_READ_, TYPE_15K))    // 1.5K
             goto error;
 
         if (BTDevice_Efuse_IO_GetBytes(pBtDevice, Bank, RegReadingAddr, pReadingBytes+i, ReadingByteNum)!=BT_FUNCTION_SUCCESS)
@@ -283,12 +283,14 @@ retry:
         if (times == 1 )
         {
             //set 1.5K
-            if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_WRITE_, TYPE_15K))	goto error;
+            if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_WRITE_, TYPE_15K))
+                goto error;
         }
         else if (times ==2)
         {
             //set 10K
-            if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_WRITE_, TYPE_10K))	goto error;
+            if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_WRITE_, TYPE_10K))
+                goto error;
         }
         else
         {

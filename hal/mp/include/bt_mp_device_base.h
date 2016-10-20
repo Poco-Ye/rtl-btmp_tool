@@ -17,6 +17,8 @@
 #define HCI_VENDOR_MP_CON_TX_ENABLE_CONFIG        0xFCF1
 #define HCI_VENDOR_MP_CON_TX_STOP                 0xFCF2
 #define HCI_VENDOR_MP_READ_TX_POWER_INFO          0xFCED
+#define HCI_VENDOR_MP_DEBUG_MESSAGE_REPORT        0xFCF7
+#define HCI_VENDOR_MP_FT_VALUE_REPORT             0xFCF8
 
 
 int
@@ -398,6 +400,20 @@ int
 BTDevice_GetGpio3_0(
     BT_DEVICE *pBtDevice,
     unsigned char *pGpioValue
+    );
+
+int
+BTDevice_MpDebugMessageReport(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_MpFTValueReport(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
     );
 
 #endif

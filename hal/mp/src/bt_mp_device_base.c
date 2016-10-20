@@ -2971,7 +2971,7 @@ BTDevice_fw_packet_tx_start(
 
     pData[6] = pParam->mPayloadType;                                //payload_pattern
     pData[7] = 0x01;                                                //tx_interval
-    pData[8] = pParam->mTxGainIndex;                              //tx_power_index
+    pData[8] = pParam->mTxGainIndex;                                //tx_power_index
 
     if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
     {
@@ -3394,10 +3394,6 @@ BTDevice_fw_cont_tx_report(
 
     return BT_FUNCTION_SUCCESS;
 
-error:
-
-    return FUNCTION_ERROR;
-
 }
 
 
@@ -3412,7 +3408,6 @@ BTDevice_fw_read_tx_power_info(
     unsigned char pData[LEN_512_BYTE];
     unsigned char pEvtBuf[LEN_512_BYTE];
     uint32_t EvtLen;
-    int i;
 
     SYSLOGI(" +BTDevice_fw_read_tx_power_info");
 
@@ -3473,10 +3468,10 @@ BTDevice_GetGpio3_0(
     unsigned char *pGpioValue
     )
 {
-        unsigned char  GpioValue =0;
-        *pGpioValue =0;
+    unsigned long  GpioValue = 0;
+    *pGpioValue = 0;
 
-        //change pin-mux
+    //change pin-mux
     if(bt_default_SetSysRegMaskBits(pBtDevice, 0x66, 3, 0, 0x00))
         goto error;
 
@@ -3492,13 +3487,67 @@ BTDevice_GetGpio3_0(
     if(bt_default_GetSysRegMaskBits(pBtDevice, 0x44, 3, 0, &GpioValue))
         goto error;
 
-    *pGpioValue = GpioValue & 0x0F;
+    *pGpioValue = (unsigned char)(GpioValue & 0x0F);
 
     SYSLOGI("BTDevice_GetGpio3_0 : 0x%x", *pGpioValue);
 
     return BT_FUNCTION_SUCCESS;
 
 error:
+    return FUNCTION_ERROR;
+}
+
+
+int
+BTDevice_MpDebugMessageReport(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+    uint32_t EvtLen;
+
+    SYSLOGI("BTDevice_MpDebugMessageReport");
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_DEBUG_MESSAGE_REPORT, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    memcpy(pBtReport->ReportData, pEvtBuf+EVT_BYTE0, MP_DEBUG_MESSAGE_DATA_LEN);
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    return FUNCTION_ERROR;
+}
+
+
+
+int
+BTDevice_MpFTValueReport(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+
+    unsigned char pData[LEN_512_BYTE];
+    unsigned char pEvtBuf[LEN_512_BYTE];
+    uint32_t EvtLen;
+
+    SYSLOGI("BTDevice_MpFTValueReport");
+
+    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_FT_VALUE_REPORT, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+
+    memcpy(pBtReport->ReportData, pEvtBuf+EVT_BYTE0, MP_FT_VALUE_DATA_LEN);
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
     return FUNCTION_ERROR;
 }
 

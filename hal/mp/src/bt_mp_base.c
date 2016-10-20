@@ -613,7 +613,7 @@ bt_default_SendHciCommandWithEvent(
 
     if (((OpCode == 0xFC20) && ((pPayLoad[0] & 0x80) != 0)) || (OpCode == 0x0C03))
     {
-        pBaseInterface->WaitMs(pBaseInterface,965);
+        pBaseInterface->WaitMs(pBaseInterface,1500);
     }
 
     if (bt_default_RecvHCIEvent(pBtDevice, HCIIO_BTEVT, pEvent, pEventLen) != BT_FUNCTION_SUCCESS)
@@ -1083,6 +1083,8 @@ bt_default_GetChipId(
     }
 
     pBTInfo->ChipType=pEvent[EVT_CHIP_ECO_VERSION];
+    SYSLOGI("bt_default_GetChipId = 0x%x", pBTInfo->ChipType);
+
     pBTInfo->Is_After_PatchCode=1;
     rtn= BT_FUNCTION_SUCCESS;
 

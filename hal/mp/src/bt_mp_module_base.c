@@ -201,6 +201,22 @@ int BTModule_ActionReport(
         pModuleBtDevice->GetGPIO3_0(pModuleBtDevice, &pReport->ReportData[0]);
         break;
 
+    case REPORT_MP_DEBUG_MESSAGE:
+        pModuleBtDevice->MpDebugMessageReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        for ( i=0; i<MP_DEBUG_MESSAGE_DATA_LEN; i++)
+        {
+            pReport->ReportData[i] = pModuleBtReport->ReportData[i];
+        }
+        break;
+
+    case REPORT_MP_FT_VALUE:
+        pModuleBtDevice->MpFTValueReport(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
+        for ( i=0; i<MP_FT_VALUE_DATA_LEN; i++)
+        {
+            pReport->ReportData[i] = pModuleBtReport->ReportData[i];
+        }
+        break;
+
     default:
         rtn = FUNCTION_ERROR;
         break;
