@@ -29,7 +29,7 @@ MV := mv -f
 INSTALL := install
 CC := gcc
 BITS :=
-CFLAGS := $(BITS) -O2 -g -D_GNU_SOURCE -Wall -Wundef -Wno-unused-result -Wno-unused-variable \
+CFLAGS := $(BITS) -O2 -D_GNU_SOURCE -Wall -Wundef -Wno-unused-result -Wno-unused-variable \
           -Wno-unused-but-set-variable -Werror-implicit-function-declaration \
           -Wno-error=uninitialized -Wno-strict-aliasing
 LDFLAGS := -lpthread -lrt -lm
