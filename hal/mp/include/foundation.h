@@ -176,8 +176,8 @@ struct BASE_INTERFACE_MODULE_TAG
     uint16_t rx_ready_events;
     pthread_mutex_t mutex;
     pthread_cond_t  cond;
-    uint8_t evtBuffer[255];
-    uint8_t evtLen;
+    uint8_t evtBuffer[300];
+    uint16_t evtLen;
 
 };
 

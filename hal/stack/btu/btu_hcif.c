@@ -34,7 +34,7 @@
 #include "bt_types.h"
 #include "hcimsgs.h"
 #include "btu.h"
-
+#include "user_config.h"
 
 
 //Counter to track number of HCI command timeout
@@ -115,7 +115,7 @@ static void btu_hcif_store_cmd (UINT8 controller_id, BT_HDR *p_buf)
     }
 }
 
-static void send_recv_evt_message(UINT16 evt, UINT8 evt_opcode, UINT8 *p, UINT16 evt_len)
+static void send_recv_evt_message(UINT16 evt, UINT8 evt_opcode, UINT8 *p, UINT16 evt_len, UINT8 len_bytes)
 {
     BT_HDR *p_msg;
     UINT8 *pp;
@@ -127,7 +127,13 @@ static void send_recv_evt_message(UINT16 evt, UINT8 evt_opcode, UINT8 *p, UINT16
         pp = (UINT8 *)(p_msg + 1);
 
         UINT8_TO_STREAM (pp, evt_opcode);
-        UINT8_TO_STREAM (pp, evt_len);
+        if (len_bytes == 0) {
+            UINT8_TO_STREAM (pp, evt_len);
+            p_msg->len_unit_flag= 0;  // 8-bit length
+        } else {
+            UINT16_TO_STREAM (pp, evt_len);
+            p_msg->len_unit_flag = 1;  // 16-bit length
+        }
         ARRAY_TO_STREAM(pp, p, evt_len);
 
         GKI_send_msg (BTIF_TASK, BTU_BTIF_MBOX, p_msg);
@@ -168,7 +174,17 @@ void btu_hcif_process_event (UINT8 controller_id, BT_HDR *p_msg)
             btu_hcif_command_status_evt (controller_id, p, hci_evt_len);
             btu_hcif_mp_test_event(controller_id, p_msg);
             break;
-
+#if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
+        case 0x02:  // Inquiry Result Event
+        case 0x22:  // Inquiry Result with RSSI Event
+        case 0x2F:  // Extended Inquiry Result Event
+        case 0x56:  // Inquiry Response Notification Event
+        case 0x01:  // Inquiry Complete Event
+        case 0x3d:  // Remote Host Supported Features Notification Event
+        case 0x07:  // Remote Name Request Complete Event
+            btu_hcif_mp_test_event(controller_id, p_msg);
+            break;
+#endif
     }
 
 }
@@ -376,8 +392,7 @@ void btu_hcif_mp_test_event (UINT8 controller_id, BT_HDR *p_msg)
     STREAM_TO_UINT8  (hci_evt_code, p);
     STREAM_TO_UINT8  (hci_evt_len, p);
 
-
-    send_recv_evt_message(BT_EVT_RX, hci_evt_code, p, hci_evt_len);
+    send_recv_evt_message(BT_EVT_RX, hci_evt_code, p, hci_evt_len, 0);
 
     num_hci_cmds_timed_out = 0;
 }
@@ -386,12 +401,12 @@ void btu_hcif_mp_notify_event (BT_HDR *p_msg)
 {
     UINT8   *p = (UINT8 *)(p_msg + 1) + p_msg->offset;
     UINT8   opcode;
-    UINT8   buf_len;
+    UINT16   buf_len;
 
     STREAM_TO_UINT8  (opcode, p);
-    STREAM_TO_UINT8  (buf_len, p);
+    STREAM_TO_UINT16  (buf_len, p);
 
-    send_recv_evt_message(BT_EVT_MP_NOTIFY_BTIF, opcode, p, buf_len);
+    send_recv_evt_message(BT_EVT_MP_NOTIFY_BTIF, opcode, p, buf_len, 1);
 }
 
 /*******************************************************************************

@@ -115,6 +115,19 @@ static int same_bdaddr(int dd, int dev_id, long arg)
     return !bacmp((bdaddr_t *) arg, &di.bdaddr);
 }
 
+void activate_bluetooth(int dev_id)
+{
+    char cmd[64];
+    FILE *fp;
+
+    memset(cmd, 0, sizeof(cmd));
+    
+    sprintf(cmd, "hciconfig hci%d up", dev_id);
+
+    fp = popen(cmd, "r");
+    pclose(fp);
+}
+
 /* HCI functions that do not require open device */
 static int hci_for_each_dev(int flag, int (*func)(int dd, int dev_id, long arg),
         long arg)
@@ -151,8 +164,11 @@ static int hci_for_each_dev(int flag, int (*func)(int dd, int dev_id, long arg),
             }
     }
 
-    if (dev_id < 0)
+    if (dev_id < 0) {
         err = ENODEV;
+    } else {
+        activate_bluetooth(dev_id);
+    }
 
 free:
     free(dl);

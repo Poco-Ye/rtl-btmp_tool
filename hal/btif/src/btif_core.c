@@ -232,10 +232,12 @@ static void btif_mp_rx_data_ind(uint8_t evtcode, uint8_t *buf, uint8_t len)
 
     SYSLOGI("<-- HCI EVENT event code: 0x%x %d", evtcode, len);
 
+/*
     for( i = 0 ; i < len; i++ )
     {
         SYSLOGI("0x%x ",buf[i]);
     }
+*/
 
     UINT8_TO_STREAM(pEvtBuf, evtcode);
     UINT8_TO_STREAM(pEvtBuf, len);
@@ -268,14 +270,28 @@ static bt_status_t btif_mp_notify_evt(void* msg)
     BT_HDR *p_msg = (BT_HDR *)msg;
     char   *p = (char *)(p_msg + 1);
     UINT8 opcode;
-    UINT8 param_len;
+    UINT16 param_len;
 
+    opcode = *((uint8_t *)p);
+    if (p_msg->len_unit_flag == 0) {
+        param_len = *((uint8_t *)p + 1);
+        p += 2;
+    } else {
+        param_len = *((uint8_t *)p + 1) + *((uint8_t *)p + 2) * 0x100;
+        p += 3;
+    }
+
+/*
     STREAM_TO_UINT8(opcode, p);
-    STREAM_TO_UINT8(param_len, p);
-
+    if (p_msg->len_unit_flag == 0) {
+        STREAM_TO_UINT8(param_len, p);
+    } else {
+        STREAM_TO_UINT16(param_len, p);
+    }
+*/
     p[param_len] = '\0'; /* must allocate extra 1 byte */
 
-    SYSLOGI("%s: opcode[0x%02x], params[%s]", __FUNCTION__, opcode, p);
+    SYSLOGI("%s: opcode[0x%02x], params[%u]", __FUNCTION__, opcode, param_len);
 
     HAL_CBACK(bt_hal_cbacks, dut_mode_recv_cb, opcode, p);
 

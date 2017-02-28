@@ -35,6 +35,7 @@
 #include <bluetoothmp.h>
 #include <btmp_if.h>
 #include <bt_syslog.h>
+#include "user_config.h"
 
 static bt_status_t status;
 static int bt_try_enable = 0; /* 0: try to disable; 1: try to enable */
@@ -80,6 +81,12 @@ const t_cmd console_cmd_list[] =
     { STR_BT_MP_REPORT, btmp_report, ":: Report specific info according to item selected" },
 
     { STR_BT_MP_REG_RW, btmp_reg_RW, ":: R/W Modem, RF, SYS & BB registers" },
+#if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
+    {STR_BT_MP_SEARCH, btmp_search, ":: search remote MAC or remote Name"},
+#endif
+#if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
+    {STR_BT_MP_READ, btmp_read, ":: read local MAC"},
+#endif
 
     /* add here */
 
@@ -384,6 +391,32 @@ void btmp_reg_RW(char *p)
 
     check_return_status(STR_BT_MP_REG_RW, status);
 }
+
+#if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
+void btmp_search(char *p)
+{
+    if (!bt_enabled) {
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SEARCH);
+        btmp_log("Failed to search %s[%s]", STR_BT_MP_SEARCH, STR_BT_NOT_ENABLED);
+        return;
+    }
+
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_search, p);
+}
+#endif
+
+#if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
+void btmp_read(char *p)
+{
+    if (!bt_enabled) {
+        SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_READ);
+        btmp_log("Failed to read %s[%s]", STR_BT_MP_READ, STR_BT_NOT_ENABLED);
+        return;
+    }
+    
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_read, p);
+}
+#endif
 
 void btmp_hci_cmd(char *p)
 {

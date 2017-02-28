@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <sys/cdefs.h>
 #include <sys/types.h>
+#include "user_config.h"
 
 
 __BEGIN_DECLS
@@ -41,7 +42,12 @@ enum BT_MP_OPCODE {
     BT_MP_OP_USER_DEF_Exec = 0x13,
     BT_MP_OP_USER_DEF_Report = 0x14,
     BT_MP_OP_USER_DEF_RegRW = 0x15,
-
+#if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
+    BT_MP_OP_USER_DEF_search = 0x16,
+#endif
+#if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
+    BT_MP_OP_USER_DEF_read = 0x17,
+#endif
 };
 
 /** MP opcode string */
@@ -55,6 +61,12 @@ enum BT_MP_OPCODE {
 #define STR_BT_MP_EXEC              "bt_mp_Exec"
 #define STR_BT_MP_REPORT            "bt_mp_Report"
 #define STR_BT_MP_REG_RW            "bt_mp_RegRW"
+#if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
+#define STR_BT_MP_SEARCH            "search"
+#endif
+#if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
+#define STR_BT_MP_READ              "read"
+#endif
 
 #define STR_BT_MP_PARAM_DELIM        ","
 #define STR_BT_MP_RESULT_DELIM       ","

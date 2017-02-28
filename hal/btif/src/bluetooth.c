@@ -38,6 +38,8 @@
 #include "bt_mp_base.h"
 #include "bt_mp_api.h"
 #include "gki.h"
+#include "user_config.h"
+
 
 #define DEV_NODE_NAME_MAXLEN 256
 
@@ -140,7 +142,7 @@ int hal_op_send(uint16_t opcode, char *buf)
 {
     BT_HDR *p_buf = NULL;
     char *p = NULL;
-    uint8_t buf_len = 0;
+    uint16_t buf_len = 0;
     char buf_cb[1024] = {0};
     int ret = 0;
 
@@ -152,8 +154,10 @@ int hal_op_send(uint16_t opcode, char *buf)
     SYSLOGI("hal_op_send: opcode[0x%02x], buf[%s]", opcode, buf);
 
     /* sanity check */
-    if (hal_interface_ready() == FALSE)
+    if (hal_interface_ready() == FALSE) {
+        GKI_freebuf(p_buf);
         return BT_STATUS_NOT_READY;
+    }
 
     switch (opcode) {
     case BT_MP_OP_HCI_SEND_CMD:
@@ -183,6 +187,18 @@ int hal_op_send(uint16_t opcode, char *buf)
     case BT_MP_OP_USER_DEF_RegRW:
         ret = BT_RegRW(&BtModuleMemory, buf, buf_cb);
         break;
+        
+#if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
+    case BT_MP_OP_USER_DEF_search:
+        ret = BT_search(&BtModuleMemory, buf, buf_cb);
+        break;
+#endif
+
+#if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
+    case BT_MP_OP_USER_DEF_read:
+        ret = BT_read(&BtModuleMemory, buf, buf_cb);
+        break;
+#endif
 
     default:
         SYSLOGW("hal_op_send: undefined opcode[0x%02x]", opcode);
@@ -192,7 +208,7 @@ int hal_op_send(uint16_t opcode, char *buf)
     buf_len = strlen(buf_cb);
 
     UINT8_TO_STREAM(p, opcode);
-    UINT8_TO_STREAM(p, buf_len);
+    UINT16_TO_STREAM(p, buf_len);
 
     SYSLOGI("buf_cb: %s, buf_len %d", buf_cb, buf_len);
 

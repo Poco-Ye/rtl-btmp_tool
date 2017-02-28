@@ -19,6 +19,10 @@
 #ifndef BTMP_IF_H
 #define BTMP_IF_H
 
+
+#include "user_config.h"
+
+
 #define MP_TOOL_VERSION     "ver 16.10.21"
 
 typedef enum {
@@ -59,6 +63,14 @@ void btmp_exec(char *p);
 void btmp_report(char *p);
 
 void btmp_reg_RW(char *p);
+
+#if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
+void btmp_search(char *p);
+#endif
+
+#if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
+void btmp_read(char *p);
+#endif
 
 void btmp_hci_cmd(char *p);
 
