@@ -82,7 +82,7 @@ const t_cmd console_cmd_list[] =
 
     { STR_BT_MP_REG_RW, btmp_reg_RW, ":: R/W Modem, RF, SYS & BB registers" },
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
-    {STR_BT_MP_SEARCH, btmp_search, ":: search remote MAC or remote Name"},
+    {STR_BT_MP_SEARCH, btmp_inquiry, ":: search remote MAC or remote Name"},
 #endif
 #if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
     {STR_BT_MP_READ, btmp_read, ":: read local MAC"},
@@ -393,7 +393,7 @@ void btmp_reg_RW(char *p)
 }
 
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
-void btmp_search(char *p)
+void btmp_inquiry(char *p)
 {
     if (!bt_enabled) {
         SYSLOGI("Bluetooth must be enabled for %s", STR_BT_MP_SEARCH);
@@ -401,7 +401,7 @@ void btmp_search(char *p)
         return;
     }
 
-    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_search, p);
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_Inquiry, p);
 }
 #endif
 
@@ -414,7 +414,7 @@ void btmp_read(char *p)
         return;
     }
     
-    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_read, p);
+    status = sBtInterface->op_send(BT_MP_OP_USER_DEF_Read, p);
 }
 #endif
 

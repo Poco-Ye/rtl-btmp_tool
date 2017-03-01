@@ -208,7 +208,6 @@ typedef struct
     UINT16          len;
     UINT16          offset;
     UINT16          layer_specific;
-    UINT16          len_unit_flag;
 } BT_HDR;
 
 #define BT_HDR_SIZE (sizeof (BT_HDR))

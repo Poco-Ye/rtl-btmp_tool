@@ -11,10 +11,10 @@ int BT_Report(BT_MODULE *pBtModule, char *p, char *buf_cb);
 int BT_RegRW(BT_MODULE *pBtModule, char *p, char *buf_cb);
 int BT_SendHciCmd(BT_MODULE *pBtModule, char *p, char *buf_cb);
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
-int BT_search(BT_MODULE *pBtModule, char *p, char *buf_cb);
+int BT_Inquiry(BT_MODULE *pBtModule, char *p, char *buf_cb);
 #endif
 #if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
-int BT_read(BT_MODULE *pBtModule, char *p, char *buf_cb);
+int BT_Read(BT_MODULE *pBtModule, char *p, char *buf_cb);
 #endif
 
 void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModuleMemory, BT_MODULE *pBtModuleMemory);

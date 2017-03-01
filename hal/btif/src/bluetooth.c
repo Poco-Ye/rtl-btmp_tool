@@ -189,14 +189,14 @@ int hal_op_send(uint16_t opcode, char *buf)
         break;
         
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
-    case BT_MP_OP_USER_DEF_search:
-        ret = BT_search(&BtModuleMemory, buf, buf_cb);
+    case BT_MP_OP_USER_DEF_Inquiry:
+        ret = BT_Inquiry(&BtModuleMemory, buf, buf_cb);
         break;
 #endif
 
 #if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
-    case BT_MP_OP_USER_DEF_read:
-        ret = BT_read(&BtModuleMemory, buf, buf_cb);
+    case BT_MP_OP_USER_DEF_Read:
+        ret = BT_Read(&BtModuleMemory, buf, buf_cb);
         break;
 #endif
 

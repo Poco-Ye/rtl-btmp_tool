@@ -282,7 +282,7 @@ void get_inquiry_command_result(BT_MODULE *pBtModule, uint8_t *event, bt_device_
     return;
 }
 
-void inquiry_all_bt_device_mac(BT_MODULE *pBtModule, bt_device_info_t *info, uint32_t info_len)
+void inquiry_all_bt_device_mac(BT_MODULE *pBtModule, bt_device_info_t *info, uint32_t info_len, uint8_t inquiry_sec)
 {
     uint8_t command_param[5];
     uint8_t event[300];
@@ -298,7 +298,7 @@ void inquiry_all_bt_device_mac(BT_MODULE *pBtModule, bt_device_info_t *info, uin
     command_param[0] = 0x33;
     command_param[1] = 0x8b;
     command_param[2] = 0x9e;
-    command_param[3] = 0x8;
+    command_param[3] = inquiry_sec;
     command_param[4] = 0x0;
     event_len = 0;
     ret = pBtModule->SendHciCommandWithEvent(pBtModule, 0x0401, 5, command_param, 0x0F, event, &event_len);
@@ -397,7 +397,7 @@ void search_device_all(BT_MODULE *pBtModule, char *buf_cb)
     char *ptr;
 
     // get all MAC
-    inquiry_all_bt_device_mac(pBtModule, bt_device_info, BT_DEVICE_INFO_NUMBER);
+    inquiry_all_bt_device_mac(pBtModule, bt_device_info, BT_DEVICE_INFO_NUMBER, 5);
 
     // get all Name
     for (i = 0; i < BT_DEVICE_INFO_NUMBER; i++) {
@@ -445,7 +445,7 @@ void search_device_mac(BT_MODULE *pBtModule, uint8_t *mac, char *buf_cb)
     char *ptr;
 
     // get all MAC
-    inquiry_all_bt_device_mac(pBtModule, bt_device_info, BT_DEVICE_INFO_NUMBER);
+    inquiry_all_bt_device_mac(pBtModule, bt_device_info, BT_DEVICE_INFO_NUMBER, 5);
 
     // put title
     sprintf(buf_cb, "   MAC            RSSI        Name\n\0");
@@ -483,7 +483,7 @@ void search_device_name(BT_MODULE *pBtModule, char *p, char *buf_cb)
     char *ptr;
 
     // get all MAC
-    inquiry_all_bt_device_mac(pBtModule, bt_device_info, BT_DEVICE_INFO_NUMBER);
+    inquiry_all_bt_device_mac(pBtModule, bt_device_info, BT_DEVICE_INFO_NUMBER, 5);
 
     // get all Name
     for (i = 0; i < BT_DEVICE_INFO_NUMBER; i++) {
@@ -527,7 +527,33 @@ void search_device_name(BT_MODULE *pBtModule, char *p, char *buf_cb)
     return;
 }
 
-int BT_search(BT_MODULE *pBtModule, char *p, char *buf_cb)
+void search_mac_not_name(BT_MODULE *pBtModule, int scan_seconds, char *buf_cb)
+{
+    uint32_t i;
+    char *ptr;
+    
+    // get all MAC
+    inquiry_all_bt_device_mac(pBtModule, bt_device_info, BT_DEVICE_INFO_NUMBER, (uint8_t)scan_seconds);
+    
+    // put title
+    sprintf(buf_cb, "   MAC List\n\0");
+    ptr = buf_cb;
+    
+    for (i = 0; i < BT_DEVICE_INFO_NUMBER; i++) {
+        if ((bt_device_info[i].exist_flag & BT_DEVICE_INFO_MAC_MASK) == 0)
+            break;
+    
+        // MAC
+        ptr += strlen(ptr);
+        sprintf(ptr, "%02x:%02x:%02x:%02x:%02x:%02x\n\0", bt_device_info[i].mac[0],
+                bt_device_info[i].mac[1], bt_device_info[i].mac[2], bt_device_info[i].mac[3],
+                bt_device_info[i].mac[4], bt_device_info[i].mac[5]);
+    }
+    
+    return;
+}
+
+int BT_Inquiry(BT_MODULE *pBtModule, char *p, char *buf_cb)
 {
     uint8_t mac[6];
 
@@ -535,11 +561,20 @@ int BT_search(BT_MODULE *pBtModule, char *p, char *buf_cb)
     uint32_t i;
     uint32_t tmp[6];
     int ret = BT_FUNCTION_SUCCESS;
+    char *endptr;
+    int seconds;
 
     SYSLOGI("++%s: %s", STR_BT_MP_SEARCH, p);
 
     if ((p == NULL) || (strlen(p) == 0)) {
         search_device_all(pBtModule, buf_cb);
+        goto exit;
+    }
+
+    // get seconds
+    seconds = strtol(p, &endptr, 0);
+    if (*endptr == '\0') {
+        search_mac_not_name(pBtModule, seconds, buf_cb);
         goto exit;
     }
 
@@ -570,7 +605,7 @@ exit:
 #endif
 
 #if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
-int BT_read(BT_MODULE *pBtModule, char *p, char *buf_cb)
+int BT_Read(BT_MODULE *pBtModule, char *p, char *buf_cb)
 {
     uint8_t event[32];
     uint32_t event_len;

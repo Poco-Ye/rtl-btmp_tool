@@ -43,10 +43,10 @@ enum BT_MP_OPCODE {
     BT_MP_OP_USER_DEF_Report = 0x14,
     BT_MP_OP_USER_DEF_RegRW = 0x15,
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
-    BT_MP_OP_USER_DEF_search = 0x16,
+    BT_MP_OP_USER_DEF_Inquiry = 0x16,
 #endif
 #if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
-    BT_MP_OP_USER_DEF_read = 0x17,
+    BT_MP_OP_USER_DEF_Read = 0x17,
 #endif
 };
 

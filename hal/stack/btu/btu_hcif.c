@@ -115,7 +115,7 @@ static void btu_hcif_store_cmd (UINT8 controller_id, BT_HDR *p_buf)
     }
 }
 
-static void send_recv_evt_message(UINT16 evt, UINT8 evt_opcode, UINT8 *p, UINT16 evt_len, UINT8 len_bytes)
+static void send_recv_evt_message(UINT16 evt, UINT8 evt_opcode, UINT8 *p, UINT16 evt_len)
 {
     BT_HDR *p_msg;
     UINT8 *pp;
@@ -127,13 +127,12 @@ static void send_recv_evt_message(UINT16 evt, UINT8 evt_opcode, UINT8 *p, UINT16
         pp = (UINT8 *)(p_msg + 1);
 
         UINT8_TO_STREAM (pp, evt_opcode);
-        if (len_bytes == 0) {
-            UINT8_TO_STREAM (pp, evt_len);
-            p_msg->len_unit_flag= 0;  // 8-bit length
-        } else {
+        if (evt == BT_EVT_MP_NOTIFY_BTIF) {
             UINT16_TO_STREAM (pp, evt_len);
-            p_msg->len_unit_flag = 1;  // 16-bit length
+        } else {
+            UINT8_TO_STREAM (pp, evt_len);
         }
+        
         ARRAY_TO_STREAM(pp, p, evt_len);
 
         GKI_send_msg (BTIF_TASK, BTU_BTIF_MBOX, p_msg);
@@ -392,7 +391,7 @@ void btu_hcif_mp_test_event (UINT8 controller_id, BT_HDR *p_msg)
     STREAM_TO_UINT8  (hci_evt_code, p);
     STREAM_TO_UINT8  (hci_evt_len, p);
 
-    send_recv_evt_message(BT_EVT_RX, hci_evt_code, p, hci_evt_len, 0);
+    send_recv_evt_message(BT_EVT_RX, hci_evt_code, p, hci_evt_len);
 
     num_hci_cmds_timed_out = 0;
 }
@@ -406,7 +405,7 @@ void btu_hcif_mp_notify_event (BT_HDR *p_msg)
     STREAM_TO_UINT8  (opcode, p);
     STREAM_TO_UINT16  (buf_len, p);
 
-    send_recv_evt_message(BT_EVT_MP_NOTIFY_BTIF, opcode, p, buf_len, 1);
+    send_recv_evt_message(BT_EVT_MP_NOTIFY_BTIF, opcode, p, buf_len);
 }
 
 /*******************************************************************************

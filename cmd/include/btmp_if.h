@@ -23,7 +23,7 @@
 #include "user_config.h"
 
 
-#define MP_TOOL_VERSION     "ver 16.10.21"
+#define MP_TOOL_VERSION     "ver 17.03.01"
 
 typedef enum {
     LOG_STD = 0, /* log printed to stdout */
@@ -65,7 +65,7 @@ void btmp_report(char *p);
 void btmp_reg_RW(char *p);
 
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
-void btmp_search(char *p);
+void btmp_inquiry(char *p);
 #endif
 
 #if (MP_TOOL_COMMAND_READ_PERMISSION == 1)
