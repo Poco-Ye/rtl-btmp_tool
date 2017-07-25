@@ -39,6 +39,7 @@
 #include "bt_mp_api.h"
 #include "gki.h"
 #include "user_config.h"
+#include "bt_mp_device_base.h"
 
 
 #define DEV_NODE_NAME_MAXLEN 256
@@ -158,6 +159,10 @@ int hal_op_send(uint16_t opcode, char *buf)
         GKI_freebuf(p_buf);
         return BT_STATUS_NOT_READY;
     }
+
+    /* get chip type */
+    if (BtModuleMemory.pBtDevice->pBTInfo->ChipType == RTK_BT_CHIP_ID_UNKNOWCHIP)
+        BTDevice_GetBTChipVersionInfo(BtModuleMemory.pBtDevice);
 
     switch (opcode) {
     case BT_MP_OP_HCI_SEND_CMD:

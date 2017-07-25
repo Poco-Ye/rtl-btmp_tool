@@ -1823,6 +1823,8 @@ void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *p
             pBtModule
             );
 
+    pBtModule->pBtDevice->pBTInfo->ChipType = RTK_BT_CHIP_ID_UNKNOWCHIP;
+
     pBtModule->pBtParam->mPGRawData[0] = 0;
     pBtModule->pBtParam->mChannelNumber = DEFAULT_CH_NUM;
     pBtModule->pBtParam->mPacketType = DEFAULT_PKT_TYPE;

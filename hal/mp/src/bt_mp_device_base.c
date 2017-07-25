@@ -2331,6 +2331,8 @@ BTDevice_GetBTChipVersionInfo(
         }
     }
 
+    SYSLOGI("BTDevice_GetBTChipVersionInfo(): ChipType = %u", pBTInfo->ChipType);
+
     if (bt_default_GetECOVersion(pBtDevice) != BT_FUNCTION_SUCCESS) {
         rtn= FUNCTION_ERROR;
         goto exit;
