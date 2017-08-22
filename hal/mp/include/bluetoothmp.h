@@ -79,6 +79,7 @@ enum BT_MP_OPCODE {
 #define STR_BT_HAS_ENABLED "BT has enabled"
 #define STR_BT_HAS_DISABLED "BT has disabled"
 
+#if 0
 typedef enum {
     BT_FUNCTION_SUCCESS = 0,
     FUNCTION_ERROR,
@@ -99,6 +100,7 @@ typedef enum {
 
     NumOf_FUNCTION_RETURN_STATUS
 } FUNCTION_RETURN_STATUS;
+#endif
 
 typedef enum {
     BT_HCI_IF_NONE = 0,

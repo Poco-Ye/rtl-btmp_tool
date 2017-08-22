@@ -16,8 +16,28 @@
 #define LEN_11_BYTE         11
 #define LEN_14_BYTE         14
 #define LEN_16_BYTE         16
+#define LEN_32_BYTE         32
 
 #define DUMMY_EFUSE_LEN 16
+
+
+int
+BTDevice_Efuse_SetBytes(
+    BT_DEVICE *pBtDevice,
+    int Bank,
+    int RegStartAddr,
+    unsigned char *pWritingBytes,
+    unsigned int ByteNum
+    );
+
+int
+BTDevice_Efuse_GetBytes(
+        BT_DEVICE *pBtDevice,
+        uint8_t Bank,
+        int RegStartAddr,
+        uint8_t *pReadingBytes,
+        unsigned int ByteNum
+        );
 
 int
 BuildEfuseLogicUnit(

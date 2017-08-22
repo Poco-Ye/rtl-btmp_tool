@@ -19,7 +19,7 @@
 
 
 #define MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION     1
-#define MP_TOOL_COMMAND_READ_PERMISSION             1
+#define MP_TOOL_COMMAND_READ_PERMISSION             0
 
 
 #endif

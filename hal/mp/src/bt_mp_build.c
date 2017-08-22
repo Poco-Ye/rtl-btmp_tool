@@ -24,7 +24,7 @@ BuildBluetoothDevice(
     // Register Read/Write
     pBtDevice->SetMdRegMaskBits         =   BTDevice_SetMDRegMaskBits;
     pBtDevice->GetMdRegMaskBits         =   BTDevice_GetMDRegMaskBits;
-    pBtDevice->SetRfRegMaskBits         =   BTDevice_SetRFRegMaskBits;;
+    pBtDevice->SetRfRegMaskBits         =   BTDevice_SetRFRegMaskBits;
     pBtDevice->GetRfRegMaskBits         =   BTDevice_GetRFRegMaskBits;
     pBtDevice->SetSysRegMaskBits        =   BTDevice_SetSysRegMaskBits;
     pBtDevice->GetSysRegMaskBits        =   BTDevice_GetSysRegMaskBits;
@@ -71,9 +71,12 @@ BuildBluetoothDevice(
     pBtDevice->GetChipVersionInfo       =   BTDevice_GetBTChipVersionInfo;
     pBtDevice->BTDlFW                   =   BTDevice_BTDlFW;
     pBtDevice->BTDlMERGERFW             =   BTDevice_BTDlMergerFW;
+
+    pBtDevice->BTSetConfigFileData = BTDevice_SetConfigFileData;
+
     //PG Logical Efuse
-    pBtDevice->WriteEfuseLogicalData    =   BTDevice_WriteEfuseLogicalData;
-    pBtDevice->ReadEfuseLogicalData     =   BTDevice_ReadEfuseLogicalData;
+    pBtDevice->BT_WriteEfuseLogicalData    =   BTDevice_WriteEfuseLogicalData;
+    pBtDevice->BT_ReadEfuseLogicalData     =   BTDevice_ReadEfuseLogicalData;
 
     pBtDevice->LeContTxCmd_8822b        =   BTDevice_8822b_LeContTxCmd;
 
@@ -103,14 +106,14 @@ BuildBluetoothDevice(
     return 0;
 }
 
-// Base Module interface builder
+
+
 int
 BuildBluetoothModule(
         BASE_INTERFACE_MODULE *pBaseInterfaceModule,
         BT_MODULE             *pBtModule
         )
 {
-    int rtn = BT_FUNCTION_SUCCESS;
 
     pBtModule->pBtParam             =       &pBtModule->BaseBtParamMemory;
     pBtModule->pBtDevice            =       &pBtModule->BaseBtDeviceMemory;
@@ -136,10 +139,11 @@ BuildBluetoothModule(
     pBtModule->SetRegMaskBits       =       BTModule_SetRegMaskBits;
     pBtModule->GetRegMaskBits       =       BTModule_GetRegMaskBits;
 
-    BuildBluetoothDevice(pBaseInterfaceModule,
+    BuildBluetoothDevice(
+            pBaseInterfaceModule,
             &pBtModule->pBtDevice,
             &pBtModule->BaseBtDeviceMemory
             );
 
-    return  rtn;
+    return  BT_FUNCTION_SUCCESS;
 }

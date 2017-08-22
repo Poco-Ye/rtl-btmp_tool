@@ -6,6 +6,8 @@
 
 #include "foundation.h"
 
+#define USE_CHAR_STR
+
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -14,15 +16,21 @@
 #define FALSE 0
 #endif
 
+//#define UINT8 unsigned char
+//#define UINT16    unsigned short
+
+
 //--------------------------------------------------
 //  Realtek define
 //--------------------------------------------------
 #define MAX_USERAWDATA_SIZE     64
-#define BT_EFUSE                1
-#define SYS_EFUSE               2
 
-#define MAX_TXGAIN_TABLE_SIZE   7
-#define MAX_TXDAC_TABLE_SIZE    5
+#define BT_EFUSE                    1
+#define SYS_EFUSE                   2
+#define PHYSICAL_EFUSE_BANK_1       3
+#define PHYSICAL_EFUSE_BANK_2       4
+
+
 
 #define EVT_HCI_VERSION         6
 #define EVT_HCI_SUBVERSION      7
@@ -30,8 +38,45 @@
 #define EVT_HCI_LMPSUBVERSION   12
 #define EVT_CHIP_ECO_VERSION    6
 
+
+
+#ifndef _FUNCIION_RETURN_
+#define _FUNCIION_RETURN_
+
+typedef enum
+{
+    BT_FUNCTION_SUCCESS = 0,
+    FUNCTION_ERROR,
+
+    FUNCTION_HCISEND_ERROR,
+    FUNCTION_HCISEND_STAUTS_ERROR,
+    FUNCTION_PARAMETER_ERROR,
+    FUNCTION_PARAMETER_INVALID_CHANNEL,
+    FUNCTION_NO_SUPPORT,
+    FUNCTION_TRX_STATUS_ERROR,
+    FUNCTION_RX_RUNNING,
+    FUNCTION_TX_RUNNING,
+    FUNCTION_RX_MAXCOUNT,
+
+    FUNCTION_TX_FINISH,
+    FUNCTION_RX_FINISH,
+
+    ////////////////////////
+    FUNCTION_INTERFACE_ERROR,
+    FUNCTION_PARSE_ERROR_ADB,
+    NumOf_FUNCTION_RETURN_STATUS
+}FUNCTION_RETURN_STATUS;
+#endif
+
+#ifndef BASE_BT_CONFIG
+#define BASE_BT_CONFIG
+
+#define MAX_TXGAIN_TABLE_SIZE   7
+#define MAX_TXDAC_TABLE_SIZE    5
+
 #define MP_DEBUG_MESSAGE_DATA_LEN 14
 #define MP_FT_VALUE_DATA_LEN 12
+
 
 typedef enum {
     MD_REG = 0,
@@ -40,6 +85,31 @@ typedef enum {
     BB_REG,
 } BT_REG_TYPE;
 
+
+
+typedef enum {
+    REPORT_ALL = 0,
+    REPORT_PKT_TX,
+    REPORT_CON_TX,
+    REPORT_RKT_RX,
+    REPORT_TX_GAIN_TABLE,
+    REPORT_TX_DAC_TABLE,
+    REPORT_XTAL,
+    REPORT_THERMAL,
+    REPORT_BT_STAGE,
+    REPORT_CHIP,
+    REPORT_LOGICAL_EFUSE,
+    REPORT_LE_RX,
+    REPORT_LE_CONTINUE_TX,
+    REPORT_FW_PACKET_TX,
+    REPORT_FW_CONTINUE_TX,
+    REPORT_FW_PACKET_RX,
+    REPORT_FW_LE_CONTINUE_TX,
+    REPORT_TX_POWER_INFO,
+    REPORT_GPIO3_0,
+    REPORT_MP_DEBUG_MESSAGE,
+    REPORT_MP_FT_VALUE,
+} BT_REPORT_TAG;
 typedef enum {
     HCI_RESET = 0,                  //0
     // test mode
@@ -110,7 +180,11 @@ typedef enum {
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
 
-typedef enum {
+
+
+
+typedef enum
+{
     BT_PAYLOAD_TYPE_ALL0 = 0,
     BT_PAYLOAD_TYPE_ALL1 = 1,
     BT_PAYLOAD_TYPE_0101 = 2,
@@ -119,11 +193,13 @@ typedef enum {
     BT_PAYLOAD_TYPE_0000_1111 = 5,
     BT_PAYLOAD_TYPE_1111_0000 = 6,
     BT_PAYLOAD_TYPE_PRBS9 = 7,
-
+    //////////////////////////////////
     BT_PAYLOAD_TYPE_NUM = 8
 } BT_PAYLOAD_TYPE;
 
-typedef enum {
+
+typedef enum
+{
     BT_LE_PAYLOAD_TYPE_PRBS9 = 0,
     BT_LE_PAYLOAD_TYPE_1111_0000 = 1,
     BT_LE_PAYLOAD_TYPE_1010 = 2,
@@ -135,7 +211,10 @@ typedef enum {
 
 } BT_LE_PAYLOAD_TYPE;
 
-typedef enum {
+
+
+typedef enum
+{
     BT_PKT_1DH1 = 0,
     BT_PKT_1DH3,
     BT_PKT_1DH5,
@@ -147,22 +226,60 @@ typedef enum {
     BT_PKT_3DH5,
     BT_PKT_LE,
     BT_PKT_TYPE_NULL,
-
+    BT_PKT_LE_2M,           //11
+    BT_PKT_LE_CODED_S8,     //12
+    BT_PKT_LE_CODED_S2,     //13
     BT_PKT_TYPE_NUM
 } BT_PKT_TYPE;
 
-typedef enum {
+
+
+typedef enum
+{
     BT_DUT_MODE = 0,
     BT_PSEUDO_MODE =1,
 
     NUMBEROFBT_TEST_MODE
 } BT_TEST_MODE;
 
+
+
+typedef enum
+{
+    LE_1M_PHY = 1,
+    LE_2M_PHY = 2,
+    LE_CODED_PHY_S8 = 3,    //125K
+    LE_CODED_PHY_S2 = 4,    //500K
+}BT_LE_PHY;
+
+
+enum RTK_BT_CHIP_ID_GROUP_{
+    RTK_BT_CHIP_ID_UNKNOWCHIP=0xFF,
+    RTK_BT_CHIP_ID_RTL8723A=0,
+    RTK_BT_CHIP_ID_RTL8723B=1,
+    RTK_BT_CHIP_ID_RTL8821A=2,
+    RTK_BT_CHIP_ID_RTL8761A=3,
+    RTK_BT_CHIP_ID_RTL8703A=4,
+    RTK_BT_CHIP_ID_RTL8763A=5,
+    RTK_BT_CHIP_ID_RTL8703B=6,
+    RTK_BT_CHIP_ID_RTL8723C=7,
+    RTK_BT_CHIP_ID_RTL8822B=8,
+    RTK_BT_CHIP_ID_RTL8723D=9,
+    RTK_BT_CHIP_ID_RTL8821C=10,
+    RTK_BT_CHIP_ID_RTL8763B=11,  //BBPro
+    /////////////////////////
+    NumOfRTKCHID
+};
+
+
+
 typedef struct BT_PARAMETER_TAG   BT_PARAMETER;
 typedef struct BT_DEVICE_REPORT_TAG BT_DEVICE_REPORT;
 typedef struct BT_CHIPINFO_TAG   BT_CHIPINFO;
 
-enum {
+
+enum
+{
     SET_INDEX_BT_ADDR = 0,
     SET_INDEX_THERMAL,
     SET_INDEX_TX_POWER_DAC,
@@ -170,28 +287,41 @@ enum {
     SET_INDEX_USB_VID_PID,
 };
 
-struct BT_PARAMETER_TAG {
+
+#define MAX_USERAWDATA_SIZE       64
+
+
+struct BT_PARAMETER_TAG
+{
     int ParameterIndex;
 
     uint8_t mPGRawData[MAX_USERAWDATA_SIZE];
     uint8_t mParamData[MAX_USERAWDATA_SIZE];
     uint8_t mChannelNumber;
     BT_PKT_TYPE mPacketType;
-    BT_PAYLOAD_TYPE mPayloadType;
-    uint16_t mTxPacketCount;
-    uint8_t mTxGainValue;
-    uint8_t mWhiteningCoeffValue;
     uint8_t mTxGainIndex;
-    uint8_t mTxDAC;
+    uint8_t mTxGainValue;
+    uint16_t mTxPacketCount;
+    BT_PAYLOAD_TYPE mPayloadType;
     uint32_t mPacketHeader;
-    uint8_t mHoppingFixChannel;
+    uint8_t mWhiteningCoeffValue;
+    uint8_t mTxDAC;
     uint64_t mHitTarget;
+
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t TXDACTable[MAX_TXDAC_TABLE_SIZE];
+
+    uint8_t bHoppingFixChannel;
     uint16_t Rtl8761Xtal;
+    unsigned char ExeMode;
+    unsigned char PHY;              //for Le Enhanced bt 5.0
+    unsigned char ModulationIndex;  //for Le Enhanced bt 5.0
 };
 
-struct BT_CHIPINFO_TAG {
+
+
+struct BT_CHIPINFO_TAG
+{
     uint32_t HCI_Version;
     uint32_t HCI_SubVersion;
     uint32_t LMP_Version;
@@ -200,9 +330,13 @@ struct BT_CHIPINFO_TAG {
     uint32_t ChipType;
     uint32_t Version;
     int Is_After_PatchCode;
+
 };
 
+
+
 struct BT_DEVICE_REPORT_TAG {
+
     uint32_t TotalTXBits;
     uint32_t TotalTxCounts;
 
@@ -218,31 +352,21 @@ struct BT_DEVICE_REPORT_TAG {
     uint8_t  CurrTXDACTable[MAX_TXDAC_TABLE_SIZE];
 
     uint8_t  CurrThermalValue;
-    uint8_t  CurrStage;
     uint16_t CurrRtl8761Xtal;
+    uint8_t  CurrStage;
 
     BT_CHIPINFO *pBTInfo;
     BT_CHIPINFO BTInfoMemory;
     uint8_t ReportData[MAX_USERAWDATA_SIZE];
 };
 
-enum RTK_BT_CHIP_ID_GROUP {
-    RTK_BT_CHIP_ID_UNKNOWCHIP=0xFF,
-    RTK_BT_CHIP_ID_RTL8723A=0,
-    RTK_BT_CHIP_ID_RTL8723B=1,
-    RTK_BT_CHIP_ID_RTL8821A=2,
-    RTK_BT_CHIP_ID_RTL8761A=3,
-    RTK_BT_CHIP_ID_RTL8703A=4,
-    RTK_BT_CHIP_ID_RTL8763A=5,
-    RTK_BT_CHIP_ID_RTL8703B=6,
-    RTK_BT_CHIP_ID_RTL8723C=7,
-    RTK_BT_CHIP_ID_RTL8822B=8,
-    RTK_BT_CHIP_ID_RTL8723D=9,
-    RTK_BT_CHIP_ID_RTL8821C=10,
+#endif
 
-    NumOfRTKCHID
-};
 
+
+//
+//Device Level::member Funcion
+//
 typedef struct BT_DEVICE_TAG BT_DEVICE;
 
 // Table
@@ -257,6 +381,8 @@ typedef int
         BT_DEVICE *pBtDevice,
         uint8_t *pTable
         );
+
+
 
 // HCI Command & Event
 typedef int
@@ -276,7 +402,6 @@ typedef int
         uint8_t *pEvent
         );
 
-// Vendor HCI Command Control
 typedef int
 (*BT_FP_SET_HOPPINGMODE)(
         BT_DEVICE *pBtDevice,
@@ -295,7 +420,6 @@ typedef int
         BT_DEVICE *pBtDevice,
         int Delay_mSec
         );
-
 
 typedef int
 (*BT_FP_SET_TEST_MODE_ENABLE)(
@@ -426,6 +550,7 @@ typedef int
         uint16_t *pReadingValue
         );
 
+
 // CON TX
 typedef int
 (*BT_FP_SET_CONTINUETX_BEGIN)(
@@ -511,7 +636,13 @@ typedef int
     int patchLength
     );
 
-// PG efuse
+typedef int
+(*BT_FP_LE_TEST)(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
 typedef int
 (*BT_FP_WRITE_EFUSE_DATA)(
     BT_DEVICE *pBtDevice,
@@ -525,18 +656,16 @@ typedef int
     BT_DEVICE_REPORT *pBtReport
     );
 
-// LE
 typedef int
-(*BT_FP_LE_TEST)(
+(*BT_FP_SET_CONFIG_FILE_DATA)(
     BT_DEVICE *pBtDevice,
-    BT_PARAMETER *pParam,
-    BT_DEVICE_REPORT *pBtReport
+    unsigned char *pConfigFileData
     );
 
 typedef int
 (*BT_FP_8822B_LE_CONT_TX)(
     BT_DEVICE *pBtDevice,
-    unsigned char enableLeContTx,
+    unsigned char OnOff,
     unsigned char Channel,
     unsigned char TxPowerIndex
     );
@@ -572,32 +701,20 @@ typedef int
     unsigned char *pGpioValue
     );
 
-typedef struct BT_TRX_TIME_TAG BT_TRX_TIME;
 
-typedef enum {
-    TRX_TIME_STOP =0,
-    TX_TIME_RUNING ,
-    RX_TIME_RUNING,
-
-    NUMOFTRXTIME_TAG
-} TRXTIME_TAG;
-
-struct BT_TRX_TIME_TAG {
-    unsigned long beginTimeClockCnt;
-    unsigned long UseTimeClockCnt;
-    unsigned long endTimeClockCnt;
-};
 
 #define MAX_EFUSE_PHY_LEN 512
 #define MAX_EFUSE_LOG_LEN 1024
 #define MAX_EFUSE_BANK_NUM 4
 
-typedef struct {
+typedef struct _EFUSE_LOGIC
+{
     uint8_t NewValue;
     uint8_t OldValue;
 } EFUSE_LOGIC;
 
-typedef struct {
+typedef struct _EFUSE_UNIT
+{
     BT_DEVICE *pBtDevice;
     uint8_t pEfusePhyMem[MAX_EFUSE_BANK_NUM*MAX_EFUSE_PHY_LEN];
     EFUSE_LOGIC pEfuseLogMem[MAX_EFUSE_LOG_LEN];
@@ -608,10 +725,33 @@ typedef struct {
 
     uint8_t StartBank;
     uint8_t BankNum;
+
     uint8_t CurrBank;
+
 } EFUSE_UNIT;
 
-struct BT_DEVICE_TAG {
+
+
+typedef struct BT_TRX_TIME_TAG BT_TRX_TIME;
+
+typedef enum {
+    TRX_TIME_STOP =0,
+    TX_TIME_RUNING ,
+    RX_TIME_RUNING,
+
+    //////////////
+    NUMOFTRXTIME_TAG
+} TRXTIME_TAG;
+
+struct BT_TRX_TIME_TAG {
+    unsigned long beginTimeClockCnt;
+    unsigned long UseTimeClockCnt;
+    unsigned long endTimeClockCnt;
+};
+
+struct BT_DEVICE_TAG
+{
+
     // Table is base function
     uint8_t TXGainTable[MAX_TXGAIN_TABLE_SIZE];
     uint8_t TXDACTable[MAX_TXDAC_TABLE_SIZE];
@@ -628,7 +768,6 @@ struct BT_DEVICE_TAG {
     // Register Read/Write
     BT_FP_SET_MD_REG_MASK_BITS      SetMdRegMaskBits;
     BT_FP_GET_MD_REG_MASK_BITS      GetMdRegMaskBits;
-
     BT_FP_SET_RF_REG_MASK_BITS      SetRfRegMaskBits;
     BT_FP_GET_RF_REG_MASK_BITS      GetRfRegMaskBits;
 
@@ -689,9 +828,11 @@ struct BT_DEVICE_TAG {
     BT_FP_BT_DL_FW                  BTDlFW;
     BT_FP_BT_DL_MERGER_FW           BTDlMERGERFW;
 
+    BT_FP_SET_CONFIG_FILE_DATA      BTSetConfigFileData;
+
     // Efuse settting
-    BT_FP_WRITE_EFUSE_DATA             WriteEfuseLogicalData;
-    BT_FP_READ_EFUSE_DATA           ReadEfuseLogicalData;
+    BT_FP_WRITE_EFUSE_DATA          BT_WriteEfuseLogicalData;
+    BT_FP_READ_EFUSE_DATA           BT_ReadEfuseLogicalData;
 
     BT_FP_8822B_LE_CONT_TX          LeContTxCmd_8822b;
 
@@ -715,29 +856,12 @@ struct BT_DEVICE_TAG {
     BT_FP_UPDATE                    MpFTValueReport;
 };
 
-typedef enum {
-    REPORT_ALL = 0,
-    REPORT_PKT_TX,
-    REPORT_CONT_TX,
-    REPORT_PKT_RX,
-    REPORT_TX_GAIN_TABLE,
-    REPORT_TX_DAC_TABLE,
-    REPORT_XTAL,
-    REPORT_THERMAL,
-    REPORT_BT_STAGE,
-    REPORT_CHIP,
-    REPORT_LOGICAL_EFUSE,
-    REPORT_LE_RX,
-    REPORT_LE_CONTINUE_TX,
-    REPORT_FW_PACKET_TX,
-    REPORT_FW_CONTINUE_TX,
-    REPORT_FW_PACKET_RX,
-    REPORT_FW_LE_CONTINUE_TX,
-    REPORT_TX_POWER_INFO,
-    REPORT_GPIO3_0,
-    REPORT_MP_DEBUG_MESSAGE,
-    REPORT_MP_FT_VALUE,
-} BT_REPORT_TAG;
+//
+//      Module
+//
+#ifndef BT_MODILE_TAG_SYMBOL
+#define BT_MODILE_TAG_SYMBOL
+
 
 typedef struct  BT_MODULE_TAG BT_MODULE;
 
@@ -873,16 +997,21 @@ typedef int
 
 typedef int
 (*BT_MODULE_FP_GET_REG_MASK_BITS)(
-        BT_MODULE *pBtModule,
-        uint8_t Type,
-        uint8_t Page,
-        uint16_t Addr,
-        uint8_t Msb,
-        uint8_t Lsb,
-        uint16_t *pUserValue
-        );
+    BT_MODULE *pBtModule,
+    int Type,
+    int Page,
+    unsigned long Addr,
+    unsigned char Msb,
+    unsigned char Lsb,
+    unsigned long *pUserValue
+    );
 
-struct BT_MODULE_TAG {
+
+//------------------------------------------------------------------------------------------------------------------
+
+struct BT_MODULE_TAG
+{
+
     BT_PARAMETER        *pBtParam;
     BT_DEVICE           *pBtDevice;
     BT_DEVICE_REPORT    *pModuleBtReport;
@@ -905,6 +1034,10 @@ struct BT_MODULE_TAG {
     BT_MODULE_FP_SET_RF_REG_MASK_BITS       SetRfRegMaskBits;
     BT_MODULE_FP_GET_RF_REG_MASK_BITS       GetRfRegMaskBits;
 
+    //-->HCI Command & Event
+    BT_MODULE_FP_SEND_HCICOMMANDWITHEVENT   SendHciCommandWithEvent;
+    BT_MODULE_FP_RECV_ANYEVENT              RecvAnyHciEvent;
+
     BT_MODULE_FP_SET_SYS_REG_MASK_BITS      SetSysRegMaskBits;
     BT_MODULE_FP_GET_SYS_REG_MASK_BITS      GetSysRegMaskBits;
 
@@ -914,16 +1047,24 @@ struct BT_MODULE_TAG {
     BT_MODULE_FP_SET_REG_MASK_BITS          SetRegMaskBits;
     BT_MODULE_FP_GET_REG_MASK_BITS          GetRegMaskBits;
 
-    //-->HCI Command & Event
-    BT_MODULE_FP_SEND_HCICOMMANDWITHEVENT   SendHciCommandWithEvent;
-    BT_MODULE_FP_RECV_ANYEVENT              RecvAnyHciEvent;
+    BASE_INTERFACE_MODULE *pBaseInterface;
+
 };
+
+#endif
+
+
+//#define TRUE  1
+//#define FALSE 0
 
 //  Define UART HCI Packet Indicator
 #define IF_UART_CMD     0x01
 #define IF_UART_ACL     0x02
 #define IF_UART_SCO     0x03
 #define IF_UART_EVT     0x04
+
+
+
 
 //  Define HCI IO
 #define HCIIO_EFUSE         0x00
@@ -938,6 +1079,8 @@ struct BT_MODULE_TAG {
 #define HCIIO_PATCHCODE     0x09
 #define HCIIO_UART_H5       0x0A
 
+
+
 //  Patch code download size
 #define PATCHCODE_DOWNLOAD_SIZE     0xFC
 
@@ -946,7 +1089,8 @@ struct BT_MODULE_TAG {
 //Define BTHCI Debug mode
 #define BTHCI_DEBUG         1
 
-enum BT_HCI_EVENT_FIELD {
+enum BT_HCI_EVENT_FIELD
+{
     EVT_CODE = 0,
     EVT_PARA_LEN,
     EVT_HCI_CMD_NUM,
@@ -960,15 +1104,13 @@ enum BT_HCI_EVENT_FIELD {
 };
 
 //member function
-int
-bt_default_SetMDRegMaskBits(
+int bt_default_SetMDRegMaskBits(
         BT_DEVICE *pBtDevice,
         uint8_t Addr,
         uint8_t Msb,
         uint8_t Lsb,
         uint16_t UserValue
         );
-
 int
 bt_default_GetMDRegMaskBits(
         BT_DEVICE *pBt,
@@ -977,7 +1119,6 @@ bt_default_GetMDRegMaskBits(
         uint8_t Lsb,
         uint16_t *pUserValue
         );
-
 int
 bt_default_GetRFRegMaskBits(
         BT_DEVICE *pBt,
@@ -986,7 +1127,6 @@ bt_default_GetRFRegMaskBits(
         uint8_t Lsb,
         uint16_t *pUserValue
         );
-
 int
 bt_default_SetRFRegMaskBits(
         BT_DEVICE *pBt,
@@ -995,7 +1135,6 @@ bt_default_SetRFRegMaskBits(
         uint8_t Lsb,
         uint16_t UserValue
         );
-
 int
 bt_default_GetBytes(
         BT_DEVICE *pBt,
@@ -1004,7 +1143,6 @@ bt_default_GetBytes(
         uint8_t *pEvtCode,
         uint32_t *pEvtCodeLen
         );
-
 int
 bt_default_SetBytes(
         BT_DEVICE *pBt,
@@ -1013,7 +1151,6 @@ bt_default_SetBytes(
         uint8_t *pEvtCode,
         uint32_t *pEvtCodeLen
         );
-
 int
 bt_default_RecvHCIEvent(
         BT_DEVICE *pBt,
@@ -1021,7 +1158,6 @@ bt_default_RecvHCIEvent(
         uint8_t *pReadingBuf,
         uint32_t *pLen
         );
-
 int
 bt_default_SendHCICmd(
         BT_DEVICE *pBt,
@@ -1029,7 +1165,6 @@ bt_default_SendHCICmd(
         uint8_t *pWritingBuf,
         uint32_t Len
         );
-
 int
 bt_uart_Recv(
         BT_DEVICE *pBt,
@@ -1037,7 +1172,6 @@ bt_uart_Recv(
         uint8_t *pReadingBuf,
         uint32_t *pLen
         );
-
 int
 bt_uart_Send(
         BT_DEVICE *pBt,
@@ -1045,7 +1179,6 @@ bt_uart_Send(
         uint8_t *pWritingBuf,
         uint32_t Len
         );
-
 int
 bt_Recv(
         BT_DEVICE *pBt,
@@ -1053,7 +1186,6 @@ bt_Recv(
         uint8_t *pReadingBuf,
         uint32_t *pLen
         );
-
 int
 bt_Send(
         BT_DEVICE *pBt,
@@ -1061,7 +1193,6 @@ bt_Send(
         uint8_t *pWritingBuf,
         uint32_t Len
         );
-
 
 int
 bt_default_RecvAnyHciEvent(
@@ -1080,43 +1211,44 @@ bt_default_SendHciCommandWithEvent(
         uint32_t *pEventLen
         );
 
+
 int
 bt_default_SetSysRegMaskBits(
-        BT_DEVICE *pBtDevice,
-        uint16_t Addr,
-        uint8_t Msb,
-        uint8_t Lsb,
-        uint16_t UserValue
-        );
+    BT_DEVICE *pBtDevice,
+    unsigned long Addr,
+    unsigned char Msb,
+    unsigned char Lsb,
+    const unsigned long UserValue
+    );
 
 int
 bt_default_GetSysRegMaskBits(
-        BT_DEVICE *pBtDevice,
-        uint16_t Addr,
-        uint8_t Msb,
-        uint8_t Lsb,
-        uint16_t *pUserValue
-        );
+    BT_DEVICE *pBtDevice,
+    unsigned long Addr,
+    unsigned char Msb,
+    unsigned char Lsb,
+    unsigned long *pUserValue
+    );
 
 int
 bt_default_SetBBRegMaskBits(
-        BT_DEVICE *pBtDevice,
-        int Page,
-        uint16_t Addr,
-        uint8_t Msb,
-        uint8_t Lsb,
-        uint16_t UserValue
-        );
+    BT_DEVICE *pBtDevice,
+    int Page,
+    unsigned long RegStartAddr,
+    unsigned char Msb,
+    unsigned char Lsb,
+    const unsigned long WritingValue
+    );
 
 int
 bt_default_GetBBRegMaskBits(
-        BT_DEVICE *pBtDevice,
-        int Page,
-        uint16_t Addr,
-        uint8_t Msb,
-        uint8_t Lsb,
-        uint16_t *pUserValue
-        );
+    BT_DEVICE *pBtDevice,
+    int Page,
+    unsigned long Addr,
+    unsigned char Msb,
+    unsigned char Lsb,
+    unsigned long *pUserValue
+    );
 
 int
 bt_default_GetChipId(
@@ -1127,5 +1259,7 @@ int
 bt_default_GetECOVersion(
         BT_DEVICE *pBtDevice
         );
+
+
 
 #endif

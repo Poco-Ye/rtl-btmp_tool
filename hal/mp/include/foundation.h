@@ -4,7 +4,9 @@
 #include <stdint.h>
 #include <pthread.h>
 
-#define REALTEK_BT_MP_API_VERSION   "Realtek BT MP API 2014.02.17 - 1"
+#define REALTEK_BT_MP_API_VERSION		"Realtek BT MP API 2015.04.23 - 1"
+
+#define FW_BT_MP_TRX
 
 // Constants
 #define INVALID_POINTER_VALUE       0
@@ -20,11 +22,14 @@
 #define LEN_7_BYTE                  7
 #define LEN_8_BYTE                  8
 #define LEN_9_BYTE                  9
+
 #define LEN_11_BYTE                 11
 #define LEN_13_BYTE                 13
 #define LEN_14_BYTE                 14
 #define LEN_16_BYTE                 16
 #define LEN_26_BYTE                 26
+#define LEN_27_BYTE	                27
+
 #define LEN_250_BYTE                250
 #define LEN_512_BYTE                512
 #define LEN_2048_BYTE               2048
@@ -71,6 +76,21 @@
 #define FALSE   0
 #endif
 
+
+//BBPro BB Page
+#define BT_PAGE0_ADDR		0x40050000
+#define BT_PAGE1_ADDR		0x40055000
+#define BT_PAGE2_ADDR		0x40002000
+#define BT_PAGE3_ADDR		0x40001000
+#define BT_PAGE4_ADDR		0x40011000
+#define BT_PAGE5_ADDR		0x40056000
+#define BT_PAGE6_ADDR		0x40080000
+#define BT_PAGE7_ADDR		0x40051000
+#define BT_PAGE8_ADDR		0x40058000
+
+
+
+
 #define BT_BLUEWIZ0_ADDR        0xb6000000
 #define BT_HCI_DMA_ADDR         0xb4000000
 #define BT_TIMER_ADDR           0xb0004000
@@ -82,31 +102,51 @@
 #define BT_VENDOR_BZDMA_ADDR    0xb000a000
 #define BT_BLUEWIZ9_15_ADDR     0xb6000000
 
+
 #ifndef INTERFACE_TYPE
 #define INTERFACE_TYPE
-enum INTERFACE_TYPE {
+enum
+{
     TYPE_USB = 0,
     TYPE_UART,
     TYPE_FILTER_UART,
     TYPE_ADB_UART,
     TYPE_ADB_USB,
     TYPE_SOCKET_DEVICE_UART,
-    TYPE_SOCKET_DEVICE_USB
-};
+    TYPE_SOCKET_DEVICE_USB,
+    TYPE_BUMBLE_BEE_USB
+
+}INTERFACE_TYPE;
 #endif
 
-enum {
+enum
+{
     REG_BB = 0,
     REG_SYS,
 };
 
+
+enum
+{
+	UART_H4 = 0,
+	UART_H5,
+}UART_PROTOCOL_TYPE;
+
+
+
+#ifndef BASE_INTERFACE_MODULE_TAG_LABEL
+#define BASE_INTERFACE_MODULE_TAG_LABEL
 /// Base interface module alias
 typedef struct BASE_INTERFACE_MODULE_TAG BASE_INTERFACE_MODULE;
+
+
 
 typedef int
 (*BASE_FP_OPEN)(
         BASE_INTERFACE_MODULE *pBaseInterface
         );
+
+
 
 typedef int
 (*BASE_FP_SEND)(
@@ -114,6 +154,8 @@ typedef int
         uint8_t *pWritingBuf,
         uint32_t Len
         );
+
+
 
 typedef int
 (*BASE_FP_RECV )(
@@ -123,10 +165,14 @@ typedef int
         uint32_t *pRetLen
         );
 
+
+
 typedef int
 (*BASE_FP_CLOSE)(
         BASE_INTERFACE_MODULE *pBaseInterface
         );
+
+
 
 typedef void
 (*BASE_FP_WAIT_MS)(
@@ -134,11 +180,17 @@ typedef void
         unsigned long WaitTimeMs
         );
 
+
+
+
+
 typedef void
 (*BASE_FP_SET_USER_DEFINED_DATA_POINTER)(
         BASE_INTERFACE_MODULE *pBaseInterface,
         int UserDefinedData
         );
+
+
 
 typedef void
 (*BASE_FP_GET_USER_DEFINED_DATA_POINTER)(
@@ -146,6 +198,7 @@ typedef void
         int *pUserDefinedData
         );
 
+#define MAX_IP_ADDR_LEN	20
 #define MP_TRANSPORT_EVENT_RX_HCIEVT              0x0001
 #define MP_TRANSPORT_EVENT_RX_ACL                    0x0002
 #define MP_TRANSPORT_EVENT_RX_EXIT                  0x8000
@@ -172,6 +225,9 @@ struct BASE_INTERFACE_MODULE_TAG
 
     //for uart
     uint32_t Baudrate;
+    unsigned char bUartProtocol;
+
+	unsigned char pData[MAX_IP_ADDR_LEN];
 
     uint16_t rx_ready_events;
     pthread_mutex_t mutex;
@@ -180,7 +236,12 @@ struct BASE_INTERFACE_MODULE_TAG
     uint8_t evtBuffer[300];
 };
 
-void BuildTransportInterface(
+#endif
+
+
+
+void
+BuildTransportInterface(
         BASE_INTERFACE_MODULE *pBaseInterfaceModule,
         unsigned char PortNo,
         unsigned long Baudrate,
@@ -190,6 +251,24 @@ void BuildTransportInterface(
         BASE_FP_CLOSE Close,
         BASE_FP_WAIT_MS WaitMs
         );
+
+void
+BuildVendorInterface(
+	BASE_INTERFACE_MODULE **ppBaseInterface,
+	BASE_INTERFACE_MODULE *pBaseInterfaceModuleMemory,
+
+	//Parmater
+	unsigned int InterfaceType,
+	unsigned char	PortNo,
+	unsigned long Baudrate,
+	unsigned char *pData,
+	//basic fuction
+	BASE_FP_OPEN Open,
+	BASE_FP_SEND Send,
+	BASE_FP_RECV Recv,
+	BASE_FP_CLOSE Close,
+	BASE_FP_WAIT_MS WaitMs
+	);
 
 // User data pointer of base interface structure setting and getting functions
 void
@@ -203,6 +282,10 @@ base_interface_GetUserDefinedDataPointer(
         BASE_INTERFACE_MODULE *pBaseInterface,
         int *pUserDefinedData
         );
+
+
+
+
 
 // Math functions
 
@@ -220,11 +303,33 @@ BinToSignedInt(
         );
 
 
+
 // Arithmetic
 unsigned long
 DivideWithCeiling(
         unsigned long Dividend,
         unsigned long Divisor
         );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif /* __FOUNDATION_H*/

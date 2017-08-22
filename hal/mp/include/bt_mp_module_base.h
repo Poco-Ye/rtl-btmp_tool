@@ -3,7 +3,12 @@
 
 #include "bt_mp_base.h"
 
+
 #define BLUETOOTH_MP_CODE_VERSION   "24,07,2014,1"
+
+
+
+
 
 int
 BTModule_ActionControlExcute(
@@ -23,8 +28,8 @@ BTModule_UpDataParameter(
         BT_PARAMETER *pParam
         );
 
-int
-BTModule_DownloadPatchCode(
+
+int BTModule_DownloadPatchCode(
         BT_MODULE *pBtModule,
         uint8_t *pPatchcode,
         int patchLength,
@@ -144,4 +149,6 @@ BTModule_SetRegMaskBits(
         uint16_t UserValue
         );
 
+
 #endif
+

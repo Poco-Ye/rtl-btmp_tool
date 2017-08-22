@@ -4,11 +4,7 @@
 #include "bt_mp_device_base.h"
 #include "bt_mp_module_base.h"
 
-int
-BuildBluetoothModule(
-        BASE_INTERFACE_MODULE *pBaseInterfaceModule,
-        BT_MODULE             *pBtModule
-        );
+
 
 int
 BuildBluetoothDevice(
@@ -16,5 +12,14 @@ BuildBluetoothDevice(
         BT_DEVICE             **ppBtDeviceBase,
         BT_DEVICE             *pDeviceBasememory
         );
+
+
+int
+BuildBluetoothModule(
+        BASE_INTERFACE_MODULE *pBaseInterfaceModule,
+        BT_MODULE             *pBtModule
+        );
+
+
 
 #endif

@@ -4,6 +4,10 @@
 #include "bt_mp_base.h"
 
 
+#define ON 1
+#define OFF 0
+
+
 //define FW Process MP Vendor Command
 #define HCI_VENDOR_MP_PACKET_TX_ENABLE_CONFIG     0xFCE0
 #define HCI_VENDOR_MP_PACKET_TX_STOP              0xFCE1
@@ -19,6 +23,15 @@
 #define HCI_VENDOR_MP_READ_TX_POWER_INFO          0xFCED
 #define HCI_VENDOR_MP_DEBUG_MESSAGE_REPORT        0xFCF7
 #define HCI_VENDOR_MP_FT_VALUE_REPORT             0xFCF8
+#define HCI_LE_ENHANCED_TX          0x2034
+#define HCI_LE_ENHANCED_RX          0x2033
+
+
+#define LE_TX_DUT_TEST 2
+#define LE_RX_DUT_TEST 3
+#define LE_ENHANCED_TX_DUT_TEST 0
+#define LE_ENHANCED_RX_DUT_TEST 1
+
 
 
 int
@@ -232,6 +245,33 @@ BTDevice_LeRxTestCmd(
         );
 
 int
+BTDevice_LeTxEnhancedTest(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_LeRxEnhancedTest(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_LeTxEnhancedTest(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_LeRxEnhancedTest(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+int
 BTDevice_LeTestEndCmd(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,
@@ -291,6 +331,12 @@ BTDevice_BTDlFW(
         uint8_t *pPatchcode,
         int patchLength
         );
+int
+BTDevice_SetConfigFileData(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pConfigFileData
+    );
+
 
 int
 BTDevice_BTDlMergerFW(

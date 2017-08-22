@@ -1,20 +1,29 @@
 #define LOG_TAG "bt_mp_device_base"
 
 #include <math.h>
-
+#include <stdlib.h>
 #include "bt_syslog.h"
 #include "bluetoothmp.h"
 #include "bt_mp_device_efuse_base.h"
 #include "bt_mp_device_base.h"
 
+//#define RF_0379
+#define FW_TX_INTERVAL  0x01
+
 #ifndef BOOL
 typedef enum _BOOL{false, true}BOOL;
 #endif
 
+#define MAX_CONFIGFILE_DATA_LEN  256
+
+static int config_File_Data_Len = 0;
+static int config_File_Data[MAX_CONFIGFILE_DATA_LEN];
+
+
 //  1 slot = 625u
 //  con-tx : DH1   625*1   625u     1M/625 = 160;
 //           DH3   625*3   1875u    1M/1875= 54;
-//           DH5   625*5   3125u     1M/3125= 32
+//           DH5   625*5   3125u    1M/3125= 32
 //  pkt-tx :  packet --> packet There will be a slot interval.
 //          DH1   625*2   1250u      80
 //          DH3   625*4   2500u      40
@@ -43,11 +52,13 @@ static unsigned char Arrary_Hopping_pkt_type[10]={0x04   ,0x0b   ,0x0f   ,0x04  
 static unsigned int  Arrary_Hopping_pkt_len[10] ={27     ,183    ,339    ,54     ,367    ,679    ,83     ,552    ,1021   ,0   };
 static unsigned char Arrary_Interval_slot_number[]={1,3,5,1,3,5,1,3,5,1};
 static unsigned int  Arrary_PayloadLength[BT_PKT_TYPE_NUM]={
+
     216,1464,2712,  //1M
     432,2936,5432,  //2M
     664,4416,8168,  //3M
     296,296         //LE
 };
+
 
 #define OCF_HCI_WRITE_SCAN_ENABLE   0x1A
 #define OGF_CONTROLER_AND_BB        0x03
@@ -59,6 +70,7 @@ static unsigned int  Arrary_PayloadLength[BT_PKT_TYPE_NUM]={
 
 #define BT_SCAN_INTERVAL            0x200
 #define BT_SCAN_WINDOW              0x12
+
 
 uint32_t PktRxCount = 0;
 uint32_t PktRxErrBits = 0;
@@ -88,8 +100,11 @@ BT_SetGlobalReg2Bytes(
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
 }
+
+
 
 static int
 BT_GetGlobalReg2Bytes(
@@ -105,7 +120,7 @@ BT_GetGlobalReg2Bytes(
 
     //Register Address
     *(pPayload+0) = Addr & 0xff;
-    *(pPayload+1) = (Addr & 0xff00) >> 8;
+    *(pPayload+1) = (Addr >> 8) & 0xff;
 
     if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xfc65, LEN_2_BYTE, pPayload, 0x0E, pEvent, &EvtLen))
         goto error;
@@ -117,6 +132,8 @@ BT_GetGlobalReg2Bytes(
 error:
     return FUNCTION_ERROR;
 }
+
+
 
 int
 BTDevice_SetMDRegMaskBits(
@@ -130,6 +147,8 @@ BTDevice_SetMDRegMaskBits(
     return bt_default_SetMDRegMaskBits(pBtDevice, Addr, Msb, Lsb, UserValue);
 }
 
+
+
 int
 BTDevice_GetMDRegMaskBits(
         BT_DEVICE *pBt,
@@ -141,6 +160,8 @@ BTDevice_GetMDRegMaskBits(
 {
     return bt_default_GetMDRegMaskBits(pBt, Addr, Msb, Lsb, pUserValue);
 }
+
+
 
 int
 BTDevice_SetRFRegMaskBits(
@@ -154,6 +175,8 @@ BTDevice_SetRFRegMaskBits(
     return bt_default_SetRFRegMaskBits(pBt, Addr, Msb, Lsb, UserValue);
 }
 
+
+
 int
 BTDevice_GetRFRegMaskBits(
         BT_DEVICE *pBt,
@@ -165,6 +188,8 @@ BTDevice_GetRFRegMaskBits(
 {
     return bt_default_GetRFRegMaskBits(pBt, Addr, Msb, Lsb, pUserValue);
 }
+
+
 
 int
 BTDevice_SetSysRegMaskBits(
@@ -178,6 +203,8 @@ BTDevice_SetSysRegMaskBits(
     return bt_default_SetSysRegMaskBits(pBtDevice, Addr, Msb, Lsb, UserValue);
 }
 
+
+
 int
 BTDevice_GetSysRegMaskBits(
         BT_DEVICE *pBtDevice,
@@ -189,6 +216,8 @@ BTDevice_GetSysRegMaskBits(
 {
     return bt_default_GetSysRegMaskBits(pBtDevice, Addr, Msb, Lsb, pUserValue);
 }
+
+
 
 int
 BTDevice_SetBBRegMaskBits(
@@ -203,6 +232,8 @@ BTDevice_SetBBRegMaskBits(
     return bt_default_SetBBRegMaskBits(pBtDevice, Page, Addr, Msb, Lsb, UserValue);
 }
 
+
+
 int
 BTDevice_GetBBRegMaskBits(
         BT_DEVICE *pBtDevice,
@@ -215,6 +246,8 @@ BTDevice_GetBBRegMaskBits(
 {
     return bt_default_GetBBRegMaskBits(pBtDevice, Page, Addr, Msb, Lsb, pUserValue);
 }
+
+
 
 int
 BTDevice_SendHciCommandWithEvent(
@@ -230,6 +263,8 @@ BTDevice_SendHciCommandWithEvent(
     return bt_default_SendHciCommandWithEvent(pBtDevice, OpCode, PayLoadLength, pPayLoad, EventType, pEvent, pEventLen);
 }
 
+
+
 int
 BTDevice_RecvAnyHciEvent(
         BT_DEVICE *pBtDevice,
@@ -239,6 +274,8 @@ BTDevice_RecvAnyHciEvent(
     return bt_default_RecvAnyHciEvent(pBtDevice, pEvent);
 }
 
+
+
 static int
 BTDevice_SetTestMode(
         BT_DEVICE *pBtDevice,
@@ -247,7 +284,8 @@ BTDevice_SetTestMode(
 {
     int rtn=BT_FUNCTION_SUCCESS;
 
-    switch (TestMode) {
+    switch (TestMode)
+    {
     case BT_DUT_MODE:
         if (bt_default_SetMDRegMaskBits(pBtDevice,0x2e,11,8,0x0E) !=BT_FUNCTION_SUCCESS)
         {
@@ -280,11 +318,14 @@ BTDevice_SetTestMode(
     default:
         rtn=FUNCTION_PARAMETER_ERROR;
         goto exit;
+
     }
 
 exit:
     return rtn;
 }
+
+
 
 static int
 BTDevice_SetTxChannel(
@@ -302,11 +343,25 @@ BTDevice_SetTxChannel(
     {
         goto exit;
     }
-    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x3F,15,0,ChannelNumber&0x7F);
+#ifdef RF_0379
+     // ChannelNumber=(1*ChannelNumber)+3;
+      ChannelNumber = (ChannelNumber*2)+6;
+    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x3c,15,8,(ChannelNumber)&0x7F);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+    //rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x3c,8,8,0);
 
+
+#else
+    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x3F,15,0,ChannelNumber&0x7F);
+#endif
 exit:
     return rtn;
 }
+
+
 
 static int
 BTDevice_SetRxChannel(
@@ -324,33 +379,48 @@ BTDevice_SetRxChannel(
         goto exit;
     }
     /* set rf channel */
-    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x3F,15,0,0x80 | (ChannelNumber&0x7F));
+#ifdef RF_0379
+      ChannelNumber = (ChannelNumber*2)+1;
+    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x3c,15,8,(ChannelNumber)&0x7F);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
 
+
+#else
+    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x3F,15,0,0x80 | (ChannelNumber&0x7F));
+#endif
 exit:
     return rtn;
 }
 
+
+
 static int
-BTDevice_SetPacketHeader(
+BTDevice_SetPackHeader(
         BT_DEVICE *pBtDevice,
-        uint32_t pktHeader
+        uint32_t packHeader
         )
 {
     int rtn = BT_FUNCTION_SUCCESS;
-
-    rtn = bt_default_SetMDRegMaskBits(pBtDevice, 0x30, 15, 0, pktHeader & 0xFFFF);
-    if (rtn != BT_FUNCTION_SUCCESS) {
+    if(bt_default_SetMDRegMaskBits(pBtDevice, 0x30, 15, 0, packHeader & 0xFFFF) != BT_FUNCTION_SUCCESS)
+    {
+        rtn = FUNCTION_HCISEND_ERROR;
         goto exit;
     }
 
-    rtn = bt_default_SetMDRegMaskBits(pBtDevice, 0x32, 1, 0, (pktHeader>>16) & 0x3);
-    if (rtn != BT_FUNCTION_SUCCESS) {
+    if(bt_default_SetMDRegMaskBits(pBtDevice, 0x32, 1, 0, (packHeader>>16) & 0x3) != BT_FUNCTION_SUCCESS)
+    {
+        rtn = FUNCTION_HCISEND_ERROR;
         goto exit;
     }
 
 exit:
     return rtn;
 }
+
+
 
 static int
 BTDevice_SetMutiRxEnable(
@@ -371,6 +441,8 @@ BTDevice_SetMutiRxEnable(
     return rtn;
 }
 
+
+
 static int
 BTDevice_SetWhiteningCoeff(
         BT_DEVICE *pBtDevice,
@@ -382,18 +454,20 @@ BTDevice_SetWhiteningCoeff(
     if (WhiteningCoeffValue > 0x7f)
     {
         rtn = bt_default_SetMDRegMaskBits(pBtDevice,0x2e,7,7,0);
+
+        rtn=bt_default_SetMDRegMaskBits(pBtDevice,0x32,8,2,0x00);
     }
     else
     {
         rtn = bt_default_SetMDRegMaskBits(pBtDevice,0x2e,7,7,1);
-        if (rtn != BT_FUNCTION_SUCCESS)
-            return rtn;
 
         rtn = bt_default_SetMDRegMaskBits(pBtDevice,0x32,8,2,WhiteningCoeffValue);
     }
 
     return rtn;
 }
+
+
 
 static int
 BTDevice_SetPayloadType(
@@ -408,6 +482,8 @@ BTDevice_SetPayloadType(
     return rtn;
 }
 
+
+
 static int
 BTDevice_SetPacketType(
         BT_DEVICE *pBtDevice,
@@ -418,7 +494,8 @@ BTDevice_SetPacketType(
     uint8_t PktBandWidth = 0;
     uint16_t Payload_length = 0;
 
-    switch (PktType) {
+    switch (PktType)
+    {
         case BT_PKT_1DH1: PktBandWidth=1;  break;
         case BT_PKT_1DH3: PktBandWidth=1;  break;
         case BT_PKT_1DH5: PktBandWidth=1;  break;
@@ -428,13 +505,12 @@ BTDevice_SetPacketType(
         case BT_PKT_3DH1: PktBandWidth=3;  break;
         case BT_PKT_3DH3: PktBandWidth=3;  break;
         case BT_PKT_3DH5: PktBandWidth=3;  break;
-        case BT_PKT_LE:   PktBandWidth=0;  break;
         default:
             rtn=FUNCTION_ERROR;
             goto exit;
     }
-
-    if (rtn != FUNCTION_ERROR) {
+    if (rtn != FUNCTION_ERROR)
+    {
         Payload_length = Arrary_PayloadLength[PktType];
     }
 
@@ -452,8 +528,11 @@ BTDevice_SetPacketType(
     rtn = bt_default_SetMDRegMaskBits(pBtDevice,0x2c,12,0,Payload_length);
 
 exit:
+
     return rtn;
 }
+
+
 
 static int
 BTBASE_HitTargetAccessCodeGen(
@@ -462,6 +541,7 @@ BTBASE_HitTargetAccessCodeGen(
         unsigned long *pAccessCode
         )
 {
+
 #if 1
     BOOL AccessCode[72];
     BOOL LC_PN_SEQ_MSB[32]   = {1,0,0,0,0,0,1,1,1,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,1,0,0,1,0,1,1,0};      //LC_PN_SEQ_MSB=0x83848d96
@@ -556,7 +636,7 @@ BTBASE_HitTargetAccessCodeGen(
                 mod1[j] = mod1[j] ^ LC_GEN_POLY_LSB[j-1];
             }//end for (j=1; j<=32; j++)
         }
-        else //if (mod2[1] == 1) else 
+        else //if (mod2[1] == 1) else
         {
             if (mod1[1] == 1)
             {
@@ -662,6 +742,8 @@ BTBASE_HitTargetAccessCodeGen(
     return BT_FUNCTION_SUCCESS;
 }
 
+
+
 static int
 BTDevice_SetHitTarget(
         BT_DEVICE *pBtDevice,
@@ -670,6 +752,7 @@ BTDevice_SetHitTarget(
 {
     unsigned long pAccessCode[4];
     int i=0;
+
     for (i=0;i<4;i++)
         pAccessCode[i]=0;
 
@@ -701,8 +784,11 @@ BTDevice_SetHitTarget(
     return BT_FUNCTION_SUCCESS;
 
 exit:
+
     return FUNCTION_ERROR;
 }
+
+
 
 int
 BTDevice_SetPowerGainIndex(
@@ -712,10 +798,12 @@ BTDevice_SetPowerGainIndex(
         )
 {
     uint32_t ChipType;
+
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
+
     uint8_t TxGainIndex;
-    uint8_t PowerGainValue = 0;
+    uint8_t PowerGainValue;
     uint32_t EvtLen = 0;
     int rtn = BT_FUNCTION_SUCCESS;
 
@@ -736,15 +824,15 @@ BTDevice_SetPowerGainIndex(
     else
     {
         TxGainIndex = Index;
+
         pPayload[0] = TxGainIndex;
         pPayload[1] = PacketType/LEN_3_BYTE;
 
         //opcode=0xfce7 , length = 0x2 , data[0]:index , data[1]:target rate , 0x0:1M , 0x1:2M , 0x2:3M , 0x3:LE
         //Return event , data[0] = target_rate , data[1]:target rate tx power index , data[2]:target rate tx power value
+
         if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfce7, LEN_2_BYTE, pPayload, 0x0E, pEvent, &EvtLen) != BT_FUNCTION_SUCCESS)
-        {
             goto exit;
-        }
 
         SYSLOGI("BTDevice_SetPowerGainIndex :  Tx Gain Index = %d, rate = %dM ; target rate = %dM, tx power index = %d(0x%x)",
             TxGainIndex, (PacketType/LEN_3_BYTE)+1, pEvent[EVT_BYTE0]+1, pEvent[EVT_BYTE1], pEvent[EVT_BYTE2]);
@@ -753,6 +841,8 @@ BTDevice_SetPowerGainIndex(
 exit:
     return rtn;
 }
+
+
 
 int
 BTDevice_SetPowerGain(
@@ -781,6 +871,9 @@ exit:
     return rtn;
 }
 
+
+
+
 int
 BTDevice_SetPowerDac(
         BT_DEVICE *pBtDevice,
@@ -793,6 +886,8 @@ BTDevice_SetPowerDac(
 
     return rtn;
 }
+
+
 
 int
 BTDevice_GetStage(
@@ -815,8 +910,12 @@ BTDevice_GetStage(
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
+
 }
+
+
 
 int
 BTDevice_SetRTL8761Xtal(
@@ -827,6 +926,7 @@ BTDevice_SetRTL8761Xtal(
     uint32_t data_32=0;
     uint16_t data_lsb=0, data_msb=0;
     uint16_t x1=0, x2=0;
+    int rtn=BT_FUNCTION_SUCCESS;
 
     //set 0x2c [12:17]=[18:23]=Xtal Val
     if (bt_default_GetSysRegMaskBits(pBtDevice, 0x2c, 15, 0, &data_lsb))
@@ -839,10 +939,11 @@ BTDevice_SetRTL8761Xtal(
 
     data_32 &= 0xFF000FFF;
 
-    data_32 |= Value << 12;
-    data_32 |= Value << 18;
+    Value &=0x3F;
+    data_32 |= (Value << 12);
+    data_32 |= (Value << 18);
 
-    x1 = data_32 & 0xFFFF;
+    x1 = (data_32 >> 0) & 0xFFFF;
     x2 = (data_32 >> 16) & 0xFFFF;
 
     if (bt_default_SetSysRegMaskBits(pBtDevice, 0x2c, 15, 0, x1))
@@ -856,8 +957,11 @@ BTDevice_SetRTL8761Xtal(
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
 }
+
+
 
 int
 BTDevice_GetRTL8761Xtal(
@@ -865,7 +969,7 @@ BTDevice_GetRTL8761Xtal(
         uint16_t *pValue
         )
 {
-    uint16_t data = 0;
+    uint16_t data;
 
     if (bt_default_GetSysRegMaskBits(pBtDevice, 0x2e, 7, 2, &data))
         goto error;
@@ -877,22 +981,31 @@ BTDevice_GetRTL8761Xtal(
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
+
 }
 
-int BTDevice_ReadThermal(
+
+
+int
+BTDevice_ReadThermal(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam,
         uint8_t *pThermalValue
         )
 {
-    uint16_t Value;
-    uint32_t ChipType;
-    uint32_t EvtLen = 0;
+
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
 
+    uint16_t Value;
+    uint32_t ChipType;
+    uint32_t EvtLen = 0;
+
+
     // chips have different read-thermal procedures
+
     if (BTDevice_GetBTChipVersionInfo(pBtDevice) !=BT_FUNCTION_SUCCESS)
         goto error;
 
@@ -902,29 +1015,42 @@ int BTDevice_ReadThermal(
         goto error;
 
     // enable thermal meter
-    if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
+    if (ChipType <= RTK_BT_CHIP_ID_RTL8763A)
+    {
         if (bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 5, 5, 1))
             goto error;
-    } else {
+    }
+    else
+    {
         if (bt_default_SetRFRegMaskBits(pBtDevice, 0x04, 6, 6, 1))
             goto error;
     }
 
-    if (ChipType <= RTK_BT_CHIP_ID_RTL8763A) {
+    if (ChipType <= RTK_BT_CHIP_ID_RTL8763A)
+    {
         if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 4, 0, &Value))
             goto error;
-    } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723C) {
+    }
+    else if (ChipType <= RTK_BT_CHIP_ID_RTL8723C)
+    {
         if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 1))
             goto error;
+
         if (bt_default_GetRFRegMaskBits(pBtDevice, 0x3b, 5, 0, &Value))
             goto error;
+
         if (bt_default_SetRFRegMaskBits(pBtDevice, 0x0e, 15, 15, 0))
             goto error;
-    } else if (ChipType <= RTK_BT_CHIP_ID_RTL8723D) {
+
+    }
+    else if (ChipType <= RTK_BT_CHIP_ID_RTL8723D)
+    {
         if (bt_default_GetRFRegMaskBits(pBtDevice, 0x04, 5, 0, &Value))
             goto error;
-    } else {
-        if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFC40, LEN_0_BYTE, pPayload, 0x0E, pEvent, &EvtLen))
+    }
+    else
+    {
+        if (bt_default_SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_READ_THERMAL_METER_DATA, LEN_0_BYTE, pPayload, 0x0E, pEvent, &EvtLen))
             goto error;
 
         Value = *(pEvent + EVT_BYTE0);
@@ -938,35 +1064,42 @@ error:
     return FUNCTION_ERROR;
 }
 
+
+
 int
 BTDevice_TxPowerTracking(
     BT_DEVICE *pBtDevice,
-    BOOL openPwrTracking
+    uint8_t OnOff
     )
 {
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EvtLen = 0;
 
-    if (openPwrTracking == true)
+    if (OnOff == ON)
     {
         //Enable TX Power Tracking
         pPayload[0] = 1;
-    } else {
+    }
+    else
+    {
         //Disable TX Power Tracking
         pPayload[0] = 0;
     }
 
-    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFCE8, LEN_1_BYTE, pPayload, 0x0E, pEvent, &EvtLen))
+    if (bt_default_SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_ENABLE_TX_POWER_TRACKING, LEN_1_BYTE, pPayload, 0x0E, pEvent, &EvtLen))
         goto error;
 
-    SYSLOGI("BTDevice_TxPowerTracking = %d", openPwrTracking);
+    SYSLOGI("BTDevice_TxPowerTracking = %d", OnOff);
 
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
 }
+
+
 
 int
 BTDevice_TestModeEnable(
@@ -978,6 +1111,22 @@ BTDevice_TestModeEnable(
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EvtLen;
     int status;
+
+#ifdef RF_0379
+    //DA ON
+    int rtn=0;
+    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x1E,15,0,0X64AB);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto error;
+    }
+    //AD ON
+    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x1C,15,0,0xA54A);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto error;
+    }
+#endif
 
     //Set BT HCI Scan Enable
     OpCode = OPCODE( OCF_HCI_WRITE_SCAN_ENABLE, OGF_CONTROLER_AND_BB);
@@ -996,6 +1145,7 @@ BTDevice_TestModeEnable(
     pPayload[0] = 0x00;
     if (bt_default_SendHciCommandWithEvent(pBtDevice, OpCode, LEN_0_BYTE, pPayload, 0x0E, pEvent, &EvtLen))
         goto error;
+
 
     //SetBTHCIScanActivity
 
@@ -1030,8 +1180,13 @@ BTDevice_TestModeEnable(
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
+
+
 }
+
+
 
 int
 BTDevice_SetResetMDCount(
@@ -1046,7 +1201,6 @@ BTDevice_SetResetMDCount(
         rtn = FUNCTION_HCISEND_ERROR;
         goto exit;
     }
-
     if (bt_default_SetMDRegMaskBits(pBtDevice,0x2e,11,9,0x07) != BT_FUNCTION_SUCCESS)
     {
         rtn = FUNCTION_HCISEND_ERROR;
@@ -1054,12 +1208,14 @@ BTDevice_SetResetMDCount(
     }
 
 exit:
+
     return rtn;
 }
 
+
+
 #define CON_TX  0
 #define PKT_TX  1
-
 int
 BTDevice_SetPktRxStop(
         BT_DEVICE *pBtDevice,
@@ -1072,7 +1228,7 @@ BTDevice_SetPktRxStop(
 
     SYSLOGI("+BTDevice_SetPktRxStop");
 
-    if (BTDevice_SetMutiRxEnable(pBtDevice, 0x00) != BT_FUNCTION_SUCCESS)
+    if (BTDevice_SetMutiRxEnable(pBtDevice, 0) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
@@ -1087,14 +1243,18 @@ BTDevice_SetPktRxStop(
     {
         goto exit;
     }
-
     SYSLOGI("-BTDevice_SetPktRxStop");
-    return BT_FUNCTION_SUCCESS;
 
+    return BT_FUNCTION_SUCCESS;
 exit:
+
     SYSLOGI("-BTDevice_SetPktRxStop: ERROR");
+
     return FUNCTION_ERROR;
+
 }
+
+
 
 int
 BTDevice_SetPktRxBegin(
@@ -1103,6 +1263,7 @@ BTDevice_SetPktRxBegin(
         BT_DEVICE_REPORT *pBtReport
         )
 {
+
     int rtn=BT_FUNCTION_SUCCESS;
     unsigned long btClockTime=0;
     uint16_t OpCode=0x0000;
@@ -1146,55 +1307,120 @@ BTDevice_SetPktRxBegin(
         goto exit;
     }
     // set packet header
-    if (BTDevice_SetPacketHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS)
+    if (BTDevice_SetPackHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+
     //set target bd address
     if (BTDevice_SetHitTarget(pBtDevice,pParam->mHitTarget) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+
     // set WhiteningCoeffValue
     if (BTDevice_SetWhiteningCoeff(pBtDevice,pParam->mWhiteningCoeffValue) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+
     //set channel
     if (BTDevice_SetRxChannel(pBtDevice,pParam->mChannelNumber) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+
     //multi-packet Rx
     if (BTDevice_SetMutiRxEnable(pBtDevice, 1) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+
     //set test mode
     if (BTDevice_SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+
     if (BTDevice_SetResetMDCount(pBtDevice) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+
     if (bt_default_SetMDRegMaskBits(pBtDevice, 0x2e, 1, 1, 0x00) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+
     if (bt_default_SetMDRegMaskBits(pBtDevice, 0x2e, 1, 1, 0x01) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
 
     SYSLOGI("-BTDevice_SetPktRxBegin");
+
     return BT_FUNCTION_SUCCESS;
 
 exit:
+
     SYSLOGI("-BTDevice_SetPktRxBegin: ERROR");
+
     return FUNCTION_ERROR;
+
 }
+
+
+int
+BTDevice_V50_ReadSnr(   BT_DEVICE *pBtDevice, double *p_snr)
+{
+
+    unsigned long data;
+
+    //set page0 reg18[12:13]=2'b11     //enable mse report reg
+    if(pBtDevice->SetMdRegMaskBits(pBtDevice, 0x00, 15, 0, 0)!=BT_FUNCTION_SUCCESS)
+        goto error;
+
+    if(pBtDevice->SetMdRegMaskBits(pBtDevice, 0x18, 13, 12, 3)!=BT_FUNCTION_SUCCESS)
+        goto error;
+
+    //set page2 reg62 = 0x15d7           enable mse
+    if(pBtDevice->SetMdRegMaskBits(pBtDevice, 0x00, 15, 0, 2)!=BT_FUNCTION_SUCCESS)
+        goto error;
+
+    if(pBtDevice->SetMdRegMaskBits(pBtDevice, 0x62, 15, 0, 0x15d7)!=BT_FUNCTION_SUCCESS)
+        goto error;
+
+    //set page3 reg62[0] = 1         // set reg_rpt_latch_rxneg = 1
+    if(pBtDevice->SetMdRegMaskBits(pBtDevice, 0x00, 15, 0, 3)!=BT_FUNCTION_SUCCESS)
+        goto error;
+
+    if(pBtDevice->SetMdRegMaskBits(pBtDevice, 0x62, 0, 0, 1)!=BT_FUNCTION_SUCCESS)
+        goto error;
+
+    // read page0 reg68  : mse of payload
+    if(pBtDevice->SetMdRegMaskBits(pBtDevice, 0x00, 15, 0, 0)!=BT_FUNCTION_SUCCESS)
+        goto error;
+
+    if(pBtDevice->GetMdRegMaskBits(pBtDevice, 0x68, 15, 0, &data)!=BT_FUNCTION_SUCCESS)
+        goto error;
+
+    if( (data !=0) )
+    {
+        *p_snr = ((double)10.0*log10((double)65536.0)) - ((double)10.0*log10((double)data));
+    }
+    else
+    {
+        *p_snr = 0.0;
+    }
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    return FUNCTION_ERROR;
+
+}
+
 
 int
 BTDevice_SetPktRxUpdate(
@@ -1209,6 +1435,8 @@ BTDevice_SetPktRxUpdate(
     uint16_t rxPin=0;
     uint16_t data;
     int32_t value;
+    double snr;
+
 
     int pktType = pParam->mPacketType;
 
@@ -1219,13 +1447,6 @@ BTDevice_SetPktRxUpdate(
         goto exit;
     }
 
-    //Cfo
-    if (bt_default_GetMDRegMaskBits(pBtDevice, 0x6c, 8, 0, &data))
-        goto exit;
-
-    value = BinToSignedInt(data, LEN_9_BYTE);
-    pBtReport->Cfo= ((float)value /(float)4096)*10000;
-
     //rx Pin
     if (bt_default_GetMDRegMaskBits(pBtDevice,0x70,15,10,&rxPin) != BT_FUNCTION_SUCCESS)
     {
@@ -1233,8 +1454,14 @@ BTDevice_SetPktRxUpdate(
     }
 
     pBtReport->RxRssi = (int)(rxPin);
-    pBtReport->RxRssi = pBtReport->RxRssi * 2 - 96;
+    pBtReport->RxRssi = (pBtReport->RxRssi * 2) - 96;
 
+    //Cfo
+    if (bt_default_GetMDRegMaskBits(pBtDevice, 0x6c, 8, 0, &data))
+        goto exit;
+
+    value = BinToSignedInt(data, LEN_9_BYTE);
+    pBtReport->Cfo= ((float)value /(float)4096)*10000;
     //if (pBtReport->RxRssi > -89)
     {
         //rx Count
@@ -1256,7 +1483,7 @@ BTDevice_SetPktRxUpdate(
         pBtReport->TotalRxErrorBits = PktRxErrBits+rxErrbits;
         if (pBtReport->TotalRXBits > 0)
         {
-            pBtReport->ber = (float)pBtReport->TotalRxErrorBits / (float)pBtReport->TotalRXBits;
+            pBtReport->ber = (float)((float)pBtReport->TotalRxErrorBits / (float)pBtReport->TotalRXBits);
         }
         else
         {
@@ -1281,14 +1508,21 @@ BTDevice_SetPktRxUpdate(
         }
     }
 
-    SYSLOGI("-BTDevice_Set Pkt Rx Update: RxRssi= %d, rxCount = %d, ber=%f",
-            pBtReport->RxRssi, rxCount, pBtReport->ber);
+    BTDevice_V50_ReadSnr(pBtDevice, &snr);
+
     return BT_FUNCTION_SUCCESS;
 
 exit:
+
+
     SYSLOGI("-BTDevice_Set Pkt Rx Update: ERROR");
+
     return FUNCTION_ERROR;
+
+
 }
+
+
 
 static int
 BTDevice_GetBTClockTime(
@@ -1305,7 +1539,6 @@ BTDevice_GetBTClockTime(
     pPayload[0]=0x00;
     pPayload[1]=0x00;
     pPayload[2]=0x00;
-
     if (bt_default_SendHciCommandWithEvent(pBtDevice,0x1407,3,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
     {
         rtn=FUNCTION_HCISEND_ERROR;
@@ -1323,10 +1556,12 @@ BTDevice_GetBTClockTime(
         *btClockTime += (Time << (i*8));
     }
     *btClockTime = *btClockTime & 0x1fffffff;
-
 exit:
+
     return rtn;
 }
+
+
 
 static int
 BTDevice_CalculatedTxBits(
@@ -1342,7 +1577,7 @@ BTDevice_CalculatedTxBits(
     uint32_t pkt_cnt=0;
     uint32_t pkt_Interval_slot_number=0;
     uint32_t pkt_Len=0;
-    BT_PKT_TYPE PacketType=0;
+    BT_PKT_TYPE PacketType;
     uint32_t use_uSec=0;
     unsigned long btClockTime=0;
 
@@ -1370,9 +1605,9 @@ BTDevice_CalculatedTxBits(
     use_uSec = pTxTime->UseTimeClockCnt * 3125;  // 1 clock =312.5u
 
     if (pktTx_conTx == PKT_TX)
-        pkt_Interval_slot_number=1 + Arrary_Interval_slot_number[PacketType];   //pkt-tx 
+        pkt_Interval_slot_number=1 + Arrary_Interval_slot_number[PacketType];   //pkt-tx
     else  if(pktTx_conTx == CON_TX)
-        pkt_Interval_slot_number= Arrary_Interval_slot_number[PacketType];	//con-tx
+        pkt_Interval_slot_number= Arrary_Interval_slot_number[PacketType];  //con-tx
     else
     {
         rtn = FUNCTION_PARAMETER_ERROR;
@@ -1389,6 +1624,8 @@ exit:
     return rtn;
 }
 
+
+
 int
 BTDevice_SetPktTxStop(
         BT_DEVICE *pBtDevice,
@@ -1400,7 +1637,6 @@ BTDevice_SetPktTxStop(
     int pktType = pParam->mPacketType;
 
     SYSLOGI("+BTDevice_SetPktTxStop");
-
     //disable multi-packet Tx
     if (BTDevice_SetMutiRxEnable(pBtDevice, 0x00) != BT_FUNCTION_SUCCESS)
     {
@@ -1423,6 +1659,8 @@ exit:
     SYSLOGI("-BTDevice_SetPktTxStop: ERROR");
     return FUNCTION_ERROR;
 }
+
+
 
 static int
 BTDevice_SetPktTxBegin_PSEUDOMODE(
@@ -1454,12 +1692,12 @@ BTDevice_SetPktTxBegin_PSEUDOMODE(
 
     //Dummy Tx bits
     //[a] switch page-2
-    if (bt_default_SetMDRegMaskBits(pBtDevice,0x00,15,0,0x02) != BT_FUNCTION_SUCCESS) 
+    if (bt_default_SetMDRegMaskBits(pBtDevice,0x00,15,0,0x02) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
 
-    if (bt_default_SetMDRegMaskBits(pBtDevice,0x3e,6,0, ((TXDUMMYPATTEN & 0x03)<<5)|(TXDUMMYBITS & 0x1F)) != BT_FUNCTION_SUCCESS) 
+    if (bt_default_SetMDRegMaskBits(pBtDevice,0x3e,6,0, ((TXDUMMYPATTEN & 0x03)<<5)|(TXDUMMYBITS & 0x1F)) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
@@ -1486,6 +1724,9 @@ exit:
     return FUNCTION_ERROR;
 }
 
+
+
+
 int
 BTDevice_SetPktTxBegin(
         BT_DEVICE *pBtDevice,
@@ -1499,6 +1740,7 @@ BTDevice_SetPktTxBegin(
     BT_TRX_TIME *pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
     uint32_t ChipType;
 
+
     SYSLOGI("BTDevice_SetPktTxBegin: mChannelNumber 0x%02x, mPacketType 0x%02x, "
           "mPayloadType 0x%02x, mTxPacketCount 0x%04x, mTxGainValue 0x%02x, "
           "mWhiteningCoeffValue 0x%02x, mTxGainIndex 0x%02x, "
@@ -1508,15 +1750,6 @@ BTDevice_SetPktTxBegin(
           pParam->mWhiteningCoeffValue, pParam->mTxGainIndex,
           pParam->mTxDAC, pParam->mPacketHeader);
 
-    if (pParam->mPacketType == BT_PKT_LE) {
-        if (pParam->mChannelNumber > 39) {
-            rtn = FUNCTION_PARAMETER_INVALID_CHANNEL;
-            return rtn;
-        }
-    }
-
-    SYSLOGI("+BTDevice_SetPktTxBegin");
-
     ChipType = pBtDevice->pBTInfo->ChipType;
 
     pTxTime->beginTimeClockCnt=0;
@@ -1525,74 +1758,86 @@ BTDevice_SetPktTxBegin(
 
     pBtDevice->TxTriggerPktCnt=0;
 
-    if (pBtReport != NULL) {
+    if (pBtReport != NULL)
+    {
         pBtReport->TotalTXBits=0;
         pBtReport->TotalTxCounts=0;
     }
 
     //disable modem fix tx
     // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
-    if (bt_default_SetMDRegMaskBits(pBtDevice,0x3c,12,12,0x0) != BT_FUNCTION_SUCCESS) {
-        goto exit;
-    }
-
-    // set payload type
-    if (BTDevice_SetPayloadType(pBtDevice,pParam->mPayloadType)  != BT_FUNCTION_SUCCESS) {
-        goto exit;
-    }
-
-    // set rate and payload length
-    if (BTDevice_SetPacketType(pBtDevice,pParam->mPacketType) != BT_FUNCTION_SUCCESS) {
-        goto exit;
-    }
-
-    // set packet header
-    if (BTDevice_SetPacketHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS) {
-        goto exit;
-    }
-
-    //set target bd address
-    if (BTDevice_SetHitTarget(pBtDevice,pParam->mHitTarget) != BT_FUNCTION_SUCCESS) {
-        goto exit;
-    }
-
-    // set WhiteningCoeffValue
-    if (BTDevice_SetWhiteningCoeff(pBtDevice,pParam->mWhiteningCoeffValue) != BT_FUNCTION_SUCCESS) {
-        goto exit;
-    }
-
-    //set channel
-    if (BTDevice_SetTxChannel(pBtDevice,pParam->mChannelNumber) != BT_FUNCTION_SUCCESS) {
+    if (bt_default_SetMDRegMaskBits(pBtDevice,0x3c,12,12,0x0) != BT_FUNCTION_SUCCESS)
+    {
         goto exit;
     }
 
     //set outpower
-    if (ChipType < RTK_BT_CHIP_ID_RTL8822B) {
+    if (ChipType < RTK_BT_CHIP_ID_RTL8822B)
+    {
         if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
             rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
         else
             rtn = BTDevice_SetPowerGain(pBtDevice, pParam->mTxGainValue);
 
-        if (rtn != BT_FUNCTION_SUCCESS) {
+        if (rtn != BT_FUNCTION_SUCCESS)
+        {
             goto exit;
         }
-    } else {
+    }
+    else
+    {
         rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
-        if (rtn != BT_FUNCTION_SUCCESS) {
-            goto exit;
-        }
+    }
+
+    // set payload type
+    if (BTDevice_SetPayloadType(pBtDevice,pParam->mPayloadType)  != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+
+    // set rate and payload length
+    if (BTDevice_SetPacketType(pBtDevice,pParam->mPacketType) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+
+    // set packet header
+    if (BTDevice_SetPackHeader(pBtDevice,pParam->mPacketHeader)!= BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+
+    //set target bd address
+    if (BTDevice_SetHitTarget(pBtDevice,pParam->mHitTarget) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+
+    // set WhiteningCoeffValue
+    if (BTDevice_SetWhiteningCoeff(pBtDevice,pParam->mWhiteningCoeffValue) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+
+    //set channel
+    if (BTDevice_SetTxChannel(pBtDevice,pParam->mChannelNumber) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
+    }
+
+    if (BTDevice_SetMutiRxEnable(pBtDevice, 1) != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
     }
 
     //set test mode
-    if (BTDevice_SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS) {
+    if (BTDevice_SetTestMode(pBtDevice, BT_PSEUDO_MODE) != BT_FUNCTION_SUCCESS)
+    {
         goto exit;
     }
 
-    if (BTDevice_SetMutiRxEnable(pBtDevice, 1) != BT_FUNCTION_SUCCESS) {
-        goto exit;
-    }
-
-    if (BTDevice_SetPktTxBegin_PSEUDOMODE(pBtDevice,pParam) != BT_FUNCTION_SUCCESS) {
+    if (BTDevice_SetPktTxBegin_PSEUDOMODE(pBtDevice,pParam) != BT_FUNCTION_SUCCESS)
+    {
         goto exit;
     }
 
@@ -1610,6 +1855,8 @@ exit:
     return FUNCTION_ERROR;
 }
 
+
+
 int
 BTDevice_SetPktTxUpdate(
         BT_DEVICE *pBtDevice,
@@ -1617,10 +1864,10 @@ BTDevice_SetPktTxUpdate(
         BT_DEVICE_REPORT *pBtReport
         )
 {
+
     unsigned long NewModemReg4Value = 0;
     uint16_t tmp = 0;
-    uint32_t TXUpdateBits = 0;
-    uint32_t TXPktUpdateCnts = 0;
+    uint32_t TXUpdateBits, TXPktUpdateCnts;
 
     SYSLOGI("BTDevice_SetPktTxUpdate");
 
@@ -1647,7 +1894,6 @@ BTDevice_SetPktTxUpdate(
         }
         else
         {
-
             tmp=pParam->mTxPacketCount - pBtReport->TotalTxCounts;
 
             if ( tmp >= 0xFFF)
@@ -1673,9 +1919,7 @@ BTDevice_SetPktTxUpdate(
             goto exit;
         }
 
-
     }
-
     if ((pBtReport == NULL) || (pParam == NULL))
         goto exit;
 
@@ -1686,35 +1930,42 @@ exit:
     return FUNCTION_ERROR;
 }
 
+
+
 int
 BTDevice_SetHoppingMode(
         BT_DEVICE *pBtDevice,
-        uint8_t ChannelNumber,
-        BT_PKT_TYPE PktType,
+        uint8_t Channel,
+        BT_PKT_TYPE pktType,
         BT_PAYLOAD_TYPE PayloadType,
         uint8_t TxGainValue,
         uint8_t WhiteningCoeffValue,
         uint8_t TxGainIndex,
         uint8_t TxDAC,
-        uint8_t HoppingFixChannel
+        uint8_t bHoppingFixChannel
         )
 {
-    int rtn = BT_FUNCTION_SUCCESS;
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EventLen = 0;
 
+    uint8_t pBuf[LEN_11_BYTE];
     uint8_t pPayLoad[LEN_11_BYTE];
     uint8_t *ptt = Arrary_Hopping_ptt;
     uint8_t *pkt_type = Arrary_Hopping_pkt_type;
     unsigned int *pkt_len = Arrary_Hopping_pkt_len;
     int Index = 0;
+    unsigned int ChipType;
+    unsigned int len;
 
     SYSLOGI("BTDevice_SetHoppingMode: ChannelNumber %d, PktType %d, PayloadType %d, TxGainValue %d, "
           "WhiteningCoeffValue %d, TxGainIndex %d, TxDAC %d, HoppingFixChannel %d",
-          ChannelNumber, PktType, PayloadType, TxGainValue,
-          WhiteningCoeffValue, TxGainIndex, TxDAC, HoppingFixChannel);
+          Channel, pktType, PayloadType, TxGainValue,
+          WhiteningCoeffValue, TxGainIndex, TxDAC, bHoppingFixChannel);
 
-    switch (PktType) {
+    ChipType = pBtDevice->pBTInfo->ChipType;
+
+    switch (pktType)
+    {
     case BT_PKT_1DH1:
     case BT_PKT_1DH3:
     case BT_PKT_1DH5:
@@ -1723,8 +1974,7 @@ BTDevice_SetHoppingMode(
     case BT_PKT_2DH5:
     case BT_PKT_3DH1:
     case BT_PKT_3DH3:
-    case BT_PKT_3DH5:
-        Index = PktType;
+    case BT_PKT_3DH5:  Index = pktType;
         break;
 
     case BT_PKT_TYPE_NULL:
@@ -1736,64 +1986,90 @@ BTDevice_SetHoppingMode(
         break;
 
     default:
-        rtn = FUNCTION_PARAMETER_ERROR;
         goto exit;
     }
 
     if (Index >= 0)
     {
-        pPayLoad[0] = ptt[Index];
-        pPayLoad[1] = pkt_type[Index];
-        pPayLoad[2] = pkt_len[Index] & 0xFF;
-        pPayLoad[3] = (pkt_len[Index]>>8) & 0xFF;
-        pPayLoad[4] = HoppingFixChannel;
+        pBuf[0] = ptt[Index];
+        pBuf[1] = pkt_type[Index];
+        pBuf[2] = pkt_len[Index] & 0xFF;
+        pBuf[3] = (pkt_len[Index]>>8) & 0xFF;
+        pBuf[4] = bHoppingFixChannel;
 
-        if (HoppingFixChannel == 0)
+        if (bHoppingFixChannel == 0)
         {
-            pPayLoad[5] = 0;
+            pBuf[5] = 0;
         }
         else
         {
-            pPayLoad[5] = ChannelNumber;
+            pBuf[5] = Channel;
         }
 
-        pPayLoad[6] = WhiteningCoeffValue;
-        pPayLoad[7] = PayloadType;
-        pPayLoad[8] = TxGainValue;
-        pPayLoad[9] = TxGainIndex;
-        pPayLoad[10] = TxDAC;
-
-        if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xfc75, LEN_11_BYTE, pPayLoad, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
-        {
-            rtn = FUNCTION_HCISEND_ERROR;
-            goto exit;
-        }
-
-        if (pEvent[5] != 0x00)
-        {
-            rtn=FUNCTION_HCISEND_STAUTS_ERROR;
-            goto exit;
-        }
-
-        pPayLoad[0]=0;
+        pBuf[6] = WhiteningCoeffValue;
+        pPayLoad[0]=0;  //BE EDR
     }
     else
     {
-        pPayLoad[0]=1;
+        pPayLoad[0]=1;  // LE
     }
 
-    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFD45, 1, pPayLoad, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+    if(ChipType < RTK_BT_CHIP_ID_RTL8703B)
     {
-        rtn = FUNCTION_HCISEND_ERROR;
-        goto exit;
+        if(pPayLoad[0]==0)
+        {
+            if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xfc75, LEN_7_BYTE, pBuf, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+                goto exit;
+        }
+
+        if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xFD45, LEN_1_BYTE, pPayLoad, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+            goto exit;
+    }
+    else if(ChipType < RTK_BT_CHIP_ID_RTL8763B)
+    {
+        if(pPayLoad[0]==0) //BR EDR
+        {
+            memcpy(pPayLoad+1, pBuf, LEN_7_BYTE);
+
+            len = LEN_8_BYTE;
+        }
+        else //LE
+        {
+
+            len = LEN_1_BYTE;
+        }
+
+        if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xFD45, len, pPayLoad, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+            goto exit;
+    }
+    else //BBPro
+    {
+
+        if(pPayLoad[0]==0) //BR EDR
+        {
+            memcpy(pPayLoad+1, pBuf, LEN_7_BYTE);
+
+            len = LEN_8_BYTE;
+        }
+        else //LE
+        {
+
+            pPayLoad[1] = 1;    //LE enable
+            len = LEN_2_BYTE;
+        }
+
+        if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xFD45, len, pPayLoad, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+            goto exit;
     }
 
-    if (pEvent[5] != 0x00)
-        rtn = FUNCTION_HCISEND_STAUTS_ERROR;
+    return BT_FUNCTION_SUCCESS;
 
 exit:
-    return rtn;
+
+    return FUNCTION_ERROR;
 }
+
+
 
 static int
 BTDevice_SetContinueTxBegin_PSEUDOMODE(
@@ -1801,19 +2077,7 @@ BTDevice_SetContinueTxBegin_PSEUDOMODE(
         BT_PARAMETER *pParam
         )
 {
-    int PacketType = pParam->mPacketType;
-    //LE
-    if (PacketType == BT_PKT_LE)
-    {
-        if (pParam->mChannelNumber > 39)
-        {
-            goto error;
-        }
-        if (bt_default_SetMDRegMaskBits(pBtDevice,0x3c,5,5,0x01) != BT_FUNCTION_SUCCESS)
-        {
-            goto error;
-        }
-    }
+
     //Continue Tx mode
     if (bt_default_SetMDRegMaskBits(pBtDevice,0x2e,12,12,0x01) != BT_FUNCTION_SUCCESS)
     {
@@ -1834,6 +2098,8 @@ BTDevice_SetContinueTxBegin_PSEUDOMODE(
 error:
     return FUNCTION_ERROR;
 }
+
+
 
 int
 BTDevice_SetContinueTxBegin(
@@ -1866,11 +2132,44 @@ BTDevice_SetContinueTxBegin(
           pParam->mTxPacketCount, pParam->mPayloadType, pParam->mPacketHeader,
           pParam->mWhiteningCoeffValue, pParam->mTxDAC, pParam->mHitTarget);
 
+#ifdef RF_0379
+    //DA ON
+    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x1E,15,0,0X64AB);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto error;
+    }
+    //AD ON
+    rtn=bt_default_SetRFRegMaskBits(pBtDevice,0x1C,15,0,0xA54A);
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto error;
+    }
+#endif
+
     //disable modem fix tx
     // RTK_UPDATE_MODEM_REG(TRANS_MODEM_REG(0x3C), BIT12, 0);
     if (bt_default_SetMDRegMaskBits(pBtDevice,0x3c,12,12,0x0) != BT_FUNCTION_SUCCESS)
     {
         goto error;
+    }
+
+    //set outpower
+    if(ChipType < RTK_BT_CHIP_ID_RTL8822B)
+    {
+        if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
+            rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
+        else
+            rtn = BTDevice_SetPowerGain(pBtDevice,pParam->mTxGainValue);
+
+        if (rtn != BT_FUNCTION_SUCCESS)
+        {
+            goto error;
+        }
+    }
+    else
+    {
+        rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
     }
     // set payload type
     if (BTDevice_SetPayloadType(pBtDevice,pParam->mPayloadType) != BT_FUNCTION_SUCCESS)
@@ -1883,7 +2182,7 @@ BTDevice_SetContinueTxBegin(
         goto error;
     }
     // set packet header
-    if (BTDevice_SetPacketHeader(pBtDevice,pParam->mPacketHeader) != BT_FUNCTION_SUCCESS)
+    if (BTDevice_SetPackHeader(pBtDevice,pParam->mPacketHeader) != BT_FUNCTION_SUCCESS)
     {
         goto error;
     }
@@ -1906,22 +2205,6 @@ BTDevice_SetContinueTxBegin(
     if (BTDevice_SetTxChannel(pBtDevice,pParam->mChannelNumber) != BT_FUNCTION_SUCCESS)
     {
         goto error;
-    }
-    //set outpower
-    if(ChipType < RTK_BT_CHIP_ID_RTL8822B){
-        if ((pParam->mTxGainIndex > 0) && (pParam->mTxGainIndex <= 7))
-            rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
-        else
-            rtn = BTDevice_SetPowerGain(pBtDevice,pParam->mTxGainValue);
-
-        if (rtn != BT_FUNCTION_SUCCESS){
-            goto error;
-        }
-    } else {
-        rtn = BTDevice_SetPowerGainIndex(pBtDevice, pParam->mPacketType, pParam->mTxGainIndex);
-        if (rtn != BT_FUNCTION_SUCCESS){
-            goto error;
-        }
     }
 
     if (BTDevice_SetMutiRxEnable(pBtDevice,0) != BT_FUNCTION_SUCCESS)
@@ -1947,6 +2230,9 @@ error:
     SYSLOGI("-BTDevice_SetContinueTxBegin: ERROR");
     return FUNCTION_ERROR;
 }
+
+
+
 
 int
 BTDevice_SetContinueTxStop(
@@ -1976,6 +2262,8 @@ exit:
     return FUNCTION_ERROR;
 }
 
+
+
 int
 BTDevice_SetContinueTxUpdate(
         BT_DEVICE *pBtDevice,
@@ -1983,8 +2271,8 @@ BTDevice_SetContinueTxUpdate(
         BT_DEVICE_REPORT *pBtReport
         )
 {
-    uint32_t TXUpdateBits = 0;
-    uint32_t TXPktUpdateCnts = 0;
+
+    uint32_t TXUpdateBits, TXPktUpdateCnts;
 
     if ((pBtReport == NULL) || (pParam == NULL))
         goto exit;
@@ -2002,8 +2290,12 @@ BTDevice_SetContinueTxUpdate(
 
 exit:
     SYSLOGI("BTDevice_SetContinueTxUpdate: ERROR");
+
     return FUNCTION_ERROR;
+
 }
+
+
 
 int
 BTDevice_LeTxTestCmd(
@@ -2017,6 +2309,7 @@ BTDevice_LeTxTestCmd(
     uint32_t EventLen = 0;
     unsigned long TxGain;
     uint8_t TxGainIndex;
+
     uint32_t ChipType;
 
     ChipType = pBtDevice->pBTInfo->ChipType;
@@ -2044,9 +2337,7 @@ BTDevice_LeTxTestCmd(
         pPayload[1] = 0x3; //LE
 
         if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfce7, LEN_2_BYTE, pPayload, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
-        {
             goto exit;
-        }
 
         SYSLOGI("BTDevice_LeTxTestCmd : Tx Gain Index = %d, LE ; target rate = %dM, tx power index = %d(0x%x)",
                 TxGainIndex, pEvent[EVT_BYTE0]+1, pEvent[EVT_BYTE1], pEvent[EVT_BYTE2]);
@@ -2056,14 +2347,12 @@ BTDevice_LeTxTestCmd(
     pPayload[1] = pParam->mParamData[0]; //Length_Of_Test_Data : 0x00~0x25
     pPayload[2] = (uint8_t)pParam->mPayloadType; //Packet_Payload
 
-    SYSLOGI("BTDevice_LeTxTestCmd: Channel %d, Data length %d, Pkt Payload %d",
-        pPayload[0], pPayload[1], pPayload[2]);
+    SYSLOGI("BTDevice_LeTxTestCmd: Channel %d, Data length %d, Pkt Payload %d", pPayload[0], pPayload[1], pPayload[2]);
 
     if (bt_default_SendHciCommandWithEvent(pBtDevice, 0x201E, LEN_3_BYTE, pPayload, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
-
     if (pEvent[5] != 0x00)
     {
         goto exit;
@@ -2076,6 +2365,8 @@ exit:
     return FUNCTION_ERROR;
 }
 
+
+
 int
 BTDevice_LeRxTestCmd(
         BT_DEVICE *pBtDevice,
@@ -2083,6 +2374,7 @@ BTDevice_LeRxTestCmd(
         BT_DEVICE_REPORT *pBtReport
         )
 {
+
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EventLen = 0;
@@ -2100,7 +2392,6 @@ BTDevice_LeRxTestCmd(
     {
         goto exit;
     }
-
     if (pEvent[5] != 0x00)
     {
         goto exit;
@@ -2111,8 +2402,236 @@ BTDevice_LeRxTestCmd(
     return BT_FUNCTION_SUCCESS;
 
 exit:
-
     SYSLOGE("BTDevice_LeRxTestCmd: ERROR");
+
+    return FUNCTION_ERROR;
+
+}
+
+
+int
+BTDevice_LeTxEnhancedTest(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    unsigned char pPayload[HCI_CMD_LEN_MAX];
+    unsigned char pEvent[HCI_EVT_LEN_MAX];
+    uint32_t EventLen = 0;
+
+    if( pParam->mChannelNumber>39 ||pParam->mPayloadType>7)
+        goto error;
+
+    pPayload[0] = pParam->mChannelNumber; //channel : 0~39
+    pPayload[1] = pParam->mParamData[0];    //Length_Of_Test_Data : 0x00~0xFF
+    pPayload[2] = (unsigned char)pParam->mPayloadType;  //Packet_Payload
+    pPayload[3] = (unsigned char)pParam->PHY;
+
+/*
+
+    //Modem page3 5c[6]=1, [14:7]=txgainindex ->for gain index (default 0x3e)
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x3))
+        goto error;
+
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x5c, 6, 6, 0x1))
+        goto error;
+
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x5c, 14, 7, pParam->mTxGainIndex))
+        goto error;
+
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0,  0x0))
+        goto error;
+
+    // 1 Modem page0 3c[13]=1 for LE 1M, LR 500k, 125k;
+    // 2 modem page0 3c[12]=1 for BR, EDR
+    // 3 modem page6 1a[15]=1 for LE 2M
+
+    //SCALING for LE = BR 1M (default)
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x16, 15, 0,  0x523e))
+        goto error;
+
+    switch(pParam->PHY)
+    {
+        case LE_1M_PHY:
+        case LE_CODED_PHY_S8:
+        case LE_CODED_PHY_S2:
+            if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 13, 13,  0x1))
+                goto error;
+        break;
+
+        case LE_2M_PHY:
+            if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0,  0x6))
+                goto error;
+
+            if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x1a, 15, 15,  0x1))
+                goto error;
+
+            if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0,  0x0))
+                goto error;
+        break;
+
+        default:
+        goto error;
+    }
+
+
+    BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x06);
+    BTDevice_SetMDRegMaskBits(pBtDevice, 0x64, 0, 0, 0x01);
+    BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x00);
+
+    switch(pParam->PHY)
+    {
+        case LE_1M_PHY:
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 5, 5, 0x1);
+        break;
+
+        case LE_2M_PHY:
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 5, 5, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 8, 8, 0x1);
+        break;
+
+        case LE_CODED_PHY_S8:
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 5, 5, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 10, 10, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x06);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x5e, 2, 0, 0x01);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x00);
+        break;
+
+        case LE_CODED_PHY_S2:
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 5, 5, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 10, 10, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x06);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x5e, 2, 0, 0x03);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x00);
+        break;
+
+        default:
+        goto error;
+        }
+*/
+
+    if(bt_default_SendHciCommandWithEvent(pBtDevice, HCI_LE_ENHANCED_TX, LEN_4_BYTE, pPayload, 0x0E, pEvent, &EventLen))
+        goto error;
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
+    return FUNCTION_ERROR;
+}
+
+int
+BTDevice_LeRxEnhancedTest(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    )
+{
+    unsigned char pPayload[HCI_CMD_LEN_MAX];
+    unsigned char pEvent[HCI_EVT_LEN_MAX];
+    uint32_t EventLen = 0;
+
+    pPayload[0] = pParam->mChannelNumber;   //channel : 0~39
+    pPayload[1] = pParam->PHY;
+    pPayload[2] = pParam->ModulationIndex;
+
+    if( pPayload[0]>39)
+    {
+        SYSLOGI("BTDevice_LeRxTestCmd : Parameter error = 0x%x", pPayload[0]);
+        goto error;
+    }
+/*
+    //Modem page3 5c[6]=1, [14:7]=txgainindex ->for gain index (default 0x3e)
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x3))
+        goto error;
+
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x5c, 6, 6, 0x1))
+        goto error;
+
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x5c, 14, 7, pParam->mTxGainIndex))
+        goto error;
+
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0,  0x0))
+        goto error;
+
+    // 1 Modem page0 3c[13]=1 for LE 1M, LR 500k, 125k;
+    // 2 modem page0 3c[12]=1 for BR, EDR
+    // 3 modem page6 1a[15]=1 for LE 2M
+
+    //SCALING for LE = BR 1M (default)
+    if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x16, 15, 0,  0x523e))
+        goto error;
+
+    switch(pParam->PHY)
+    {
+        case LE_1M_PHY:
+        case LE_CODED_PHY_S8:
+        case LE_CODED_PHY_S2:
+            if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 13, 13,  0x1))
+                goto error;
+        break;
+
+        case LE_2M_PHY:
+            if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0,  0x6))
+                goto error;
+
+            if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x1a, 15, 15,  0x1))
+                goto error;
+
+            if(BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0,  0x0))
+                goto error;
+        break;
+
+        default:
+        goto error;
+    }
+
+    BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x06);
+    BTDevice_SetMDRegMaskBits(pBtDevice, 0x64, 0, 0, 0x01);
+    BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x00);
+
+    switch(pParam->PHY)
+    {
+        case LE_1M_PHY:
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 5, 5, 0x1);
+        break;
+
+        case LE_2M_PHY:
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 5, 5, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 8, 8, 0x1);
+        break;
+
+        case LE_CODED_PHY_S8:
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 5, 5, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 10, 10, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x06);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x5e, 2, 0, 0x01);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x00);
+        break;
+
+        case LE_CODED_PHY_S2:
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 5, 5, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x3c, 10, 10, 0x1);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x06);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x5e, 2, 0, 0x03);
+            BTDevice_SetMDRegMaskBits(pBtDevice, 0x00, 15, 0, 0x00);
+        break;
+
+        default:
+        goto error;
+        }
+*/
+    if(bt_default_SendHciCommandWithEvent(pBtDevice, HCI_LE_ENHANCED_RX, LEN_3_BYTE, pPayload, 0x0E, pEvent, &EventLen))
+        goto error;
+
+
+
+    return BT_FUNCTION_SUCCESS;
+
+error:
+
     return FUNCTION_ERROR;
 }
 
@@ -2123,33 +2642,34 @@ BTDevice_LeTestEndCmd(
         BT_DEVICE_REPORT *pBtReport
         )
 {
+
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
+    unsigned int ChipType;
     uint32_t EventLen = 0;
 
-    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0x201F, LEN_0_BYTE, pPayload, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
-    {
-        goto exit;
-    }
+    pBtReport->TotalRxCounts = 0;
 
-    if (pEvent[5] != 0x00)
-    {
-        goto exit;
-    }
+    ChipType = pBtDevice->pBTInfo->ChipType;
+
+    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0x201F, LEN_0_BYTE, pPayload, 0x0E, pEvent, &EventLen))
+        goto error;
+
 
     // Rx: Number_Of_Packets
-    pBtReport->TotalRxCounts = (*(pEvent + EVT_BYTE1) << 8) + *(pEvent + EVT_BYTE0);
+    pBtReport->TotalRxCounts = (unsigned long)((pEvent[EVT_BYTE1]<<8)+pEvent[EVT_BYTE0]);
 
     SYSLOGI("BTDevice_LeTestEndCmd");
 
     return BT_FUNCTION_SUCCESS;
 
-exit:
+error:
     SYSLOGE("BTDevice_LeTestEndCmd: ERROR");
     return FUNCTION_ERROR;
 }
 
-unsigned char BT_DEFAULT_TX_GAIN_TABLE[][MAX_TXGAIN_TABLE_SIZE] = {
+unsigned char BT_DEFAULT_TX_GAIN_TABLE[][MAX_TXGAIN_TABLE_SIZE] =
+{
     {0x2d,0x30,0x6d,0x70,0xb0,0xcd,0xd0},   //RTL8723A
     {0x2b,0x2e,0x6b,0x6e,0x8b,0x8e,0xce},   //RTL8723B
     {0x28,0x2b,0x48,0x4b,0xc8,0xcc,0xe9},   //RTL8821A
@@ -2163,6 +2683,8 @@ unsigned char BT_DEFAULT_TX_GAIN_TABLE[][MAX_TXGAIN_TABLE_SIZE] = {
     {0xff,0xff,0xff,0xff,0xff,0xff,0xff},   //RTL8821C NO USE
 };
 
+
+
 int
 BTDevice_SetTxGainTable(
         BT_DEVICE *pBtDevice,
@@ -2174,9 +2696,10 @@ BTDevice_SetTxGainTable(
 
     if (pTable == NULL)
     {
-        SYSLOGI("BTDevice_SetTxGainTable: default");
         if (BTDevice_GetBTChipVersionInfo(pBtDevice) != BT_FUNCTION_SUCCESS)
             goto error;
+
+        SYSLOGI("BTDevice_SetTxGainTable: default");
 
         ChipID = pBtDevice->pBTInfo->ChipType;
 
@@ -2195,10 +2718,13 @@ BTDevice_SetTxGainTable(
     return BT_FUNCTION_SUCCESS;
 
 error:
+    memset(pBtDevice->TXGainTable,0xce,MAX_TXGAIN_TABLE_SIZE);
     return FUNCTION_ERROR;
 }
 
-unsigned char BT_DEFAULT_TX_DAC_TABLE[][MAX_TXDAC_TABLE_SIZE]= {
+unsigned char BT_DEFAULT_TX_DAC_TABLE[][MAX_TXDAC_TABLE_SIZE]=
+{
+
     {0x0b,0x0c,0x0d,0x0e,0x0f}, //RTL8723A
     {0x11,0x12,0x13,0x14,0x15}, //RTL8723B
     {0x11,0x12,0x13,0x14,0x16}, //RTL8821A
@@ -2223,9 +2749,10 @@ BTDevice_SetTxDACTable(
 
     if (pTable == NULL)
     {
-        SYSLOGI("BTDevice_SetTxDACTable: default");
         if (BTDevice_GetBTChipVersionInfo(pBtDevice) !=BT_FUNCTION_SUCCESS)
             goto error;
+
+        SYSLOGI("BTDevice_SetTxDACTable: default");
 
         ChipID = pBtDevice->pBTInfo->ChipType;
 
@@ -2244,8 +2771,14 @@ BTDevice_SetTxDACTable(
     return BT_FUNCTION_SUCCESS;
 
 error:
+    memset( pBtDevice->TXDACTable,0x13,MAX_TXDAC_TABLE_SIZE);
     return FUNCTION_ERROR;
+
 }
+
+
+
+
 
 int
 BTDevice_SetHciReset(
@@ -2253,32 +2786,51 @@ BTDevice_SetHciReset(
         int Delay_mSec
         )
 {
-    uint8_t pEvent[HCI_EVT_LEN_MAX];
-    uint32_t EventLen = 0;
-    uint8_t pPayload[1]={0};
+    unsigned char pEvent[HCI_EVT_LEN_MAX];
+    unsigned char pPayLoad[LEN_11_BYTE];
 
+    unsigned int ChipType;
+    unsigned int len;
+    uint32_t EventLen = 0;
+
+    ChipType = pBtDevice->pBTInfo->ChipType;
+
+    pPayLoad[0] = 0;
     //Send reset command
-    if (bt_default_SendHciCommandWithEvent(pBtDevice,0x0C03,0,pPayload,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+    if (bt_default_SendHciCommandWithEvent(pBtDevice,0x0C03,0,pPayLoad,0x0E,pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
     {
         goto error;
     }
-
     if (pEvent[5] != 0x00)
     {
         goto error;
     }
 
+    if(ChipType == RTK_BT_CHIP_ID_RTL8763B) //LE Hopping disable
+    {
+        pPayLoad[0] = 1;    //LE
+        pPayLoad[1] = 0;    //LE disable
+        len = LEN_2_BYTE;
+
+        if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xFD45, len, pPayLoad, 0x0E, pEvent, &EventLen) != BT_FUNCTION_SUCCESS)
+            goto error;
+    }
+
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
 }
+
+
 
 int
 BTDevice_GetBTChipVersionInfo(
         BT_DEVICE *pBtDevice
         )
 {
+
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint32_t EventLen = 0;
@@ -2301,7 +2853,6 @@ BTDevice_GetBTChipVersionInfo(
     pBTInfo->ChipType=RTK_BT_CHIP_ID_UNKNOWCHIP;
     pBTInfo->Is_After_PatchCode=0;
     pBTInfo->Version=0;
-
     if (pBTInfo->LMP_SubVersion == 0x1200) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723A;
     } else if ((pBTInfo->LMP_SubVersion == 0x8723) && (pBTInfo->HCI_SubVersion == 0x000B)) {
@@ -2316,16 +2867,17 @@ BTDevice_GetBTChipVersionInfo(
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8763A;
     } else if ((pBTInfo->LMP_SubVersion == 0x8703) && (pBTInfo->HCI_SubVersion == 0x000B)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8703B;
-    } else if ((pBTInfo->LMP_SubVersion == 0x8703) && (pBTInfo->HCI_SubVersion == 0x000B)) {
-        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723C;
     } else if ((pBTInfo->LMP_SubVersion == 0x8822) && (pBTInfo->HCI_SubVersion == 0x000B)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8822B;
     } else if ((pBTInfo->LMP_SubVersion == 0x8723) && (pBTInfo->HCI_SubVersion == 0x000D)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8723D;
     } else if ((pBTInfo->LMP_SubVersion == 0x8821) && (pBTInfo->HCI_SubVersion == 0x000C)) {
         pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8821C;
+    } else if ( (pBTInfo->LMP_SubVersion == 0x8763) && (pBTInfo->HCI_SubVersion == 0x000B) ) {
+        pBTInfo->ChipType = RTK_BT_CHIP_ID_RTL8763B;
     } else {
-        if (bt_default_GetChipId(pBtDevice) != BT_FUNCTION_SUCCESS) {
+        if (bt_default_GetChipId(pBtDevice) != BT_FUNCTION_SUCCESS)
+        {
             rtn= FUNCTION_ERROR;
             goto exit;
         }
@@ -2333,16 +2885,42 @@ BTDevice_GetBTChipVersionInfo(
 
     SYSLOGI("BTDevice_GetBTChipVersionInfo(): ChipType = %u", pBTInfo->ChipType);
 
-    if (bt_default_GetECOVersion(pBtDevice) != BT_FUNCTION_SUCCESS) {
+    if (bt_default_GetECOVersion(pBtDevice) != BT_FUNCTION_SUCCESS)
+    {
         rtn= FUNCTION_ERROR;
+
         goto exit;
     }
 
     rtn = BT_FUNCTION_SUCCESS;
-
 exit:
     return rtn;
 }
+#define SEGMENT_LEN 252
+#define BUMBLE_BEE_SEGMENT_LEN  1000
+
+
+//for 8723bs
+static unsigned char g8723B_Config[80] = {
+    0x55, 0xAB, 0x23, 0x87, 0x4A, 0x00, 0x2B, 0x00, 0x06, 0x00, 0x00, 0x00, 0xAA, 0xBB, 0xCC, 0xF4,
+    0x00, 0x03, 0x01, 0x00, 0x00, 0xF8, 0x00, 0x02, 0x85, 0x00, 0x27, 0x00, 0x01, 0xE7, 0x0C, 0x00,
+    0x10, 0x01, 0x50, 0xF7, 0x03, 0x50, 0xC5, 0xEA, 0x19, 0xE1, 0x1B, 0xF1, 0xAF, 0x5F, 0x01, 0xA4,
+    0x0B, 0xDF, 0x01, 0x01, 0x01, 0xFE, 0x00, 0x01, 0x00, 0xE2, 0x01, 0x01, 0x3A, 0xE3, 0x01, 0x01,
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+
+
+//for 8723cs/8723ds/8822be
+static unsigned char g8723C_Config[80] = {
+    0x55, 0xAB, 0x23, 0x87, 0x35, 0x00, 0xF4, 0x00, 0x01, 0x01, 0xF6, 0x00, 0x02, 0x81, 0x00, 0xFA,
+    0x00, 0x02, 0x12, 0x80, 0x27, 0x00, 0x01, 0x67, 0x0C, 0x00, 0x10, 0x01, 0x50, 0xF7, 0x03, 0x50,
+    0xC5, 0xEA, 0x19, 0xE1, 0x1B, 0xF9, 0xAF, 0x5F, 0x01, 0xA4, 0x0B, 0x42, 0x00, 0x01, 0x01, 0x43,
+    0x00, 0x01, 0x3F, 0x00, 0x01, 0x01, 0x00, 0x34, 0x00, 0x01, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+
 
 int
 BTDevice_BTDlFW(
@@ -2351,6 +2929,9 @@ BTDevice_BTDlFW(
         int patchLength
         )
 {
+    unsigned char *newPatchcode = NULL;
+    int newpatchLength;
+
     uint8_t pPayload[HCI_CMD_LEN_MAX];
     uint8_t pEvent[HCI_EVT_LEN_MAX];
     uint16_t OpCode=0xFC20;
@@ -2361,20 +2942,30 @@ BTDevice_BTDlFW(
     int StartIndex=0;//,m=0;
     int flag=0,n=0;
     int SegmentIndex=0;
-    int LastSegment=patchLength/252;
 
-    if ((patchLength%252) != 0)
-        LastSegment+=1;
+
+    //check Config File data
+    newpatchLength = patchLength + config_File_Data_Len;
+
+    newPatchcode = (unsigned char*) malloc (newpatchLength*sizeof(unsigned char));
+
+    memcpy(newPatchcode, pPatchcode, patchLength);
+
+    if (config_File_Data_Len >0 )
+    {
+        memcpy(&newPatchcode[patchLength], config_File_Data, config_File_Data_Len);
+    }
+
 
     while(!flag)
     {
-        if ((StartIndex+252) < patchLength)
+        if ((StartIndex+SEGMENT_LEN) < newpatchLength)
         {
-            pPayload_Len = 252;
+            pPayload_Len = SEGMENT_LEN;
         }
         else
         {
-            pPayload_Len =  patchLength-StartIndex+1;
+            pPayload_Len =  newpatchLength-StartIndex+1;
             flag=1;
         }
         if (flag)
@@ -2388,10 +2979,10 @@ BTDevice_BTDlFW(
 
         for (n=0;n<pPayload_Len;n++)
         {
-            pPayload[n+1]=pPatchcode[StartIndex+n];
+            pPayload[n+1]=newPatchcode[StartIndex+n];
         }
-
-        if (bt_default_SendHciCommandWithEvent(pBtDevice,OpCode,pPayload_Len+1,pPayload,EventType,pEvent,&EvtLen) != BT_FUNCTION_SUCCESS)
+        EventType = 0x0e;
+        if (bt_default_SendHciCommandWithEvent(pBtDevice,OpCode,(unsigned char)(pPayload_Len+1),pPayload,EventType,pEvent,&EvtLen) != BT_FUNCTION_SUCCESS)
         {
             if (flag)
                 rtn=BT_FUNCTION_SUCCESS;
@@ -2415,8 +3006,21 @@ BTDevice_BTDlFW(
     }
 
 exit:
+
+    BTDevice_SetHciReset(pBtDevice, 1000);
+
+    if (newPatchcode != NULL)
+    {
+        free(newPatchcode);
+    }
+
+    config_File_Data_Len = 0;
+    memset(config_File_Data, 0, MAX_CONFIGFILE_DATA_LEN);
+
     return rtn;
 }
+
+
 
 int
 BTDevice_BTDlMergerFW(
@@ -2434,7 +3038,7 @@ BTDevice_BTDlMergerFW(
     int Patch_Code_Length_Len=2;
     int Start_OffSet_Len=4;
 
-    int Signature_Dword_BaseAddr=0;
+    //int Signature_Dword_BaseAddr=0;
     int Project_ID_BaseAddr=Signature_Dword_Len;
     int Number_of_Total_Patch_BaseAddr=Project_ID_BaseAddr+Project_ID_Len;
     int Chip_ID_LEN_BaseAddr =Number_of_Total_Patch_BaseAddr+Number_of_Total_Patch_Len;
@@ -2448,7 +3052,7 @@ BTDevice_BTDlMergerFW(
     int Patch_Code_Length=0;
     int Start_Offset=0;
 
-    if (pBTInfo->Is_After_PatchCode)
+    if ((pBTInfo->Is_After_PatchCode) && (pBTInfo->ChipType != RTK_BT_CHIP_ID_RTL8763A)) //bumble must to download
         goto exit;
 
     //RTL8723B /RTL8821A /RTL8761A
@@ -2496,22 +3100,24 @@ BTDevice_BTDlMergerFW(
         }
     }
 
-    if (Patch_Code_Length ==0) {
+    if (Patch_Code_Length ==0)
+    {
         rtn = FUNCTION_ERROR;
         goto exit;
     }
-
     SYSLOGI(">>Patch offset=%x Len=%d",Start_Offset,Patch_Code_Length);
-
     if (BTDevice_BTDlFW(pBtDevice,&pPatchcode[Start_Offset],Patch_Code_Length) != BT_FUNCTION_SUCCESS)
     {
         rtn=FUNCTION_ERROR;
         goto exit;
     }
 
+
 exit:
     return rtn;
 }
+
+
 
 static int
 BTDevice_PGEfuse_ReadBytes(
@@ -2530,13 +3136,14 @@ BTDevice_PGEfuse_ReadBytes(
     uint32_t EvtLen;
     memset(pPayLoad,0,26);
     memset(pEvent,0,0xff);
-
+    //////////////////////////////////////////////////////////////////////////////
     // Close Power Cut
     rtn = bt_default_SetSysRegMaskBits(pBtDevice,0x35,3,3,0x0);
     if (rtn != BT_FUNCTION_SUCCESS)
     {
         goto exit;
     }
+    //////////////////////////////////////////////////////////////////////////////
 
     pPayLoad[0]=Bank; //Bank
     pPayLoad[1]=StartAddress&0xff;
@@ -2562,6 +3169,8 @@ exit:
     return rtn;
 }
 
+
+
 static int
 BTDevice_PGEfuse_WriteBytes(
         BT_DEVICE *pBtDevice,
@@ -2579,11 +3188,13 @@ BTDevice_PGEfuse_WriteBytes(
     uint32_t EvtLen;
     memset(pPayLoad,0,26);
     memset(pEvent,0,0xff);
-
+    //////////////////////////////////////////////////////////////////////////////
     // open Power Cut
+    //
     rtn = bt_default_SetSysRegMaskBits(pBtDevice,0x35,3,3,0x1);
-    if (rtn != BT_FUNCTION_SUCCESS) {
-        return rtn;
+    if (rtn != BT_FUNCTION_SUCCESS)
+    {
+        goto exit;
     }
 
     pPayLoad[0]=2; //Bank
@@ -2620,9 +3231,11 @@ BTDevice_PGEfuse_WriteBytes(
 exit:
     // close power cut for read, reWrite the bank for c cut
     Bank = Bank & 0x07;
-    bt_default_SetSysRegMaskBits(pBtDevice,0x35,3,0,Bank);
+    rtn=bt_default_SetSysRegMaskBits(pBtDevice,0x35,3,0,Bank);
     return rtn;
 }
+
+
 
 static int
 BTDevice_PGEfuse_GetLength(
@@ -2664,7 +3277,7 @@ BTDevice_PGEfuse_GetLength(
         }
         if (!bflag)
         {
-            if ((Entry_Header[0] & 0xF0) == 0xF0)
+            if ((Entry_Header[0] & 0x0f) == 0x0f)
             { //2 header
                 WordSelect = Entry_Header[1];
                 Entry_length=2;
@@ -2696,19 +3309,19 @@ BTDevice_PGEfuse_GetLength(
     }
     *PGLength = address;
     rtn = BT_FUNCTION_SUCCESS;
-
 exit:
+
     return rtn;
 }
+
+
 
 /**
  *  BD_ADDRESS[0X3C]: Phyical map[1][000][Len=5][73,34,12,78,56,]-->[n=0,03c-34 12][n=1,03e-78 56]
  *  [161]Phyical map[1][00c][Len=4][8f,5e,01,22,]-->[n=0,160-01 22]
  *  [181]Phyical map[1][010][Len=4][0f,6e,44,33,]-->[n=0,180-44 33]
  */
-
 #define MAX_BANK_SIZE 1024
-
 static int
 BTDevice_SubPGEfuseRawData(
         BT_DEVICE *pBtDevice,
@@ -2753,7 +3366,7 @@ BTDevice_SubPGEfuseRawData(
             {
                 goto exit;
             }
-            if (Bank1_PGlength < MAX_BANK_SIZE - 16)
+            if (Bank1_PGlength < (MAX_BANK_SIZE - 16))
             {
                 Bank_Use=1;
                 Bank_Use_PGlength=Bank1_PGlength;
@@ -2768,12 +3381,14 @@ exit:
     return rtn;
 }
 
+
 int
 BTDevice_PGEfuseRawData(
         BT_DEVICE *pBtDevice,
         BT_PARAMETER *pParam
         )
 {
+
     int rtn=BT_FUNCTION_SUCCESS;
 
     uint8_t Command;
@@ -2793,8 +3408,8 @@ BTDevice_PGEfuseRawData(
             rtn= FUNCTION_ERROR;
             break;
     }
-
     return rtn;
+
 }
 
 
@@ -2809,9 +3424,11 @@ BTDevice_WriteEfuseLogicalData(
     uint16_t Addr;
     uint8_t  Len;
     uint8_t *pBuf;
+    int Bank;
 
     Cmd = pParam->mPGRawData[0];
-    switch (Cmd) {
+    switch (Cmd)
+    {
     case BT_EFUSE:
         pEfuse = pBtDevice->pBtEfuse;
         break;
@@ -2820,23 +3437,43 @@ BTDevice_WriteEfuseLogicalData(
         pEfuse = pBtDevice->pSysEfuse;
         break;
 
+    case PHYSICAL_EFUSE_BANK_1:
+        Bank = 1;
+        break;
+
+    case PHYSICAL_EFUSE_BANK_2:
+        Bank = 2;
+        break;
+
     default:
         goto error;
     }
 
-    if (BTDevice_Efuse_LoadPhyMem(pEfuse))
-        goto error;
-
-    if (BTDevice_Efuse_Phy2LogMap(pEfuse))
-        goto error;
-
     Addr = pParam->mPGRawData[1] | (pParam->mPGRawData[2] << 8);
-    Len = pParam->mPGRawData[3];
-    pBuf = &(pParam->mPGRawData[4]);
-    BTDevice_Efuse_UpdateLogMem(pEfuse, Addr, Len, pBuf);
+	Len = pParam->mPGRawData[3];
+	pBuf = &(pParam->mPGRawData[4]);
 
-    if (BTDevice_Efuse_Log2PhyMap(pEfuse))
-        goto error;
+	if( (Cmd == BT_EFUSE) || (Cmd == SYS_EFUSE) )
+	{
+        if (BTDevice_Efuse_LoadPhyMem(pEfuse))
+            goto error;
+
+        if (BTDevice_Efuse_Phy2LogMap(pEfuse))
+            goto error;
+
+        BTDevice_Efuse_UpdateLogMem(pEfuse, Addr, Len, pBuf);
+
+        if (BTDevice_Efuse_Log2PhyMap(pEfuse))
+            goto error;
+    }
+    else if((Cmd == PHYSICAL_EFUSE_BANK_1) || (Cmd == PHYSICAL_EFUSE_BANK_2))
+	{
+		if(BTDevice_Efuse_SetBytes(pBtDevice, Bank, Addr, pBuf, Len)!=BT_FUNCTION_SUCCESS)
+			goto error;
+
+		//if(BTDevice_PGEfuse_WriteBytes(pBtDevice, Bank, Addr, Len, pBuf)!=BT_FUNCTION_SUCCESS)
+			//goto error;
+	}
 
     return BT_FUNCTION_SUCCESS;
 
@@ -2851,48 +3488,126 @@ BTDevice_ReadEfuseLogicalData(
         BT_DEVICE_REPORT *pBtReport
         )
 {
-    int rtn = BT_FUNCTION_SUCCESS;
+	unsigned char Command;
+	unsigned long EfuseAddr;
+	EFUSE_UNIT *pEfuse;
+	unsigned char i, Len;
+	unsigned char pBuf[LEN_32_BYTE];
+	int Bank;
 
-    uint8_t Cmd;
-    uint16_t EfuseLogicalAddr;
-    EFUSE_UNIT *pEfuse;
-    uint8_t i, Len;
 
-    Cmd = pParam->mPGRawData[0];
-    EfuseLogicalAddr = (pParam->mPGRawData[2]<<8) | pParam->mPGRawData[1];
-    Len = pParam->mPGRawData[3];
+	Command = pParam->mPGRawData[0];
+	EfuseAddr = (pParam->mPGRawData[2]<<8) | (pParam->mPGRawData[1]);
+	Len = pParam->mPGRawData[3];
 
-    switch (Cmd) {
-    case BT_EFUSE:
-        pEfuse = pBtDevice->pBtEfuse;
-        break;
+	switch (Command)
+	{
+	case BT_EFUSE:
+	    pEfuse = pBtDevice->pBtEfuse;
+	    break;
 
     case SYS_EFUSE:
         pEfuse = pBtDevice->pSysEfuse;
         break;
 
-    default:
-        goto error;
-        break;
+	case PHYSICAL_EFUSE_BANK_1:
+	    Bank = 1;
+	    break;
+
+	case PHYSICAL_EFUSE_BANK_2:
+	    Bank = 2;
+	    break;
+
+	default:
+	    goto error;
+	}
+
+    if( (Command == BT_EFUSE) || (Command == SYS_EFUSE) )
+	{
+
+        if (BTDevice_Efuse_LoadPhyMem(pEfuse))
+            goto error;
+
+        if (BTDevice_Efuse_Phy2LogMap(pEfuse))
+            goto error;
+
+        memcpy(pBtReport->ReportData, pParam->mPGRawData, LEN_4_BYTE);
+
+        for (i = 0; i < Len; i++)
+        {
+            pBtReport->ReportData[i+LEN_4_BYTE] = pEfuse->pEfuseLogMem[i+EfuseAddr].OldValue;
+        }
     }
+    else if((Command == PHYSICAL_EFUSE_BANK_1) || (Command == PHYSICAL_EFUSE_BANK_2))
+	{
+		if(BTDevice_Efuse_GetBytes(pBtDevice, Bank, EfuseAddr, Len, pBuf) != BT_FUNCTION_SUCCESS)
+			goto error;
 
-    if (BTDevice_Efuse_LoadPhyMem(pEfuse))
-        goto error;
+		memcpy(pBtReport->ReportData, pParam->mPGRawData, LEN_4_BYTE);
 
-    if (BTDevice_Efuse_Phy2LogMap(pEfuse))
-        goto error;
-
-    memcpy(pBtReport->ReportData, pParam->mPGRawData, LEN_4_BYTE);
-
-    for (i = 0; i < Len; i++) {
-        pBtReport->ReportData[i+LEN_4_BYTE] = pEfuse->pEfuseLogMem[i+EfuseLogicalAddr].OldValue;
-    }
+		for (i = 0; i < Len; i++)
+		{
+			pBtReport->ReportData[i+LEN_4_BYTE] = pBuf[i];
+		}
+	}
 
     return BT_FUNCTION_SUCCESS;
 
 error:
+
+
     return FUNCTION_ERROR;
 }
+
+
+int
+BTDevice_SetConfigFileData(BT_DEVICE *pBtDevice,unsigned char *pConfigFileData)
+{
+
+	int total_len=0;
+	int total_index=0;
+	int Cur_len=0;
+	int Cur_index=0;
+
+	if (pConfigFileData == NULL)
+	{
+		config_File_Data_Len=0;
+		memset(config_File_Data,0,MAX_CONFIGFILE_DATA_LEN);
+		goto exit;
+	}
+
+	if ((pConfigFileData[0] != 0xa5) || (pConfigFileData[1] != 0xb5))
+		goto error;
+
+	total_index = pConfigFileData[2];
+	total_len = pConfigFileData[3];
+	Cur_index = pConfigFileData[4];
+	Cur_len = pConfigFileData[5];
+
+	if ((config_File_Data_Len+Cur_len) > total_len )
+		goto error;
+
+	if (Cur_index >= total_index )  //>=???
+		goto error;
+
+	if (total_len > MAX_CONFIGFILE_DATA_LEN)
+		goto error;
+
+	memcpy(&config_File_Data[config_File_Data_Len],&pConfigFileData[6],Cur_len);
+	config_File_Data_Len+=Cur_len;
+
+exit:
+
+	return BT_FUNCTION_SUCCESS;
+
+error:
+
+	return FUNCTION_ERROR;
+
+}
+
+
+
 
 int
 BTDevice_8822b_LeContTxCmd(
@@ -2930,12 +3645,14 @@ BTDevice_8822b_LeContTxCmd(
             pTxTime->beginTimeClockCnt = btClockTime;
         }
     }
-
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
+
 }
+
 
 int
 BTDevice_fw_packet_tx_start(
@@ -2950,7 +3667,9 @@ BTDevice_fw_packet_tx_start(
 
     unsigned char pData[LEN_512_BYTE];
     unsigned char pEvtBuf[LEN_512_BYTE];
+    unsigned int ChipType;
 
+    ChipType = pBtDevice->pBTInfo->ChipType;
     pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
 
     SYSLOGI(" +BTDevice_fw_packet_tx_start");
@@ -2964,16 +3683,16 @@ BTDevice_fw_packet_tx_start(
     SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
     SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
 
-    pData[0] = (pParam->mHitTarget&0xff);                           //bt addr 6 bytes
-    pData[1] = ((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);        //bt addr
-    pData[2] = ((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);        //bt addr
-    pData[3] = ((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);        //bt addr
-    pData[4] = ((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);        //bt addr
-    pData[5] = ((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);        //bt addr
+    pData[0] = (unsigned char)(pParam->mHitTarget&0xff);                          //bt addr 6 bytes
+    pData[1] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);        //bt addr
+    pData[2] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);        //bt addr
+    pData[3] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);        //bt addr
+    pData[4] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);        //bt addr
+    pData[5] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);        //bt addr
 
-    pData[6] = pParam->mPayloadType;                                //payload_pattern
+    pData[6] = (unsigned char)(pParam->mPayloadType);               //payload_pattern
     pData[7] = 0x01;                                                //tx_interval
-    pData[8] = pParam->mTxGainIndex;                                //tx_power_index
+    pData[8] = (unsigned char)(pParam->mTxGainIndex);               //tx_power_index
 
     if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
     {
@@ -2986,28 +3705,36 @@ BTDevice_fw_packet_tx_start(
         pData[10] = pParam->mWhiteningCoeffValue;                   //whiten_coeff
     }
 
-    pData[11] = pParam->mChannelNumber;                             //rf_channel
-    pData[12] = pParam->mPacketType;                                //packet_type
+    pData[11] = (unsigned char)(pParam->mChannelNumber);            //rf_channel
+    pData[12] = (unsigned char)(pParam->mPacketType);               //packet_type
     pData[13] = 0x01;                                               //multirx_enable
     pData[14] = 0x01;                                               //is_pseudo_outer_mode
     pData[15] = 0x01;                                               //is_pkt_tx
 
-    pData[16] = (pParam->mPacketHeader&0xff);                       //payload_header 4 bytes
-    pData[17] = ((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);    //payload_header
-    pData[18] = ((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);    //payload_header
-    pData[19] = ((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);    //payload_header
+    pData[16] = (unsigned char)(pParam->mPacketHeader&0xff);                       //payload_header 4 bytes
+    pData[17] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);    //payload_header
+    pData[18] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);    //payload_header
+    pData[19] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);    //payload_header
 
-    pData[20] = (pParam->mTxPacketCount&0xff);                      //tx_packet_count 4 bytes
-    pData[21] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);   //tx_packet_count
-    pData[22] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);   //tx_packet_count
-    pData[23] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);   //tx_packet_count
+    pData[20] = (unsigned char)(pParam->mTxPacketCount&0xff);                      //tx_packet_count 4 bytes
+    pData[21] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);   //tx_packet_count
+    pData[22] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);   //tx_packet_count
+    pData[23] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);   //tx_packet_count
 
-    pData[24] = (Arrary_PayloadLength[pParam->mPacketType]&0xff);   //payload_length 2 bytes
-    pData[25] = ((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
+    pData[24] = (unsigned char)(Arrary_PayloadLength[pParam->mPacketType]&0xff);   //payload_length 2 bytes
+    pData[25] = (unsigned char)((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
 
-    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_TX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
-        goto error;
-
+    if(ChipType == RTK_BT_CHIP_ID_RTL8763B)
+	{
+		pData[26] = 0;
+		if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_TX_ENABLE_CONFIG, LEN_27_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+			goto error;
+	}
+	else
+	{
+        if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_TX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+            goto error;
+    }
     //get begin clock
     pTxTime->beginTimeClockCnt=0;
     pTxTime->UseTimeClockCnt=0;
@@ -3019,6 +3746,7 @@ BTDevice_fw_packet_tx_start(
     }
 
     SYSLOGI(" -BTDevice_fw_packet_tx_start");
+
 
     return BT_FUNCTION_SUCCESS;
 
@@ -3055,7 +3783,9 @@ error:
 
     return FUNCTION_ERROR;
 
+
 }
+
 
 
 int
@@ -3089,7 +3819,10 @@ BTDevice_fw_packet_rx_start(
 {
     unsigned char pData[LEN_512_BYTE];
     unsigned char pEvtBuf[LEN_512_BYTE];
+    unsigned int ChipType;
     uint32_t EvtLen;
+
+    ChipType = pBtDevice->pBTInfo->ChipType;
 
     SYSLOGI(" +BTDevice_fw_packet_rx_start");
     SYSLOGI(" mChannelNumber = 0x%x", pParam->mChannelNumber);
@@ -3102,16 +3835,16 @@ BTDevice_fw_packet_rx_start(
     SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
     SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
 
-    pData[0] = (pParam->mHitTarget&0xff);                               //bt addr 6 bytes
-    pData[1] = ((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);            //bt addr
-    pData[2] = ((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);            //bt addr
-    pData[3] = ((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);            //bt addr
-    pData[4] = ((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);            //bt addr
-    pData[5] = ((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);            //bt addr
+    pData[0] = (unsigned char)(pParam->mHitTarget&0xff);                               //bt addr 6 bytes
+    pData[1] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);            //bt addr
+    pData[2] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);            //bt addr
+    pData[3] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);            //bt addr
+    pData[4] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);            //bt addr
+    pData[5] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);            //bt addr
 
-    pData[6] = pParam->mPayloadType;                                    //payload_pattern
+    pData[6] = (unsigned char)(pParam->mPayloadType);                                    //payload_pattern
     pData[7] = 0x01;                                                    //tx_interval
-    pData[8] = pParam->mTxGainIndex;                                  //tx_power_index
+    pData[8] = (unsigned char)(pParam->mTxGainIndex);                                  //tx_power_index
 
     if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
     {
@@ -3124,27 +3857,37 @@ BTDevice_fw_packet_rx_start(
         pData[10] = pParam->mWhiteningCoeffValue;                       //whiten_coeff
     }
 
-    pData[11] = pParam->mChannelNumber;                                 //rf_channel
-    pData[12] = pParam->mPacketType;                                    //packet_type
+    pData[11] = (unsigned char)(pParam->mChannelNumber);                                 //rf_channel
+    pData[12] = (unsigned char)(pParam->mPacketType);                                    //packet_type
     pData[13] = 0x01;                                                   //multirx_enable
     pData[14] = 0x01;                                                   //is_pseudo_outer_mode
     pData[15] = 0x00;                                                   //is_pkt_tx
 
-    pData[16] = (pParam->mPacketHeader&0xff);                           //payload_header 4 bytes
-    pData[17] = ((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);        //payload_header
-    pData[18] = ((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);        //payload_header
-    pData[19] = ((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);        //payload_header
+    pData[16] = (unsigned char)(pParam->mPacketHeader&0xff);                           //payload_header 4 bytes
+    pData[17] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);        //payload_header
+    pData[18] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);        //payload_header
+    pData[19] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);        //payload_header
 
-    pData[20] = (pParam->mTxPacketCount&0xff);                          //tx_packet_count 4 bytes
-    pData[21] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);       //tx_packet_count
-    pData[22] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);       //tx_packet_count
-    pData[23] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);       //tx_packet_count
+    pData[20] = (unsigned char)(pParam->mTxPacketCount&0xff);                          //tx_packet_count 4 bytes
+    pData[21] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);       //tx_packet_count
+    pData[22] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);       //tx_packet_count
+    pData[23] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);       //tx_packet_count
 
-    pData[24] = (Arrary_PayloadLength[pParam->mPacketType]&0xff);       //payload_length 2 bytes
-    pData[25] = ((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
+    pData[24] = (unsigned char)(Arrary_PayloadLength[pParam->mPacketType]&0xff);       //payload_length 2 bytes
+    pData[25] = (unsigned char)((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
 
-    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_RX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
-        goto error;
+
+    if(ChipType == RTK_BT_CHIP_ID_RTL8763B)
+	{
+		pData[26] = 0;
+		if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_RX_ENABLE_CONFIG, LEN_27_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+			goto error;
+	}
+	else
+	{
+        if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_RX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+            goto error;
+    }
 
     SYSLOGI(" -BTDevice_fw_packet_rx_start");
 
@@ -3269,7 +4012,9 @@ BTDevice_fw_cont_tx_start(
 
     unsigned char pData[LEN_512_BYTE];
     unsigned char pEvtBuf[LEN_512_BYTE];
+    unsigned int ChipType;
 
+    ChipType = pBtDevice->pBTInfo->ChipType;
     pTxTime = &pBtDevice->TRxTime[TX_TIME_RUNING];
 
     SYSLOGI(" +BTDevice_fw_cont_tx_start");
@@ -3283,16 +4028,16 @@ BTDevice_fw_cont_tx_start(
     SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
     SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
 
-    pData[0] = (pParam->mHitTarget&0xff);                               //bt addr 6 bytes
-    pData[1] = ((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);            //bt addr
-    pData[2] = ((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);            //bt addr
-    pData[3] = ((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);            //bt addr
-    pData[4] = ((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);            //bt addr
-    pData[5] = ((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);            //bt addr
+    pData[0] = (unsigned char)(pParam->mHitTarget&0xff);                               //bt addr 6 bytes
+    pData[1] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);            //bt addr
+    pData[2] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);            //bt addr
+    pData[3] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*3))&0xff);            //bt addr
+    pData[4] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*4))&0xff);            //bt addr
+    pData[5] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*5))&0xff);            //bt addr
 
-    pData[6] = pParam->mPayloadType;                                    //payload_pattern
+    pData[6] = (unsigned char)(pParam->mPayloadType);                                    //payload_pattern
     pData[7] = 0x01;                                                    //tx_interval
-    pData[8] = pParam->mTxGainIndex;                                  //tx_power_index
+    pData[8] = (unsigned char)(pParam->mTxGainIndex);                                  //tx_power_index
 
     if( pParam->mWhiteningCoeffValue>=BIT_7_MASK)
     {
@@ -3305,28 +4050,39 @@ BTDevice_fw_cont_tx_start(
         pData[10] = pParam->mWhiteningCoeffValue;                       //whiten_coeff
     }
 
-    pData[11] = pParam->mChannelNumber;                                 //rf_channel
-    pData[12] = pParam->mPacketType;                                    //packet_type
+    pData[11] = (unsigned char)(pParam->mChannelNumber);                                 //rf_channel
+    pData[12] = (unsigned char)(pParam->mPacketType);                                    //packet_type
 
     pData[13] = 0x00;                                                   //multirx_enable
     pData[14] = 0x01;                                                   //is_pseudo_outer_mode
     pData[15] = 0x00;                                                   //is_pkt_tx
 
-    pData[16] = (pParam->mPacketHeader&0xff);                           //payload_header 4 bytes
-    pData[17] = ((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);        //payload_header
-    pData[18] = ((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);        //payload_header
-    pData[19] = ((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);        //payload_header
+    pData[16] = (unsigned char)(pParam->mPacketHeader&0xff);                           //payload_header 4 bytes
+    pData[17] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*1))&0xff);        //payload_header
+    pData[18] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*2))&0xff);        //payload_header
+    pData[19] = (unsigned char)((pParam->mPacketHeader>>(BYTE_SHIFT*3))&0xff);        //payload_header
 
-    pData[20] = (pParam->mTxPacketCount&0xff);                          //tx_packet_count 4 bytes
-    pData[21] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);       //tx_packet_count
-    pData[22] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);       //tx_packet_count
-    pData[23] = ((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);       //tx_packet_count
+    pData[20] = (unsigned char)(pParam->mTxPacketCount&0xff);                          //tx_packet_count 4 bytes
+    pData[21] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*1))&0xff);       //tx_packet_count
+    pData[22] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*2))&0xff);       //tx_packet_count
+    pData[23] = (unsigned char)((pParam->mTxPacketCount>>(BYTE_SHIFT*3))&0xff);       //tx_packet_count
 
-    pData[24] = (Arrary_PayloadLength[pParam->mPacketType]&0xff);       //payload_length 2 bytes
-    pData[25] = ((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
+    pData[24] = (unsigned char)(Arrary_PayloadLength[pParam->mPacketType]&0xff);       //payload_length 2 bytes
+    pData[25] = (unsigned char)((Arrary_PayloadLength[pParam->mPacketType]>>BYTE_SHIFT)&0xff); //payload_length
 
-    if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_CON_TX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
-        goto error;
+
+
+    if(ChipType == RTK_BT_CHIP_ID_RTL8763B)
+	{
+		pData[26] = 0;
+		if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_CON_TX_ENABLE_CONFIG, LEN_27_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+			goto error;
+	}
+	else
+	{
+        if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_CON_TX_ENABLE_CONFIG, LEN_26_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
+            goto error;
+    }
 
     //get begin clock
     pTxTime->beginTimeClockCnt=0;
@@ -3432,6 +4188,8 @@ error:
 }
 
 
+
+
 int
 BTDevice_SetGpio3_0(
     BT_DEVICE *pBtDevice,
@@ -3496,8 +4254,11 @@ BTDevice_GetGpio3_0(
     return BT_FUNCTION_SUCCESS;
 
 error:
+
     return FUNCTION_ERROR;
+
 }
+
 
 
 int

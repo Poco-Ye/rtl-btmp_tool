@@ -192,7 +192,7 @@ int hal_op_send(uint16_t opcode, char *buf)
     case BT_MP_OP_USER_DEF_RegRW:
         ret = BT_RegRW(&BtModuleMemory, buf, buf_cb);
         break;
-        
+
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
     case BT_MP_OP_USER_DEF_Inquiry:
         ret = BT_Inquiry(&BtModuleMemory, buf, buf_cb);

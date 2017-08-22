@@ -54,6 +54,8 @@ error:
     return FUNCTION_ERROR;
 }
 
+
+
 #define READ_WRITE_EFUSE_REG_MAX_LEN 32
 int
 BTDevice_Efuse_HCIIO_GetBytes(
@@ -79,11 +81,12 @@ BTDevice_Efuse_HCIIO_GetBytes(
     pData[3]=DataBytesLen&0xff;
     pData[4]=(DataBytesLen>>8)&0xff;
 
-    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFC6C, LEN_5_BYTE, pData, 0x0e, pEvent, &EvtLen))
+    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFC6C, LEN_5_BYTE, pData, 0x0e, pEvent, &EvtLen)!=BT_FUNCTION_SUCCESS)
         goto error;
 
     //check event
-    if (pEvent[5] != 0) {
+    if (pEvent[5] != 0)
+    {
         goto error;
     }
 
@@ -127,7 +130,7 @@ BTDevice_Efuse_HCIIO_SetBytes(
     memcpy(&pData[5],pDataBytes,DataBytesLen);
     length=LEN_5_BYTE + DataBytesLen;
 
-    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFC6B, length, pData, 0x0e, pEvent, &EvtLen))
+    if (bt_default_SendHciCommandWithEvent(pBtDevice, 0xFC6B, length, pData, 0x0e, pEvent, &EvtLen)!=BT_FUNCTION_SUCCESS)
         goto error;
 
     //check event
@@ -173,7 +176,7 @@ BTDevice_Efuse_IO_SetBytes(
         goto error;
 
     tmpdata = tmpdata & 0xF4;
-    tmpdata |= Bank & 0x0f;
+    tmpdata |= (Bank & 0x0f);
 
     if (bt_default_SetSysRegMaskBits(pBtDevice, 0x35, 7, 0, tmpdata) !=BT_FUNCTION_SUCCESS)
         goto error;
@@ -185,6 +188,8 @@ error:
     return FUNCTION_ERROR;
 
 }
+
+
 
 int
 BTDevice_Efuse_IO_GetBytes(
@@ -199,14 +204,14 @@ BTDevice_Efuse_IO_GetBytes(
     if (BTDevice_Efuse_HCIIO_GetBytes(pBtDevice, Bank, address, pDataBytes, DataBytesLen)!=BT_FUNCTION_SUCCESS)
         goto error;
 
-    if (bt_default_SetSysRegMaskBits(pBtDevice, 0x35, 3, 0, Bank&0x07) !=BT_FUNCTION_SUCCESS)
-        goto error;
+    bt_default_SetSysRegMaskBits(pBtDevice, 0x35, 3, 0, Bank&0x07);
 
     return BT_FUNCTION_SUCCESS;
 
 error:
     return FUNCTION_ERROR;
 }
+
 
 int
 BTDevice_Efuse_GetBytes(
@@ -222,6 +227,11 @@ BTDevice_Efuse_GetBytes(
     unsigned int ReadingByteNum, ReadingByteNumRem;
     unsigned int RegReadingAddr;
 
+    unsigned char pReadingCmpBuf[READ_WRITE_EFUSE_REG_MAX_LEN];
+
+    memset(pReadingCmpBuf, 0xff, READ_WRITE_EFUSE_REG_MAX_LEN);
+	//FillMemory(pReadingCmpBuf, READ_WRITE_EFUSE_REG_MAX_LEN, 0xFF);
+
     for(i = 0; i < ByteNum; i += READ_WRITE_EFUSE_REG_MAX_LEN)
     {
         // Set register reading address.
@@ -233,13 +243,19 @@ BTDevice_Efuse_GetBytes(
         // Determine reading byte number.
         ReadingByteNum = (ReadingByteNumRem > READ_WRITE_EFUSE_REG_MAX_LEN) ? READ_WRITE_EFUSE_REG_MAX_LEN : ReadingByteNumRem;
 
-        if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_READ_, TYPE_15K))    // 1.5K
-            goto error;
+        BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_READ_, TYPE_15K);    // 1.5K
 
         if (BTDevice_Efuse_IO_GetBytes(pBtDevice, Bank, RegReadingAddr, pReadingBytes+i, ReadingByteNum)!=BT_FUNCTION_SUCCESS)
             goto error;
 
+        if( memcmp(pReadingBytes+i, pReadingCmpBuf, ReadingByteNum) == 0 )
+		{
+			goto exit;
+		}
+
     }
+
+exit:
 
     return BT_FUNCTION_SUCCESS;
 
@@ -283,14 +299,12 @@ retry:
         if (times == 1 )
         {
             //set 1.5K
-            if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_WRITE_, TYPE_15K))
-                goto error;
+            BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_WRITE_, TYPE_15K);
         }
         else if (times ==2)
         {
             //set 10K
-            if (BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_WRITE_, TYPE_10K))
-                goto error;
+            BTDevice_Efuse_SetLdo225_10K15K(pBtDevice, _DO_WRITE_, TYPE_10K);
         }
         else
         {
@@ -323,6 +337,8 @@ error:
 
 }
 
+
+
 int
 BTDevice_Efuse_Log2EntryMap(
         EFUSE_UNIT *pEfuse,
@@ -336,22 +352,26 @@ BTDevice_Efuse_Log2EntryMap(
     uint8_t tmp[LEN_8_BYTE];
     uint16_t i, j, count;
 
+
     count = 0;
     WordSelect = 0xff;
     *Len = 0;
 
     memset(tmp, 0, sizeof(tmp));
 
-    for (j = 0; j < LEN_4_BYTE; j++) {
-        if ((pEfuse->pEfuseLogMem[StartLogAddr+j*2].NewValue == 0xff) && (pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].NewValue == 0xff)) {
+    for (j = 0; j < LEN_4_BYTE; j++)
+    {
+        if ((pEfuse->pEfuseLogMem[StartLogAddr+j*2].NewValue == 0xff) && (pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].NewValue == 0xff))
+        {
             pEfuse->pEfuseLogMem[StartLogAddr+j*2].NewValue = pEfuse->pEfuseLogMem[StartLogAddr+j*2].OldValue;
             pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].NewValue = pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].OldValue;
             continue;
         }
 
         if ((pEfuse->pEfuseLogMem[StartLogAddr+j*2].OldValue != pEfuse->pEfuseLogMem[StartLogAddr+j*2].NewValue) ||
-            (pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].OldValue != pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].NewValue)) {
-            WordSelect=WordSelect & ~(0x01<<j);
+            (pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].OldValue != pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].NewValue))
+        {
+            WordSelect=WordSelect & ~(0x01<<(j));
             tmp[count] = pEfuse->pEfuseLogMem[StartLogAddr+j*2].NewValue;
             tmp[count+1] = pEfuse->pEfuseLogMem[StartLogAddr+j*2+1].NewValue;
             count += 2;
@@ -359,18 +379,25 @@ BTDevice_Efuse_Log2EntryMap(
     }
 
     if ((WordSelect & 0x0f) == 0x0f)
+    {
         return BT_FUNCTION_SUCCESS;
+    }
 
-    if (StartLogAddr < 0x80) {
+    if (StartLogAddr < 128)
+    {
         // one-byte mode
         BaseAddress = StartLogAddr / 8;
         Header1 = (BaseAddress&0x0f) << 4;
         Header1 |= (WordSelect&0x0f);
         pWritingEntry[0] = Header1;
         for (i = 0; i < count; i++)
+        {
             pWritingEntry[1+i] = tmp[i];
+        }
         *Len = count + 1;
-    } else {
+    }
+    else
+    {
         // two-byte mode
         BaseAddress_A = (StartLogAddr/8) - 16;
         BaseAddress_x = (BaseAddress_A%8) * 2;
@@ -378,11 +405,13 @@ BTDevice_Efuse_Log2EntryMap(
 
         Header1 = (BaseAddress_x&0x0F)<<4 | 0x0F;
         Header2 = (BaseAddress_y&0x0F)<<4;
-        Header2 |= WordSelect&0x0f;
+        Header2 |= (WordSelect&0x0f);
         pWritingEntry[0] = Header1;
         pWritingEntry[1] = Header2;
         for (i = 0; i < count; i++)
+        {
             pWritingEntry[2+i] = tmp[i];
+        }
         *Len = count + 2;
     }
 
@@ -421,7 +450,8 @@ BuildEfuseLogicUnit(
     pEfuse->BankNum = BankNum;
     pEfuse->CurrBank = pEfuse->StartBank;
 
-    for (i = 0; i < pEfuse->EfuseLogSize; i++) {
+    for (i = 0; i < pEfuse->EfuseLogSize; i++)
+    {
         pEfuse->pEfuseLogMem[i].NewValue = 0xff;
         pEfuse->pEfuseLogMem[i].OldValue = 0xff;
     }
@@ -429,11 +459,18 @@ BuildEfuseLogicUnit(
     for (i = 0; i < MAX_EFUSE_BANK_NUM; i++)
         pEfuse->pEfusePhyDataLen[i] = 0;
 
+    for( Bank=StartBank; Bank<StartBank+BankNum; Bank++)
+	{
+        memset(pEfuse->pEfusePhyMem+Bank*MAX_EFUSE_PHY_LEN, 0xFF, MAX_EFUSE_PHY_LEN);
+		//FillMemory(pEfuse->pEfusePhyMem+Bank*MAX_EFUSE_PHY_LEN, MAX_EFUSE_PHY_LEN, 0xFF);
+	}
     return BT_FUNCTION_SUCCESS;
 
 error:
     return FUNCTION_ERROR;
 }
+
+
 
 int
 BTDevice_Efuse_LoadPhyMem(
@@ -447,7 +484,8 @@ BTDevice_Efuse_LoadPhyMem(
     StartBank = pEfuse->StartBank;
     BankNum = pEfuse->BankNum;
 
-    for (Bank = StartBank; Bank < StartBank + BankNum; Bank++) {
+    for (Bank = StartBank; Bank < StartBank + BankNum; Bank++)
+    {
         if (BTDevice_Efuse_GetBytes(
                     pEfuse->pBtDevice,
                     Bank,
@@ -463,28 +501,34 @@ error:
     return FUNCTION_ERROR;
 }
 
+
 int
 BTDevice_Efuse_Log2PhyMap(
         EFUSE_UNIT *pEfuse
         )
 {
     uint16_t i, j;
-    uint8_t Bank, StartBank;
+    uint8_t Bank;
+    uint8_t StartBank;
     uint8_t BankNum;
     uint8_t pWritingEntry[LEN_10_BYTE];
     uint16_t WritingLen;
 
+
     StartBank = pEfuse->StartBank;
     BankNum = pEfuse->BankNum;
 
-    for (i = 0; i < pEfuse->EfuseLogSize; i += LEN_8_BYTE) {
+    for (i = 0; i < pEfuse->EfuseLogSize; i += LEN_8_BYTE)
+    {
         if (BTDevice_Efuse_Log2EntryMap(pEfuse, i, pWritingEntry, &WritingLen) != BT_FUNCTION_SUCCESS)
             goto error;
 
-        if (WritingLen > 0) {
+        if (WritingLen > 0)
+        {
             Bank = pEfuse->CurrBank;
 re_check:
-            if ((pEfuse->pEfusePhyDataLen[Bank] + WritingLen) > (pEfuse->EfusePhySize - DUMMY_EFUSE_LEN)) {
+            if ((pEfuse->pEfusePhyDataLen[Bank] + WritingLen) > (pEfuse->EfusePhySize - DUMMY_EFUSE_LEN))
+            {
                 Bank++;
 
                 if (Bank >= StartBank + BankNum)
@@ -497,7 +541,9 @@ re_check:
                 goto error;
 
             for (j = i; j < i + LEN_8_BYTE; j++)
+            {
                 pEfuse->pEfuseLogMem[j].OldValue = pEfuse->pEfuseLogMem[j].NewValue;
+            }
 
             memcpy(pEfuse->pEfusePhyMem+pEfuse->pEfusePhyDataLen[Bank], pWritingEntry, WritingLen);
 
@@ -517,27 +563,30 @@ BTDevice_Efuse_Phy2LogMap(
         EFUSE_UNIT *pEfuse
         )
 {
-    uint16_t i;
-    uint8_t j;
+    uint16_t i, j;
     uint8_t b;
     uint8_t Header1;
     uint8_t Header2;
-    uint8_t BaseAddress_x, BaseAddress_y;
-    uint16_t BaseAddress;
+    uint8_t BaseAddress, BaseAddress_x, BaseAddress_y;
     uint8_t WordSelect;
 
-    for (i = 0; i < pEfuse->EfuseLogSize; i++) {
-        pEfuse->pEfuseLogMem[i].NewValue = 0xff;
+    for (i = 0; i < pEfuse->EfuseLogSize; i++)
+    {
         pEfuse->pEfuseLogMem[i].OldValue = 0xff;
+        pEfuse->pEfuseLogMem[i].NewValue = 0xff;
     }
 
-    for (b = pEfuse->StartBank; b < pEfuse->StartBank + pEfuse->BankNum; b++) {
+    for (b = pEfuse->StartBank; b < pEfuse->StartBank + pEfuse->BankNum; b++)
+    {
         i = 0;
 
-        while (i < pEfuse->EfusePhySize - DUMMY_EFUSE_LEN) {
-            if ((pEfuse->pEfusePhyMem[b*MAX_EFUSE_PHY_LEN+i+0] == 0xff) &&
-                (pEfuse->pEfusePhyMem[b*MAX_EFUSE_PHY_LEN+i+1] == 0xff)) {
+        while (i < pEfuse->EfusePhySize - DUMMY_EFUSE_LEN)
+        {
+            if ((pEfuse->pEfusePhyMem[b*MAX_EFUSE_PHY_LEN+i] == 0xff) &&
+                (pEfuse->pEfusePhyMem[b*MAX_EFUSE_PHY_LEN+i+1] == 0xff))
+                {
                 pEfuse->pEfusePhyDataLen[b] = i;
+
                 if (pEfuse->pEfusePhyDataLen[b])
                     pEfuse->CurrBank = b;
                 break;
@@ -545,21 +594,27 @@ BTDevice_Efuse_Phy2LogMap(
 
             Header1 = pEfuse->pEfusePhyMem[b*MAX_EFUSE_PHY_LEN + i++];
 
-            if ((Header1&0x0f) != 0x0f) {
+            if ((Header1&0x0f) != 0x0f)
+            {
                 // one-byte mode
                 BaseAddress = ((Header1>>4)&0x0f) * 8;
                 WordSelect =  Header1 & 0x0f;
-            } else {
+            }
+            else
+            {
                 // two-byte mode
                 Header2 = pEfuse->pEfusePhyMem[b*MAX_EFUSE_PHY_LEN + i++];
+
                 BaseAddress_x = (Header1>>4)&0x0f;
                 BaseAddress_y = (Header2>>4)&0x0f;
                 BaseAddress = ((BaseAddress_x/2) + ((BaseAddress_y-2)*8) + 16) * 8;
                 WordSelect = Header2 & 0x0f;
             }
 
-            for (j = 0; j < LEN_4_BYTE; j++) {
-                if (((WordSelect>>j) & 0x01) == 0x00) {
+            for (j = 0; j < LEN_4_BYTE; j++)
+            {
+                if (((WordSelect>>j) & 0x01) == 0x00)
+                {
                     pEfuse->pEfuseLogMem[BaseAddress + (j*2)].OldValue = pEfuse->pEfusePhyMem[b*MAX_EFUSE_PHY_LEN + i++];
                     pEfuse->pEfuseLogMem[BaseAddress + (j*2)+1].OldValue = pEfuse->pEfusePhyMem[b*MAX_EFUSE_PHY_LEN + i++];
                     pEfuse->pEfuseLogMem[BaseAddress + (j*2)].NewValue = pEfuse->pEfuseLogMem[BaseAddress + (j*2)].OldValue;

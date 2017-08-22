@@ -81,7 +81,7 @@ typedef struct {
     // bit2 == 0: rssi doesn't exist
     // bit2 == 1: rssi exist
     uint32_t exist_flag;
-    
+
     uint8_t mac[6];
     uint8_t name[256];
     uint8_t name_len;
@@ -125,7 +125,7 @@ static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
         pBtModule->pBtParam->mPacketHeader = (uint32_t)value;
         break;
     case BT_PARAM_IDX10:
-        pBtModule->pBtParam->mHoppingFixChannel = (uint8_t)value;
+        pBtModule->pBtParam->bHoppingFixChannel = (uint8_t)value;
         break;
     case BT_PARAM_IDX11:
         pBtModule->pBtParam->mHitTarget = (uint64_t)value;
@@ -289,11 +289,11 @@ void inquiry_all_bt_device_mac(BT_MODULE *pBtModule, bt_device_info_t *info, uin
     uint32_t event_len;
     uint32_t i;
     int ret = BT_FUNCTION_SUCCESS;
-    
+
     // clear buffer
     for (i = 0; i < info_len; i++)
         info[i].exist_flag = 0;
-    
+
     // send Inquiry Command
     command_param[0] = 0x33;
     command_param[1] = 0x8b;
@@ -366,7 +366,7 @@ void request_device_name_by_mac(BT_MODULE *pBtModule, bt_device_info_t *info)
     uint32_t event_len;
     uint32_t i;
     int ret = BT_FUNCTION_SUCCESS;
-    
+
     // send Remote Name Request Command
     command_param[0] = info->mac[5];
     command_param[1] = info->mac[4];
@@ -531,25 +531,25 @@ void search_mac_not_name(BT_MODULE *pBtModule, int scan_seconds, char *buf_cb)
 {
     uint32_t i;
     char *ptr;
-    
+
     // get all MAC
     inquiry_all_bt_device_mac(pBtModule, bt_device_info, BT_DEVICE_INFO_NUMBER, (uint8_t)scan_seconds);
-    
+
     // put title
     sprintf(buf_cb, "   MAC List\n\0");
     ptr = buf_cb;
-    
+
     for (i = 0; i < BT_DEVICE_INFO_NUMBER; i++) {
         if ((bt_device_info[i].exist_flag & BT_DEVICE_INFO_MAC_MASK) == 0)
             break;
-    
+
         // MAC
         ptr += strlen(ptr);
         sprintf(ptr, "%02x:%02x:%02x:%02x:%02x:%02x\n\0", bt_device_info[i].mac[0],
                 bt_device_info[i].mac[1], bt_device_info[i].mac[2], bt_device_info[i].mac[3],
                 bt_device_info[i].mac[4], bt_device_info[i].mac[5]);
     }
-    
+
     return;
 }
 
@@ -584,7 +584,7 @@ int BT_Inquiry(BT_MODULE *pBtModule, char *p, char *buf_cb)
             continue;
         colon_count += 1;
     }
-    
+
     if (colon_count == 5) { // has MAC
         sscanf(p, "%x:%x:%x:%x:%x:%x", &tmp[0], &tmp[1], &tmp[2], &tmp[3], &tmp[4], &tmp[5]);
         mac[0] = (uint8_t)tmp[0];
@@ -610,7 +610,7 @@ int BT_Read(BT_MODULE *pBtModule, char *p, char *buf_cb)
     uint8_t event[32];
     uint32_t event_len;
     int ret = BT_FUNCTION_SUCCESS;
-    
+
     SYSLOGI("++%s: %s", STR_BT_MP_READ, p);
 
     if ((p == NULL) || (strcmp(p, "mac") != 0)) {
@@ -626,7 +626,7 @@ int BT_Read(BT_MODULE *pBtModule, char *p, char *buf_cb)
         return;
 
     // get MAC
-    sprintf(buf_cb, "Local MAC: %02x:%02x:%02x:%02x:%02x:%02x\0", event[11], event[10], 
+    sprintf(buf_cb, "Local MAC: %02x:%02x:%02x:%02x:%02x:%02x\0", event[11], event[10],
                                                     event[9], event[8], event[7], event[6]);
 
 exit:
@@ -723,7 +723,7 @@ static void bt_index2print(BT_MODULE *pBtModule, int index, char *buf_cb)
                 STR_BT_MP_GET_PARAM, STR_BT_MP_RESULT_DELIM,
                 index, STR_BT_MP_RESULT_DELIM,
                 BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mHoppingFixChannel);
+                pBtModule->pBtParam->bHoppingFixChannel);
         break;
     case BT_PARAM_IDX11:
         sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%012"PRIx64"",
@@ -785,7 +785,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
     case REPORT_ALL:
         break;
     case REPORT_PKT_TX:
-    case REPORT_CONT_TX:
+    case REPORT_CON_TX:
         SYSLOGI("%s%s%d%s0x%02x%s0x%08x%s0x%08x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
                 item, STR_BT_MP_RESULT_DELIM,
@@ -801,7 +801,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->TotalTxCounts);
         break;
 
-    case REPORT_PKT_RX:
+    case REPORT_RKT_RX:
         SYSLOGI("%s%s%d%s0x%02x%s%d%s0x%08x%s0x%08x%s0x%08x",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
                 item, STR_BT_MP_RESULT_DELIM,
@@ -1209,7 +1209,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 pBtModule->pBtParam->mTxGainIndex, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxDAC, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPacketHeader, STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mHoppingFixChannel, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->bHoppingFixChannel, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHitTarget, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mParamData[0]);
 
@@ -1225,7 +1225,7 @@ int BT_GetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 pBtModule->pBtParam->mTxGainIndex, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mTxDAC, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mPacketHeader, STR_BT_MP_RESULT_DELIM,
-                pBtModule->pBtParam->mHoppingFixChannel, STR_BT_MP_RESULT_DELIM,
+                pBtModule->pBtParam->bHoppingFixChannel, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mHitTarget, STR_BT_MP_RESULT_DELIM,
                 pBtModule->pBtParam->mParamData[0]);
     }
@@ -1835,6 +1835,6 @@ void bt_mp_module_init(BASE_INTERFACE_MODULE *pBaseInterfaceModule, BT_MODULE *p
     pBtModule->pBtParam->mTxGainIndex = DEFAULT_TX_GAIN_INDEX;
     pBtModule->pBtParam->mTxDAC = DEFAULT_TX_DAC;
     pBtModule->pBtParam->mPacketHeader = DEFAULT_PKT_HEADER;
-    pBtModule->pBtParam->mHoppingFixChannel = DEFAULT_HOPPING_CH_NUM;
+    pBtModule->pBtParam->bHoppingFixChannel = DEFAULT_HOPPING_CH_NUM;
     pBtModule->pBtParam->mHitTarget = DEFAULT_HIT_ADDRESS;
 }
