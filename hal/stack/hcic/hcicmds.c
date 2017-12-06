@@ -3341,7 +3341,7 @@ BOOLEAN btsnd_hcic_nop (void)
 
 void btsnd_hcic_mp_test_cmd (void *buffer, UINT16 opcode, UINT8 len, UINT8 *p_data, void *p_cmd_cplt_cback)
 {
-    SYSLOGI("btsnd_hcic_mp_test_cmd");
+    SYSLOGI("btsnd_hcic_mp_test_cmd,opcode[0x%x]",opcode);
     BT_HDR *p = (BT_HDR *)buffer;
     UINT8 *pp = (UINT8 *)(p + 1);
     p->len    = HCIC_PREAMBLE_SIZE + len;

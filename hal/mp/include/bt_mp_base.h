@@ -70,6 +70,7 @@ typedef enum
 
 #ifndef BASE_BT_CONFIG
 #define BASE_BT_CONFIG
+#endif
 
 #define MAX_TXGAIN_TABLE_SIZE   7
 #define MAX_TXDAC_TABLE_SIZE    5
@@ -177,6 +178,8 @@ typedef enum {
 
     SET_GPIO3_0,                    //39
 
+    SET_ANT_INFO,                   //40
+    SET_ANT_DIFF_S0S1,              //41
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
 
@@ -313,9 +316,9 @@ struct BT_PARAMETER_TAG
 
     uint8_t bHoppingFixChannel;
     uint16_t Rtl8761Xtal;
-    unsigned char ExeMode;
-    unsigned char PHY;              //for Le Enhanced bt 5.0
-    unsigned char ModulationIndex;  //for Le Enhanced bt 5.0
+    uint8_t ExeMode;
+    uint8_t PHY;              //for Le Enhanced bt 5.0
+    uint8_t ModulationIndex;  //for Le Enhanced bt 5.0
 };
 
 
@@ -360,7 +363,6 @@ struct BT_DEVICE_REPORT_TAG {
     uint8_t ReportData[MAX_USERAWDATA_SIZE];
 };
 
-#endif
 
 
 
@@ -701,7 +703,22 @@ typedef int
     unsigned char *pGpioValue
     );
 
-
+typedef int
+(*BT_FP_GET_BYTE)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pValue
+    );
+typedef int
+(*BT_FP_SET_BYTE)(
+    BT_DEVICE *pBtDevice,
+    unsigned char Value
+    );
+typedef int
+(*BT_FP_SET_BYTE_BYTE)(
+    BT_DEVICE *pBtDevice,
+    unsigned char Value1,
+    unsigned char Value2
+    );
 
 #define MAX_EFUSE_PHY_LEN 512
 #define MAX_EFUSE_LOG_LEN 1024
@@ -720,6 +737,7 @@ typedef struct _EFUSE_UNIT
     EFUSE_LOGIC pEfuseLogMem[MAX_EFUSE_LOG_LEN];
     uint32_t pEfusePhyDataLen[MAX_EFUSE_BANK_NUM];
 
+    uint32_t EfuseType;
     uint32_t EfusePhySize;
     uint32_t EfuseLogSize;
 
@@ -854,6 +872,8 @@ struct BT_DEVICE_TAG
 
     BT_FP_UPDATE                    MpDebugMessageReport;
     BT_FP_UPDATE                    MpFTValueReport;
+    BT_FP_SET_BYTE                  SetAntInfo;
+    BT_FP_SET_BYTE_BYTE             SetAntDiffS0S1;
 };
 
 //
@@ -998,12 +1018,12 @@ typedef int
 typedef int
 (*BT_MODULE_FP_GET_REG_MASK_BITS)(
     BT_MODULE *pBtModule,
-    int Type,
-    int Page,
-    unsigned long Addr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    unsigned long *pUserValue
+        uint8_t Type,
+        uint8_t Page,
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
     );
 
 
@@ -1050,7 +1070,6 @@ struct BT_MODULE_TAG
     BASE_INTERFACE_MODULE *pBaseInterface;
 
 };
-
 #endif
 
 
@@ -1215,39 +1234,55 @@ bt_default_SendHciCommandWithEvent(
 int
 bt_default_SetSysRegMaskBits(
     BT_DEVICE *pBtDevice,
-    unsigned long Addr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    const unsigned long UserValue
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t UserValue
     );
 
 int
 bt_default_GetSysRegMaskBits(
     BT_DEVICE *pBtDevice,
-    unsigned long Addr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    unsigned long *pUserValue
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
     );
 
 int
 bt_default_SetBBRegMaskBits(
     BT_DEVICE *pBtDevice,
     int Page,
-    unsigned long RegStartAddr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    const unsigned long WritingValue
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t UserValue
     );
 
 int
 bt_default_GetBBRegMaskBits(
     BT_DEVICE *pBtDevice,
     int Page,
-    unsigned long Addr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    unsigned long *pUserValue
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
+    );
+int
+bt_default_SetTbdRegMaskBits(
+    BT_DEVICE *pBtDevice,
+    uint16_t Addr,
+    uint8_t Msb,
+    uint8_t Lsb,
+    const uint16_t UserValue
+    );
+int
+bt_default_GetTbdRegMaskBits(
+    BT_DEVICE *pBtDevice,
+    uint16_t Addr,
+    uint8_t Msb,
+    uint8_t  Lsb,
+    uint16_t *pUserValue
     );
 
 int

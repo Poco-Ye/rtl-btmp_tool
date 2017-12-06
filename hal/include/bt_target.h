@@ -773,7 +773,7 @@ BT_API extern void bte_main_lpm_allow_bt_device_sleep(void);
 
 /* If nonzero, the upper-layer sends at most this number of HCI commands to the lower-layer. */
 #ifndef HCI_MAX_SIMUL_CMDS
-#define HCI_MAX_SIMUL_CMDS          0
+#define HCI_MAX_SIMUL_CMDS         1
 #endif
 
 /* Timeout for receiving response to HCI command */

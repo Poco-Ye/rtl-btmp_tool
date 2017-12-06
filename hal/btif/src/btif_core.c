@@ -148,7 +148,7 @@ static void btif_context_switched(void *p_msg)
 {
     tBTIF_CONTEXT_SWITCH_CBACK *p;
 
-    BTIF_TRACE_VERBOSE0("btif_context_switched");
+    SYSLOGI("btif_context_switched");
 
     p = (tBTIF_CONTEXT_SWITCH_CBACK *) p_msg;
 
@@ -178,7 +178,7 @@ bt_status_t btif_transfer_context (tBTIF_CBACK *p_cback, UINT16 event, char* p_p
 {
     tBTIF_CONTEXT_SWITCH_CBACK *p_msg;
 
-    BTIF_TRACE_VERBOSE2("btif_transfer_context event %d, len %d", event, param_len);
+    SYSLOGI("btif_transfer_context event %d, len %d", event, param_len);
 
     /* allocate and send message that will be executed in btif context */
     if ((p_msg = (tBTIF_CONTEXT_SWITCH_CBACK *) GKI_getbuf(sizeof(tBTIF_CONTEXT_SWITCH_CBACK) + param_len)) != NULL)
@@ -303,7 +303,7 @@ static void btif_task(UINT32 params)
     UINT16   event;
     BT_HDR   *p_msg;
 
-    BTIF_TRACE_DEBUG0("btif task starting");
+    SYSLOGI("btif task starting");
 
     btif_associate_evt();
 
@@ -344,7 +344,7 @@ static void btif_task(UINT32 params)
         {
             while((p_msg = GKI_read_mbox(BTU_BTIF_MBOX)) != NULL)
             {
-                BTIF_TRACE_VERBOSE1("btif task fetched event 0x%x", p_msg->event);
+                SYSLOGD("btif task fetched event 0x%x", p_msg->event);
 
                 switch (p_msg->event)
                 {
@@ -361,7 +361,7 @@ static void btif_task(UINT32 params)
                         break;
 
                     default:
-                        BTIF_TRACE_ERROR1("unhandled btif event (%d)", p_msg->event & BT_EVT_MASK);
+                        SYSLOGE("unhandled btif event (%d)", p_msg->event & BT_EVT_MASK);
                         break;
                 }
 
@@ -372,7 +372,7 @@ static void btif_task(UINT32 params)
 
     btif_disassociate_evt();
 
-    BTIF_TRACE_DEBUG0("btif task exiting");
+    SYSLOGI("btif task exiting");
 }
 
 
@@ -439,7 +439,7 @@ bt_status_t btif_init_bluetooth()
 
 static bt_status_t btif_associate_evt(void)
 {
-    BTIF_TRACE_DEBUG1("%s: notify ASSOCIATE_JVM", __FUNCTION__);
+    SYSLOGI("%s: notify ASSOCIATE_JVM", __FUNCTION__);
     HAL_CBACK(bt_hal_cbacks, thread_evt_cb, ASSOCIATE_JVM);
 
     return BT_STATUS_SUCCESS;
@@ -458,7 +458,7 @@ static bt_status_t btif_associate_evt(void)
 
 bt_status_t btif_enable_bluetooth(bt_hci_if_t hci_if, const char *dev_node)
 {
-    BTIF_TRACE_DEBUG0("BTIF ENABLE BLUETOOTH");
+    SYSLOGI("BTIF ENABLE BLUETOOTH");
 
     if (btif_core_state != BTIF_CORE_STATE_DISABLED)
     {
@@ -511,7 +511,7 @@ bt_status_t btif_disable_bluetooth(void)
 {
     if (!btif_is_enabled())
     {
-        BTIF_TRACE_ERROR0("btif_disable_bluetooth : not yet enabled");
+        SYSLOGI("btif_disable_bluetooth : not yet enabled");
         return BT_STATUS_NOT_READY;
     }
 
@@ -526,7 +526,7 @@ bt_status_t btif_disable_bluetooth(void)
     bte_main_shutdown();
 
 
-    BTIF_TRACE_DEBUG0("BTIF DISABLE BLUETOOTH");
+    SYSLOGI("BTIF DISABLE BLUETOOTH");
 
     return BT_STATUS_SUCCESS;
 }
@@ -546,11 +546,11 @@ bt_status_t btif_disable_bluetooth(void)
 
 bt_status_t btif_shutdown_bluetooth(void)
 {
-    BTIF_TRACE_DEBUG1("%s", __FUNCTION__);
+    SYSLOGI("%s", __FUNCTION__);
 
     if (btif_is_enabled())
     {
-        BTIF_TRACE_WARNING0("shutdown while still enabled, initiate disable");
+        SYSLOGI("shutdown while still enabled, initiate disable");
 
         /* shutdown called prior to disabling, initiate disable */
         btif_disable_bluetooth();
@@ -564,7 +564,7 @@ bt_status_t btif_shutdown_bluetooth(void)
 
     bte_main_shutdown();
 
-    BTIF_TRACE_DEBUG1("%s done", __FUNCTION__);
+    SYSLOGI("%s done", __FUNCTION__);
 
     return BT_STATUS_SUCCESS;
 }
@@ -583,7 +583,7 @@ bt_status_t btif_shutdown_bluetooth(void)
 
 static bt_status_t btif_disassociate_evt(void)
 {
-    BTIF_TRACE_DEBUG1("%s: notify DISASSOCIATE_JVM", __FUNCTION__);
+     SYSLOGI("%s: notify DISASSOCIATE_JVM", __FUNCTION__);
 
     HAL_CBACK(bt_hal_cbacks, thread_evt_cb, DISASSOCIATE_JVM);
 
@@ -607,7 +607,7 @@ void BTM_VendorSpecificCommand(UINT16 opcode, UINT8 param_len,
     }
     else
     {
-        BTIF_TRACE_ERROR1("%s", __FUNCTION__);
+        SYSLOGI("%s", __FUNCTION__);
     }
 
 }
@@ -624,7 +624,7 @@ void BTM_VendorSpecificCommand(UINT16 opcode, UINT8 param_len,
 bt_status_t btif_dut_mode_send(uint16_t opcode, uint8_t *buf, uint8_t len)
 {
     /* TODO: Check that opcode is a vendor command group */
-    BTIF_TRACE_DEBUG1("%s", __FUNCTION__);
+     SYSLOGI("%s", __FUNCTION__);
 
     BTM_VendorSpecificCommand(opcode, len, buf);
 

@@ -606,7 +606,12 @@ int BTModule_ActionControlExcute(
         rtn = pModuleBtDevice->SetGPIO3_0(pModuleBtDevice, pModuleBtParam->mParamData[0]);
         break;
 
-
+	case SET_ANT_INFO:
+		rtn = pModuleBtDevice->SetAntInfo(pModuleBtDevice, pModuleBtParam->mParamData[0]);
+	    break;
+	case SET_ANT_DIFF_S0S1:
+		rtn = pModuleBtDevice->SetAntDiffS0S1(pModuleBtDevice, pModuleBtParam->mParamData[0], pModuleBtParam->mParamData[1]);
+	    break;
     default:
         rtn = FUNCTION_ERROR;
         break;

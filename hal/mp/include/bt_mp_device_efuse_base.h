@@ -44,6 +44,7 @@ BuildEfuseLogicUnit(
         BT_DEVICE *pBtDevice,
         EFUSE_UNIT **ppEfuseModule,
         EFUSE_UNIT *pEfuseModuleMemory,
+        uint16_t EfuseType,
         uint16_t EfuseLogSize,
         uint16_t EfusePhySize,
         uint8_t StartBank,

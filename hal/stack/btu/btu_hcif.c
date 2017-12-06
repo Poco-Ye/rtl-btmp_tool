@@ -472,7 +472,7 @@ void btu_hcif_send_cmd (UINT8 controller_id, BT_HDR *p_buf)
             else
             {
                 /* Unknown controller */
-                BT_TRACE_1 (TRACE_LAYER_HCI, TRACE_TYPE_WARNING, "BTU HCI(ctrl id=%d) controller ID not recognized", controller_id);
+                SYSLOGE (TRACE_LAYER_HCI, TRACE_TYPE_WARNING, "BTU HCI(ctrl id=%d) controller ID not recognized", controller_id);
                 GKI_freebuf(p_buf);;
             }
 

@@ -321,7 +321,7 @@ BOOLEAN btsnd_hcic_ble_set_scan_params (UINT8 scan_type,
     UINT16_TO_STREAM (pp, scan_win);
     UINT8_TO_STREAM (pp, addr_type_own);
     UINT8_TO_STREAM (pp, scan_filter_policy);
-
+    SYSLOGD("roc btsnd_hcic_ble_set_scan_params");
     btu_hcif_send_cmd (LOCAL_BR_EDR_CONTROLLER_ID,  p);
     return (TRUE);
 }
@@ -344,7 +344,7 @@ BOOLEAN btsnd_hcic_ble_set_scan_enable (UINT8 scan_enable, UINT8 duplicate)
 
     UINT8_TO_STREAM (pp, scan_enable);
     UINT8_TO_STREAM (pp, duplicate);
-
+    SYSLOGD("roc btsnd_hcic_ble_set_scan_enable");
     btu_hcif_send_cmd (LOCAL_BR_EDR_CONTROLLER_ID,  p);
     return (TRUE);
 }

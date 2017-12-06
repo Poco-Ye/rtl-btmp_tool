@@ -64,7 +64,9 @@
 #define BT_PARAM_IDX13   13  //TXDACTable
 #define BT_PARAM_IDX14   14  //Xtal
 #define BT_PARAM_IDX15   15  //mLEDataLen
-#define BT_PARAM_IDX_NUM 16
+#define BT_PARAM_IDX16   16
+#define BT_PARAM_IDX17   17
+#define BT_PARAM_IDX_NUM 18
 
 
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
@@ -141,6 +143,12 @@ static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
         break;
     case BT_PARAM_IDX15:
         pBtModule->pBtParam->mParamData[0] = (uint8_t)value; //mLEDataLen
+        break;
+    case BT_PARAM_IDX16:
+         pBtModule->pBtParam->PHY = (uint8_t)value;
+         break;
+    case BT_PARAM_IDX17:
+         pBtModule->pBtParam->ModulationIndex = (uint8_t)value;
         break;
     default:
         break;

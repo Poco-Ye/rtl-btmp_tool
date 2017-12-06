@@ -234,6 +234,8 @@ bt_default_SendHCICmd(
         uint32_t Len
         )
 {
+    SYSLOGI("-->HCI_CMD : opcode:0x%.2x%.2x, len:%d, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,..",
+		pWritingBuf[1], pWritingBuf[0], pWritingBuf[2], pWritingBuf[3], pWritingBuf[4], pWritingBuf[5], pWritingBuf[6], pWritingBuf[7], pWritingBuf[8], pWritingBuf[9], pWritingBuf[10]);
 
     switch (pBt->InterfaceType)
     {
@@ -252,11 +254,11 @@ bt_default_SendHCICmd(
             goto error;
         break;
     }
-
+    SYSLOGI("+bt_default_SendHCICmd");
     return BT_FUNCTION_SUCCESS;
 
 error:
-
+    SYSLOGI("-bt_default_SendHCICmd");
     return FUNCTION_ERROR;
 }
 
@@ -290,6 +292,8 @@ bt_default_RecvHCIEvent(
         break;
     }
 
+	SYSLOGI("<--HCI_EVENT : code:0x%.2x, len:%d, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,..",
+		pReadingBuf[0], pReadingBuf[1], pReadingBuf[2], pReadingBuf[3], pReadingBuf[4], pReadingBuf[5], pReadingBuf[6], pReadingBuf[7], pReadingBuf[8]);
     return BT_FUNCTION_SUCCESS;
 
 error:
@@ -324,6 +328,8 @@ bt_default_SetBytes(
     pWritingBuf[0x05] = (uint8_t)((WritingValue>>8)&0xff);
     pWritingBuf[0x06] = 0x00;
 
+    SYSLOGI("%x %x %x %x %x %x %x\n",pWritingBuf[0],pWritingBuf[1],pWritingBuf[2],pWritingBuf[3],pWritingBuf[4],
+		pWritingBuf[5],pWritingBuf[6]);
     if (bt_default_SendHCICmd(pBt, HCIIO_BTCMD, pWritingBuf, len) != BT_FUNCTION_SUCCESS)
         goto error;
 
@@ -662,6 +668,7 @@ bt_default_SendHciCommandWithEvent(
 
     if (bt_default_SendHCICmd(pBtDevice, HCIIO_BTCMD, pWritingBuf, len) != BT_FUNCTION_SUCCESS)
     {
+        SYSLOGI("bt_default_SendHciCommandWithEvent, ERROR: SendHciCmd");
         goto exit;
     }
 
@@ -672,6 +679,7 @@ bt_default_SendHciCommandWithEvent(
 
     if (bt_default_RecvHCIEvent(pBtDevice, HCIIO_BTEVT, pEvent, pEventLen) != BT_FUNCTION_SUCCESS)
     {
+        SYSLOGI("bt_default_SendHciCommandWithEvent, ERROR: RecvHciEvent");
         goto exit;
     }
 
@@ -688,6 +696,7 @@ bt_default_SendHciCommandWithEvent(
 
     if (hci_rtn != 0x00)
     {
+        SYSLOGI("bt_default_SendHciCommandWithEvent, ERROR: hci_rtn %d", hci_rtn);
         goto exit;
     }
 
@@ -764,7 +773,53 @@ bt_default_WriteHCIVendor(
     }
 
     return BT_FUNCTION_SUCCESS;
+error:
+    return FUNCTION_ERROR;
+}
 
+static int
+bt_default_WriteTbdHCIVendor(
+    BT_DEVICE *pBtDevice,
+    unsigned int Type,
+    unsigned int ByteNum,
+    unsigned int Addr,
+    unsigned char *data
+    )
+{
+    unsigned char pData[512];
+    unsigned char pEvtBuf[512];
+    unsigned char Len;
+    unsigned int i;
+    int accressMode;
+    uint32_t EvtLen;
+    memset(pData,0,512);
+    memset(pEvtBuf,0,512);
+    pData[0] = Type&0x03;
+    switch(ByteNum)
+    {
+        case 1:
+        case 2:
+        case 4:
+            accressMode=0;
+            break;
+        default:
+            goto error;
+    }
+    pData[0]=pData[0] | (accressMode<<4);
+    for ( i = 0 ; i < 4 ; i++)
+    {
+        pData[i+1]=(unsigned char)((Addr>>(i*8))&0xff);
+    }
+    for (i = 0 ; i < ByteNum ; i++)
+        pData[5+i]= data[i];
+    Len = LEN_5_BYTE + ByteNum+LEN_3_BYTE;  //for Tbd bug --send 4 bytes data
+    if(bt_default_SendHciCommandWithEvent(pBtDevice, 0xfc62, Len, pData, 0x0E, pEvtBuf, &EvtLen))
+        goto error;
+    if(pEvtBuf[5] != 0)
+    {
+        goto error;
+    }
+    return BT_FUNCTION_SUCCESS;
 error:
     return FUNCTION_ERROR;
 }
@@ -825,6 +880,7 @@ error:
 
 #define BT_REGISTER_IO_ACCESS_MODE  0
 #define BT_SYSTEM_ACCESS_MODE       2
+#define BT_TBD_MODE         3
 
 static int
 bt_default_SetBBRegBytes(
@@ -1006,15 +1062,51 @@ error:
     return FUNCTION_ERROR;
 }
 
+int
+bt_default_SetTbdBytes(
+    BT_DEVICE *pBtDevice,
+    unsigned int Address,
+    unsigned int ByteNumber,
+    unsigned char *data
+    )
+{
+    unsigned int i;
+    for ( i = 0 ; i < ByteNumber ; i++ )
+    {
+        if( bt_default_WriteTbdHCIVendor(pBtDevice, BT_TBD_MODE, LEN_1_BYTE, Address+i, &data[i]))
+            goto error;
+    }
+    return BT_FUNCTION_SUCCESS;
+error:
+    return FUNCTION_ERROR;
+}
 
+int
+bt_default_GetTbdBytes(
+    BT_DEVICE *pBtDevice,
+    unsigned int Address,
+    unsigned int ByteNumber,
+    unsigned char *data
+    )
+{
+    unsigned int i;
+    for ( i = 0 ; i < ByteNumber ; i++ )
+    {
+        if( bt_default_ReadHCIVendor(pBtDevice, BT_TBD_MODE, LEN_1_BYTE, Address+i, &data[i]))
+            goto error;
+    }
+    return BT_FUNCTION_SUCCESS;
+error:
+    return FUNCTION_ERROR;
+}
 
 int
 bt_default_SetSysRegMaskBits(
     BT_DEVICE *pBtDevice,
-    unsigned long Addr,
-    unsigned char Msb,
-    unsigned char Lsb,
-    const unsigned long UserValue
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t UserValue
     )
 {
 	unsigned char pBuf[LEN_4_BYTE];
@@ -1076,26 +1168,26 @@ error:
 int
 bt_default_GetSysRegMaskBits(
 	BT_DEVICE *pBtDevice,
-	unsigned long Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pUserValue
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
 	)
 {
-	unsigned char pBuf[LEN_4_BYTE];
-	unsigned long ReadingValue;
-	unsigned int Len;
-	unsigned int i;
+    uint8_t pBuf[LEN_4_BYTE];
+    uint16_t ReadingValue;
+    uint8_t Len;
+    uint8_t i;
 
-	unsigned long Mask;
-	unsigned char Shift;
+    uint16_t Mask;
+    uint8_t Shift;
 
 	Len = (Msb/8)+1;
 
-	// Generate mask and shift according to MSB and LSB.
-	Mask = 0;
+    // Generate mask and shift according to MSB and LSB.
+    Mask = 0;
 
-	for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
+    for (i = Lsb; i < (uint8_t)(Msb + 1); i++)
 		Mask |= 0x1 << i;
 
 	Shift = Lsb;
@@ -1104,17 +1196,16 @@ bt_default_GetSysRegMaskBits(
 		goto error;
 
 
-	// Combine reading bytes into an unsigned integer value.
-	// Note: Put lower address byte on value LSB.
-	//       Put upper address byte on value MSB.
+    // Combine reading bytes into an unsigned integer value.
+    // Note: Put lower address byte on value LSB.
+    //       Put upper address byte on value MSB.
 	ReadingValue = 0;
 
 	for (i = 0; i < Len; i++)
-		ReadingValue |= (unsigned long)pBuf[i] << (BYTE_SHIFT * i);
+        ReadingValue |= pBuf[i] << (BYTE_SHIFT * i) ;
 
-
-	// Get register bits from unsigned integaer value with mask and shift
-	*pUserValue = (ReadingValue & Mask) >> Shift;
+    // Get register bits from unsigned integaer value with mask and shift
+    *pUserValue = (ReadingValue & Mask) >> Shift;
 
 
 	return BT_FUNCTION_SUCCESS;
@@ -1122,29 +1213,106 @@ bt_default_GetSysRegMaskBits(
 error:
 
 	return FUNCTION_ERROR;
-
-
 }
+int
+bt_default_SetTbdRegMaskBits(
+    BT_DEVICE *pBtDevice,
+    uint16_t Addr,
+    uint8_t Msb,
+    uint8_t Lsb,
+    const uint16_t UserValue
+    )
+{
+    uint8_t pBuf[LEN_4_BYTE];
+    uint16_t Value;
+    uint8_t Len;
+    uint8_t i;
+    uint16_t Mask;
+    uint8_t Shift;
+    Mask = 0;
+    Len = (Msb/8)+1;
+    for(i = Lsb; i < (uint8_t)(Msb + 1); i++)
+        Mask |= 0x1 << i;
+    Shift = Lsb;
+    if(bt_default_GetTbdBytes(pBtDevice, Addr, Len, pBuf))
+        goto error;
+    // Combine reading bytes into an unsigned integer value.
+    // Note: Put lower address byte on value LSB.
+    //       Put upper address byte on value MSB.
+    Value = 0;
+    for (i = 0; i < Len; i++)
+        Value |= (uint16_t)pBuf[i] << (BYTE_SHIFT * i);
 
 
+    // Reserve unsigned integer value unmask bit with mask and inlay writing value into it.
+    Value &= ~Mask;
+    Value |= (UserValue << Shift) & Mask;
+    // Separate unsigned integer value into writing bytes.
+    // Note: Pick up lower address byte from value LSB.
+    //       Pick up upper address byte from value MSB.
+    for (i = 0; i < Len; i++)
+        pBuf[i] = (uint8_t)((Value >> (BYTE_SHIFT * i)) & BYTE_MASK);
+    if(bt_default_SetTbdBytes(pBtDevice, Addr, Len, pBuf))
+        goto error;
+    return BT_FUNCTION_SUCCESS;
+error:
+    return FUNCTION_ERROR;
+}
+int
+bt_default_GetTbdRegMaskBits(
+    BT_DEVICE *pBtDevice,
+    uint16_t Addr,
+    uint8_t Msb,
+    uint8_t Lsb,
+    uint16_t *pUserValue
+    )
+{
+    uint8_t pBuf[LEN_4_BYTE];
+    uint16_t ReadingValue;
+    uint8_t Len;
+    uint8_t i;
+    uint16_t Mask;
+    uint8_t Shift;
+    Len = (Msb/8)+1;
 
+    // Generate mask and shift according to MSB and LSB.
+    Mask = 0;
+    for(i = Lsb; i < (uint8_t)(Msb + 1); i++)
+        Mask |= 0x1 << i;
+    Shift = Lsb;
+    if(bt_default_GetTbdBytes(pBtDevice, Addr, Len, pBuf))
+        goto error;
+    // Combine reading bytes into an unsigned integer value.
+    // Note: Put lower address byte on value LSB.
+    //       Put upper address byte on value MSB.
+    ReadingValue = 0;
+    for (i = 0; i < Len; i++)
+        ReadingValue |= (uint16_t)pBuf[i] << (BYTE_SHIFT * i);
+
+
+    // Get register bits from unsigned integaer value with mask and shift
+    *pUserValue = (ReadingValue & Mask) >> Shift;
+    return BT_FUNCTION_SUCCESS;
+error:
+    return FUNCTION_ERROR;
+}
 int
 bt_default_SetBBRegMaskBits(
 	BT_DEVICE *pBtDevice,
 	int Page,
-	unsigned long RegStartAddr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	const unsigned long WritingValue
+	uint16_t RegStartAddr,
+        uint8_t Msb,
+        uint8_t Lsb,
+	uint16_t WritingValue
 	)
 {
-	unsigned char pBuf[LEN_4_BYTE];
-	unsigned long Value;
-	unsigned int Len;
-	unsigned int i;
+    uint8_t pBuf[LEN_4_BYTE];
+    uint16_t Value;
+    uint32_t Len;
+    uint8_t i;
 
-	unsigned long Mask;
-	unsigned char Shift;
+    uint16_t Mask;
+    uint8_t Shift;
 
 
 	if( (RegStartAddr%2) !=0 )
@@ -1163,7 +1331,7 @@ bt_default_SetBBRegMaskBits(
 
 	Len = (Msb/8)+1;
 
-	for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
+    for (i = Lsb; i < (Msb + 1); i++)
 		Mask |= 0x1 << i;
 
 	Shift = Lsb;
@@ -1178,7 +1346,7 @@ bt_default_SetBBRegMaskBits(
 	Value = 0;
 
 	for (i = 0; i < LEN_2_BYTE; i++)
-		Value |= (unsigned long)pBuf[i] << (BYTE_SHIFT * i);
+        Value |= pBuf[i] << (BYTE_SHIFT * i) ;
 
 
 	// Reserve unsigned integer value unmask bit with mask and inlay writing value into it.
@@ -1190,7 +1358,7 @@ bt_default_SetBBRegMaskBits(
 	// Note: Pick up lower address byte from value LSB.
 	//       Pick up upper address byte from value MSB.
 	for (i = 0; i < LEN_2_BYTE; i++)
-		pBuf[i] = (unsigned char)((Value >> (BYTE_SHIFT * i)) & BYTE_MASK);
+        pBuf[i] = (uint8_t)((Value >> (BYTE_SHIFT * i)) & BYTE_MASK);
 
 
 	if(bt_default_SetBBRegBytes(pBtDevice, Page, RegStartAddr, LEN_2_BYTE, pBuf))
@@ -1211,30 +1379,30 @@ int
 bt_default_GetBBRegMaskBits(
 	BT_DEVICE *pBtDevice,
 	int Page,
-	unsigned long Addr,
-	unsigned char Msb,
-	unsigned char Lsb,
-	unsigned long *pUserValue
+        uint16_t Addr,
+        uint8_t Msb,
+        uint8_t Lsb,
+        uint16_t *pUserValue
 	)
 {
-	unsigned char pBuf[LEN_4_BYTE];
-	unsigned long ReadingValue;
-	unsigned int Len;
-	unsigned int i;
+    uint8_t pBuf[LEN_4_BYTE];
+    uint16_t ReadingValue;
+    uint32_t Len;
+    uint8_t i;
 
-	unsigned long Mask;
-	unsigned char Shift;
+    uint16_t Mask;
+    uint8_t Shift;
 
 
 	if( (Addr%2) !=0 )
 	{
-
+		SYSLOGE("bt_default_SetBBRegMaskBits: Addr should be 2-byte align");
 		goto error;
 	}
 
 	if( (Msb<Lsb) || (Msb>15))
 	{
-
+		SYSLOGE("bt_default_SetBBRegMaskBits: ERROR: Msb %d, Lsb %d", Msb, Lsb);
 		goto error;
 	}
 
@@ -1244,7 +1412,7 @@ bt_default_GetBBRegMaskBits(
 	// Generate mask and shift according to MSB and LSB.
 	Mask = 0;
 
-	for(i = Lsb; i < (unsigned char)(Msb + 1); i++)
+    for (i = Lsb; i < (Msb + 1); i++)
 		Mask |= 0x1 << i;
 
 	Shift = Lsb;
@@ -1258,7 +1426,7 @@ bt_default_GetBBRegMaskBits(
 	ReadingValue = 0;
 
 	for (i = 0; i < LEN_2_BYTE; i++)
-		ReadingValue |= (unsigned long)pBuf[i] << (BYTE_SHIFT * i);
+        ReadingValue |= pBuf[i] << (BYTE_SHIFT * i);
 
 
 	// Get register bits from unsigned integaer value with mask and shift
@@ -1332,6 +1500,7 @@ bt_default_GetECOVersion(
 
     pBTInfo->Version=pEvent[EVT_CHIP_ECO_VERSION]+1;
 
+    SYSLOGI("bt_default_GetECOVersion = 0x%x\n", pBTInfo->Version);
     rtn= BT_FUNCTION_SUCCESS;
 exit:
 

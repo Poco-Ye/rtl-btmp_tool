@@ -23,9 +23,11 @@
 #define HCI_VENDOR_MP_READ_TX_POWER_INFO          0xFCED
 #define HCI_VENDOR_MP_DEBUG_MESSAGE_REPORT        0xFCF7
 #define HCI_VENDOR_MP_FT_VALUE_REPORT             0xFCF8
+#define HCI_VENDOR_MP_SET_ANT_INFO                0xFCFD
 #define HCI_LE_ENHANCED_TX          0x2034
 #define HCI_LE_ENHANCED_RX          0x2033
 
+#define HCI_VENDOR_MP_ENABLE_NEW_POUTER_FLOW 0xFCFC
 
 #define LE_TX_DUT_TEST 2
 #define LE_RX_DUT_TEST 3
@@ -462,4 +464,28 @@ BTDevice_MpFTValueReport(
     BT_DEVICE_REPORT *pBtReport
     );
 
+int
+BTDevice_BBPro_POuterStart(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+int
+BTDevice_BBPro_POuterStop(
+    BT_DEVICE *pBtDevice,
+    BT_PARAMETER *pParam,
+    BT_DEVICE_REPORT *pBtReport
+    );
+
+int
+BTDevice_SetAntInfo(
+    BT_DEVICE *pBtDevice,
+    uint8_t Data
+    );
+int
+BTDevice_SetAntDiffS0S1(
+    BT_DEVICE *pBtDevice,
+    uint8_t s0_s1,
+    uint8_t tbt_diff_sos1
+    );
 #endif
