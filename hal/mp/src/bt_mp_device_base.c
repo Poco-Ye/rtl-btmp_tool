@@ -4444,6 +4444,7 @@ BTDevice_SetAntDiffS0S1(
     uint8_t tbt_diff_sos1
     )
 {
+    SYSLOGI(" BTDevice_SetAntDiffS0S1 : s0_s1 = %d, tbt_diff_sos1 = %d\n", s0_s1,tbt_diff_sos1);
     uint8_t pData[LEN_512_BYTE];
     uint8_t pEvtBuf[LEN_512_BYTE];
     uint32_t EvtLen;

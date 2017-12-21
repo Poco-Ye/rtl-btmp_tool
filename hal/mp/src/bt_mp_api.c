@@ -66,7 +66,8 @@
 #define BT_PARAM_IDX15   15  //mLEDataLen
 #define BT_PARAM_IDX16   16
 #define BT_PARAM_IDX17   17
-#define BT_PARAM_IDX_NUM 18
+#define BT_PARAM_IDX18   18
+#define BT_PARAM_IDX_NUM 19
 
 
 #if (MP_TOOL_COMMAND_SEARCH_EXIST_PERMISSION == 1)
@@ -149,6 +150,9 @@ static void bt_index2param(BT_MODULE *pBtModule, int index, int64_t value)
          break;
     case BT_PARAM_IDX17:
          pBtModule->pBtParam->ModulationIndex = (uint8_t)value;
+         break;
+    case BT_PARAM_IDX18:
+         pBtModule->pBtParam->mParamData[0]= (uint8_t)value;
         break;
     default:
         break;
@@ -1272,7 +1276,7 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                             index, STR_BT_MP_RESULT_DELIM,
                             FUNCTION_PARAMETER_ERROR);
                     return FUNCTION_PARAMETER_ERROR;
-                } else if (index == BT_PARAM_IDX0 || index == BT_PARAM_IDX12 || index == BT_PARAM_IDX13) {
+                } else if (index == BT_PARAM_IDX0 || index == BT_PARAM_IDX12 || index == BT_PARAM_IDX13 ||index == BT_PARAM_IDX18) {
                     var_pair = 1;
                 }
             } else if (param_token && params_count == 1) {
@@ -1284,6 +1288,8 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                     pBtModule->pBtParam->TXGainTable[params_count - 1] = (uint8_t)strtoll(param_token, NULL, 0);
                 else if (index == BT_PARAM_IDX13 && params_count <= MAX_TXDAC_TABLE_SIZE)
                     pBtModule->pBtParam->TXDACTable[params_count - 1] = (uint8_t)strtoll(param_token, NULL, 0);
+                else if (index == BT_PARAM_IDX18 && params_count <= MAX_USERAWDATA_SIZE)
+                    pBtModule->pBtParam->mParamData[params_count - 1] = (uint8_t)strtoll(param_token, NULL, 0);
             } else if (param_token == NULL) // null token OR token parsing completed
                 break;
         }
