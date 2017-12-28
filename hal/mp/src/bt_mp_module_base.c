@@ -27,7 +27,7 @@ int BTModule_ActionReport(
     ChipType = pModuleBtDevice->pBTInfo->ChipType;
 
     switch (ActiceItem)
-	{
+    {
     case REPORT_PKT_TX:
         if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
         {
@@ -79,11 +79,11 @@ int BTModule_ActionReport(
 
     case REPORT_CHIP:
         if (pModuleBtDevice->GetChipVersionInfo(pModuleBtDevice) != BT_FUNCTION_SUCCESS)
-		{
+        {
             goto error;
         }
-		else
-		{
+        else
+        {
             pReport->pBTInfo = &(pReport->BTInfoMemory);
 
             pReport->pBTInfo->ChipType = pModuleBtDevice->pBTInfo->ChipType;
@@ -107,25 +107,25 @@ int BTModule_ActionReport(
         pReport->RXRecvPktCnts = pModuleBtReport->RXRecvPktCnts;
         pReport->Cfo=pModuleBtReport->Cfo;
         for (i = 0; i < MAX_TXGAIN_TABLE_SIZE; i++)
-		{
+        {
             pReport->CurrTXGainTable[i] = pModuleBtDevice->TXGainTable[i];
         }
         for (i = 0; i < MAX_TXDAC_TABLE_SIZE; i++)
-		{
+        {
             pReport->CurrTXDACTable[i] = pModuleBtDevice->TXDACTable[i];
         }
         break;
 
     case REPORT_TX_GAIN_TABLE:
         for (i = 0; i < MAX_TXGAIN_TABLE_SIZE; i++)
-		{
+        {
             pReport->CurrTXGainTable[i] = pModuleBtDevice->TXGainTable[i];
         }
         break;
 
     case REPORT_TX_DAC_TABLE:
         for (i = 0; i < MAX_TXDAC_TABLE_SIZE; i++)
-		{
+        {
             pReport->CurrTXDACTable[i] = pModuleBtDevice->TXDACTable[i];
         }
         break;
@@ -145,7 +145,7 @@ int BTModule_ActionReport(
 
     case REPORT_LOGICAL_EFUSE:
         for (i = 0; i < pModuleBtReport->ReportData[3] + LEN_4_BYTE; i++)
-		{
+        {
             pReport->ReportData[i] = pModuleBtReport->ReportData[i];
         }
         break;
@@ -236,11 +236,11 @@ int BTModule_ActionReport(
     }
 
 
-	return BT_FUNCTION_SUCCESS;
+    return BT_FUNCTION_SUCCESS;
 
 error:
 
-	return FUNCTION_ERROR;
+    return FUNCTION_ERROR;
 
 }
 
@@ -297,7 +297,7 @@ int BTModule_UpDataParameter(
 
 int BTModule_ActionControlExcute(
     BT_MODULE *pBtModule
-	)
+    )
 {
     int rtn = BT_FUNCTION_SUCCESS;
     unsigned int ChipType;
@@ -313,7 +313,7 @@ int BTModule_ActionControlExcute(
     ChipType = pModuleBtDevice->pBTInfo->ChipType;
 
     switch (Item)
-	{
+    {
     ////////////////////////// TABLE ///////////////////////////////////////////////////////
     case SET_TX_GAIN_TABLE:
         rtn = pModuleBtDevice->SetTxGainTable(pModuleBtDevice, pModuleBtParam->TXGainTable);
@@ -337,8 +337,10 @@ int BTModule_ActionControlExcute(
         break;
 
     ////////////////////////// HCI RESET /////////////////////////////////////////////////////////
-	case HCI_RESET:
+    case HCI_RESET:
         rtn = pModuleBtDevice->SetHciReset(pModuleBtDevice, 700);
+        if(rtn != BT_FUNCTION_SUCCESS)
+            break;
         pModuleBtReport->TotalTXBits = 0;
         pModuleBtReport->TotalTxCounts = 0;
 
@@ -412,7 +414,7 @@ int BTModule_ActionControlExcute(
         break;
 
     /////////////////////////// CONTINUE_TX /////////////////////////////////////////////////////////
-	case CONTINUE_TX_START:
+    case CONTINUE_TX_START:
         if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
         {
             rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
@@ -486,7 +488,7 @@ int BTModule_ActionControlExcute(
         rtn = pModuleBtDevice->SetRtl8761Xtal(pModuleBtDevice, pModuleBtParam->Rtl8761Xtal);
         break;
 
-	case WRITE_EFUSE_DATA:
+    case WRITE_EFUSE_DATA:
         rtn = pModuleBtDevice->BT_WriteEfuseLogicalData(pModuleBtDevice, pModuleBtParam);
         break;
 
@@ -522,10 +524,10 @@ int BTModule_ActionControlExcute(
 
     case SET_CONFIG_FILE_DATA:
         rtn = pModuleBtDevice->BTSetConfigFileData(pModuleBtDevice, pModuleBtParam->mParamData);
-	    break;
+        break;
 
-	case CLEAR_CONFIG_FILE_DATA:
-	    rtn = pModuleBtDevice->BTSetConfigFileData(pModuleBtDevice, NULL);
+    case CLEAR_CONFIG_FILE_DATA:
+        rtn = pModuleBtDevice->BTSetConfigFileData(pModuleBtDevice, NULL);
         break;
 
     // LE Cont-Tx
@@ -544,7 +546,7 @@ int BTModule_ActionControlExcute(
             pModuleBtParam->mWhiteningCoeffValue=0x7f;
             pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
             if(ChipType != RTK_BT_CHIP_ID_RTL8763B)//not BBPro
-		    {
+            {
                 pModuleBtParam->mPacketType= BT_PKT_1DH1;
             }
             rtn = pModuleBtDevice->FwContTxStart(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
@@ -606,12 +608,12 @@ int BTModule_ActionControlExcute(
         rtn = pModuleBtDevice->SetGPIO3_0(pModuleBtDevice, pModuleBtParam->mParamData[0]);
         break;
 
-	case SET_ANT_INFO:
-		rtn = pModuleBtDevice->SetAntInfo(pModuleBtDevice, pModuleBtParam->mParamData[0]);
-	    break;
-	case SET_ANT_DIFF_S0S1:
-		rtn = pModuleBtDevice->SetAntDiffS0S1(pModuleBtDevice, pModuleBtParam->mParamData[0], pModuleBtParam->mParamData[1]);
-	    break;
+    case SET_ANT_INFO:
+        rtn = pModuleBtDevice->SetAntInfo(pModuleBtDevice, pModuleBtParam->mParamData[0]);
+        break;
+    case SET_ANT_DIFF_S0S1:
+        rtn = pModuleBtDevice->SetAntDiffS0S1(pModuleBtDevice, pModuleBtParam->mParamData[0], pModuleBtParam->mParamData[1]);
+        break;
     default:
         rtn = FUNCTION_ERROR;
         break;
