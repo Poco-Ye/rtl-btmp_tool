@@ -110,6 +110,7 @@ typedef enum {
     REPORT_GPIO3_0,
     REPORT_MP_DEBUG_MESSAGE,
     REPORT_MP_FT_VALUE,
+    REPORT_POWER_TRACKING,
 } BT_REPORT_TAG;
 typedef enum {
     HCI_RESET = 0,                  //0
@@ -180,6 +181,8 @@ typedef enum {
 
     SET_ANT_INFO,                   //40
     SET_ANT_DIFF_S0S1,              //41
+    TX_POWER_TRACKING,              //42
+    SET_K_TX_CH_PWR,                    //43
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
 
@@ -627,14 +630,14 @@ typedef int
 typedef int
 (*BT_FP_BT_DL_FW)(
     BT_DEVICE *pBtDevice,
-    unsigned char *pPatchcode,
+    uint8_t *pPatchcode,
     int patchLength
     );
 
 typedef int
 (*BT_FP_BT_DL_MERGER_FW)(
     BT_DEVICE *pBtDevice,
-    unsigned char *pPatchcode,
+    uint8_t *pPatchcode,
     int patchLength
     );
 
@@ -661,15 +664,15 @@ typedef int
 typedef int
 (*BT_FP_SET_CONFIG_FILE_DATA)(
     BT_DEVICE *pBtDevice,
-    unsigned char *pConfigFileData
+    uint8_t *pConfigFileData
     );
 
 typedef int
 (*BT_FP_8822B_LE_CONT_TX)(
     BT_DEVICE *pBtDevice,
-    unsigned char OnOff,
-    unsigned char Channel,
-    unsigned char TxPowerIndex
+    uint8_t enableLeContTx,
+    uint8_t Channel,
+    uint8_t TxPowerIndex
     );
 
 typedef int
@@ -694,30 +697,44 @@ typedef int
 typedef int
 (*BT_FP_SET_GPIO3_0)(
     BT_DEVICE *pBtDevice,
-    unsigned char GpioValue
+    uint8_t GpioValue
     );
 
 typedef int
 (*BT_FP_GET_GPIO3_0)(
     BT_DEVICE *pBtDevice,
-    unsigned char *pGpioValue
+    uint8_t *pGpioValue
     );
 
 typedef int
-(*BT_FP_GET_BYTE)(
-    BT_DEVICE *pBtDevice,
-    unsigned char *pValue
-    );
-typedef int
 (*BT_FP_SET_BYTE)(
     BT_DEVICE *pBtDevice,
-    unsigned char Value
+    uint8_t Value
+    );
+typedef int
+(*BT_FP_GET_BYTE)(
+    BT_DEVICE *pBtDevice,
+    uint8_t *pValue
     );
 typedef int
 (*BT_FP_SET_BYTE_BYTE)(
     BT_DEVICE *pBtDevice,
-    unsigned char Value1,
-    unsigned char Value2
+    uint8_t Value1,
+    uint8_t Value2
+    );
+typedef int
+(*BT_FP_PBYTE_PBYTE)(
+    BT_DEVICE *pBtDevice,
+    uint8_t *pValue1,
+    uint8_t *pValue2
+    );
+typedef int
+(*BT_FP_INT_INT_INT_INT)(
+    BT_DEVICE *pBtDevice,
+    int Value1,
+    int Value2,
+    int Value3,
+    int Value4
     );
 
 #define MAX_EFUSE_PHY_LEN 512
@@ -874,6 +891,8 @@ struct BT_DEVICE_TAG
     BT_FP_UPDATE                    MpFTValueReport;
     BT_FP_SET_BYTE                  SetAntInfo;
     BT_FP_SET_BYTE_BYTE             SetAntDiffS0S1;
+    BT_FP_PBYTE_PBYTE           TxPowerTracking;
+    BT_FP_INT_INT_INT_INT       SetKTxChPwr;
 };
 
 //
@@ -881,7 +900,7 @@ struct BT_DEVICE_TAG
 //
 #ifndef BT_MODILE_TAG_SYMBOL
 #define BT_MODILE_TAG_SYMBOL
-
+#endif
 
 typedef struct  BT_MODULE_TAG BT_MODULE;
 
@@ -1070,7 +1089,6 @@ struct BT_MODULE_TAG
     BASE_INTERFACE_MODULE *pBaseInterface;
 
 };
-#endif
 
 
 //#define TRUE  1

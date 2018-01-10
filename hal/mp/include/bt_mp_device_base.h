@@ -172,6 +172,12 @@ BTDevice_ReadThermal(
         );
 
 int
+BTDevice_TxPowerTracking(
+    BT_DEVICE *pBtDevice,
+    uint8_t *pCmd,
+    uint8_t *pReadingValue
+    );
+int
 BTDevice_TestModeEnable(
         BT_DEVICE *pBtDevice
         );
@@ -194,7 +200,8 @@ BTDevice_SetHciReset(
         int Delay_mSec
         );
 
-int BTDevice_SetHoppingMode(
+int
+BTDevice_SetHoppingMode(
         BT_DEVICE *pBtDevice,
         uint8_t ChannelNumber,
         BT_PKT_TYPE PktType,
@@ -487,5 +494,14 @@ BTDevice_SetAntDiffS0S1(
     BT_DEVICE *pBtDevice,
     uint8_t s0_s1,
     uint8_t tbt_diff_sos1
+    );
+
+int
+BTDevice_SetKTxChPwr(
+    BT_DEVICE *pBtDevice,
+    int Ch_LL,
+    int Ch_ML,
+    int Ch_MH,
+    int Ch_HH
     );
 #endif

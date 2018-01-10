@@ -791,6 +791,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
 {
     uint8_t efuse_len = pBtDeviceReport->ReportData[3] + 4;
     char efuse_str[6] = {0};
+    char report_str[6]={0};
     uint8_t i;
 
     switch (item) {
@@ -1100,6 +1101,47 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->ReportData[0]);
         break;
+    case REPORT_MP_DEBUG_MESSAGE:
+        sprintf(buf_cb, "%s%s%d%s0x%02x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS);
+
+        for (i = 0; i < MP_DEBUG_MESSAGE_DATA_LEN; i++) {
+            sprintf(report_str, "%s0x%02x", STR_BT_MP_RESULT_DELIM, pBtDeviceReport->ReportData[i]);
+            strcat(buf_cb, report_str);
+        }
+
+        SYSLOGI("%s", buf_cb);
+        break;
+
+    case REPORT_MP_FT_VALUE:
+        sprintf(buf_cb, "%s%s%d%s0x%02x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS);
+
+        for (i = 0; i < MP_FT_VALUE_DATA_LEN; i++) {
+            sprintf(report_str, "%s0x%02x", STR_BT_MP_RESULT_DELIM, pBtDeviceReport->ReportData[i]);
+            strcat(buf_cb, report_str);
+        }
+
+        SYSLOGI("%s", buf_cb);
+        break;
+
+    case REPORT_POWER_TRACKING:
+        SYSLOGI("%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[0]);
+
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s0x%02x",
+                STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
+                item, STR_BT_MP_RESULT_DELIM,
+                BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[0]);
+        break;
 
     default:
         break;
@@ -1294,7 +1336,7 @@ int BT_SetParam(BT_MODULE *pBtModule, char *p, char *buf_cb)
                 break;
         }
 
-        if (params_count > 2 && var_pair == 1) {
+        if (params_count >= 2 && var_pair == 1) {
             bt_index2param(pBtModule, index, value);
             uint16_t i = 0;
             for (i = 0; i < params_count - 1; i++) {

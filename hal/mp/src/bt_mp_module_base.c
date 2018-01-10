@@ -230,6 +230,10 @@ int BTModule_ActionReport(
         }
         break;
 
+    case REPORT_POWER_TRACKING:
+        pReport->ReportData[0] = pModuleBtReport->ReportData[0];
+        break;
+
     default:
         goto error;
 
@@ -613,6 +617,12 @@ int BTModule_ActionControlExcute(
         break;
     case SET_ANT_DIFF_S0S1:
         rtn = pModuleBtDevice->SetAntDiffS0S1(pModuleBtDevice, pModuleBtParam->mParamData[0], pModuleBtParam->mParamData[1]);
+        break;
+    case TX_POWER_TRACKING:
+        rtn = pModuleBtDevice->TxPowerTracking(pModuleBtDevice, pModuleBtParam->mParamData, pModuleBtReport->ReportData);
+        break;
+    case SET_K_TX_CH_PWR:
+        rtn = pModuleBtDevice->SetKTxChPwr(pModuleBtDevice, pModuleBtParam->mParamData[0], pModuleBtParam->mParamData[1], pModuleBtParam->mParamData[2], pModuleBtParam->mParamData[3]);
         break;
     default:
         rtn = FUNCTION_ERROR;
