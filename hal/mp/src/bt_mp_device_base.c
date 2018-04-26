@@ -3776,6 +3776,9 @@ BTDevice_fw_packet_tx_start(
     SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
     SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
 
+   //enable new p_outer flow
+    pData[0] = 1;
+    pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_ENABLE_NEW_POUTER_FLOW, LEN_1_BYTE, pData, 0x0E, pEvtBuf, &EvtLen);
     pData[0] = (unsigned char)(pParam->mHitTarget&0xff);                          //bt addr 6 bytes
     pData[1] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);        //bt addr
     pData[2] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);        //bt addr
@@ -3863,6 +3866,7 @@ BTDevice_fw_packet_tx_stop(
 
     SYSLOGI(" +BTDevice_fw_packet_tx_stop");
 
+    //disable new p_outer flow
     pData[0] = 0;
     pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_ENABLE_NEW_POUTER_FLOW, LEN_1_BYTE, pData, 0x0E, pEvtBuf, &EvtLen);
     if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_TX_STOP, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
@@ -3945,6 +3949,9 @@ BTDevice_fw_packet_rx_start(
     SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
     SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
 
+  //enable new p_outer flow
+    pData[0] = 1;
+    pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_ENABLE_NEW_POUTER_FLOW, LEN_1_BYTE, pData, 0x0E, pEvtBuf, &EvtLen);
     pData[0] = (unsigned char)(pParam->mHitTarget&0xff);                               //bt addr 6 bytes
     pData[1] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);            //bt addr
     pData[2] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);            //bt addr
@@ -4023,6 +4030,7 @@ BTDevice_fw_packet_rx_stop(
 
     SYSLOGI(" +BTDevice_fw_packet_rx_stop");
 
+    //disable new p_outer flow
     pData[0] = 0;
     pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_ENABLE_NEW_POUTER_FLOW, LEN_1_BYTE, pData, 0x0E, pEvtBuf, &EvtLen);
     if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_PACKET_RX_STOP, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
@@ -4143,6 +4151,9 @@ BTDevice_fw_cont_tx_start(
     SYSLOGI(" mWhiteningCoeffValue = 0x%x", pParam->mWhiteningCoeffValue);
     SYSLOGI(" mHitTarget = 0x%x", pParam->mHitTarget);
 
+    //enable new p_outer flow
+    pData[0] = 1;
+    pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_ENABLE_NEW_POUTER_FLOW, LEN_1_BYTE, pData, 0x0E, pEvtBuf, &EvtLen);
     pData[0] = (unsigned char)(pParam->mHitTarget&0xff);                               //bt addr 6 bytes
     pData[1] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*1))&0xff);            //bt addr
     pData[2] = (unsigned char)((pParam->mHitTarget>>(BYTE_SHIFT*2))&0xff);            //bt addr
@@ -4232,6 +4243,7 @@ BTDevice_fw_cont_tx_stop(
 
     SYSLOGI(" +BTDevice_fw_cont_tx_stop");
 
+    //disable new p_outer flow
     pData[0] = 0;
     pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_ENABLE_NEW_POUTER_FLOW, LEN_1_BYTE, pData, 0x0E, pEvtBuf, &EvtLen);
     if(pBtDevice->SendHciCommandWithEvent(pBtDevice, HCI_VENDOR_MP_CON_TX_STOP, LEN_0_BYTE, pData, 0x0E, pEvtBuf, &EvtLen))
