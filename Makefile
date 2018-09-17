@@ -26,26 +26,22 @@ TARGET_SKT := rtlbtmp_skt
 MKDIR := mkdir -p
 RM := rm -f
 MV := mv -f
-
 INSTALL := install
-MYDIR := /home/roc_wang/mp_tool_linux_compile_exercise_20170809/toolchain-sunxi-musl/toolchain
-CC := $(MYDIR)/bin/arm-openwrt-linux-muslgnueabi-gcc
-BITS := $(MYDIR)/include
-CFLAGS := -I $(BITS)  --sysroot= $(MYDIR) \
+MYDIR := /home/poco/toolchain/gcc/linux-x86/arm/gcc-linaro-arm-linux-gnueabihf-4.9
+CC := $(MYDIR)/bin/arm-linux-gnueabihf-gcc
+BITS := $(MYDIR)/arm-linux-gnueabihf/libc/usr/include
+CFLAGS := -I $(BITS) --sysroot=$(MYDIR)/arm-linux-gnueabihf/libc \
           -O2 -D_GNU_SOURCE -Wall -Wundef -Wno-unused-result -Wno-unused-variable \
           -Wno-unused-but-set-variable -Werror-implicit-function-declaration \
           -Wno-error=uninitialized -Wno-strict-aliasing
-		  
 LDFLAGS := -lpthread -lrt -lm
-#LDFLAGS := -lc
 
-	
 export SRCDIR OUTDIR MV CC CFLAGS
-	
+
 .PHONY: all rtlbtmp install uninstall clean
-	
-all:  $(TARGET) $(TARGET_SKT)
-	
+
+all: $(TARGET) $(TARGET_SKT)
+
 CMD_DIR := cmd
 HAL_DIR := hal
 SUBDIRS := $(CMD_DIR) $(HAL_DIR)
@@ -55,16 +51,12 @@ $(TARGET): $(OUTDIR)
 
 $(TARGET_SKT): $(OUTDIR)
 	$(CC) $(CFLAGS) $(filter-out $(OUTDIR)/btmp_shell.o,$(shell ls $(OUTDIR)/*.o)) -o $(TARGET_SKT) $(LDFLAGS)
-	
-	
 
 $(OUTDIR):
 	$(MKDIR) $(OUTDIR)
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir; done
 
-	
-		
 install: $(TARGET) $(TARGET_SKT)
 	$(MKDIR) $(DESTDIR)$(SBINDIR)
 	$(INSTALL) -m 755 -t $(DESTDIR)$(SBINDIR) $(TARGET)
@@ -74,8 +66,6 @@ uninstall:
 	$(RM) $(DESTDIR)$(SBINDIR)/$(TARGET)
 	$(RM) $(DESTDIR)$(SBINDIR)/$(TARGET_SKT)
 
-envprint:
-	$(ENV)
 clean:
 	$(RM) $(TARGET)
 	$(RM) $(TARGET_SKT)

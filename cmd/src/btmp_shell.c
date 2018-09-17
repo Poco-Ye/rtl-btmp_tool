@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     char cmdline[256];
 
     btmp_log_std(":::::::::::::::::::::::::::::::::::::::::::::::::");
-    btmp_log_std(":::::::: Bluetooth MP Test Tool Starting ::::::::");
+    btmp_log_std(":::::::: Bluetooth MP Test Tool Starting 20180829 ::::::::");
 
     config_permissions();
 

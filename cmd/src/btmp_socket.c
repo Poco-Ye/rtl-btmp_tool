@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     int ret;
 
     btmp_log_std(":::::::::::::::::::::::::::::::::::::::::::::::::");
-    btmp_log_std(":::::::: Bluetooth MP Test Tool Starting ::::::::");
+    btmp_log_std(":::::::: Bluetooth MP Test Tool Starting 20180829 ::::::::");
 
     config_permissions();
 
@@ -144,13 +144,20 @@ re_accept:
             if (FD_ISSET(net_fd, &input)) {
                 memset(cmdline, '\0', 128);
                 ret = read(net_fd, cmdline, 128);
+                SYSLOGW("ret: %d", ret);
                 if (ret > 0)
                     process_cmd(cmdline);
                 else if (ret == 0) {
                     SYSLOGW("failed to read: %s(%d)", strerror(errno), errno);
+                    close(net_fd);
                     goto re_accept;
                 } else if (ret == -1 && errno == EINTR)
                     continue;
+                else if (ret == -1 && errno == ECONNRESET){
+                    SYSLOGW("failed to read: %s(%d)", strerror(errno), errno);
+                    close(net_fd);
+                    goto re_accept;
+                }
                 else {
                     SYSLOGE("failed to read: %s(%d)", strerror(errno), errno);
                     return -1;

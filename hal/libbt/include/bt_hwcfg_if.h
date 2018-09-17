@@ -77,6 +77,8 @@
 #define ROM_LMP_8822b               0x8822
 #define ROM_LMP_8723d               0x8723
 #define ROM_LMP_8821c               0x8821
+#define ROM_LMP_8822c               0x8822
+
 
 #define ROM_HCI_NONE                0x0000
 #define ROM_HCI_8723a               0x1200
@@ -90,6 +92,7 @@
 #define ROM_HCI_8822b               0x000B
 #define ROM_HCI_8723d               0x000D
 #define ROM_HCI_8821c               0x000C
+#define ROM_HCI_8822c               0x000C
 
 
 #define STREAM_TO_UINT16(u16, p) {u16 = ((uint16_t)(*(p)) + (((uint16_t)(*((p) + 1))) << 8)); (p) += 2;}
@@ -175,6 +178,8 @@ typedef struct {
     uint8_t  patch_frag_tail; /* Last patch fragment length */
     uint32_t baudrate[2];     /* Host(0) & controller(1) buadrate */
     uint8_t  hw_flow_cntrl;   /* Uart flow control, bit7:set, bit0:enable */
+    uint16_t vid;             /* usb vendor id */
+    uint16_t pid;             /* usb product id */
 } bt_hw_cfg_cb_t;
 
 void ms_delay(uint32_t timeout);
