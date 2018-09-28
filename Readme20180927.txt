@@ -1,0 +1,266 @@
+一. 客户使用 android 系统时，文件说明和运行环境搭建
+        文件说明：
+                Android_tool/rtlbtmp：          应用程序
+                Android_tool/btmp.default.so：  应用程序
+                BT_Firmware/mp_rtlxxx_fw：      蓝牙芯片专用的 firmware
+		        BT_Config/mp_rtlxxx_config      蓝牙芯片专用的 config 
+                Readme/Readmexxxx.txt:          本说明文档
+                User Guide/MP tool User guide for androidxxx.pdf：mp tool 的命令集
+		
+		下面是蓝牙芯片名称、rtlxxx_config、mp_rtlxxx_config 的名称表：
+		  ---------------------------------------------------------------------------------
+		 |   蓝牙芯片名称         |   rtlxxx_config名称       | mp_rtlxxx_config名称       |
+		 |---------------------------------------------------------------------------------|
+		 |   RTL8703AS            |   rtl8703as_config        |   mp_rtl8703as_config      |
+		 |   RTL8703BS            |   rtl8703bs_config        |   mp_rtl8703bs_config      |
+		 |   RTL8723AS            |   rtl8723as_config        |   mp_rtl8723as_config      |
+		 |   RTL8723A             |   rtl8723a_config         |   mp_rtl8723a_config       |
+		 |   RTL8723AE            |   rtl8723a_config         |   mp_rtl8723a_config       |
+		 |   RTL8723AU            |   rtl8723a_config         |   mp_rtl8723a_config       |
+		 |   RTL8723BS            |   rtl8723bs_config        |   mp_rtl8723bs_config      |
+		 |   RTL8723BE            |   rtl8723b_config         |   mp_rtl8723b_config       |
+		 |   RTL8723BU            |   rtl8723bu_config        |   mp_rtl8723bu_config      |
+		 |   RTL8723CS            |   rtl8723cs_xx_config     |   mp_rtl8723cs_config      |
+		 |   RTL8723CU            |   rtl8723c_config         |   mp_rtl8723c_config       |
+		 |   RTL8723DS            |   rtl8723ds_config        |   mp_rtl8723ds_config      |
+		 |   RTL8723DE            |   rtl8723d_config         |   mp_rtl8723d_config       |
+		 |   RTL8723DU            |   rtl8723d_config         |   mp_rtl8723d_config       |
+		 |   RTL8761AW            |   rtl8761at_config        |   mp_rtl8761at_config      |
+		 |   RTL8761AU            |   rtl8761a_config         |   mp_rtl8761a_config       |
+		 |   RTL8761AU + 8192EE   |   rtl8761a_config         |   mp_rtl8761a_config       |
+		 |   RTL8761AU + 8812AE   |   rtl8761a_config         |   mp_rtl8761a_config       |
+		 |   RTL8761AUV           |   rtl8761a_config         |   mp_rtl8761a_config       |
+		 |   RTL8761AW + 8192EU   |   rtl8761aw8192eu_config  |   mp_tl8761aw8192eu_config |
+		 |   RTL8821AS            |   rtl8821as_config        |   mp_rtl8821as_config      |
+		 |   RTL8821AE            |   rtl8821a_config         |   mp_rtl8821a_config       |
+		 |   RTL8821AU            |   rtl8821a_config         |   mp_rtl8821a_config       |
+		 |   RTL8821CE            |   rtl8821c_config         |   mp_rtl8821c_config       |
+		 |   RTL8821CS            |   rtl8821cs_config        |   mp_rtl8821cs_config      |
+		 |   RTL8821CU            |   rtl8821c_config         |   mp_rtl8821c_config       |
+		 |   RTL8822BS            |   rtl8822bs_config        |   mp_rtl8822bs_config      |
+		 |   RTL8822BE            |   rtl8822b_config         |   mp_rtl8822b_config       |
+		 |   RTL8822BEH           |   rtl8822bs_config        |   mp_rtl8822bs_config      |
+		 |   RTL8822BU            |   rtl8822b_config         |   mp_rtl8822b_config       |
+		  ---------------------------------------------------------------------------------
+
+        运行环境搭建：
+                1）将 Android_tool/rtlbtmp 复制到客户板子里的 /system/bin/；
+                2）将 Android_tool/btmp.default.so 复制到客户板子里的 /system/lib/hw/；
+                3）将 BT_Firmware/mp_rtlxxx_fw 复制到客户板子里的 /system/etc/firmware/；
+                4）将 BT_Config/mp_rtlxxx_config 复制到客户板子里的 /system/etc/firmware/；   
+                5) 在客户板子的命令行界面，执行如下命令：
+                        chmod 0755 /system/bin/rtlbtmp
+                        chmod 0755 /system/lib/hw/btmp.default.so
+                        chmod 0755 /system/etc/firmware/mp_rtlxxx_fw
+                        chmod 0755 /system/etc/firmware/mp_rtlxxx_config
+
+        运行环境搭建举例(以 RTL8723BU 芯片为例)：
+                1) PC 需要先安装 Android 的 ADB 软件；安装完成后，使用 USB 将客户板子连接到 PC；
+                2) 在PC的命令行里，输入如下命令：
+                        adb root
+                        adb remount
+                        adb push d:\rtlbtmp /system/bin/
+                        adb push d:\btmp.default.so /system/lib/hw/
+                        adb push d:\mp_rtl8723b_fw /system/etc/firmware/
+		                adb push d:\mp_rtl8723bu_config /system/etc/firmware/
+                        adb shell chmod 0755 /system/bin/rtlbtmp
+                        adb shell chmod 0755 /system/lib/hw/btmp.default.so
+                        adb shell chmod 0755 /system/etc/firmware/mp_rtl8723b_fw
+                        adb shell chmod 0755 /system/etc/firmware/mp_rtl8723b_config
+
+
+二. 客户使用 linux 系统时，文件说明和运行环境搭建
+        文件说明：
+                Linux_tool/rtlbtmp：        应用程序
+                BT_Firmware/mp_rtlxxx_fw：  蓝牙芯片专用的 firmware
+		BT_Config/mp_rtlxxx_config  蓝牙芯片专用的 config 
+                Readme/Readmexxxx.txt:      本说明文档
+                User Guide/MP tool User guide for linuxxxx.pdf：mp tool 的命令集
+		下面是蓝牙芯片名称、rtlxxx_config、mp_rtlxxx_config 的名称表：
+		  -----------------------------------------------------------------------------
+		 |   蓝牙芯片名称         |   rtlxxx_config名称       |  mp_rtlxxx_config名称  |
+		 |-----------------------------------------------------------------------------|
+		 |   RTL8703AS            |   rtl8703a_config         |   mp_rtl8703a_config   |
+		 |   RTL8703BS            |   rtl8703b_config         |   mp_rtl8703b_config   |
+		 |   RTL8723AE            |   rtl8723a_config         |   mp_rtl8723a_config   |
+		 |   RTL8723AS            |   rtl8723a_config         |   mp_rtl8723a_config   |
+		 |   RTL8723AU            |   rtl8723a_config         |   mp_rtl8723a_config   |
+		 |   RTL8723BE            |   rtl8723b_config         |   mp_rtl8723b_config   |
+		 |   RTL8723BS            |   rtl8723b_config         |   mp_rtl8723b_config   |
+		 |   RTL8723BU            |   rtl8723bu_config        |   mp_rtl8723bu_config  |
+		 |   RTL8723CS            |   rtl8723cs_xx_config     |   mp_rtl8723cs_config  |
+		 |   RTL8723DS            |   rtl8723d_config         |   mp_rtl8723d_config   |
+		 |   RTL8723DU            |   rtl8723du_config        |   mp_rtl8723du_config  |
+		 |   RTL8761AT            |   rtl8761at_config        |   mp_rtl8761at_config  |
+		 |   RTL8761ATV           |   rtl8761a_config         |   mp_rtl8761a_config   |
+		 |   RTL8761AU            |   rtl8761a_config         |   mp_rtl8761a_config   |
+		 |   RTL8761AW + 8192EU   |   rtl8761aw_config        |   mp_rtl8761aw_config  |
+		 |   RTL8761AU + 8192EE   |   rtl8761a_config         |   mp_rtl8761a_config   |
+		 |   RTL8761AU + 8812AE   |   rtl8761a_config         |   mp_rtl8761a_config   |
+		 |   RTL8821AE            |   rtl8821a_config         |   mp_rtl8821a_config   |
+		 |   RTL8821AS            |   rtl8821a_config         |   mp_rtl8821a_config   |
+		 |   RTL8821AU            |   rtl8821a_config         |   mp_rtl8821a_config   |
+		 |   RTL8821CS            |   rtl8821c_config         |   mp_rtl8821c_config   |
+		 |   RTL8821CU            |   rtl8821cu_config        |   mp_rtl8821cu_config  |
+		 |   RTL8822BS            |   rtl8822b_config         |   mp_rtl8822b_config   |
+		 |   RTL8822BU            |   rtl8822bu_config        |   mp_rtl8822bu_config  |
+		  -----------------------------------------------------------------------------
+
+        运行环境搭建：
+                1）将 Linux_tool/rtlbtmp 复制到客户平台里的 /usr/sbin/;
+                2）将 BT_Firmware/mp_rtlxxx_fw 复制到客户平台里的 /lib/firmware/；
+		        3）将 BT_Config/mp_rtlxxx_config 复制到客户平台里的 /lib/firmware/；     
+                4）在客户平台的命令行界面，执行如下命令：
+                        chmod 0755 /usr/sbin/rtlbtmp
+                        chmod 0755 /lib/firmware/mp_rtlxxx_fw
+                        chmod 0755 /lib/firmware/mp_rtlxxx_config
+
+
+三. Android/linux MP tool使用简例
+        Android 系统运行前准备：
+                1）首先确保蓝牙在正常情况下是可以使用的；然后在android setting界面UI上，关闭BT与WiFi；
+                2）使用USB将手机连接到PC端，PC端需要预先安装Android的ADB tool；
+                3）在PC端的命令行里输入如下命令：
+                        adb root
+                        adb remount
+
+        Linux 系统运行前准备：
+                1）Switch antenna to BT by wifi tool (8723B+8821系列使用，其他请忽略)
+                        adb shell       //如果已经adb登录则省略
+                        insmod /system/lib/modules/8723bs.ko
+                        ifconfig wlan0 up
+                        rtwpriv wlan0 mp_start
+                        rtwpriv wlan0 write 4,948,280
+                        rtwpriv wlan0 write 4,764,00001800
+
+        开始使用BT工具测试(具体见 MP tool User guide):
+        1. Run the BT mp tool (link mode)
+                1) exec the mp tool bin
+                        adb shell       //如果已经adb登录则省略
+                        rtlbtmp
+
+                2) enable mp tool stack
+                        enable uart:/dev/ttyS1 具体的UART的设备节点请使用平台自己的
+
+                3) enter dut test mode  //link mode测试流程
+                        bt_mp_Exec 1
+
+                这时手机蓝牙已经进入link mode；
+                此时手机端的BT IC处于 inquire scan状态，那么仪器可以正常inquire到手机；
+                测试仪器的TX端选择 TX mode； RX端选择 loopback mode；
+                后续的测试都是仪器通过信令和BT IC进行通信来完成.....
+                具体见 MP tool User guide；
+
+                4) exit dut test mode
+                        bt_mp_Exec 0
+
+                5) quit the mp tool
+                        disable
+                        quit
+
+                //NOTE: Each command in BT mp tool should have a string 'Success' printed;
+                //otherwise, it fails.
+
+        2. 如果测试non-link mode
+                /*****************************************************************************
+                CONTINUE TX:
+                1) Switch antenna to BT by wifi tool
+                2) 执行如下命令：
+                        rtlbtmp
+                        enable uart:/dev/ttyS1          //具体的UART的设备节点请使用平台自己的 bt_mp_HciCmd 0xFCE8, 2, 0, 0
+                        enable usb:/dev/rtk_btusb       //这是USB接口的
+                        bt_mp_Exec 5
+                        bt_mp_Exec 6
+                        bt_mp_SetParam  1,36;2,8;3,7;6,0x7F;7,7;9,0x0;11,0x000000c6967e;
+                        bt_mp_Exec 15
+                    此时频谱分析仪上会有波形输出；
+                        bt_mp_Exec 17
+                    此时频谱分析仪上不会有波形输出；
+                        disable
+                        quit
+
+                    具体见 MP tool User guide；
+                ******************************************************************************/
+
+                BT 2.0 EDR的定频和调频测试如下:
+                1. Switch antenna to BT by wifi tool
+                a. fix mode（定频模式）
+                        rtlbtmp
+                        enable uart:/dev/ttyS0          //具体的UART的设备节点请使用平台自己的
+                        enable usb:/dev/rtk_btusb       //这是USB接口的
+                        bt_mp_Exec 5
+                        bt_mp_Exec 6
+                        bt_mp_SetParam  1,36;2,8;6,0x7F;10,1;
+                        /***************************************************************************************************************
+                        1，36,1表示需要要配置channel,范围是0~39，其他channel（0~78）可以自行选择输入，
+                        2,8，2表示需要配置的是packettype，范围是0~8，这是就是我们所说的DH1，DH3，DH5，2DH1，2DH3，2DH5，3DH1，3DH1，3DH5
+                        10,1,是选择定频和调频模式的开关，1表示选择定频
+                        ****************************************************************************************************************/
+                        bt_mp_Exec 21
+                    此时频谱分析仪上会有波形输出；
+                        bt_mp_Exec 0
+                    此时频谱分析仪上不会有波形输出；
+                        disable
+                        quit
+                b.hopping mode（跳频模式）
+                        rtlbtmp
+                        enable uart:/dev/ttyS0                  //具体的UART的设备节点请使用平台自己的
+                        enable usb:/dev/rtk_btusb               //这是USB接口的
+                        bt_mp_Exec 5
+                        bt_mp_Exec 6
+                        bt_mp_SetParam  2,8;6,0x7F;10,0;        //这里10,0中选择0，表示选择的是调频，因此不需要选频道这个选项了
+                        bt_mp_Exec 21
+                    此时频谱分析仪上会有波形输出；
+                        bt_mp_Exec 0
+                    此时频谱分析仪上不会有波形输出；
+                        disable
+                        quit
+
+        3. LE TX定频测试；
+                rtlbtmp
+                enable usb:/dev/rtk_btusb       //这是USB接口的
+                enable usb:/dev/ttyS0           //这是UART接口的,具体的接口根据不同的平台而不同
+                bt_mp_Exec 5
+                bt_mp_Exec 6
+                bt_mp_SetParam  1,36;2,0x09;3,0;7,7;15,0x25;
+                /*******************************************************************************
+                1，36；1表示需要要配置channel,范围是0~39，其他channel（0~39）可以自行选择输入；
+                2,0x09; 2表示PacketType，0x09 (BT_PKT_LE)；
+                3,0；3表示选择的是playloadtype，0表示0~7中的0；
+                7,7; 第一个7表示tx power index，第二个7表示档位是7；
+                15,0x25；15表示LEDataLen，范围是0-0x25。
+                ********************************************************************************/
+                bt_mp_Exec 22           //LE_TX_DUT_TEST_CMD start
+                bt_mp_Exec 24           //LE_TX_DUT_TEST_CMD stop
+                disable
+                quit
+
+        4. 在单个频率上，发送多个报文，然后停止(以RTL8761AUV为例)
+                enable usb:/dev/rtk_btusb         // 这是USB接口的,具体的接口根据不同的平台而不同
+                bt_mp_Exec 0
+                bt_mp_Exec 5
+                bt_mp_Exec 6
+                bt_mp_SetParam 1,8                // ChannelNumber = 8
+                bt_mp_SetParam 2,8                // PacketType = BT_PKT_3DH5
+                bt_mp_SetParam 3,0                // PayloadType = BT_PAYLOAD_TYPE_ALL0
+                bt_mp_SetParam 4,0                // TxPacketCount = 0
+                bt_mp_SetParam 6,0xff             // WhiteningCoeffValue = 0xff     //Disable Whitening
+                bt_mp_SetParam 7,11               // TxGainIndex = 11 （这个值是通过 User guide 3.2.5节的内容进行选择的）
+                bt_mp_SetParam 9,0x3ffff          // PacketHeader = 0x3ffff
+                bt_mp_SetParam 11,0x00e04c23ff23  // HitTarget = 00:e0:4c:23:ff:23 （这个是对方蓝牙的 MAC地址）
+                bt_mp_Exec 12
+
+        5. 单载波（Single Tone）(以RTL8761AUV为例)
+                bt_mp_Exec 5
+                bt_mp_Exec 6
+                bt_mp_SetParam 1,39               // ChannelNumber = 39
+                bt_mp_SetParam 2,0x08             // PacketType = BT_PKT_3DH5
+                bt_mp_SetParam 3,0x00             // PayloadType = BT_PAYLOAD_TYPE_ALL0
+                bt_mp_SetParam 6,0xff             // WhiteningCoeffValue = 0xff     //Disable Whitening
+                bt_mp_SetParam 7,0x07             // TxGainIndex = 7
+                bt_mp_SetParam 9,0x3ffff          // PacketHeader = 0x3ffff
+                bt_mp_SetParam 11,0x00e04c23ff23  // HitTarget = 00:e0:4c:23:ff:23 （这个是对方蓝牙的 MAC地址）
+                bt_mp_Exec 15
+            此时频谱分析仪上会有波形输出；
+                bt_mp_Exec 17
+            此时频谱分析仪上不会有波形输出；
