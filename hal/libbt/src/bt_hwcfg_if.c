@@ -64,6 +64,7 @@ uint16_t project_id[] = {
     ROM_LMP_NONE,
     ROM_LMP_NONE,
     ROM_LMP_8822c,
+    ROM_LMP_8761b,
     ROM_LMP_NONE
 };
 
@@ -79,11 +80,15 @@ static patch_item patch_table[] = {
     { ROM_LMP_8822b, ROM_HCI_8822b, "mp_rtl8822b_fw", "mp_rtl8822bs_config" },    //RTL8822B
     { ROM_LMP_8723d, ROM_HCI_8723d, "mp_rtl8723d_fw", "mp_rtl8723ds_config" },    //RTL8723D
     { ROM_LMP_8821c, ROM_HCI_8821c, "mp_rtl8821c_fw", "mp_rtl8821cs_config" },    //RTL8821C
-    { ROM_LMP_8822c, ROM_HCI_8822c, "mp_rtl8822c_fw", "mp_rtl8822cs_config" },    //RTL8822C
+    { ROM_LMP_8822c, ROM_HCI_8822c, "mp_rtl8822c_fw", "mp_rtl8822cs_config" },    //RTL8822C //RTL8821DS
+    { ROM_LMP_8761b, ROM_HCI_8761b, "mp_rtl8761a_fw", "mp_rtl8761at_config" },    //RTL8761A
     /* add entries here*/
 
     { ROM_LMP_NONE,  ROM_HCI_NONE,  "mp_none_fw",     "mp_none_config" }
 };
+
+
+
 
 /** sleep unconditionally for timeout milliseconds */
 void ms_delay(uint32_t timeout)
@@ -166,6 +171,7 @@ int bt_hw_load_file(uint8_t **file_buf, char *file_name)
 
     if (stat(file_path, &st) < 0) {
         SYSLOGE("can't access bt file[%s], errno %d", file_path, errno);
+		btmp_log("can't access bt file[%s], errno %d", file_path, errno);
         return -1;
     }
 
@@ -174,17 +180,20 @@ int bt_hw_load_file(uint8_t **file_buf, char *file_name)
     fd = open(file_path, O_RDONLY);
     if (fd < 0) {
         SYSLOGE("can't open bt file[%s], errno %d", file_path, errno);
+		btmp_log("can't open bt file[%s], errno %d", file_path, errno);
         return -1;
     }
 
     *file_buf = malloc(len);
     if (*file_buf == NULL) {
         SYSLOGE("failed to malloc buf for bt file[%s]", file_path);
+		btmp_log("failed to malloc buf for bt file[%s]", file_path);
         return -1;
     }
 
     if (read(fd, *file_buf, len) < (ssize_t)len) {
         SYSLOGE("can't read bt file[%s]", file_path);
+		btmp_log("can't read bt file[%s]", file_path);
         free(*file_buf);
         close(fd);
         return -1;

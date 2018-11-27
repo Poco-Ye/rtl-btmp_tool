@@ -51,7 +51,9 @@ CFLAGS += -I$(HAL_DIR)/$(MP_INC) -I$(HAL_DIR)/$(BTIF_INC) -I$(HAL_DIR)/$(GKI_INC
 OBJS = $(BTIF_DIR)/btif_core.o $(BTIF_DIR)/bluetooth.o
 OBJS += $(MP_DIR)/bt_mp_base.o $(MP_DIR)/bt_mp_build.o $(MP_DIR)/bt_mp_device_base.o \
         $(MP_DIR)/bt_mp_module_base.o $(MP_DIR)/foundation.o $(MP_DIR)/bt_mp_api.o \
-        $(MP_DIR)/bt_mp_transport.o $(MP_DIR)/bt_mp_device_efuse_base.o
+        $(MP_DIR)/bt_mp_transport.o $(MP_DIR)/bt_mp_device_efuse_base.o \
+        $(MP_DIR)/ic_config.o $(MP_DIR)/bt_mp_device_flash_rtl8763b.o $(MP_DIR)/bt_mp_extend_device_function_rtl8763b.o \
+        $(MP_DIR)/bt_mp_device_rtl8763b.o $(MP_DIR)/bt_mp_device_rtl8822c.o  $(MP_DIR)/bt_mp_device_rtl8723d.o 
 OBJS += $(GKI_DIR)/ulinux/gki_ulinux.o $(GKI_DIR)/common/gki_debug.o $(GKI_DIR)/common/gki_time.o \
         $(GKI_DIR)/common/gki_buffer.o
 OBJS += $(HCI_DIR)/hci_h4.o $(HCI_DIR)/hci_h5.o $(HCI_DIR)/userial.o $(HCI_DIR)/bt_skbuff.o \
@@ -61,15 +63,17 @@ OBJS += $(MAIN_DIR)/bte_conf.o $(MAIN_DIR)/bte_init.o $(MAIN_DIR)/bte_logmsg.o \
         $(MAIN_DIR)/bte_main.o $(MAIN_DIR)/bte_version.o
 OBJS += $(STACK_DIR)/btu/btu_hcif.o $(STACK_DIR)/btu/btu_init.o $(STACK_DIR)/btu/btu_task.o \
         $(STACK_DIR)/hcic/hcicmds.o $(STACK_DIR)/hcic/hciblecmds.o
-OBJS += $(LIBBT_DIR)/bt_vendor_uart.o $(LIBBT_DIR)/bt_vendor_usb.o $(LIBBT_DIR)/bt_vendor_if.o \
-        $(LIBBT_DIR)/bt_hwcfg_uart.o $(LIBBT_DIR)/bt_hwcfg_usb.o $(LIBBT_DIR)/bt_hwcfg_if.o
+OBJS += $(LIBBT_DIR)/bt_vendor_uart.o $(LIBBT_DIR)/bt_vendor_usb.o $(LIBBT_DIR)/bt_vendor_sdio.o $(LIBBT_DIR)/bt_vendor_if.o \
+        $(LIBBT_DIR)/bt_hwcfg_uart.o $(LIBBT_DIR)/bt_hwcfg_usb.o $(LIBBT_DIR)/bt_hwcfg_sdio.o  $(LIBBT_DIR)/bt_hwcfg_if.o
 OBJS += $(UTILS_DIR)/bt_utils.o $(UTILS_DIR)/bt_syslog.o
 
 INCS = $(BTIF_INC)/btif_api.h $(BTIF)/btif_common.h $(BTIF)/btif_util.h
 INCS += $(MP_INC)/bluetoothmp.h $(MP_INC)/bt_mp_api.h $(MP_INC)/bt_mp_base.h \
         $(MP_INC)/bt_mp_build.h $(MP_INC)/bt_mp_device_base.h \
         $(MP_INC)/bt_mp_module_base.h $(MP_INC)/bt_mp_transport.h \
-        $(MP_INC)/foundation.h $(MP_INC)/bt_mp_device_efuse_base.h
+        $(MP_INC)/foundation.h $(MP_INC)/bt_mp_device_efuse_base.h \
+        $(MP_INC)/ic_config.h $(MP_INC)/bt_mp_device_flash_rtl8763b.h $(MP_INC)/bt_mp_extend_device_function_rtl8763b.h \
+        $(MP_INC)/bt_mp_device_rtl8763b.h $(MP_INC)/bt_mp_device_rtl8822c.h $(MP_INC)/bt_mp_device_rtl8723d.h
 INCS += $(GKI_INC)/common/gki.h $(GKI_INC)/common/gki_common.h $(GKI_INC)/common/gki_inet.h \
         $(GKI_INC)/ulinux/data_types.h $(GKI_INC)/ulinux/gki_int.h
 INCS += $(HCI_INC)/bt_hci_bdroid.h $(HCI_INC)/bt_hci_lib.h $(HCI_INC)/bt_list.h \

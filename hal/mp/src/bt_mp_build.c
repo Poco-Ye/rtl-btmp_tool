@@ -2,7 +2,11 @@
 
 #include "bluetoothmp.h"
 #include "bt_mp_device_efuse_base.h"
+#include "bt_mp_device_flash_rtl8763b.h"
+#include "bt_mp_extend_device_function_rtl8763b.h"
+#include "bt_mp_device_rtl8723d.h"
 #include "bt_mp_build.h"
+
 
 int
 BuildBluetoothDevice(
@@ -94,16 +98,18 @@ BuildBluetoothDevice(
 
     pBtDevice->FwReadTxPowerInfo        =   BTDevice_fw_read_tx_power_info;
 
-    pBtDevice->SetGPIO3_0               =   BTDevice_SetGpio3_0;
-    pBtDevice->GetGPIO3_0               =   BTDevice_GetGpio3_0;
+    pBtDevice->SetGPIO3_0               =   BTDevice_RTL8761A_SetGpio3_0;
+    pBtDevice->GetGPIO3_0               =   BTDevice_RTL8761A_GetGpio3_0;
 
     pBtDevice->MpDebugMessageReport     =   BTDevice_MpDebugMessageReport;
     pBtDevice->MpFTValueReport          =   BTDevice_MpFTValueReport;
 
-    pBtDevice->SetAntInfo = BTDevice_SetAntInfo;
-    pBtDevice->SetAntDiffS0S1 = BTDevice_SetAntDiffS0S1;
+    pBtDevice->SetAntInfo               =   BTDevice_RTL8723D_SetAntInfo;
+    pBtDevice->SetAntDiffS0S1           =   BTDevice_RTL8723D_SetAntDiffS0S1;
     pBtDevice->TxPowerTracking = BTDevice_TxPowerTracking;
     pBtDevice->SetKTxChPwr = BTDevice_SetKTxChPwr;
+    pBtDevice->WriteFlashConfig         =   BTDevice_Write_Data_Entry_to_Flash_Config;
+    pBtDevice->ReadFlashConfig          =   BTDevice_Read_Data_from_Flash_Config_rtl8763B;
 
     BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pSysEfuse), &(pBtDevice->SysEfuseMemory), SYS_EFUSE,  128, 128, 0, 1);
     BuildEfuseLogicUnit(pBtDevice, &(pBtDevice->pBtEfuse), &(pBtDevice->BtEfuseMemory), BT_EFUSE, 1024, 512, 1, 2);

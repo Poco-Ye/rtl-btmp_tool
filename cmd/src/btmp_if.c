@@ -289,10 +289,14 @@ void btmp_enable(char *p)
         hci_if = BT_HCI_IF_UART5;
     } else if (!strcasecmp(parse_buf, "USB")) {
         hci_if = BT_HCI_IF_USB;
+    }else if (!strcasecmp(parse_buf, "SDIO")) {
+        hci_if = BT_HCI_IF_SDIO;
     }
 
     SYSLOGI("ENABLE BT, hci_if[%d], dev_node[%s]", hci_if, p_node);
-
+    
+	btmp_log("ENABLE BT, hci_if[%d], dev_node[%s]", hci_if, p_node);
+	
     status = sBtInterface->init(&bt_callbacks, hci_if, p_node);
     status = sBtInterface->enable();
 }

@@ -143,7 +143,7 @@ static int init(const bt_hc_callbacks_t *p_cb, unsigned char *local_bdaddr,
         extern tHCI_IF hci_h5_func_table;
         p_hci_if = &hci_h5_func_table;
         num_hci_cmd_pkts = &H5_num_hci_cmd_pkts;
-    } else if (hci_if == BT_HCI_IF_UART4 || hci_if == BT_HCI_IF_USB) {
+    } else if (hci_if == BT_HCI_IF_UART4 || hci_if == BT_HCI_IF_USB || BT_HCI_IF_SDIO) {
         extern tHCI_IF hci_h4_func_table;
         p_hci_if = &hci_h4_func_table;
         num_hci_cmd_pkts = &H4_num_hci_cmd_pkts;

@@ -24,6 +24,7 @@
 #define HCI_VENDOR_MP_DEBUG_MESSAGE_REPORT        0xFCF7
 #define HCI_VENDOR_MP_FT_VALUE_REPORT             0xFCF8
 #define HCI_VENDOR_MP_SET_ANT_INFO                0xFCFD
+#define HCI_VENDOR_MP_ENABLE_TX_POWER_TRACKING_RTL8761A_VERSION 0xFD44
 #define HCI_LE_ENHANCED_TX          0x2034
 #define HCI_LE_ENHANCED_RX          0x2033
 
@@ -33,9 +34,18 @@
 #define LE_RX_DUT_TEST 3
 #define LE_ENHANCED_TX_DUT_TEST 0
 #define LE_ENHANCED_RX_DUT_TEST 1
-
-
-
+#define RTL8763B_IQM_MODE   0x20
+#define RTL8763B_TPM_MODE   0x00
+int
+BTDevice_BBPro_GetIQMTPM_Mode(
+    BT_DEVICE *pBtDevice,
+    unsigned long *Mode
+    );
+int
+BTDevice_BBPRO_Rssi_Setting(
+    BT_DEVICE *pBtDevice,
+    unsigned long Enable
+    );
 int
 BTDevice_SetMDRegMaskBits(
         BT_DEVICE *pBtDevice,
@@ -203,14 +213,12 @@ BTDevice_SetHciReset(
 int
 BTDevice_SetHoppingMode(
         BT_DEVICE *pBtDevice,
-        uint8_t ChannelNumber,
-        BT_PKT_TYPE PktType,
-        BT_PAYLOAD_TYPE PayloadType,
-        uint8_t TxGainValue,
-        uint8_t WhiteningCoeffValue,
-        uint8_t TxGainIndex,
-        uint8_t TxDAC,
-        uint8_t HoppingFixChannel
+    BT_PKT_TYPE pktType,
+    unsigned char bHoppingFixChannel,
+    unsigned char Channel,
+    unsigned char WhiteningCoeffValue,
+    unsigned char StartHoppingCh,
+    unsigned char StopHoppingCh
         );
 
 int
@@ -446,13 +454,13 @@ BTDevice_fw_read_tx_power_info(
     );
 
 int
-BTDevice_SetGpio3_0(
+BTDevice_RTL8761A_SetGpio3_0(
     BT_DEVICE *pBtDevice,
     unsigned char GpioValue
     );
 
 int
-BTDevice_GetGpio3_0(
+BTDevice_RTL8761A_GetGpio3_0(
     BT_DEVICE *pBtDevice,
     unsigned char *pGpioValue
     );
@@ -484,18 +492,25 @@ BTDevice_BBPro_POuterStop(
     BT_DEVICE_REPORT *pBtReport
     );
 
+/*int
+BTDevice_RTL8723D_SetAntInfo(
+    BT_DEVICE *pBtDevice,
+    unsigned char Data
+    );
 int
 BTDevice_SetAntInfo(
     BT_DEVICE *pBtDevice,
     uint8_t Data
     );
+*/
+  /*
 int
-BTDevice_SetAntDiffS0S1(
+BTDevice_RTL8822C_SetAntDiffS0S1(
     BT_DEVICE *pBtDevice,
-    uint8_t s0_s1,
-    uint8_t tbt_diff_sos1
+    unsigned char s0_s1,
+    unsigned char tbt_diff_sos1
     );
-
+*/
 int
 BTDevice_SetKTxChPwr(
     BT_DEVICE *pBtDevice,

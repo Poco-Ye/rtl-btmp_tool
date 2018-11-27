@@ -106,7 +106,8 @@ typedef enum {
     BT_HCI_IF_NONE = 0,
     BT_HCI_IF_UART4,
     BT_HCI_IF_UART5,
-    BT_HCI_IF_USB
+    BT_HCI_IF_USB,
+    BT_HCI_IF_SDIO
 } bt_hci_if_t;
 
 /** Bluetooth Address */

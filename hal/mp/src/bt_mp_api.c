@@ -1068,7 +1068,7 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
         break;
 
     case REPORT_TX_POWER_INFO:
-        SYSLOGI("%s%s%d%s0x%02x%s%d%s%d%s%d%s%d%s%d",
+        SYSLOGI("%s%s%d%s0x%02x%s%d%s%d%s%d%s%d%s%d%s%d%s%d",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
                 item, STR_BT_MP_RESULT_DELIM,
                 BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
@@ -1076,9 +1076,11 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->ReportData[1],STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->ReportData[2],STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->ReportData[3],STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->ReportData[4]);
+                pBtDeviceReport->ReportData[4],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[5],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[6]);
 
-        sprintf(buf_cb, "%s%s%d%s0x%02x%s%d%s%d%s%d%s%d%s%d",
+        sprintf(buf_cb, "%s%s%d%s0x%02x%s%d%s%d%s%d%s%d%s%d%s%d%s%d",
                 STR_BT_MP_REPORT, STR_BT_MP_RESULT_DELIM,
                 item, STR_BT_MP_RESULT_DELIM,
                 BT_FUNCTION_SUCCESS, STR_BT_MP_RESULT_DELIM,
@@ -1086,7 +1088,9 @@ static void bt_item2print(BT_DEVICE_REPORT *pBtDeviceReport, int item, char *buf
                 pBtDeviceReport->ReportData[1],STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->ReportData[2],STR_BT_MP_RESULT_DELIM,
                 pBtDeviceReport->ReportData[3],STR_BT_MP_RESULT_DELIM,
-                pBtDeviceReport->ReportData[4]);
+                pBtDeviceReport->ReportData[4],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[5],STR_BT_MP_RESULT_DELIM,
+                pBtDeviceReport->ReportData[6]);
         break;
 
     case REPORT_GPIO3_0:

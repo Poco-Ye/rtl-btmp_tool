@@ -7,9 +7,10 @@
 #include "foundation.h"
 
 #define USE_CHAR_STR
-
+#define BBPRO_D_CUT_VERSINN           //BBPro d cut
 #ifndef TRUE
 #define TRUE 1
+#define BBPRO_FLASH_IOCTL 0xfc2c
 #endif
 
 #ifndef FALSE
@@ -70,7 +71,6 @@ typedef enum
 
 #ifndef BASE_BT_CONFIG
 #define BASE_BT_CONFIG
-#endif
 
 #define MAX_TXGAIN_TABLE_SIZE   7
 #define MAX_TXDAC_TABLE_SIZE    5
@@ -111,6 +111,8 @@ typedef enum {
     REPORT_MP_DEBUG_MESSAGE,
     REPORT_MP_FT_VALUE,
     REPORT_POWER_TRACKING,
+    REPORT_MP_TXCAL_INFO,
+    REPORT_FLASH_CONFIG,
 } BT_REPORT_TAG;
 typedef enum {
     HCI_RESET = 0,                  //0
@@ -183,6 +185,14 @@ typedef enum {
     SET_ANT_DIFF_S0S1,              //41
     TX_POWER_TRACKING,              //42
     SET_K_TX_CH_PWR,                    //43
+    WRITE_FLASH_CONFIG,             //44 fro BBPro flash config
+    // new flow function
+    TX_POWER_GAIN_K,                //45
+    TX_POWER_FLATNESS,              //46
+    TX_PATH_LOSS_MODULE,            //47
+
+    CONFIG_EXTEND,                  //48
+    READ_FLASH_CONFIG,              //49 fro BBPro flash config
     BT_ACTION_NUM
 } BT_ACTIONCONTROL_TAG;
 
@@ -252,14 +262,25 @@ typedef enum
 
 typedef enum
 {
-    LE_1M_PHY = 1,
-    LE_2M_PHY = 2,
-    LE_CODED_PHY_S8 = 3,    //125K
-    LE_CODED_PHY_S2 = 4,    //500K
-}BT_LE_PHY;
+    LE5_TX_1M_PHY = 1,
+    LE5_TX_2M_PHY = 2,
+    LE5_TX_CODED_PHY_S8 = 3,    //125K
+    LE5_TX_CODED_PHY_S2 = 4,    //500K
+}BT_LE5_TX_PHY;
 
 
-enum RTK_BT_CHIP_ID_GROUP_{
+typedef enum
+{
+    LE5_RX_1M_PHY = 1,
+    LE5_RX_2M_PHY = 2,
+    LE5_RX_CODED_PHY = 3,
+}BT_LE5_RX_PHY;
+typedef enum
+{
+    STANDARD_MODULATION_INDEX = 0,
+    STABLE_MODULATION_INDEX = 1,
+}BT_LE50_MODULATION_INDEX;
+enum RTK_BT_CHIP_ID_GROUP {
     RTK_BT_CHIP_ID_UNKNOWCHIP=0xFF,
     RTK_BT_CHIP_ID_RTL8723A=0,
     RTK_BT_CHIP_ID_RTL8723B=1,
@@ -273,7 +294,9 @@ enum RTK_BT_CHIP_ID_GROUP_{
     RTK_BT_CHIP_ID_RTL8723D=9,
     RTK_BT_CHIP_ID_RTL8821C=10,
     RTK_BT_CHIP_ID_RTL8763B=11,  //BBPro
-    /////////////////////////
+    RTK_BT_CHIP_ID_RTL8762C=12,  //Bee2
+    RTK_BT_CHIP_ID_RTL8822C=13,
+    RTK_BT_CHIP_ID_RTL8761B=14,
     NumOfRTKCHID
 };
 
@@ -366,7 +389,7 @@ struct BT_DEVICE_REPORT_TAG {
     uint8_t ReportData[MAX_USERAWDATA_SIZE];
 };
 
-
+#endif
 
 
 //
@@ -410,14 +433,12 @@ typedef int
 typedef int
 (*BT_FP_SET_HOPPINGMODE)(
         BT_DEVICE *pBtDevice,
-        uint8_t ChannelNumber,
-        BT_PKT_TYPE PktType,
-        BT_PAYLOAD_TYPE PayloadType,
-        uint8_t TxGainValue,
-        uint8_t WhiteningCoeffValue,
-        uint8_t TxGainIndex,
-        uint8_t TxDAC,
-        uint8_t HoppingFixChannel
+    BT_PKT_TYPE pktType,
+    unsigned char bHoppingFixChannel,
+    unsigned char Channel,
+    unsigned char WhiteningCoeffValue,
+    unsigned char StartHoppingCh,
+    unsigned char StopHoppingCh
         );
 
 typedef int
@@ -694,17 +715,6 @@ typedef int
     BT_DEVICE_REPORT *pBtReport
     );
 
-typedef int
-(*BT_FP_SET_GPIO3_0)(
-    BT_DEVICE *pBtDevice,
-    uint8_t GpioValue
-    );
-
-typedef int
-(*BT_FP_GET_GPIO3_0)(
-    BT_DEVICE *pBtDevice,
-    uint8_t *pGpioValue
-    );
 
 typedef int
 (*BT_FP_SET_BYTE)(
@@ -737,6 +747,31 @@ typedef int
     int Value4
     );
 
+typedef int
+(*BT_FP_PUCHAR)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pBuf
+    );
+typedef int
+(*BT_FP_TXGAINK)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pData
+    );
+typedef int
+(*BT_FP_TXFLATNESS)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pData
+    );
+typedef int
+(*BT_FP_TXPATHLOSS_MODULE)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pData
+    );
+typedef int
+(*BT_FP_CONFIGEXTEND)(
+    BT_DEVICE *pBtDevice,
+    unsigned char *pData
+    );
 #define MAX_EFUSE_PHY_LEN 512
 #define MAX_EFUSE_LOG_LEN 1024
 #define MAX_EFUSE_BANK_NUM 4
@@ -884,15 +919,21 @@ struct BT_DEVICE_TAG
     BT_FP_UPDATE                    FwContTxReport;
 
     BT_FP_UPDATE                    FwReadTxPowerInfo;
-    BT_FP_SET_GPIO3_0               SetGPIO3_0;
-    BT_FP_GET_GPIO3_0               GetGPIO3_0;
+    BT_FP_SET_BYTE                  SetGPIO3_0;
+    BT_FP_GET_BYTE                  GetGPIO3_0;
 
     BT_FP_UPDATE                    MpDebugMessageReport;
     BT_FP_UPDATE                    MpFTValueReport;
     BT_FP_SET_BYTE                  SetAntInfo;
     BT_FP_SET_BYTE_BYTE             SetAntDiffS0S1;
-    BT_FP_PBYTE_PBYTE           TxPowerTracking;
-    BT_FP_INT_INT_INT_INT       SetKTxChPwr;
+    BT_FP_PBYTE_PBYTE               TxPowerTracking;
+    BT_FP_INT_INT_INT_INT           SetKTxChPwr;
+    BT_FP_PUCHAR                    WriteFlashConfig;
+    BT_FP_TXGAINK                   TxGainKValue;
+    BT_FP_TXFLATNESS                TxFlatnessValue;
+    BT_FP_TXPATHLOSS_MODULE         TxPathLossModule;
+    BT_FP_CONFIGEXTEND              ConfigExtend;
+    BT_FP_PBYTE_PBYTE               ReadFlashConfig;
 };
 
 //
@@ -900,7 +941,7 @@ struct BT_DEVICE_TAG
 //
 #ifndef BT_MODILE_TAG_SYMBOL
 #define BT_MODILE_TAG_SYMBOL
-#endif
+
 
 typedef struct  BT_MODULE_TAG BT_MODULE;
 
@@ -1090,7 +1131,7 @@ struct BT_MODULE_TAG
 
 };
 
-
+#endif
 //#define TRUE  1
 //#define FALSE 0
 
@@ -1138,6 +1179,7 @@ enum BT_HCI_EVENT_FIELD
     EVT_BYTE1,
     EVT_BYTE2,
     EVT_BYTE3,
+    EVT_BYTE4,
 };
 
 //member function

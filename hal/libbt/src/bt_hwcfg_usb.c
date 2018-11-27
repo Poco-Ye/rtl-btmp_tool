@@ -47,6 +47,8 @@
 
 #define CONFIG_MAC_OFFSET_GEN_1_2       (0x3C)      //MAC's OFFSET in config/efuse for realtek generation 1~2 bluetooth chip
 #define CONFIG_MAC_OFFSET_GEN_3PLUS     (0x44)      //MAC's OFFSET in config/efuse for rtk generation 3+ bluetooth chip
+#define CONFIG_MAC_OFFSET_GEN_4PLUS     (0x30)      //MAC's OFFSET in config/efuse for rtk generation 4+ bluetooth chip
+
 #define MAX_PATCH_SIZE_24K              (1024*24)   //24K
 #define MAX_PATCH_SIZE_40K              (1024*40)   //40K
 
@@ -113,6 +115,7 @@ static usb_patch_info usb_fw_patch_table[] = {
 { 0x0BDA, 0xB761, 0x8761, 0, 0, "mp_rtl8761a_fw", "rtl8761au_fw", "mp_rtl8761a_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_1_2, MAX_PATCH_SIZE_24K}, /* RTL8761AUV only */
 { 0x0BDA, 0x8761, 0x8761, 0, 0, "mp_rtl8761a_fw", "rtl8761au8192ee_fw", "mp_rtl8761a_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_1_2, MAX_PATCH_SIZE_24K}, /* RTL8761AU + 8192EE for LI */
 { 0x0BDA, 0x8A60, 0x8761, 0, 0, "mp_rtl8761a_fw", "rtl8761au8812ae_fw", "mp_rtl8761a_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_1_2, MAX_PATCH_SIZE_24K}, /* RTL8761AU + 8812AE */
+{ 0x0BDA, 0x8771, 0x8761, 0, 0, "mp_rtl8761b_fw", "rtl8761bu_fw", "mp_rtl8761b_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_1_2, MAX_PATCH_SIZE_40K}, /* RTL8761BU */
 
 { 0x0BDA, 0x8821, 0x8821, 0, 0, "mp_rtl8821a_fw", "rtl8821a_fw", "mp_rtl8821a_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_1_2, MAX_PATCH_SIZE_24K}, /* RTL8821AE */
 { 0x0BDA, 0x0821, 0x8821, 0, 0, "mp_rtl8821a_fw", "rtl8821a_fw", "mp_rtl8821a_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_1_2, MAX_PATCH_SIZE_24K}, /* RTL8821AE */
@@ -126,7 +129,7 @@ static usb_patch_info usb_fw_patch_table[] = {
 { 0x0BDA, 0xB82C, 0x8822, 0, 0, "mp_rtl8822b_fw", "rtl8822b_fw", "mp_rtl8822b_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_24K}, /* RTL8822BU */
 { 0x0BDA, 0xB023, 0x8822, 0, 0, "mp_rtl8822b_fw", "rtl8822b_fw", "mp_rtl8822b_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_24K}, /* RTL8822BE */
 { 0x0BDA, 0xB703, 0x8703, 0, 0, "mp_rtl8723c_fw", "rtl8723c_fw", "mp_rtl8723c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_24K}, /* RTL8723CU */
-{ 0x0BDA, 0xC82C, 0x8822, 0, 0, "mp_rtl8822c_fw", "rtl8822c_fw", "mp_rtl8822c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8822CU */
+{ 0x0BDA, 0xC82C, 0x8822, 0, 0, "mp_rtl8822c_fw", "rtl8822c_fw", "mp_rtl8822c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_40K}, /* RTL8822CU */
 
 /* todo: RTL8703BU */
 
@@ -140,7 +143,6 @@ static usb_patch_info usb_fw_patch_table[] = {
 /* NOTE: must append patch entries above the null entry */
 { 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, 0, 0, 0 }
 };
-
 
 void USB_hw_config_cback(void *p_evt_buf);
 
@@ -398,7 +400,7 @@ CFG_PARSE_FW_PATCH:
                 SYSLOGI("HW_CFG_DL_FW_PATCH: index %d", index);
                 if (index & 0x80) {
                     SYSLOGI("bt hw config completed");
-
+                    btmp_log("bt hw config completed");
                     free(USB_hw_cfg_cb.total_buf);
                     bt_vendor_cbacks->dealloc(p_buf);
                     bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
@@ -414,6 +416,7 @@ CFG_PARSE_FW_PATCH:
             if (USB_hw_cfg_cb.patch_frag_idx < USB_hw_cfg_cb.patch_frag_cnt) {
                 if (USB_hw_cfg_cb.patch_frag_idx == USB_hw_cfg_cb.patch_frag_cnt - 1) {
                     SYSLOGI("HW_CFG_DL_FW_PATCH: send last fw fragment");
+					btmp_log("HW_CFG_DL_FW_PATCH: send last fw fragment");
                     USB_hw_cfg_cb.patch_frag_idx |= 0x80;
                     USB_hw_cfg_cb.patch_frag_len = USB_hw_cfg_cb.patch_frag_tail;
                 } else {

@@ -29,6 +29,7 @@
 #define LOG_TAG "bt_vendor_if"
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
@@ -44,6 +45,18 @@ uint8_t vnd_local_bd_addr[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static int rfkill_id = -1;
 static char *rfkill_state_path = NULL;
 static vnd_if_cb_t vnd_uart;
+
+static void btmp_log(const char *fmt_str, ...)
+{
+    va_list ap;
+    char log_buf[1024];
+    va_start(ap, fmt_str);
+    vsnprintf(log_buf, 1024, fmt_str, ap);
+    va_end(ap);
+
+    fprintf(stdout, "%s\n", log_buf);
+}
+
 
 static int init_rfkill()
 {
@@ -255,6 +268,9 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
     if (vnd_uart.fd == -1) {
         SYSLOGE("userial vendor open: unable to open %s, %s (%d)",
                 vnd_uart.port_name, strerror(errno), errno);
+		
+		btmp_log("userial vendor open: unable to open %s, %s (%d)",
+                vnd_uart.port_name, strerror(errno), errno);
         return -1;
     }
 
@@ -265,9 +281,13 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
 
     if (p_cfg->hw_fctrl == USERIAL_HW_FLOW_CTRL_ON) {
         SYSLOGI("userial vendor open: with HW flowctrl ON");
+		btmp_log("userial vendor open: with HW flowctrl ON");
+		
         vnd_uart.termios.c_cflag |= (CRTSCTS | stop_bits| parity);
     } else {
         SYSLOGI("userial vendor open: with HW flowctrl OFF");
+		btmp_log("userial vendor open: with HW flowctrl OFF");
+		
         vnd_uart.termios.c_cflag &= ~CRTSCTS;
         vnd_uart.termios.c_cflag |= (stop_bits| parity);
     }
@@ -327,7 +347,8 @@ void userial_vendor_set_baud(uint8_t userial_baud)
     uint32_t tcio_baud;
 
     SYSLOGI("userial_vendor_set_baud: userial_baud 0x%02x", userial_baud);
-
+    btmp_log("userial_vendor_set_baud: userial_baud 0x%02x", userial_baud);
+	
     userial_to_tcio_baud(userial_baud, &tcio_baud);
 
     if (cfsetospeed(&vnd_uart.termios, tcio_baud) < 0)

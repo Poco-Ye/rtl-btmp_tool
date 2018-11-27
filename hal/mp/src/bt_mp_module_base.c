@@ -4,8 +4,11 @@
 #include "bluetoothmp.h"
 #include "bt_mp_build.h"
 #include "bt_mp_module_base.h"
+#include "bt_mp_extend_device_function_rtl8763b.h"
 
-
+//after need to move to bt_mp_build.c to re- build
+#include "bt_mp_device_rtl8763b.h"
+#include "bt_mp_device_rtl8822c.h"
 
 extern uint32_t PktRxCount;
 extern uint32_t PktRxErrBits;
@@ -22,7 +25,8 @@ int BTModule_ActionReport(
     BT_PARAMETER *pModuleBtParam = pBtModule->pBtParam;
     BT_DEVICE_REPORT *pModuleBtReport = pBtModule->pModuleBtReport;
     unsigned int ChipType;
-    int i;
+    uint8_t i;
+    int rtn =0 ;
 
     ChipType = pModuleBtDevice->pBTInfo->ChipType;
 
@@ -132,10 +136,37 @@ int BTModule_ActionReport(
 
 
     case REPORT_XTAL:
-        pModuleBtDevice->GetRtl8761Xtal(pModuleBtDevice, &pReport->CurrRtl8761Xtal);
+        if(pModuleBtDevice->GetRtl8761Xtal(pModuleBtDevice, &pReport->CurrRtl8761Xtal)!= BT_FUNCTION_SUCCESS)
+        {
+        /// if(ChipType != RTK_BT_CHIP_ID_RTL8763B)
+                pReport->CurrStage =0xFF;
+                goto error;
+        }
+        //report RTL8763B Thermal tracking status and table
+        //read status enable /disable
+
+         pReport->CurrStage =0xFF; // NO SUPPORT  1: ENABLE 0 : DISABLE
+        if (BTDevice_Extend_XTAL_TRACK_Func(pModuleBtDevice,EXTEND_XTAL_TRACK_EN_GET ,&pReport->CurrStage)== BT_FUNCTION_SUCCESS)
+        {
+            memset(pReport->ReportData,0xFF,26);
+            pReport->ReportData[26]=0x00 ; //status = succress
+            BTDevice_Extend_XTAL_TRACK_Func(pModuleBtDevice,EXTEND_XTAL_TRACK_TABLE_GET ,pReport->ReportData);
+        }
+        else
+        {
+            //pReport->CurrStage =0xFF;
+            memset(&pReport->ReportData,0xFF,26);
+            pReport->ReportData[26]=0xFF ; //status = Fail
+             pReport->CurrStage =0xFF;
+        //  if(ChipType == RTK_BT_CHIP_ID_RTL8763B)
+        }
         break;
 
     case REPORT_THERMAL:
+        if(ChipType == RTK_BT_CHIP_ID_RTL8763B)
+        {
+            pModuleBtDevice->ReadThermal = BTDevice_ReadThermal_RTL8763B;
+        }
         pModuleBtDevice->ReadThermal(pModuleBtDevice, pBtModule->pBtParam, &pReport->CurrThermalValue);
         break;
 
@@ -203,7 +234,7 @@ int BTModule_ActionReport(
         break;
 
     case REPORT_TX_POWER_INFO:
-        for ( i=0; i<LEN_5_BYTE; i++)
+        for ( i=0; i<LEN_7_BYTE; i++)
         {
             pReport->ReportData[i] = pModuleBtReport->ReportData[i];
         }
@@ -233,7 +264,13 @@ int BTModule_ActionReport(
     case REPORT_POWER_TRACKING:
         pReport->ReportData[0] = pModuleBtReport->ReportData[0];
         break;
+    case REPORT_MP_TXCAL_INFO:
+        rtn = BTDevice_Extend_ReportTxInfo(pModuleBtDevice,&pReport->ReportData[0]);
+    break;
 
+    case REPORT_FLASH_CONFIG:
+        memcpy(pReport->ReportData, pModuleBtReport->ReportData, MAX_USERAWDATA_SIZE);
+    break;
     default:
         goto error;
 
@@ -355,12 +392,12 @@ int BTModule_ActionControlExcute(
         pModuleBtReport->RXRecvPktCnts = 0;
         PktRxCount = 0;
         PktRxErrBits = 0;
-        rtn = pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
+        //rtn=pModuleBtDevice->SetRestMDCount(pModuleBtDevice);
         break;
 
     /////////////////////////// PACKET_TX /////////////////////////////////////////////////////////
     case PACKET_TX_START:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetPktTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -371,14 +408,14 @@ int BTModule_ActionControlExcute(
         break;
 
     case PACKET_TX_UPDATE:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+            if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetPktTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
         break;
 
     case PACKET_TX_STOP:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetPktTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -389,7 +426,7 @@ int BTModule_ActionControlExcute(
         break;
     ////////////////////////// PACKET_RX /////////////////////////////////////////////////////////
     case PACKET_RX_START:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetPktRxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -400,14 +437,14 @@ int BTModule_ActionControlExcute(
         break;
 
     case PACKET_RX_UPDATE:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetPktRxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
         break;
 
     case PACKET_RX_STOP:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetPktRxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -419,7 +456,7 @@ int BTModule_ActionControlExcute(
 
     /////////////////////////// CONTINUE_TX /////////////////////////////////////////////////////////
     case CONTINUE_TX_START:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetContinueTxBegin(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -430,7 +467,7 @@ int BTModule_ActionControlExcute(
         break;
 
     case CONTINUE_TX_STOP:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn=pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -441,7 +478,7 @@ int BTModule_ActionControlExcute(
         break;
 
     case CONTINUE_TX_UPDATE:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetContinueTxUpdate(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -450,14 +487,12 @@ int BTModule_ActionControlExcute(
     /////////////////////////// HOPPING  /////////////////////////////////////////////////////////
     case HOPPING_DWELL_TIME:
         rtn = pModuleBtDevice->SetHoppingMode(pModuleBtDevice,
-                pModuleBtParam->mChannelNumber,
                 pModuleBtParam->mPacketType,
-                pModuleBtParam->mPayloadType,
-                pModuleBtParam->mTxGainValue,
+                pModuleBtParam->bHoppingFixChannel,
+                pModuleBtParam->mChannelNumber,
                 pModuleBtParam->mWhiteningCoeffValue,
-                pModuleBtParam->mTxGainIndex,
-                pModuleBtParam->mTxDAC,
-                pModuleBtParam->bHoppingFixChannel
+                pModuleBtParam->mParamData[0],
+                pModuleBtParam->mParamData[1]
                 );
         break;
 
@@ -497,7 +532,7 @@ int BTModule_ActionControlExcute(
         break;
 
     case LE_TX_DUT_TEST_CMD:
-        if(ChipType == RTK_BT_CHIP_ID_RTL8763B)//BBPro
+            if((ChipType >= RTK_BT_CHIP_ID_RTL8763B) && (ChipType !=0xFF)) //BBPro
         {
             rtn = BTDevice_LeTxEnhancedTest(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -508,7 +543,7 @@ int BTModule_ActionControlExcute(
         break;
 
     case LE_RX_DUT_TEST_CMD:
-        if(ChipType == RTK_BT_CHIP_ID_RTL8763B)//BBPro
+            if((ChipType >= RTK_BT_CHIP_ID_RTL8763B) && (ChipType !=0xFF)) //BBPro
         {
             rtn = BTDevice_LeRxEnhancedTest(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -536,7 +571,7 @@ int BTModule_ActionControlExcute(
 
     // LE Cont-Tx
     case LE_CONTINUE_TX_START:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             pModuleBtParam->mChannelNumber = pModuleBtParam->mChannelNumber * 2;
             pModuleBtParam->mWhiteningCoeffValue=0x7f;
@@ -549,7 +584,7 @@ int BTModule_ActionControlExcute(
             pModuleBtParam->mChannelNumber = pModuleBtParam->mChannelNumber*2;
             pModuleBtParam->mWhiteningCoeffValue=0x7f;
             pModuleBtParam->mPayloadType= BT_PAYLOAD_TYPE_PRBS9;
-            if(ChipType != RTK_BT_CHIP_ID_RTL8763B)//not BBPro
+            if(ChipType < RTK_BT_CHIP_ID_RTL8763B)//not BBPro
             {
                 pModuleBtParam->mPacketType= BT_PKT_1DH1;
             }
@@ -558,7 +593,7 @@ int BTModule_ActionControlExcute(
         break;
 
     case LE_CONTINUE_TX_STOP:
-        if(ChipType <RTK_BT_CHIP_ID_RTL8822B)
+        if((ChipType <RTK_BT_CHIP_ID_RTL8822B) || (ChipType == 0xFF))
         {
             rtn = pModuleBtDevice->SetContinueTxStop(pModuleBtDevice,pModuleBtParam,pModuleBtReport);
         }
@@ -616,6 +651,10 @@ int BTModule_ActionControlExcute(
         rtn = pModuleBtDevice->SetAntInfo(pModuleBtDevice, pModuleBtParam->mParamData[0]);
         break;
     case SET_ANT_DIFF_S0S1:
+        if (ChipType == RTK_BT_CHIP_ID_RTL8822C)
+        {
+            pModuleBtDevice->SetAntDiffS0S1 = BTDevice_RTL8822C_SetAntDiffS0S1;
+        }
         rtn = pModuleBtDevice->SetAntDiffS0S1(pModuleBtDevice, pModuleBtParam->mParamData[0], pModuleBtParam->mParamData[1]);
         break;
     case TX_POWER_TRACKING:
@@ -623,6 +662,24 @@ int BTModule_ActionControlExcute(
         break;
     case SET_K_TX_CH_PWR:
         rtn = pModuleBtDevice->SetKTxChPwr(pModuleBtDevice, pModuleBtParam->mParamData[0], pModuleBtParam->mParamData[1], pModuleBtParam->mParamData[2], pModuleBtParam->mParamData[3]);
+        break;
+    case WRITE_FLASH_CONFIG:
+        rtn = pModuleBtDevice->WriteFlashConfig(pModuleBtDevice, pModuleBtParam->mParamData);
+        break;
+    case TX_POWER_GAIN_K:
+        rtn = BTDevice_Extend_TxGainKValue(pModuleBtDevice,pModuleBtParam->mParamData);
+        break;
+    case TX_POWER_FLATNESS:
+        rtn = BTDevice_Extend_TxFlatnessValue(pModuleBtDevice,pModuleBtParam->mParamData);
+        break;
+    case TX_PATH_LOSS_MODULE:
+        rtn = BTDevice_Extend_TxPathLossModule(pModuleBtDevice,pModuleBtParam->mParamData);
+        break;
+    case CONFIG_EXTEND:
+        rtn = BTDevice_Extend_ConfigExtend_Function(pModuleBtDevice,pModuleBtParam->mParamData);
+        break;
+    case READ_FLASH_CONFIG:
+        rtn = pModuleBtDevice->ReadFlashConfig(pModuleBtDevice, pModuleBtParam->mParamData, pModuleBtReport->ReportData);
         break;
     default:
         rtn = FUNCTION_ERROR;

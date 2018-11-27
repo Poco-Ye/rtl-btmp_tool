@@ -44,6 +44,7 @@ extern tHCI_IF *p_hci_if;
 extern bt_vendor_interface_t *UART4_bt_vnd_if;
 extern bt_vendor_interface_t *UART5_bt_vnd_if;
 extern bt_vendor_interface_t *USB_bt_vnd_if;
+extern bt_vendor_interface_t *SDIO_bt_vnd_if;
 
 /******************************************************************************
 **  Variables
@@ -195,7 +196,9 @@ void init_vnd_if(unsigned char *local_bdaddr, bt_hci_if_t hci_if, const char *de
         bt_vnd_if = UART5_bt_vnd_if;
     } else if (hci_if == BT_HCI_IF_USB) {
         bt_vnd_if = USB_bt_vnd_if;
-    } else {
+    } else if (hci_if == BT_HCI_IF_SDIO) {
+        bt_vnd_if = SDIO_bt_vnd_if;
+    }else{
         bt_vnd_if = NULL;
         SYSLOGE("!!! Failed to get bt vendor interface !!!");
         return;

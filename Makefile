@@ -27,11 +27,9 @@ MKDIR := mkdir -p
 RM := rm -f
 MV := mv -f
 INSTALL := install
-MYDIR := /home/poco/toolchain/gcc/linux-x86/arm/gcc-linaro-arm-linux-gnueabihf-4.9
-CC := $(MYDIR)/bin/arm-linux-gnueabihf-gcc
-BITS := $(MYDIR)/arm-linux-gnueabihf/libc/usr/include
-CFLAGS := -I $(BITS) --sysroot=$(MYDIR)/arm-linux-gnueabihf/libc \
-          -O2 -D_GNU_SOURCE -Wall -Wundef -Wno-unused-result -Wno-unused-variable \
+CC := gcc
+BITS :=
+CFLAGS := $(BITS) -O2 -D_GNU_SOURCE -Wall -Wundef -Wno-unused-result -Wno-unused-variable \
           -Wno-unused-but-set-variable -Werror-implicit-function-declaration \
           -Wno-error=uninitialized -Wno-strict-aliasing
 LDFLAGS := -lpthread -lrt -lm

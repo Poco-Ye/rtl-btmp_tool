@@ -348,7 +348,7 @@ CFG_PARSE_FW_PATCH:
                 SYSLOGI("HW_CFG_DL_FW_PATCH: index %d", index);
                 if (index & 0x80) {
                     SYSLOGI("bt hw config completed");
-
+                    btmp_log("bt hw config completed");
                     free(UART_hw_cfg_cb.total_buf);
                     bt_vendor_cbacks->dealloc(p_buf);
                     bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_SUCCESS);
@@ -364,6 +364,7 @@ CFG_PARSE_FW_PATCH:
             if (UART_hw_cfg_cb.patch_frag_idx < UART_hw_cfg_cb.patch_frag_cnt) {
                 if (UART_hw_cfg_cb.patch_frag_idx == UART_hw_cfg_cb.patch_frag_cnt - 1) {
                     SYSLOGI("HW_CFG_DL_FW_PATCH: send last fw fragment");
+					btmp_log("HW_CFG_DL_FW_PATCH: send last fw fragment");
                     UART_hw_cfg_cb.patch_frag_idx |= 0x80;
                     UART_hw_cfg_cb.patch_frag_len = UART_hw_cfg_cb.patch_frag_tail;
                 } else {

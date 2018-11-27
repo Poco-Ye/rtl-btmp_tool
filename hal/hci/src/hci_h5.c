@@ -27,6 +27,7 @@
 #define LOG_TAG "hci_h5"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
@@ -46,6 +47,8 @@
 #include "utils.h"
 #include "bt_skbuff.h"
 #include "bt_list.h"
+
+
 
 /******************************************************************************
 **  Constants & Macros
@@ -210,6 +213,19 @@ static volatile uint16_t h5_ready_events = 0;
 #define H5_CFG_DIC_TYPE(cfg)    (((cfg) >> 4) & 0x01)
 #define H5_CFG_VER_NUM(cfg)     (((cfg) >> 5) & 0x07)
 #define H5_CFG_SIZE             1
+
+
+static void btmp_log(const char *fmt_str, ...)
+{
+    va_list ap;
+    char log_buf[1024];
+    va_start(ap, fmt_str);
+    vsnprintf(log_buf, 1024, fmt_str, ap);
+    va_end(ap);
+
+    fprintf(stdout, "%s\n", log_buf);
+}
+
 
 /* Control block for HCISU_H5 */
 typedef struct HCI_H5_CB
@@ -758,9 +774,6 @@ HCI_CONN* ConnHashLookupByHandle(tHCI_H5_CB *h5, uint16_t Handle)
     }
     return NULL;
 }
-
-
-
 
 /**
 * Add "d" into crc scope, caculate the new crc value
@@ -2518,7 +2531,7 @@ static void data_retransfer_thread(void *arg)
                      data_len=16;
 
                     for(i = 0 ; i < data_len; i++)
-                        SYSLOGE("0x%02X", pdata[i]);
+                        LogMsg("0x%02X", pdata[i]);
 
                     rtk_h5.msgq_txseq = (rtk_h5.msgq_txseq - 1) & 0x07;
                     skb_queue_head(rtk_h5.rel, skb);
@@ -3166,6 +3179,7 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
  {
 
     SYSLOGE("h5_timeout_handler");
+	btmp_log("h5_timeout_handler");
     if(rtk_h5.cleanuping)
     {
         SYSLOGE("H5 is cleanuping, EXIT here!");
@@ -3179,6 +3193,7 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
     if (signo == TIMER_H5_SYNC_RETRANS)
     {
         SYSLOGE("Wait H5 Sync Resp timeout, %d times", rtk_h5.sync_retrans_count);
+		btmp_log("Wait H5 Sync Resp timeout, %d times", rtk_h5.sync_retrans_count);
         if(rtk_h5.sync_retrans_count < SYNC_RETRANS_COUNT)
         {
             hci_h5_send_sync_req();
@@ -3193,6 +3208,7 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
     if (signo == TIMER_H5_CONF_RETRANS)
     {
         SYSLOGE("Wait H5 Conf Resp timeout, %d times", rtk_h5.conf_retrans_count);
+		btmp_log("Wait H5 Conf Resp timeout, %d times", rtk_h5.conf_retrans_count);
         if(rtk_h5.conf_retrans_count < CONF_RETRANS_COUNT)
         {
             hci_h5_send_conf_req();
@@ -3205,6 +3221,7 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
     }
     else if (signo == TIMER_H5_WAIT_CT_BAUDRATE_READY) {
         SYSLOGI("No Controller retransfer, baudrate of controller ready");
+		btmp_log("No Controller retransfer, baudrate of controller ready");
         if (rtk_h5.cback_h5sync) {
             rtk_h5.cback_h5sync(rtk_h5.p_rcv_msg);
         } else {
@@ -3220,12 +3237,14 @@ static void h5_timeout_handler(int signo, siginfo_t * info, void *context)
     if (signo == TIMER_H5_HW_INIT_READY)
     {
         LogMsg("TIMER_H5_HW_INIT_READY timeout, kill restart BT");
+		btmp_log("TIMER_H5_HW_INIT_READY timeout, kill restart BT");
         kill(getpid(), SIGKILL);
 
     }
     else
     {
         SYSLOGE("H5 timer rx unspported signo(%d)", signo);
+		btmp_log("H5 timer rx unspported signo(%d)", signo);
     }
 }
 

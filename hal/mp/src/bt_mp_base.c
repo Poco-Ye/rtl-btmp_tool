@@ -240,12 +240,20 @@ bt_default_SendHCICmd(
     SYSLOGI("-->HCI_CMD : opcode:0x%.2x%.2x, len:%d, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,..",
         pWritingBuf[1], pWritingBuf[0], pWritingBuf[2], pWritingBuf[3], pWritingBuf[4], pWritingBuf[5], pWritingBuf[6], pWritingBuf[7], pWritingBuf[8], pWritingBuf[9], pWritingBuf[10]);
 
+    if(Len > 10)
+    {
+        SYSLOGI(" HCI_CMD :0x%.2x,0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x...\n",
+        pWritingBuf[11],pWritingBuf[12],
+        pWritingBuf[13], pWritingBuf[14], pWritingBuf[15], pWritingBuf[15], pWritingBuf[17], pWritingBuf[18], pWritingBuf[19], pWritingBuf[20],
+        pWritingBuf[21], pWritingBuf[22], pWritingBuf[23],pWritingBuf[24],pWritingBuf[25],pWritingBuf[26], pWritingBuf[27], pWritingBuf[28],pWritingBuf[29],pWritingBuf[30]);
+    }
     switch (pBt->InterfaceType)
     {
     case TYPE_USB:
     case TYPE_FILTER_UART:
     case TYPE_ADB_UART:
     case TYPE_ADB_USB:
+    case TYPE_SDIO:
     default:
         if(bt_Send(pBt, PktType, pWritingBuf, Len) != BT_FUNCTION_SUCCESS)
             goto error;
@@ -283,6 +291,7 @@ bt_default_RecvHCIEvent(
     case TYPE_FILTER_UART:
     case TYPE_ADB_USB:
     case TYPE_ADB_UART:
+    case TYPE_SDIO:
     default:
         if (bt_Recv(pBt, PktType, pReadingBuf, pLen) != BT_FUNCTION_SUCCESS)
             goto error;
@@ -295,8 +304,22 @@ bt_default_RecvHCIEvent(
         break;
     }
 
-    SYSLOGI("<--HCI_EVENT : code:0x%.2x, len:%d, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,..",
-        pReadingBuf[0], pReadingBuf[1], pReadingBuf[2], pReadingBuf[3], pReadingBuf[4], pReadingBuf[5], pReadingBuf[6], pReadingBuf[7], pReadingBuf[8]);
+    SYSLOGI("<--HCI_EVENT[00~15] : code:0x%.2x, len:%d, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x ,0x%.2x ,0x%.2x ,0x%.2x ,0x%.2x,0x%.2x,0x%.2x ..\n",
+         pReadingBuf[00], pReadingBuf[1], pReadingBuf[02], pReadingBuf[03], pReadingBuf[04],
+         pReadingBuf[05], pReadingBuf[06], pReadingBuf[07], pReadingBuf[8],pReadingBuf[9],
+         pReadingBuf[10], pReadingBuf[11], pReadingBuf[12], pReadingBuf[13], pReadingBuf[14],
+         pReadingBuf[15]
+        );
+    if (pReadingBuf[01] > 15)
+    {
+         SYSLOGI("<--HCI_EVENT[16~40] : code:0x%.2x, len:0x%x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,  0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,  0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,  0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,  0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x ..\n",
+             pReadingBuf[16], pReadingBuf[17], pReadingBuf[18], pReadingBuf[19], pReadingBuf[20],
+             pReadingBuf[21], pReadingBuf[22], pReadingBuf[23], pReadingBuf[24],pReadingBuf[25],
+             pReadingBuf[26], pReadingBuf[27], pReadingBuf[28], pReadingBuf[29], pReadingBuf[30],
+             pReadingBuf[31], pReadingBuf[32],pReadingBuf[33],pReadingBuf[34],pReadingBuf[35],
+             pReadingBuf[36], pReadingBuf[37],pReadingBuf[38],pReadingBuf[39],pReadingBuf[40]
+             );
+    }
     return BT_FUNCTION_SUCCESS;
 
 error:

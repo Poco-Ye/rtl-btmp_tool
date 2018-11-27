@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     int ret;
 
     btmp_log_std(":::::::::::::::::::::::::::::::::::::::::::::::::");
-    btmp_log_std(":::::::: Bluetooth MP Test Tool Starting 20180829 ::::::::");
+    btmp_log_std(":::::::: Bluetooth MP Test Tool Starting 20181101 ::::::::");
 
     config_permissions();
 

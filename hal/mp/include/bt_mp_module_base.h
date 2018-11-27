@@ -28,8 +28,8 @@ BTModule_UpDataParameter(
         BT_PARAMETER *pParam
         );
 
-
-int BTModule_DownloadPatchCode(
+int
+BTModule_DownloadPatchCode(
         BT_MODULE *pBtModule,
         uint8_t *pPatchcode,
         int patchLength,

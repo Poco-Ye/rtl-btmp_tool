@@ -32,6 +32,10 @@
 #include <signal.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <stdarg.h>
+
+
 
 #include "bt_hci_bdroid.h"
 
@@ -78,6 +82,7 @@
 #define ROM_LMP_8723d               0x8723
 #define ROM_LMP_8821c               0x8821
 #define ROM_LMP_8822c               0x8822
+#define ROM_LMP_8761b               0X8761
 
 
 #define ROM_HCI_NONE                0x0000
@@ -93,6 +98,8 @@
 #define ROM_HCI_8723d               0x000D
 #define ROM_HCI_8821c               0x000C
 #define ROM_HCI_8822c               0x000C
+#define ROM_HCI_8761b               0x000B
+
 
 
 #define STREAM_TO_UINT16(u16, p) {u16 = ((uint16_t)(*(p)) + (((uint16_t)(*((p) + 1))) << 8)); (p) += 2;}
@@ -200,5 +207,8 @@ uint8_t bt_hw_parse_project_id(uint8_t *p_buf);
 struct bt_patch_entry *bt_hw_get_patch_entry(bt_hw_cfg_cb_t *cfg_cb);
 
 void bt_hw_extract_firmware(bt_hw_cfg_cb_t *cfg_cb);
+
+void btmp_log(const char *fmt_str, ...);
+
 
 #endif /* BT_HWCFG_IF_H */

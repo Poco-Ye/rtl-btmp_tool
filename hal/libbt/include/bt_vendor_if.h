@@ -58,6 +58,10 @@
 #define BLUETOOTH_USB_DEVICE_PORT      "/dev/rtk_btusb"
 #endif
 
+#ifndef BLUETOOTH_SDIO_DEVICE_PORT
+#define BLUETOOTH_SDIO_DEVICE_PORT      " "
+#endif
+
 /**** baud rates ****/
 #define USERIAL_BAUD_300        0
 #define USERIAL_BAUD_600        1
